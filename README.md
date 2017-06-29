@@ -9,7 +9,7 @@ If you want to run a local copy of this website, you can use [docker](https://do
 docker run --rm -p 80:80 strm/mirror-vxheaven.org.com
 ```
 
-Then go to [localhost](http://localhost) and be nostalgic !
+Then go to [localhost](http://localhost) and be nostalgic ! Or if you want the the [29a just click here](http://localhost/29a/main.html)
 
 ![print](print.png)
 
