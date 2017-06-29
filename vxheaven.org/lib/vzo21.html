@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Automated reverse engineering: Mistfall engine' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Automated reverse engineering: Mistfall engine, dword, user, engine, offsets, header, flag, program, process, table, label, push, instructions, signature, byte, memory"/>
+<meta name="Description" content="Our efforts are directed to develop such method of executable program modification,  that  finding  changes will require maximal amount of time. Modification  means  addition of the viral code to some specified program, given  in  the  PE  format.  It is obvious, that main viral body should be encrypted,   and   metamorphic   (generated)  virus  decryptor  should  be integrated with program's code."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a64ed3fee47fbe07d318ef4bba7ac526dd7085ae-1498755610-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo21.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Automated reverse engineering: Mistfall engine</h1><p><a href="/lib/?lang=en&amp;author=Z0mbie"> Z0mbie</a><br/> <em><a href="/vx.php?fid=292#f292">Matrix Zine [3]</a></em><br/> <em>April 2001</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo21.html';</script><div class="ci"><a href="/lib/?ci=vzo21">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=ME#vzo21">Back to index</a>] [<a href="/lib/vzo21.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Theory</a></li>
+<li><a href="#p2">Disassembling problems</a></li>
+<li><a href="#p3">Implementation</a></li>
+<li><a href="#p4">The Engine</a></li>
+<li><a href="#p5">Usage</a></li>
+<li><a href="#p6">Special features</a></li>
+<li><a href="#p7">Signature library</a></li>
+<li><a href="#p8">Engine interface</a></li>
+<li><a href="#p9">Examples</a></li>
+</ul>
+<p><em>xlated from russian in 2001</em></p>
+<p>Our efforts are directed to develop such method of executable program modification, that finding changes will require maximal amount of time. Modification means addition of the viral code to some specified program, given in the PE format. It is obvious, that main viral body should be encrypted, and metamorphic (generated) virus decryptor should be integrated with program's code.</p>
+<p>Hence, our task is divided into 3 parts, or 3 global questions: <em>WHAT?</em>, <em>WHERE?</em> and <em>HOW?</em></p>
+<ul>
+<li><em>WHAT?</em> - is a question about instructions, those will be inserted into modifying program. It is explained in the article about metamorphism and shown in the CODEGEN metamorphic engine.</li>
+<li><em>WHERE?</em> - is a question of finding places in the modifying program, our instructions should be inserted into. This is a simple task; engine's caller will resolve it in the different ways.</li>
+<li>This article shows <em>HOW</em> to insert our own instruction between two arbitrary instructions of the modifying program. In other words, how to decompile, modify and compile the whole program.</li>
+</ul>
+<a name="p1"></a><h2>Theory</h2>
+<p>So, task is to insert own instructions between PE file's ones. But, because of instructions are linked between each other, changing instructions involves change of links. But change of links involves change of other instructions, and so on, until significant part of code will be changed.</p>
+<p>For example: when inserting some instruction into block of code, offsets of all the instructions coming after insertion are increased. This means that mostly all offsets - both relative and absolute, should be fixed. While fixing relative offsets, some jxx can grow, that means that all this shit should be repeated from start.</p>
+<p>As you can see, there are two kinds of offsets: absolute (offsets itself) and relative (jmp/call arguments). And we should find all these offsets. Absolute offsets may be found by means of analyzing PE structure, including fixup table. Finding relative offsets requires partial disassembly.</p>
+<p>Hence, we must disassemble file into some easy-modifiable substance, change this substance, and assemble file back.</p>
+<p>Algorithm will be formalized as an universal engine, working with PE files.</p>
+<p>So, task is divided into 5 general steps:</p>
+<ol>
+<li>Load PE file into virtual addresses; allocate flag table (DWORD for each byte), and initialize it with special PE structure - related bits; in other words, perform initial PE structure analysis.</li>
+<li>Disassemble file (instruction by instruction), at the same time filling flag table with new information about instruction offsets. At this step we can not make a mistake, i.e. to recognize code as data or vise versa, because such fault is fatal; so, dual situations should be excluded, and some files may not be processed at all.</li>
+<li>Convert all known information into list of: instructions, datablocks, labels and pointers. I.e. to make our information a bit more high-level, a bit nearer to source. Such list is an easy-modifiable substance we was speaking about; it is generated because of easy manipulation with its elements.</li>
+<li>Call &lt;user's mutator> (external relative to engine), which will modify instruction list; for example insert additional instructions or remove existing ones.</li>
+<li>Assemble file back: recalculate all offsets; fix PE structure; rebuild fixup table and so on.</li>
+</ol>
+<a name="p2"></a><h2>Disassembling problems</h2>
+<p>Main problem, of course, is disassembling. We have no such resources, as IDA, for example, - neither memory, neither time, nor signatures; moreover, our virus is limited to some kilobytes.</p>
+<p>And main disassembling problem is duality of some labels: they can precede both code and data. I.e. if we have some data fixup that points to some label, and there is no code instruction pointing to the same label, then we can not correctly decide if this label precedes code or data.</p>
+<p>Such misrecognizing causes the following: code, interpreted as data, will not be fixed, and will fail program when executed, commonly on such instruction as jmp, jxx or call. Vise versa, incorrectly fixed data (i.e. data interpreted as code) will with high probability cause fault too.</p>
+<p>This means that we must always correctly disitinguish code and data. Some library functions may be found by singatures, but we can not insert signature base into virus; also, jmptable-analysis can help, but only partially.</p>
+<p>We can work with only special easy-decompileable files, containing only code in the CODE section, but such files are real rarity.</p>
+<p>So, we will a bit reduce set of processing files (exclude packed ones and etc.), improve our disassembler as possible, and hope for luck.</p>
+<a name="p3"></a><h2>Implementation</h2>
+<p>Really, there are much more little steps we should perform; and each step have an influence to the result. Here is a complete list of steps required for PE file reversing:</p>
+<ul>
+<li>check if given PE file is valid; if fixup table is present &amp; etc.</li>
+<li>allocate memory for virtual program image and for flag table</li>
+<li>load into virtual addresses:
+<ol>
+<li>dos stub &amp; pe header</li>
+<li>sections</li>
+</ol></li>
+<li>analyze PE header; process pointers; mark phsyical/virtual start/end of each section &amp; etc.</li>
+<li>process imports</li>
+<li>process exports</li>
+<li>process fixups</li>
+<li>process resources</li>
+<li>search for signatures (such as push ebp/mov ebp,esp) and mark 'em as for-next-analysis</li>
+<li>mark entry point</li>
+<li>disassemble file, instruction by instruction. algorithm is described in the article about permutation, but there are some differences: when there are no more bytes marked as for-next-analysis, we must search for labels-pointed-by-data-fixups, and check if they precedes code instructions. (see below)</li>
+<li>build list of opcodes, labels, pointers &amp; etc. note, that such list will contain zero-length pointers (labels), i.e. transfer is performed to higher level of abstraction, nearer to source. After converting linear arrays into list, linear arrays (memory &amp; flag table) may be deallocated.</li>
+<li>modify list; while debugging, i was inserting NOPs between instructions.</li>
+<li>recalculate new virtual/physical addresses for each list entry</li>
+<li>recalculate fixup table</li>
+<li>recalculate pointers (i.e. rva's, fixups &amp; relative aguments of the conditional jmps); if some jmps are grown, repeat from recalculating virtual addresses. Note, that here possible some iterations, it is normal.</li>
+<li>assemble list (collect all stuff into single file)</li>
+<li>write file to disk</li>
+<li>copy overlay, if present</li>
+<li>recalculate checksum, if non-zero</li>
+</ul>
+<p>Phrases, such as "analyzing PE header" or "process imports" means that we analyzing these structures and marking labels, pointers and other special objects in the flag table with special bits. For example byte at the pe_header+28h (28h=EntryPointRva) will be marked as FLAG_DWORD | FLAG_RVA, and byte it points to will be marked as FLAG_LABEL | FLAG_CREF.</p>
+<p>Which special objects will be present in the instruction list?</p>
+<ol>
+<li>Label, i.e. zero-length substance pointed by RVAs and FIXUPs.</li>
+<li>RVA, or DWORD pointing to some label.</li>
+<li>FIXUP, or DWORD, same as RVA, but increased by IMAGEBASE, requires to be inserted into fixup table on the final steps.</li>
+<li>so-called DELTA, or difference between virtual addresses of two labels.</li>
+<li>instruction</li>
+<li>datablock</li>
+</ol>
+<p>Now, about distinguishing code and data when only existing reference is data-reference. Algorithm: take instruction by instruction; check if it is not 00 00, FF FF, F4 (hlt), CD (int), and so on -- i.e. fail if such instruction is never present in the standard PE file. Also fail, if one of the middle bytes of the instruction is marked as label, data, or other special object. Also, if instruction is jmp,call,jxx,jecxz and so on, then it should not point into the middle of other instruction or to data. Analysis is repeated, until marked-as-code instruction, RET or JMP is found.</p>
+<p>But, there are another kind of dual situation. You can think that such object as label can not exists in the middle of some instruction, generated by the HLL compiler. But it can. Lets examine typical situation:</p>
+<pre class="source">
+	<strong>AVPBASE.DLL:</strong>
+	100050D3 83E904		sub	ecx, 4
+	100050D6 720C		jb	100050E4
+	100050D8 83E003		and	eax, 3
+	100050DB 03C8		add	ecx,eax
+	100050DD FF2485F0500010	jmp	dword ptr [100050F0+eax*4]  (1)
+	100050E4 FF248DE8510010	jmp	dword ptr [100051E8+ecx*4]
+	100050EB 90		nop
+	100050EC FF248D6C510010	jmp	dword ptr [1000516C+ecx*4]  (2)
+	100050F3 90		nop
+	100050F4 00510010	dd	10005100
+	100050F8 2C510010	dd	1000512C
+</pre>
+<p>As you can see, 100050F0-address, that is XREF-ed by (1), really is part of the instruction (2). Its not so hard to understand why it is so. As a result, we can not decide, if (2) is code or data. I.e. it is impossible to determine if (10050F0 == 100050F4 - 4) or (10050F0 == 100050EC + 4). So, pointer at (1) can not be fixed and file can not be processed.</p>
+<p>Or, another one example:</p>
+<pre class="source">
+	<strong>FAR.EXE:</strong>
+	004474D8 B8E1C24200	mov	eax,0042C2E1		; ==42C350-6Fh ; (1)
+	004474DD 6A00		push	00
+	004474DF 6800000100	push	00010000
+	004474E4 83C06F		add	eax, 6F			; ==111
+	004474E7 50		push	eax
+	004474E8 E8AF180100	call	00458D9C
+	...
+	0042C2DB E8B0450200	call	00450890
+	0042C2E0 83C408		add	esp, 08			; (2)
+	0042C2E3 8D9500FFFFFF	lea	edx,[ebp][0FFFFFF00]
+	...
+	0042C350 55		push	ebp
+	0042C351 8BEC		mov	ebp, esp
+	0042C353 833D5054460003	cmp	d,[000465450], 03
+</pre>
+<p>And, in addition, another bad thing: parts of 16-bit code, inserted into 32-bit applications, such as antiviruses, formatters and so on.</p>
+<a name="p4"></a><h2>The Engine</h2>
+<p>Though, it works. Engine is called MISTFALL, there is G.Martin's story named "With morning comes Mistfall".</p>
+<p>Engine is written in Borland C++, but without classes or other shit. Main engine() subroutine with fucking lots of parameters comes first, followed by some internal additional subroutines. All this stuff is called kernel, and it is located in the engine.cpp &amp; .hpp; code and constants correspondingly. Kernel calls so-called user's mutator (mutate.cpp), which must be written by engine's user. Mutator works only with instruction list. List entries describes labels, opcodes, data blocks and so on. Moreover, all the engine interface technology is taken from RPME engine. The only difference is that RPME works with blocks of viral code, and MISTFALL works with PE files.</p>
+<p>As a result, simplest file infection is the following:</p>
+<ol>
+<li>Find any two non-jmp instructions; insert JMP after first instruction to the second one; insert encrypted viral body after JMP.</li>
+<li>The same for decryptor.</li>
+<li>The same for commands calling the decryptor.</li>
+</ol>
+<p>This was only one of lots of possible variants; the more such methods we will use, the harder it will be to analyze the virus.</p>
+<a name="p5"></a><h2>Usage</h2>
+<p>Engine uses lots of memory. It can fail on incorrect file; and on normal one too. Memory allocation, same as in RPME, is provided by engine's caller. Before calling engine, you must allocate about 32 MB of memory, and write own malloc() subroutine which will provide to engine pointers to little parts of this big block. It is just kind of own heap. Engine's allocation strategy is specific: it will only allocate memory and never deallocate. But, its ok, 'coz the same big memory block will be used for each file. Really, engine uses (17*SizeOfImage) bytes of memory for linear arrays and 40 bytes of memory for each list entry. Engine's code is permutable, i.e. it satisfies most of demands described in the "Demands to engines" article. Engine can work in ring-0, but, because of lots of required memory &amp; time, dont call it there. Time, used by engine is unpredictable; minimal time for processing one file is some minutes in realtime priority.</p>
+<p>Obvious, that such engine cant be invoked on system events, such as openfile. You should work with file queue, passing file by file to engine in the individual thread or process.</p>
+<a name="p6"></a><h2>Special features</h2>
+<p>Engine works only with standard files. I.e. all the section names must be known: such as .text, .data and so on. Otherwise file is packed or whatever, and will not be processed.</p>
+<p>For all the standard files it is accepted that code exists only in the first section; this allows us to increase disassembly quality.</p>
+<a name="p7"></a><h2>Signature library</h2>
+<p>This is another external subroutine, performing 2 tasks:</p>
+<ol>
+<li>on start: search for known codeblocks, and</li>
+<li>add existing codeblocks into library</li>
+</ol>
+<p>I.e. before disassembling signature manager will mark known codeblocks as CODE, for-next-analysis, and, on exit, it will update signature library with new information.</p>
+<p>When applied to viruses, signature library will be created per each local machine, performing kind of self-education, with each new file.</p>
+<p>Signature here means some constant code bytes, not containing fixups and relative offsets.</p>
+<a name="p8"></a><h2>Engine interface</h2>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// return: 0==success, non-zero error codes listed in ENGINE.HPP</span><br/>
+<span style="color: #993333;">int</span> __cdecl engine<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_arg<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// user's parameter (whatever)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE<span style="color: #339933;">*</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; buf<span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// PE file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inbufsize<span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// initial size of file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; outbufsize<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ptr to resulting size of file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; maxbufsize<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// maximal allocated buf size</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> __cdecl user_disasm<span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// length-disassembler</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> __cdecl user_malloc<span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// memory allocator</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD __cdecl user_random<span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// randomer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> __cdecl user_mutate<span style="color: black;">&#40;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mutator</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_arg<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// (described below)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PE_HEADER<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; pe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PE_OBJENTRY<span style="color: #339933;">*</span>&nbsp; &nbsp; oe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; root<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> __cdecl <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> __cdecl <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD __cdecl <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> __cdecl user_sigman<span style="color: black;">&#40;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// signature manager or NULL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_arg<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_HEADER<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; pe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_OBJENTRY<span style="color: #339933;">*</span>&nbsp; &nbsp; oe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE<span style="color: #339933;">*</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; memb<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; flag<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; action<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// 0/1</span><br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">//engine</span><br/>
+<br/>
+<span style="color: #993333;">int</span> __cdecl mutate<span style="color: black;">&#40;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//mutator</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_arg<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// user's parameter</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_HEADER<span style="color: #339933;">*</span> &nbsp;&nbsp; &nbsp; pe<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// pe header</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_OBJENTRY<span style="color: #339933;">*</span>&nbsp; &nbsp; oe<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// pe objtable</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; root<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// list root</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> __cdecl user_disasm<span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> __cdecl user_malloc<span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD __cdecl user_random<span style="color: black;">&#40;</span>DWORD user_arg<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">//mutate</span><br/>
+<br/>
+<span style="color: #993333;">int</span> __cdecl sigman<span style="color: black;">&#40;</span> <span style="color: black; font-style: italic;">//signature manager</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; user_arg<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// user parameter</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_HEADER<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; pe<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// pe header</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PE_OBJENTRY<span style="color: #339933;">*</span>&nbsp; &nbsp; oe<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// pe objtable</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE<span style="color: #339933;">*</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; memb<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// virtual memory block to work with</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD<span style="color: #339933;">*</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; flag<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// flag table</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; action&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// 0==before(mark), 1==after(update)</span><br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">//sigman</span><br/>
+&nbsp;</div>
+<p>This shit shown above... of course it doesnt means, that you should program in C++ to use engine. Engine may be called both from asm &amp; cpp.</p>
+<a name="p9"></a><h2>Examples</h2>
+<p>Mistfall engine was used in the Z-10 virus, all sources are published in the <a href="/vx.php?id=zt03">TZ #1 e-zine</a>.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#vzo21">Back to index</a>] [<a href="/lib/vzo21.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo21">de</a><a href="/lib/index.php?lang=en&amp;id=vzo21">en</a><a href="/lib/index.php?lang=es&amp;id=vzo21">es</a><a href="/lib/index.php?lang=it&amp;id=vzo21">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo21">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo21">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo21">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo21">ua</a></div>
+</body>
+</html>

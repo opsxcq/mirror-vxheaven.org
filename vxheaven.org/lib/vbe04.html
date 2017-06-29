@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> berniee 'Explaining the Usages of Pipes in Virus coding' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="berniee"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, berniee,Explaining the Usages of Pipes in Virus coding, security, stinfo, offset, found, startf, article, invoke, buffer, fill, read, change, handle, function, createpipe, console"/>
+<meta name="Description" content="So away from that article which I lost, I decided After tiny googling and having quick peek at M$ sdk, I found pretty beautiful explanation,especially from Iczelion's. Now how could we create pipes and implementt it in viruses. thats what I am going to explain in this article by describing how to create pipes (Anonymous types only, see next)."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1a2adc79ea08074995b6bf173a61ba3ecb1c803a-1498756229-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbe04.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Explaining the Usages of Pipes in Virus coding</h1><p><a href="/lib/?lang=en&amp;author=berniee"> berniee</a><br/> <em><a href="/vx.php?fid=1512#f1512">Ready Rangers Liberation Front [7]</a></em><br/> <em>July 2006</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbe04.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vbe04">Back to index</a>] [<a href="/lib/vbe04.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">Introduction</a></li>
+<li><a href="#c2">What is pipes>?</a></li>
+<li><a href="#c3">How to create a pipe?</a></li>
+<li><a href="#c4">how to get the pipe working?</a></li>
+<li><a href="#c5">Retrieving What?</a></li>
+<li><a href="#c6">Implementation</a></li>
+<li><a href="#c7">Final Words</a></li>
+</ul>
+<h2><a name="c1"></a>Introduction</h2>
+<p>I am bored, listing to avril lavign instead of Oomph!, then I remembered an article I dunno where it was; but it was about how to connect your process to a console process, and read the output of it by your process,this method called piping; I heard it is one of microsoft's ripped off ideas from linux.</p>
+<p>So away from that article which I lost, I decided After tiny googling and having quick peek at M$ sdk, I found pretty beautiful explanation,especially from Iczelion's. Now how could we create pipes and implementt it in viruses. thats what I am going to explain in this article by describing how to create pipes (Anonymous types only, see next).</p>
+<h2><a name="c2"></a>What is pipes>?</h2>
+<p>As Iczelion in his tutorial 21 said: "Pipe is a communication conduit or pathway with two ends. You can use pipe to exchange the data between two different processes, or within the same process. It's like a walkie-talkie. You give the other party one set and he can use it to communicate with you." Beautiful Quote :), and by this we give each of the both processes a walkie-talkie. Pipes is categorized into Anonymous and Named pipes;anonymous from the name mean you create the pipe but you won't know the name inorder to handle it, while named pipes you will need to know their names to get them work(duh!)..</p>
+<h2><a name="c3"></a>How to create a pipe?</h2>
+<p>let's see the following function</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">BOOL CreatePipe<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PHANDLE hReadPipe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PHANDLE hWritePipe<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LPSECURITY_ATTRIBUTES lpPipeAttributes<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD nSize<br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>so the CreatePipe api takes four parameters;note that this function creates anonymous pipes; the parameters will be explained as follows:</p>
+<ol>
+<li>hReadPipe this will be pointer to handle (DWORD) of the pipe read end.</li>
+<li>hWritePipe this will be the pointer to the handle of the pipe write end
+<p><strong>pipes have read and write ends to communicate</strong></p></li>
+<li>lpPipeAttributes pointer to security descriptor structure that we should fill, it is as follows:
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> _SECURITY_ATTRIBUTES <br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD nLength<span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LPVOID lpSecurityDescriptor<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BOOL bInheritHandle<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> SECURITY_ATTRIBUTES<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PSECURITY_ATTRIBUTES<span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>where nLenght will point to the security descriptor struct size, lpSecurityDescriptor will be left zeroed :), and the bInheritableHandle should be true so as the pipe will be inheritable.</p></li>
+<li>nSize is "Size of the buffer for the pipe, in bytes. The size is only a suggestion; the system uses the value to calculate an appropriate buffering mechanism. If this parameter is zero, the system uses the default buffer size taken from m$ SDK.</li>
+</ol>
+<p>now lets put all of the above in a code</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;<span style="color: #ff0000;">.586</span><br/>
+<span style="color: #339933;">.</span>model <span style="color: #0000ff; font-weight: bold;">flat</span><span style="color: #339933;">,</span>stdcall<br/>
+option casemap<span style="color: #339933;">:</span>none<br/>
+<br/>
+include \masm32\include\windows<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+include \masm32\include\kernel32<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+include \masm32\include\user32<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+<br/>
+includelib \masm32\lib\kernel32<span style="color: #339933;">.</span>lib<br/>
+includelib \masm32\lib\user32<span style="color: #339933;">.</span>lib<br/>
+<br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;piping is fun!!&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+run_ <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;cmd.exe /c dir&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> <span style="color: black; font-style: italic;">;our test command</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span>?<br/>
+pipe_read <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+pipe_write <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+<br/>
+bwr <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+<br/>
+security_attrib SECURITY_ATTRIBUTES&lt;?&gt;<br/>
+stinfo STARTUPINFO &lt;?&gt;<br/>
+pinfo PROCESS_INFORMATION&lt;?&gt;<br/>
+buffer <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">1024</span> dup<span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> security_attrib<span style="color: #339933;">.</span>lpSecurityDescriptor<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> security_attrib<span style="color: #339933;">.</span>bInheritHandle<span style="color: #339933;">,</span>TRUE<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> security_attrib<span style="color: #339933;">.</span>nLength<span style="color: #339933;">,</span>sizeof SECURITY_ATTRIBUTES<br/>
+<br/>
+invoke CreatePipe<span style="color: #339933;">,</span>offset pipe_read<span style="color: #339933;">,</span>offset pipe_write<span style="color: #339933;">,</span>offset security_attrib<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> <br/>
+<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">jz</span> exit<br/>
+&nbsp;</div>
+<h2><a name="c4"></a>how to get the pipe working?</h2>
+<p>till now we created a pipe with specific securtiy attributes, then what next... here is the next, we will create child process and inforce it to send its output through the pipe_read handle, so going to create a process first, we should fill STARTUPINFO structure, we should call GetStartupInfo to fill our strucure first inorder to make things work in both win9x and NT as Iczelion says.</p>
+<p>Then we change certain values in the STARTUPINFO struct which are: hStdOutput and change it to our pipe_write handle, this where we redirect the child process to pipe write end instead of its default StdOutput, also set hStdError as we did to hStdOutPut, and dwFlags to "STARTF_USESHOWWINDOW , STARTF_USESTDHANDLES" indicating that hStdOutput, hStdError and wShowWindow members are valid and must be used; lastly we set wShowWindow component to SW_HIDE. then we create the child process; followed by closing the handle of the pipe_write "If we don't close the write handle from our end, there will be two write ends" Iczellions'</p>
+<p>Now see the following code:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #00007f; font-weight: bold;">mov</span> stinfo<span style="color: #339933;">.</span>cb<span style="color: #339933;">,</span>sizeof STARTUPINFO<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> pipe_write<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> stinfo<span style="color: #339933;">.</span>hStdOutput<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> <br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> stinfo<span style="color: #339933;">.</span>hStdError<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> <br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> stinfo<span style="color: #339933;">.</span>dwFlags<span style="color: #339933;">,</span> STARTF_USESHOWWINDOW<span style="color: #339933;">+</span> STARTF_USESTDHANDLES <br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> stinfo<span style="color: #339933;">.</span>wShowWindow<span style="color: #339933;">,</span>SW_HIDE <br/>
+<br/>
+invoke CreateProcess<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span>offset run_<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span>TRUE<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span>offset stinfo<span style="color: #339933;">,</span>offset pinfo<br/>
+<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">jz</span> exit<br/>
+invoke CloseHandle<span style="color: #339933;">,</span>pipe_write<br/>
+&nbsp;</div>
+<h2><a name="c5"></a>Retrieving What?</h2>
+<p>Now, we will enter into an infinite loop trying to read from the read end of our created file which was pipe_read [since we launched our child process, it will send us the data through the pipe write end] in this loop we use ReadFile function inorder to read data output from the child process we have created. the code:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">loop_<span style="color: #339933;">:</span><br/>
+invoke ReadFile<span style="color: #339933;">,</span>pipe_read<span style="color: #339933;">,</span>offset buffer<span style="color: #339933;">,</span><span style="color: #ff0000;">1024</span><span style="color: #339933;">,</span>offset bwr<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">jz</span> found_<br/>
+<span style="color: #00007f; font-weight: bold;">jmp</span> loop_<br/>
+found_<span style="color: #339933;">:</span><br/>
+invoke MessageBox<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span>offset buffer<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+exit<span style="color: #339933;">:</span><br/>
+invoke ExitProcess<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+end <span style="color: #0000ff; font-weight: bold;">start</span><br/>
+&nbsp;</div>
+<h2><a name="c6"></a>Implementation</h2>
+<p>I found this quite attractive to me when I wanted to look for some help; that could be taken from some windows console appilcation.. for e.g.</p>
+<ol>
+<li>Imagine you want to get Mail Exchanger servers list from DNS; you can change the above run_ variable to "nslookup -type=mx google.com" and here you will have the list, of course after some string fixation,inorder to get it ptoperly.</li>
+<li>Imagine you want to use batch files but without its annoying console; and you want them to work by sending data to your running process, you also do that make you own batch and run it the same way above</li>
+</ol>
+<p>and the examples continue.. there are alot of implementaions to the piping, just use your brain.</p>
+<h2><a name="c7"></a>Final Words</h2>
+<p>I hope the reader got the idea of this subject;and I would like to thank Iczelion for his magnificant work in win32asm ;and thank my friend mh for downloading m$ SDK for me[dude your hacked wireless is better than my paid one :( ] and yes I hope you have enjoyed reading this article/tutorial/crap...and for any thoughts e-mail me at: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="482e29232d2c2521262c2d2c08322d313b2926662d3e2d3a317966262d3c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbe04">de</a><a href="/lib/index.php?lang=en&amp;id=vbe04">en</a><a href="/lib/index.php?lang=es&amp;id=vbe04">es</a><a href="/lib/index.php?lang=it&amp;id=vbe04">it</a><a href="/lib/index.php?lang=fr&amp;id=vbe04">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbe04">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbe04">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbe04">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'О пермутации' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,О пермутации, списка, вируса, assembled, dword, команд, инструкции, сложнее, skip, мусор, дизассемблер, break, opcode, является, flags, обработки"/>
+<meta name="Description" content="Почему я взялся за написание этой статьи? Потому, что разобрался с пермутацией и на этом пути узнал много нового, а такие знания представляют наибольшую ценность, и, следовательно, достойны опубликования. Сегодня пермутация распространена скорее в виде идеи, чем на практике. Я за то, чтобы положить начало широкому практическому применению. Но обо всем по порядку. Возможности программиста ограничиваются в первую очередь его воображением, и только потом умением и опытом. В какой-то момент вы подумаете - это все теория, фантазии. Поэтому хочу предупредить такие действия, сказав, что все здесь описанное, реализовано мной на практике, и это реально существует и работает."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"d6309d50cbfe74e463d2e04909d6e23d0e674b88-1498757871-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo57.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>О пермутации</h1><p><a href="/lib/?lang=ru&amp;author=Z0mbie"> Z0mbie</a><br/> <em><a href="/vx.php?fid=454#f454">Top Device Online [5]</a></em><br/> <em>Май 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo57.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=VT#vzo57">Вернуться к списку</a>] [<a href="/lib/vzo57.html#disqus_thread">Комментарии</a>]<br/> 
+<p><em>версия 1.01</em></p>
+<h2>Содержание</h2>
+<ul>
+<li><a href="#p1">Вступление</a></li>
+<li><a href="#p2">Термины</a>
+<ol type="a">
+<li><a href="#p2a">пермутация</a></li>
+<li><a href="#p2b">метаморфизм</a></li>
+</ol></li>
+<li><a href="#p3">Плюсы и минусы пермутации</a></li>
+<li><a href="#p4">Ограничения на исходный код</a></li>
+<li><a href="#p5">Хранение данных внутри кода</a></li>
+<li><a href="#p6">Внешние вызовы</a></li>
+<li><a href="#p7">Дизассемблирование инструкций</a></li>
+<li><a href="#p8">Список инструкций</a></li>
+<li><a href="#p9">Формат записи списка</a></li>
+<li><a href="#p10">Этапы пермутации</a></li>
+<li><a href="#p11">Дизассемблирование</a></li>
+<li><a href="#p12">Подготовка списка к мутации</a></li>
+<li><a href="#p13">Ассемблирование списка</a></li>
+<li><a href="#p14">Линковка</a></li>
+<li><a href="#p15">Дополнение алгоритма (plugin-ы) и внешняя мутация</a></li>
+<li><a href="#p16">Изменение списка (мутация)</a></li>
+<li><a href="#p17">Замена</a></li>
+<li><a href="#p18">Перестановка</a></li>
+<li><a href="#p19">Мусор</a></li>
+<li><a href="#p20">О результатах</a></li>
+</ul>
+<h2><a name="p1"></a>Вступление</h2>
+<p>Почему я взялся за написание этой статьи? Потому, что разобрался с пермутацией и на этом пути узнал много нового, а такие знания представляют наибольшую ценность, и, следовательно, достойны опубликования. Сегодня пермутация распространена скорее в виде идеи, чем на практике. Я за то, чтобы положить начало широкому практическому применению. Но обо всем по порядку. Возможности программиста ограничиваются в первую очередь его воображением, и только потом умением и опытом. В какой-то момент вы подумаете - это все теория, фантазии. Поэтому хочу предупредить такие действия, сказав, что все здесь описанное, реализовано мной на практике, и это реально существует и работает.</p>
+<p>Нас, вирмэйкеров, объединяет процесс. Цель у каждого своя. Кто-то получает удовольствие, кто-то знания, кто-то -- и то и другое. Удовольствия я оставлю себе, а знания предлагаю вам.</p>
+<h2><a name="p2"></a>Термины</h2>
+<h3><a name="p2a"></a>Пермутация</h3>
+<p>Слово "пермутация" пришло хрен знает откуда. В словаре написано, что это: перестановка, подстановка, размещение, перемена, изменение, перемещение и т.п. Мы будем понимать под пермутацией процесс изменения вируса на уровне ассемблерных инструкций. Еще более детально, пермутация -- это создание новой копии вируса состоящей из перемещенных в другое место и, возможно, измененных инструкций, используя в качестве источника имеющуюся копию.</p>
+<h3><a name="p2b"></a>Метаморфизм (генерация кода)</h3>
+<p>Существует еще одна интересная фича, не имеющая к пермутации никакого отношения. Заключается эта фича вот в чем: вирус кодируется некоторым хитрым образом, а в процессе создания каждой новой полиморфной копии вируса на основе этих закодированных данных и генерируется ассемблерный код. Так поступают вирусы TMC, Lexotan и теперь уже порядком других появилось. Прообразом таких действий мне представляется генератор полиморфных расшифровщиков, где расшифровщик вырос до размеров вируса.</p>
+<h2><a name="p3"></a>Плюсы и минусы пермутации</h2>
+<p>Минус тут один -- это сложно. Плюсы в том, что пермутирующий вирус сложнее дизассемблировать и изучать, и, следовательно при возникновении эпидемии вирус имеет больше времени на распространение. К этому вопросу стоит отнестись достаточно серьезно хотя бы потому, что если началось нечто вроде "цепной реакции" распространения вируса, и за каждый следующий час число копий значительно увеличивается, то любая задержка в написании антивирусного кода играет значительную роль.</p>
+<p>Кроме того, с пермутацией вносятся сложности в процесс детектирования вируса в файле, замедление которого весьма нас порадует.</p>
+<h2><a name="p4"></a>Ограничения на исходный код</h2>
+<p>Поскольку пермутацию мы будем применять к своему собственному коду, то мы наложим на него некоторые ограничения, что позволит сильно упростить алгоритм движка и сделает возможными разные интересные вещи.</p>
+<p>Здесь уже должно быть ясно, что внутри буфера с исходным кодом (т.е. с вирусом) не должно быть никаких данных -- они были бы просто потеряны после генерации нового буфера. Таким образом мы избавляемся от необходимости анализа данных. Взамен этого неиспользуемое пространство в выходном буфере может быть заполнено, например, случайными значениями.</p>
+<p>Все команды условного перехода должны идти непосредственно после команд, изменяющих соответствующие флаги -- это позволит нам менять местами воздействующие на флаги инструкции.</p>
+<h2><a name="p5"></a>Хранение данных внутри кода</h2>
+<p>Рассмотрим вопрос о хранении данных внутри пермутирующего вируса. Учитывая то, что измененные инструкции могут быть другой длины, вирус есть буфер в котором содержится только код; этот буфер будет перестраиваться с каждой новой копией вируса.</p>
+<p>В таком случае возможны два варианта:</p>
+<ul>
+<li>данные содержатся отдельно от кода и шифруются переменным ключом</li>
+<li>данные генерируются кодом</li>
+</ul>
+<p>Мне ближе всего второй вариант. Он обладает следующими свойствами: в вирусе присутствует только буфер с кодом; данные разбиты на части, каждая из которых генерируется по мере необходимости. Недостаток тут такой: код, генерирующий данные, занимает чуть больше места, чем сами данные.</p>
+<p>Решением этой проблемы являются макросы, генерирующие код из текстовых строк.</p>
+<pre class="source">
+lea	edi, temparea				x_push	ecx, C:\WINDOWS\*.EXE~
+x_stosd C:\WINDOWS\*.EXE~			nop
+						x_pop
+</pre>
+<p>Сгенеренный этими макросами код может выглядеть, например, так:</p>
+<pre class="source">
+BF00200010	mov 	edi,0xxxxxxxx		33C9		xor	ecx,ecx
+33C0		xor 	eax,eax			81E900868687	sub	ecx,087868600
+2DBDC5A3A8	sub 	eax,0A8A3C5BD		51		push	ecx
+AB		stosd				81F12E3F213D	xor	ecx,03D213F2E
+350A741818	xor	eax,01818740A		51		push	ecx
+AB		stosd				81C1290E04E5	add	ecx,0E5040E29
+050E0518DB	add	eax,0DB18050E		51		push	ecx
+AB		stosd				81F11E1D1865	xor	ecx,065181D1E
+357916046F	xor	eax,06F041679		51		push	ecx
+AB		stosd				81E90614E8F7	sub	ecx,0F7E81406
+2D2ECD0111	sub	eax,01101CD2E		51		push	ecx
+AB		stosd				90		nop
+						8D642414	lea	esp,[esp+00014]
+</pre>
+<h2><a name="p6"></a>Внешние вызовы</h2>
+<p>На вход пермутирующему движку подается исходный буфер с кодом. Метки, на которые из этого буфера идет передача управления командами типа JMP/CALL/JCC (с относительным к EIP аргументом), могут быть как внутри так и вне буфера. Последние мы будем называть внешними метками. От пермутирующего движка будет требоваться сохранить работоспособными все внешние вызовы.</p>
+<h2><a name="p7"></a>Дизассемблирование инструкций</h2>
+<p>Практика показала, что если не идеально, то близко к совершенству вынесение дизассемблирования инструкций в отдельную задачу. При этом дизассемблирование имеется в виду не полное, а только на предмет длины инструкции. Поэтому мы отдельно пишем и отлаживаем дизассемблер длин, и применяем где только придется, включая и нашу задачу.</p>
+<p>Дизассемблер длин может быть, конечно, расчитан только на те инструкции, которые используются в конкретном вирусе. Это упрощает дизассемблер в разы, лишая его универсальности. То есть такой дизассемблер может быть применен только к одному вирусу и в следующий раз придется его переделывать. Написав несколько штук таких весьма похожих подпрограмм, я остановился на универсальном дизассемблере длин LDE32, чего и вам желаю.</p>
+<p>Итак, в дальнейшем мы знаем длину любой команды, и исходя из этого можем разбить весь вирус на минимальные его составляющие - инструкции.</p>
+<h2><a name="p8"></a>Список инструкций</h2>
+<p>Для работы с инструкциями существует несколько препятствий. Например то, что инструкции переменной длины -- это заставляет встраивать в пермутирующий движок дизассемблер длин. (в вирусах Ply этот вопрос решен тем, что все команды дополнены до одинаковой длины NOP-ами). Также нам мешает то, что инструкции могут быть связаны командами типа JMP и CALL -- это не позволяет просто так убрать какую-нибудь инструкцию из программы или вставить в программу лишнюю инструкцию. Значит требуется преобразование ассемблерного кода в некоторую промежуточную сущность, кояя позволит легко оперировать инструкциями. Таким объектом является список инструкций. Можно обойтись и без списка инструкций. Так я поступил в ZCME. Движок работал за один проход, в котором одновременно происходило дизассемблирование старого кода и ассемблирование нового. В результате в один момент времени я мог рассматривать только одну ассемблерную команду, но не несколько. Список же позволяет не только единовременно оперировать несколькими инструкциями, но и производить над ними такие действия, которые без него весьма трудоемки.</p>
+<h2><a name="p9"></a>Формат записи списка</h2>
+<p>Рассмотрим одну запись списка, соответствующую одной ассемблерной команде.</p>
+<p>Во-первых, должен существовать указатель на следующую запись списка, коий равняется NULL для последней записи.</p>
+<p>Следует отметить, что этот указатель связывает только записи списка, но не команды. То есть команда в следующей записи списка не является ассемблируемой сразу после команды из предыдущей записи.</p>
+<p>Теперь информация о команде.</p>
+<ol>
+<li>собственно опкод (или поинтер на него)</li>
+<li>длина опкода</li>
+<li>указатель на запись следующей команды (но не обязательно на следующую запись в списке). =NULL, если текущая команда типа RET или JMP.</li>
+<li>указатель на запись условно-следующей команды, то есть той команды, на которую указывают call-ы, jcc и т.п., либо jmp-ы, либо же указатель на метку, внешнюю по отношению к исходному блоку кода. =NULL, если текущая команда не является одной из jmp/call/...</li>
+<li>флаги. во флагах указывается такая информация, как
+<ul>
+<li>является ли команда меткой (XREF),</li>
+<li>является ли указатель на условно-следующую команду указателем на внешний адрес или на запись списка</li>
+</ul></li>
+</ol>
+<p>В качестве дополнительной информации в записи может хранится еще и текущее смещение команды, оно используется во время дизассемблирования&amp;обработки списка, а также во время ассемблирования&amp;линковки.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define CM_STOP &nbsp; &nbsp; &nbsp; &nbsp; 1 &nbsp; &nbsp; &nbsp; // JMP/RET-alike instruction</span><br/>
+<span style="color: #339933;">#define CM_HAVEREL&nbsp; &nbsp; &nbsp; 2 &nbsp; &nbsp; &nbsp; // have relative argument (JMP,JCC,CALL,etc.)</span><br/>
+<span style="color: #339933;">#define CM_EXTREL &nbsp; &nbsp; &nbsp; 4 &nbsp; &nbsp; &nbsp; // rel. arg points to external label</span><br/>
+<span style="color: #339933;">#define CM_ASSEMBLED&nbsp; &nbsp; 8 &nbsp; &nbsp; &nbsp; // alredy assembled</span><br/>
+<span style="color: #339933;">#define CM_XREF &nbsp; &nbsp; &nbsp; &nbsp; 16&nbsp; &nbsp; &nbsp; // label, i.e. have XREF</span><br/>
+<br/>
+<span style="color: #993333;">struct</span> hooy &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// instruction list entry structure</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE&nbsp; &nbsp; cmd<span style="color: black;">&#91;</span>MAXCMDLEN<span style="color: black;">&#93;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// opcode</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE<span style="color: #339933;">*</span> &nbsp; ofs<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// pointer to current location (temporary)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; len<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// length of command</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; flags<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// CM_xxx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> &nbsp; rel<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// CM_HAVEREL: 0=NULL 1= CM_EXTREL: 0=hooy* 1=BYTE*</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> &nbsp; nxt<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// CM_STOP: 1=NULL 0=hooy*</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> &nbsp; next<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// next entry or NULL</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<h2><a name="p10"></a>Этапы пермутации</h2>
+<p>Итак, с учетом списка инструкций имеем три основных этапа:</p>
+<ol>
+<li><ol type="a">
+<li>дизассемблирование кода (создание списка инструкций)</li>
+<li>обработка списка (*)</li>
+</ol></li>
+<li>изменение списка инструкций (собственно мутация)</li>
+<li><ol type="a">
+<li>ассемблирование нового кода</li>
+<li>линковка (**)</li>
+</ol></li>
+</ol>
+<p>(*) дизассемблирование предполагает наличие последующего этапа, то есть некоторую обработку списка уже после дизассемблирования всего исходного кода. Эта обработка позволит сделать команды независимыми от их исходных смещений, то есть заменить ссылки на смещения (на метки) ссылками на записи списка.</p>
+<p>Кроме всего прочего, обработка списка позволяет выявить метки, то есть команды, на которые происходит передача управления. (эта информация потребуется при последующей мутации)</p>
+<p>(**) Ассемблирование предполагает наличие последующей линковки. Это происходит потому, что существует ситуация, когда уже была ассемблирована первая команда с указателем на вторую, но еще не была ассемблирована вторая команда, то есть адрес второй команды еще не известен сейчас, а будет известен только позже.</p>
+<h2><a name="p11"></a>Дизассемблирование</h2>
+<p>Итак, дизассемблирование у нас есть разбор куска кода в список инструкций. Происходит это по следующему алгоритму:</p>
+<div class="adhoc" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; пометить все точки входа для последующей обработки<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; while (есть помеченные для-последующей-обработки инструкции)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; найти оффсет инструкции для-последующей-обработки<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; for (;;)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; вычислить длину команды (используя дизассемблер длин)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; пометить инструкцию как код<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; добавить инструкцию в список<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; если опкод JMP/CALL/JCC то обозначить метку на которую они показывают<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; как 'для-последующей-обработки'<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; если опкод RET или JMP то выход из цикла<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; перейти к следующему опкоду<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; если опкод уже обработан, выход из цикла<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; }<br/>
+&nbsp;</div>
+<p>Ниже приведен кусок из движка RPME, дизассемблирующая часть:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; imap<span style="color: black;">&#91;</span>ientry<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> C_NEXT<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mark entrypoint(s)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">**</span>h <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>root<span style="color: #339933;">;;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// main disasm cycle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD ip<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// current address (relative)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>ip<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> ip<span style="color: #339933;">&lt;</span>isize<span style="color: #339933;">;</span> ip<span style="color: #339933;">++</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// search for C_NEXT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>imap<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">==</span>C_NEXT<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>imap<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">!=</span>C_NEXT<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// break if not found</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #339933;">;;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// disasm cycle -- until RET found</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD len<span style="color: #339933;">=</span>user_disasm<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// get instruction length</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>len<span style="color: #339933;">&gt;=</span>MAXCMDLEN<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// check error (len=-1,len&gt;MAXCMDLEN)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> ERR_DISASM<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>len<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; imap<span style="color: black;">&#91;</span>ip<span style="color: #339933;">+</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span>C_CODE<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mark as code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// analyze instruction</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD nxt<span style="color: #339933;">=</span>ip<span style="color: #339933;">+</span>len<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// default nxt-entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD rel<span style="color: #339933;">=</span>NONE<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// default jxx-entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; BYTE o<span style="color: #339933;">=</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// opcode, 1 byte</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WORD w<span style="color: #339933;">=*</span><span style="color: black;">&#40;</span>WORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// opcode, 2 bytes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD b<span style="color: #339933;">=</span>ip<span style="color: #339933;">+</span>len<span style="color: #339933;">+</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: #339933;">+</span>len<span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">// rel.arg, VA, 1-byte</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DWORD d<span style="color: #339933;">=</span>ip<span style="color: #339933;">+</span>len<span style="color: #339933;">+*</span><span style="color: black;">&#40;</span><span style="color: #993333;">long</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: #339933;">+</span>len<span style="color: #339933;">-</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// ..., 4-byte</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>o<span style="color: #339933;">&amp;</span><span style="color: #208080;">0xF0</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #208080;">0x70</span><span style="color: black;">&#41;</span><span style="color: #339933;">||</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>o<span style="color: #339933;">&amp;</span><span style="color: #208080;">0xFC</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #208080;">0xE0</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rel<span style="color: #339933;">=</span>b<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// jcc,jcxz,loop/z/nz</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>w<span style="color: #339933;">&amp;</span><span style="color: #208080;">0xF0FF</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #208080;">0x800F</span><span style="color: black;">&#41;</span> rel<span style="color: #339933;">=</span>d<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// jcc near</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>o<span style="color: #339933;">==</span><span style="color: #208080;">0xE8</span><span style="color: black;">&#41;</span> rel<span style="color: #339933;">=</span>d<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// call</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>o<span style="color: #339933;">==</span><span style="color: #208080;">0xEB</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> rel<span style="color: #339933;">=</span>b<span style="color: #339933;">;</span> nxt<span style="color: #339933;">=</span>NONE<span style="color: #339933;">;</span> <span style="color: black;">&#125;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// jmp short</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>o<span style="color: #339933;">==</span><span style="color: #208080;">0xE9</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> rel<span style="color: #339933;">=</span>d<span style="color: #339933;">;</span> nxt<span style="color: #339933;">=</span>NONE<span style="color: #339933;">;</span> <span style="color: black;">&#125;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// jmp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>o<span style="color: #339933;">&amp;</span><span style="color: #208080;">0xF6</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #208080;">0xC2</span><span style="color: black;">&#41;</span><span style="color: #339933;">||</span><span style="color: black;">&#40;</span>o<span style="color: #339933;">==</span><span style="color: #208080;">0xCF</span><span style="color: black;">&#41;</span><span style="color: #339933;">||</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>w<span style="color: #339933;">&amp;</span><span style="color: #208080;">0x38FF</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #208080;">0x20FF</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; nxt<span style="color: #339933;">=</span>NONE<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ret/ret#/retf/retf#/iret/jmp modrm</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>rel<span style="color: #339933;">&lt;</span>isize<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// in range?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>imap<span style="color: black;">&#91;</span>rel<span style="color: black;">&#93;</span><span style="color: #339933;">==</span>C_NONE<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// if not processed yet</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; imap<span style="color: black;">&#91;</span>rel<span style="color: black;">&#93;</span><span style="color: #339933;">=</span>C_NEXT<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mark as C_NEXT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// add instruction into list</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hooy<span style="color: #339933;">*</span> h0 <span style="color: #339933;">=</span> <span style="color: #339933;">*</span>h<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: #339933;">!=</span>NULL<span style="color: black;">&#41;</span> h<span style="color: #339933;">=&amp;</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>next<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>h <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>user_malloc<span style="color: black;">&#40;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>hooy<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; <span style="color: black; font-style: italic;">// allocate entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!*</span>h<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> ERR_NOMEMORY<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>ofs<span style="color: #339933;">=&amp;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>h0<span style="color: black;">&#41;</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>h0<span style="color: #339933;">-&gt;</span>nxt<span style="color: black;">&#41;</span> h0<span style="color: #339933;">-&gt;</span>nxt <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>ofs<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>len<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>cmd<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>ofs<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">=</span>len<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: #339933;">==</span>root<span style="color: black;">&#41;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">|=</span>CM_XREF<span style="color: #339933;">;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mark entrypoint as XREF-ed</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>rel<span style="color: #339933;">=</span>NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>rel<span style="color: #339933;">!=</span>NONE<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">|=</span>CM_HAVEREL<span style="color: #339933;">|</span>CM_EXTREL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>rel<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ibuf<span style="color: black;">&#91;</span>rel<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>nxt<span style="color: #339933;">==</span>NONE<span style="color: black;">&#41;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">|=</span>CM_STOP<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>nxt<span style="color: #339933;">=</span>NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>next<span style="color: #339933;">=</span>NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>rel<span style="color: #339933;">&lt;</span>isize<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// range check</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>imap<span style="color: black;">&#91;</span>rel<span style="color: black;">&#93;</span><span style="color: #339933;">==</span>C_NONE<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// if not processed yet</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; imap<span style="color: black;">&#91;</span>rel<span style="color: black;">&#93;</span><span style="color: #339933;">=</span>C_NEXT<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mark as C_NEXT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// continue disasm cycle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ip<span style="color: #339933;">=</span>nxt<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// go to next instruction</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ip<span style="color: #339933;">&gt;=</span>isize<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// NONE/out of range?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>imap<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">==</span>C_CODE<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>h<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>nxt<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ibuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// break if alredy code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: black; font-style: italic;">// cycle until RET found</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: black; font-style: italic;">// main disasm cycle</span><br/>
+&nbsp;</div>
+<h2><a name="p12"></a>Подготовка списка к мутации</h2>
+<p>Собственно этот пункт не обязателен, он нужен для упрощения задачи. Здесь мы проводим две операции:</p>
+<ul>
+<li>замену всех коротких условных переходов (jcc short), а также команд типа LOOP/Z/NZ и JECXZ их near-эквивалентами. Это нужно для того, чтобы во-первых впоследствии определять условные jmp-ы только по одному опкоду, а также чтобы при линковке работать только с 4х-байтными относительными смещениями</li>
+<li>удаляем из списка все JMPы (заменяя у предыдущих JMPам команд указатели на следующую команду)</li>
+</ul>
+<p>В принципе этот этап не обязателен если вы планируете использовать JMPы как постоянные команды. Я же использую JMPы в качестве мусора, поэтому здесь они удаляются, а при ассемблировании списка будут добавляться случайным образом.</p>
+<h2><a name="p13"></a>Ассемблирование списка</h2>
+<p>На этом шаге у нас есть список уже измененных инструкций из которого нужно сделать ассемблерный код. Ассемблирование списка происходит по следующему алгоритму:</p>
+<div class="adhoc" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; while (есть не ассемблированные команды в списке)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; выбрать случайную инструкцию из списка<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; for (;;)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; с некоторй вероятностью: выбрать случайное место в выходном буфере<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; копировать команду в буфер<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; сохранить смещение команды в буфере в запись списка<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; перейти к следующей команде<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; если команда уже была добавлена в список, выход<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; }<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; }<br/>
+&nbsp;</div>
+<p>Вот как это выглядит на C++:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; DWORD ip<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>poentry<span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>poentry<span style="color: #339933;">=</span>ip<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;entrypoint at %08X<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> ip<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ofiller<span style="color: #339933;">!=</span>NONE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>osize<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; obuf<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span>ofiller<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE<span style="color: #339933;">*</span> omap <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>user_malloc<span style="color: black;">&#40;</span>osize<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>omap<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> ERR_NOMEMORY<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>osize<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; omap<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span> q<span style="color: #339933;">=</span>root<span style="color: #339933;">;</span> q<span style="color: #339933;">;</span> q<span style="color: #339933;">=</span>q<span style="color: #339933;">-&gt;</span>next<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// for each entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span><span style="color: black;">&#40;</span>q<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">&amp;</span>CM_ASSEMBLED<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// if not assembled yet</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span> h<span style="color: #339933;">=</span>q<span style="color: #339933;">;</span> h<span style="color: #339933;">;</span> h<span style="color: #339933;">=</span>h<span style="color: #339933;">-&gt;</span>nxt<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// for nxt-linked entries</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>h<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">&amp;</span>CM_ASSEMBLED<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">// alredy assembled?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; omap<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; obuf<span style="color: black;">&#91;</span>ip<span style="color: #339933;">++</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #208080;">0xE9</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// link with jmp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>omap<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #208080;">0x01010101</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ip<span style="color: #339933;">+=</span><span style="color: #0000dd;">4</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>obuf<span style="color: black;">&#91;</span>ip<span style="color: #339933;">-</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>h<span style="color: #339933;">-&gt;</span>ofs<span style="color: #339933;">-</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>obuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// break</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// not assembled yet</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">|=</span>CM_ASSEMBLED<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>h<span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; omap<span style="color: black;">&#91;</span>ip<span style="color: #339933;">+</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h<span style="color: #339933;">-&gt;</span>ofs<span style="color: #339933;">=&amp;</span>obuf<span style="color: black;">&#91;</span>ip<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>DWORD i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>h<span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h<span style="color: #339933;">-&gt;</span>ofs<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">=</span>h<span style="color: #339933;">-&gt;</span>cmd<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ip<span style="color: #339933;">+=</span>h<span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>h<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">&amp;</span>CM_STOP<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// RET/JMP-alike</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<h2><a name="p14"></a>Линковка</h2>
+<p>Линковка здесь требуется не для абсолютных смещений, которые мы вовсе не рассматриваем, а для относительных к EIP 4х-байтных смещений, коии присутствуют после опкодов jmp,call,jcc. Относительный адрес перехода можно пофиксить зная, на которую запись списка указывает относительное смещение и зная оффсеты текущей команды и команды-метки (эти оффсеты становтся известны при ассемблировании).</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>hooy<span style="color: #339933;">*</span> h<span style="color: #339933;">=</span>root<span style="color: #339933;">;</span> h<span style="color: #339933;">;</span> h<span style="color: #339933;">=</span>h<span style="color: #339933;">-&gt;</span>next<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// for each entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>h<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">&amp;</span>CM_HAVEREL<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// have relative argument?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>h<span style="color: #339933;">-&gt;</span>ofs<span style="color: black;">&#91;</span>h<span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">-</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>h<span style="color: #339933;">-&gt;</span>flags<span style="color: #339933;">&amp;</span>CM_EXTREL <span style="color: #339933;">?</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>h<span style="color: #339933;">-&gt;</span>rel<span style="color: #339933;">+</span>extrelfix<span style="color: black;">&#41;</span> <span style="color: #339933;">:</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>h<span style="color: #339933;">-&gt;</span>rel<span style="color: #339933;">-&gt;</span>ofs<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>h<span style="color: #339933;">-&gt;</span>ofs <span style="color: #339933;">-</span> h<span style="color: #339933;">-&gt;</span>len<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<h2><a name="p15"></a>Дополнение алгоритма (plugin-ы) и внешняя мутация</h2>
+<p>Совершенно охуительным качеством любого движка (равно как и вирусного конструктора) является добавление к нему новых возможностей. Причем сии дополнения должны быть намного проще чем написание всего движка и, желательно, приводить к таким изменениям в работе движка, чтобы антивируснику приходилось заново разбираться с кодом, произведенным в результате изменений. Именно по этому мутация, то есть -- мутация списка инструкций, производимая между дизассемблированием и ассемблированием, должна быть вынесена во внешнюю процедуру, которая может быть легко изменена и/или дополнена пользователем.</p>
+<h2><a name="p16"></a>Изенение списка (мутация)</h2>
+<p>Очевидны три основных действия, применяемых к инструкциям: <a href="#p17">замена</a>, <a href="#p18">перестановка</a> и <a href="#p19">мусор</a> (т.е. добавление мусора). Действие может быть ОБРАТИМЫМ и НЕОБРАТИМЫМ, в зависимости от того, возможно ли после него вернуться к исходному состоянию или нет. Необратимые действия как правило приводят к увеличению кода. Замена и перестановка являются операциями обратимыми. Добавление мусора может быть операцией как обратимой, так и необратимой, в зависимости от того, насколько наши возможности совпадают со сложностью алгоритма удаления мусора из кода. Комбинация замены и мусора увеличивает вероятность необратимых изменений в коде.</p>
+<p>Возможны два варианта мутации, с использованием необратимых изменений и без них.</p>
+<ol>
+<li>В случае необратимых изменений, код будет каждый раз несколько увеличиваться.</li>
+<li>В случае только обратимых изменений, объем кода будет изменяться только в некоторых пределах.</li>
+</ol>
+<h2><a name="p17"></a>Замена</h2>
+<p>Очевидно, сказать здесь почти нечего -- все определяется практической реализацией... (что называется -- смотри код)</p>
+<p>Рассмотрим например такую команду, как условный переход (Jcc). Находим Jcc, меняем на JNcc (инвертируем условие, попросту - XORим опкод на 1). Меняем местами указатели на следующую и условно-следующую записи списка. Готово. Теперь при ассемблировании две ветви алгоритма (после Jcc) поменяются местами.</p>
+<p>Пример:</p>
+<pre class="source">
+	; JNZ (было)		JZ (стало)
+	...			...
+	cmp	eax, 'MZ'	cmp	eax, 'MZ'
+	<em>jnz	skip		jz	exe</em>
+exe:	call	infect	skip:	nop
+skip:	nop			...
+	...		exe:	call	infect
+	jmp	skip	; auto-generated jmp
+</pre>
+<p>Еще пара вариантов замены: XOR r, r &lt;--> SUB r, r, TEST r, r &lt;--> OR r,r и т.п.</p>
+<h2><a name="p18"></a>Перестановка</h2>
+<p>Учитывая одно из наложенных на код ограничений -- условные jmp-ы идут только сразу за командами, устанавливающими соответствующие флаги, рассмотрим 2 команды, следующая за которыми - не jcc.</p>
+<p>Обязательным условием будет также отсутствие флага XREF на каждой из команд, то есть они не должны быть метками. Кроме того, из двух команд только одна может использовать стэк. А если какая-либо из команд использует ESP, то обе не должны использовать стэк.</p>
+<pre>
+	ttt	[r1] [,r2]
+	ttt	[r3] [,r4]
+	условие допустимости перестановки двух команд:
+	(r1 != r4) &amp;&amp; (r2 != r3) &amp;&amp; (r1 != r3)
+</pre>
+<p>если какой-либо один из аргументов отсутствует, условия с ним не проверяются.</p>
+<p>Применяя таким образом перестановку для всего списка инструкций легко добиваемся перемешивания некоторых команд друг с другом.</p>
+<h2><a name="p19"></a>Мусор</h2>
+<p>Процедуры перестановки команд и добавления мусора, а точнее их сложность, находятся в зависимости от ограничений на код, то есть от дополнительных правил, которые мы накладываем на ассемблерные инструкции. Чем сложнее мусор, добавляемый в код, тем сложнее его генерировать и удалять, и тем сложнее оставить программу работоспособной. С другой стороны, чем проще мусор - тем легче его генерировать и удалять, в идеале это NOP, не влияющий ни на флаги, ни на регистры, ни на стэк. При всем этом мусор не обладает практически никакой эффективностью, то есть не делает программу сложнее, хотя при этом сильно увеличивает результирующий код. Другими словами, если детектирующий алгоритм будут писать таким, каким я себе это представляю, то один хуй, убирать ли из вируса NOPы или более сложные инструкции - результат почти тот же самый.</p>
+<h2><a name="p20"></a>О результатах</h2>
+<p>О результатах расскажем и даже покажем кодом.</p>
+<p>Итак, в середине пермутации движок вызывает процедуру обработки списка инструкций. (callback)</p>
+<p>Проход по всем инструкциям вируса выглядит так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> _root<br/>
+__cycle<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; обработка текущей инструкции</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; __cycle<br/>
+&nbsp;</div>
+<p>Для того, чтобы во всем вирусе изменить все, например, NOPы на XCHG EBX,EBX в обработку инструкции достаточно добавить такой код:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_opcode<span style="color: #339933;">,</span> <span style="color: #ff0000;">90h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; __skip<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_opcode<span style="color: #339933;">,</span> <span style="color: #ff0000;">0DB87h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_len<span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><br/>
+__skip<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>Для того, чтобы удалить инструкцию из списка и, соответственно, из вируса, делаем так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_next<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;</div>
+<p>или так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_len<span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_flags<span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;</div>
+<p>В первом случае могут остаться ссылки на эту запись (то есть она реально не удалится) (проверить сие можно так: test [ebx].h_flags, CM_XREF)</p>
+<p>Для того, чтобы инвертировать все jcc на jncc с сохранением работоспособности кода, делаем так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_opcode<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0F0FFh</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0800Fh</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; near jcc: 0F 8x nn nn nn nn</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; __skip<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_opcode<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_nxt<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_rel<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>h_nxt<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+__skip<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>Мне кажется, что легкость приведенных операций и все возможные их применения вполне оправдывают затраченные усилия.</p>
+[<a style="" href="/lib/?lang=RU&amp;index=VT#vzo57">Вернуться к списку</a>] [<a href="/lib/vzo57.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo57">de</a><a href="/lib/index.php?lang=en&amp;id=vzo57">en</a><a href="/lib/index.php?lang=es&amp;id=vzo57">es</a><a href="/lib/index.php?lang=it&amp;id=vzo57">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo57">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo57">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo57">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo57">ua</a></div>
+</body>
+</html>

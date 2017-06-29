@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> izee 'New anti-debugging possibilities' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="izee"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, izee,New anti-debugging possibilities, data, syscall, exception, current, callback, process, proc, call, handler, keys, remote, server, files, handle, endp"/>
+<meta name="Description" content="Nowadays there are plenty anti-debugging tricks, some of them are known, some not. However, all publicly known tricks are Win32-specific and Win64 is still untouched currently. In the first part of article i'm going to demonstrate few new tricks, which are coded for Win64, but can be easily ported to Win32. In the second part i'll show how to implement SEH and TLS on Win64 and also some other new Win64-specific anti-debug techniques."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8f61f39aaa29e022d1482149a50628d8f1882d8a-1498756846-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/viz02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>New anti-debugging possibilities</h1><p><a href="/lib/?lang=en&amp;author=izee"> izee</a><br/> <em><a href="/vx.php?fid=1581#f1581">Electrical Ordered Freedom #2 (EOF-DR-RRLF)</a></em><br/> <em>May 2008</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/viz02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#viz02">Back to index</a>] [<a href="/lib/viz02.html#disqus_thread">Comments</a>]<br/> 
+<div align="right">xchg code, mind!</div>
+<ol type="I">
+<li><a href="#c1">Prolog</a></li>
+<li><a href="#c2">Entry</a>
+<ol type="1">
+<li><a href="#c21">1. Looking for IDA database files</a></li>
+<li><a href="#c22">2. Magic debuggers keys</a></li>
+<li><a href="#c23">3. Detecting IDA Remote Debug Server</a></li>
+<li><a href="#c24">4. NtSetDebugFilterState syscall</a></li>
+<li><a href="#c25">5. DebugActiveProcess</a></li>
+<li><a href="#c26">6. Structured Exception Handler</a></li>
+<li><a href="#c27">7. Thread Local Storage Callback</a></li>
+</ol></li>
+<li><a href="#c3">Epilog</a></li>
+<li><a href="#c4">References</a></li>
+<li><a href="#c5">Thanks</a></li>
+</ol>
+<h2><a name="c1"></a>Prolog</h2>
+<p>Nowadays there are plenty anti-debugging tricks, some of them are known, some not. However, all publicly known tricks are Win32-specific and Win64 is still untouched currently. In the first part of article i'm going to demonstrate few new tricks, which are coded for Win64, but can be easily ported to Win32. In the second part i'll show how to implement SEH and TLS on Win64 and also some other new Win64-specific anti-debug techniques.</p>
+<h2><a name="c2"></a>Entry</h2>
+<h3><a name="c21"></a>1. Looking for IDA database files</h3>
+<p>By loading something in IDA for analysis, you can notice that files with the following extensions are being created in the current directory:</p>
+<pre>
+program file name.id0
+		  id1
+		  nam
+		  til
+</pre>
+<p>These are IDA database related files. Using FindFirstFileA(W) function, we can easily check if there are files with such extensions in the current directory or not, and thus detect a presence of IDA.</p>
+<p>Let's have a look at the example.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+ex&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'*.id0'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+fd&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> ex<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> fd<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; FindFirstFileA<br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; dbgfnd<br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/idadb64.rar">idadb64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 32/64bit</p>
+<p>Applies to: Interactive Disassembler</p>
+<p>Can be ported to Windows XP 32/64</p>
+<h3><a name="c22"></a>2. Magic debuggers keys</h3>
+<p>The idea: to check if a debugger-specific keys (such as: F4, F7, F8, F9, F10, F11) were pressed during the debugging session. For that, we'll use the GetAsyncKeyState function.</p>
+<p>In the following example we'll try to determine if a typical debugger key -- F8 -- was pressed.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cdq</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">77h</span><span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">;F8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; GetAsyncKeyState<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; dbgfnd<br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/gaks64.rar">gaks64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 32/64bit</p>
+<p>Applies to: Interactive Disassembler, WinDBG, OllyDBG, future ring3 debuggers</p>
+<p>Can be ported to Windows XP 32/64</p>
+<h3><a name="c23"></a>3. Detecting IDA Remote Debug Server</h3>
+<p>For a local debugging of 64bit executables an IDA Win64 Remote Debug Server must be turned on. It's a console application, which listens on port #23946. We can try to connect to this port and thus detect a presence of IDA.</p>
+<p>And now an example.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">sockaddr <span style="color: #0000ff; font-weight: bold;">struc</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sa_family &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sa_data &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">14</span> dup<span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+sockaddr ends<br/>
+<br/>
+WSAData <span style="color: #0000ff; font-weight: bold;">struc</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; wVersion&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; wHighVersion&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; szDescription &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">257</span> dup<span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; szSystemStatus&nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">129</span> dup<span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; iMaxSockets &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; iMaxUdpDg &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ? <span style="color: black; font-style: italic;">; undefined</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; ? <span style="color: black; font-style: italic;">; undefined</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; lpVendorInfo&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; ? <span style="color: black; font-style: italic;">; offset</span><br/>
+WSAData ends<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+ip&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'127.0.0.1'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+hsocket <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; ?<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span>?<br/>
+<br/>
+sa sockaddr &lt;&gt;<br/>
+wsd WSAData &lt;&gt;<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> wsd<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cl</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span> <span style="color: black; font-style: italic;">;Winsock 2.0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; WSAStartup<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r11d</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span>sa<span style="color: #339933;">.</span>sa_family<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">r11w</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5D8Ah</span> <span style="color: black; font-style: italic;">;port #23946</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; htons<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span>sa<span style="color: #339933;">.</span>sa_data<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> ip<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; inet_addr<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span>sa<span style="color: #339933;">.</span>sa_data<span style="color: #339933;">+</span><span style="color: #ff0000;">2</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r8d</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">6</span> <span style="color: black; font-style: italic;">;IPPROTO_TCP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span> <span style="color: black; font-style: italic;">;SOCK_STREAM</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span> <span style="color: black; font-style: italic;">;AF_INET</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; socket<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>hsocket<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r8d</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">10h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>sa<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> ptr <span style="color: black;">&#91;</span>hsocket<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; connect<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; dbgfnd<br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/idardbg64.rar">idardbg64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 64bit</p>
+<p>Applies to: Interactive Disassembler 64</p>
+<h3><a name="c24"></a>4. NtSetDebugFilterState syscall</h3>
+<p>I can't say much about this syscall, since it's not documented well, however i found it as a new anti-debug trick. What the syscall does is sets the debug output filter level for the specified component, under debugger it returns NT_STATUS_SUCCESS (0), otherwise it returns error code 22.</p>
+<p>Let's have a quick look at the example now.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r10</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rcx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">14Ah</span> <span style="color: black; font-style: italic;">;NtSetDebugFilterState</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">syscall</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; dbgfnd<br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/ntsdfs64.rar">ntsdfs64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 64bit</p>
+<p>Applies to: Interactive Disassembler, WinDBG, future ring3 debuggers</p>
+<p>Can be ported to Windows XP: unknown.</p>
+<h3><a name="c25"></a>5. DebugActiveProcess</h3>
+<p>The function enables a debugger to attach to an active process and debug it. Not so long ago i found, that calling this function with current process handle on Windows Vista x64 under the ring-3 debugger will cause a local DoS or even BSOD. I still analyze this strange behavior,however i decided to write about my current researches. The funny thing is, that local DoS or BSOD will occur only on x64 versions of Windows Vista, not on x86.</p>
+<p>Here's the example.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">1</span> <span style="color: black; font-style: italic;">;pseudo handle (current process handle)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; DebugActiveProcess<br/>
+&nbsp;</div>
+<p>Here's the disassembled version.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ntdll.DbgUiConnectToDbg</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r11</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rsp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">58h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">20h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">30h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">gs</span><span style="color: #339933;">:</span> <span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r8</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">r11</span><span style="color: #339933;">-</span><span style="color: #ff0000;">38h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r9d</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">16A8h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r10</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rcx</span> <span style="color: black; font-style: italic;">;NtCreateDebugObject</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">91h</span> <span style="color: black; font-style: italic;">;SP0 - 93h, SP1 - 91h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">syscall</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">58h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; CsrGetProcessId <span style="color: black; font-style: italic;">;get csrss.exe pid</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r9</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">20h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">78h</span><span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0C3Ah</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">20h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r10</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rcx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">23h</span> <span style="color: black; font-style: italic;">;NtOpenProcess</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">syscall</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">78h</span><span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ntdll.DbgUiDebugActiveProcess</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">gs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">16A8h</span><span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r10</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rcx</span> <span style="color: black; font-style: italic;">;NtDebugActiveProcess</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0ADh</span> <span style="color: black; font-style: italic;">;SP0 - 0AFh, SP1 - 0ADh</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">syscall</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;---DoS---</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;---BSOD---</span><br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/dap64.rar">dap64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 64bit</p>
+<p>Applies to: Interactive Disassembler 64, WinDBG 64, probably future ring3 64bit debuggers</p>
+<h3><a name="c26"></a>6. Structured Exception Handler</h3>
+<p>SEH can be used as a powerful anti-debug trick, as we know. Here is an example of SEH for Microsoft Linker x64.</p>
+<pre>
+	eh proc	;exception handler &lt;----,
+					|
+	; your code goes here		|
+					|
+	eh endp				|
+					|
+					|
+	eof proc frame: eh		|
+					|^
+	push rbp			|
+					|
+	.pushreg rbp			|
+	.endprolog			|
+					|
+	ud2, int3, icebp ---------------'
+	nop >
+
+	eof endp
+</pre>
+<p>See also: <a href="files/viz02/seh64.rar">seh64.rar</a></p>
+<p>Now a bit of explanation.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; eof proc frame<span style="color: #339933;">:</span> eh&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;setup a SEH frame</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">rbp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;generate unwind data for the base pointer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>pushreg <span style="color: #46aa03; font-weight: bold;">rbp</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endprolog&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;end of prologue</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ud2</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;invalid opcode</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;generates EXCEPTION_ILLEGAL_INSTRUCTION</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int3&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;trap to debugger</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;generates EXCEPTION_BREAKPOINT</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; icebp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Ice breakpoint</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;generates EXCEPTION_SINGLE_STEP</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;after SEH frame execution, RIP must point to some do-nothing code</span><br/>
+&nbsp;</div>
+<p>Debuggers especially don't like ud2 instruction. IDA for instance will be not capable to disassembly nor debug that instruction.</p>
+<p>Tested on: Windows Vista SP0/SP1 64bit</p>
+<p>Applies to: Interactive Disassembler 64, WinDBG 64, future ring3 64bit debuggers</p>
+<h3><a name="c27"></a>7. Thread Local Storage Callback</h3>
+<p>TLS Callback is called before the main entrypoint, this gives an ability to execute the virus or check for a debugger presence, before the debugger reaches the main entrypoint. Unfortunately, ml64 don't support TLS Callbacks, so FASM is the only choice then currently for implementing TLS manually in Win64 executables.</p>
+<p>Let's examine the example below.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; format&nbsp; pe64 gui <span style="color: #ff0000;">5.0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; include <span style="color: #7f007f;">'win64a.inc'</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; entry &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+proc cb<span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>r<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>DLL_PROCESS_ATTACH <span style="color: black; font-style: italic;">;avoid double callback execution</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; @f<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;---PEB.BeingDebugged Win64 variation---</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">gs</span><span style="color: #339933;">:</span> <span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;get ProcessEnvironmentBlock pointer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">60h</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;from ThreadEnvironmentBlock</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">movzx</span> &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">2</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;read the BeingDebugged byte-flag</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; @f<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;---------------------------------------</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r9d</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">r9d</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r8</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>c<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>nf<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; mbox<br/>
+<br/>
+@@<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r9d</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">r9d</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">r8</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>c<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rdx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>f<span style="color: black;">&#93;</span><br/>
+<br/>
+mbox<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rcx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">rcx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>MessageBox<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+endp<br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">data</span>&nbsp; &nbsp; <span style="color: #ff0000;">9</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;TLS structure</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; sea &nbsp; &nbsp; <span style="color: black; font-style: italic;">;StartAddressOfRawData</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; sea &nbsp; &nbsp; <span style="color: black; font-style: italic;">;EndAddressOfRawData</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; sea &nbsp; &nbsp; <span style="color: black; font-style: italic;">;AddressOfIndex</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; cba &nbsp; &nbsp; <span style="color: black; font-style: italic;">;AddressOfCallBacks</span><br/>
+sea &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;SizeOfZeroFill</span><br/>
+cba &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; cb&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Characteristics</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;NULL</span><br/>
+end <span style="color: #0000ff; font-weight: bold;">data</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #7f007f;">'.data'</span> <span style="color: #0000ff; font-weight: bold;">data</span> readable writeable<br/>
+<br/>
+c &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Debugger:'</span> <span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+f &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'I see you!'</span> <span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+nf&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Not found.'</span> <span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #7f007f;">'.idata'</span> <span style="color: #0000ff; font-weight: bold;">import</span> <span style="color: #0000ff; font-weight: bold;">data</span> readable writeable<br/>
+<br/>
+library u32<span style="color: #339933;">,</span> <span style="color: #7f007f;">'user32'</span> <span style="color: black; font-style: italic;">;rgb's optimization tip ;-)</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">import</span> u32<span style="color: #339933;">,</span>\<br/>
+&nbsp;MessageBox<span style="color: #339933;">,</span><span style="color: #7f007f;">'MessageBoxA'</span><br/>
+&nbsp;</div>
+<p>See also: <a href="files/viz02/tls64.rar">tls64.rar</a></p>
+<p>Tested on: Windows Vista SP0/SP1 64bit</p>
+<p>Applies to: Interactive Disassembler, WinDBG, future ring3 64bit debuggers</p>
+<h2><a name="c3"></a>Epilog</h2>
+<p>I hope you enjoyed reading the article as much as I enjoyed writing it. Don't forget to see attached archives also. If you will have some questions or comments, you can always write me an e-mail to: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="375e4d5252775258511a4745585d52544319595243">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></p>
+<p>Welcome to Win64 world and let's protect our future creations!</p>
+<h2><a name="c4"></a>References</h2>
+<ul>
+<li>29A #8 - Thread Local Storage (64bit AMD version) - roy g biv</li>
+<li>WASM.RU - TLS from the inside - Bill / TPOC</li>
+<li>WASM.RU - http://www.wasm.ru/forum/viewtopic.php?id=26306 - Joes</li>
+<li>http://www.tortall.net/projects/yasm/manual/html/objfmt-win64-exception.html</li>
+</ul>
+<h2><a name="c5"></a>Thanks</h2>
+<p>WarGame, roy g biv, kaze, RadiatioN, Scorpions.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#viz02">Back to index</a>] [<a href="/lib/viz02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=viz02">de</a><a href="/lib/index.php?lang=en&amp;id=viz02">en</a><a href="/lib/index.php?lang=es&amp;id=viz02">es</a><a href="/lib/index.php?lang=it&amp;id=viz02">it</a><a href="/lib/index.php?lang=fr&amp;id=viz02">fr</a><a href="/lib/index.php?lang=pl&amp;id=viz02">pl</a><a href="/lib/index.php?lang=ru&amp;id=viz02">ru</a><a href="/lib/index.php?lang=ua&amp;id=viz02">ua</a></div>
+</body>
+</html>

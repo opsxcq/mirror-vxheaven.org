@@ -1,0 +1,375 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> The Mental Driller 'Advanced polymorphic engine construction' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="The Mental Driller"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, The Mental Driller,Advanced polymorphic engine construction, calls, size, register, call, address, data, subroutine, functions, loop, emulator, garbage, make, instructions, article, encrypted"/>
+<meta name="Description" content="This article is assumed upon a basis on polymorphic engines construction, so you need an adquired good knowledge about decryptor generators and its construction (it's not for newbies! ;)I wrote this for win32 engines. I'm not very versated in Linux/Unix virusing, but modifying some words on this article (and some points in the index) it can be extrapolated to engines under these systems."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"9f45977b039d8b52f870b7f2e3118efd6a932fd6-1498755453-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmd03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Advanced polymorphic engine construction</h1><p><a href="/lib/?lang=en&amp;author=The%20Mental%20Driller"> The Mental Driller</a><br/> <em><a href="/vx.php?fid=10#f10">29a [5]</a></em><br/> <em>December 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmd03.html';</script><div class="ci"><a href="/lib/?ci=vmd03">4</a></div>[<a style="" href="/lib/?lang=EN&amp;index=PO#vmd03">Back to index</a>] [<a href="/lib/vmd03.html#disqus_thread">Comments</a>]<br/> 
+<p>This article is assumed upon a basis on polymorphic engines construction, so you need an adquired good knowledge about decryptor generators and its construction (it's not for newbies! ;)</p>
+<p>I wrote this for win32 engines. I'm not very versated in Linux/Unix virusing, but modifying some words on this article (and some points in the index) it can be extrapolated to engines under these systems.</p>
+<h2>Index</h2>
+<ul>
+<li><a href="#p0">0. Some Comments</a></li>
+<li><a href="#p1">1. Making more complex polymorphic engines</a>
+<ul>
+<li><a href="#p11">1.1 Size of decryptors</a></li>
+<li><a href="#p12">1.2 Algorithmical applications</a>
+<ul>
+<li><a href="#p121">1.2.1 PRIDE Technology</a></li>
+<li><a href="#p122">1.2.2 Branching Technology</a></li>
+</ul></li>
+<li><a href="#p13">1.3 Internal recursivity</a></li>
+</ul></li>
+<li><a href="#p2">2. Don't give a chance to AVs</a>
+<ul>
+<li><a href="#p21">2.1 Coherent decryptor structures</a></li>
+<li><a href="#p22">2.2 Opcodes to avoid</a></li>
+</ul></li>
+<li><a href="#p3">3. Advanced garbage generation</a>
+<ul>
+<li><a href="#p31">3.1 Memory accesses</a></li>
+<li><a href="#p32">3.2 API calls</a></li>
+<li><a href="#p33">3.3 Recursive garbage functions</a></li>
+</ul></li>
+<li><a href="#p4">4. Last words</a></li>
+</ul>
+<h2><a name="p0"></a>0. Some Comments</h2>
+<p>This article is made for those who made its polymorphic engine and they want to improve their knowledge and their techniques, making a better polymorphic engine. I have to advice that the techniques I'm going to explain are very time consumming (an error in the coding, being little or not, can generate huge errors that aren't easy to trace back, or little errors in the code generation that can pop up in the least expected moment).</p>
+<p>Well, so let's on. I've tried to make both organized article and clear explanations, but sometimes it can be a little hard to understand. Well, considering that I'm not an expert on article writing, I've done what I could ;).</p>
+<h2><a name="p1"></a>1. Making more complex polymorphic engines</h2>
+<h3><a name="p11"></a>1.1 Size of decryptors</h3>
+<p>Many people believe nowadays in the (old) advise of virus coding: you have to code them little. This advise was valid while there were 40 Mb harddisks and no Pentiums+ (or similars), but now this fact is obsolete. An average user has now a huge harddisk (2+ Gb) and s/he don't know the real free space of his/her disk due to the Windblows swap file. Then, we can make a huge virus (10 Kb or more) without being noticed at all. We can apply this to decryptors, then. Why we can't generate a 4 Kb decryptor? We can, and moreover, we are nearly obligated to do it (a 100 bytes decryptor isn't a challenge to any nowadays AV emulator). But we have to have a GOOD garbage generator, since a single instruction size is 3 or 4 bytes as an average, which are about some thousands of instructions in a big decryptor, which can make easier the AVers task if they decide to detect our virus by algorithmical approaches or heuristical techniques. So, we have to code a good garbage generator with quite a lot of chances.</p>
+<p>Other thing that we have in favour of big decryptors is the impossibility for an emulator to determine in a few instructions if it's a decryptor or not, forcing it to emulate deeply. 1 Kb of garbage before starting the decryption should be enough, but you have to thing that every time processors are better (faster, cheaper, etc. etc.) so emulators too. Garbage is executed very fast upon normal execution, but it can take a good while upon an emulator. The more garbage you put, the more time an emulator needs and the less possibilities the emulator reach the decrypted virus, always you put coherent garbage to avoid the heuristic detections of "strange" instruction using, and also you have to mantain a good balance between quantity and quality of code generation (putting 20 Kb of very complex garbage can slow the initial execution of the application, noticing the user there is something unusual on his/her system).</p>
+<h3><a name="p12"></a>1.2 Algorithmical applications</h3>
+<p>When possible, avoid linear decryption. This is valid for both decryption and looping. Although we have a 10 Kb decryptor, if we make a main loop (easily detectable by an emulator) and we access consecutively to the encrypted data when decrypting it, it's stupid to make very complex coding, because we have an algorithmical clue for detection that many emulators use to defeat complex decryptors (they only put a breakpoint after the big loop and wait until that part is decrypted). I've developed two techniques that are useful to avoid this situation: PRIDE and Branching.</p>
+<h4><a name="p121"></a>1.2.1 PRIDE Technology</h4>
+<p>The name comes from Pseudo-Random Index DEcryption, and it was an idea that I had from the beginning, when I began to code poly engines. Due to the lack of information about this, I had to research this subject by myself, and now that's what I bring to you.</p>
+<p>The idea is that a "normal" program doesn't make normally a sequential read/write of a memory zone, which is being made by the decryptors of all polymorphic virus. There are some techniques that try to avoid that in a certain way (look Zhengxi's engine(29A#1) or MeDriPolEn in Squatter(29A#3)), like adding some bytes to leave "holes" and then do several decryptions of the same code but adding each time a different number, leaving the code full decrypted.</p>
+<p>This particularity is also detected by AVs emulators. The only way to hide this is to make an "in-appearance" random accessing to that memory, to cheat the emulator and force it to determine that they are part of a normal memory access of an application, and that's what I researched a lot until I found this formula, very easy to do polymorphically. It's adapted to byte-to-byte decryption, but I explained how to adapt it to others down.</p>
+<pre>
++---------------------------------------------------------------------------+
+|Random(Number) symbolizes a random number between 0 and Number-1 (just like|
+| the C function)                                                           |
+|                                                                           |
+|Encrypted_Data_Size = The size of encrypted part, rounded to the next power|
+|                      of 2 (I explain this later)                          |
+|InitialValue = Random(Encrypted_Data_Size)                                 |
+|                                                                           |
+| The formula                                                               |
+| -----------                                                               |
+|      Register1 = Random(Encrypted_Data_Size)                              |
+|      Register2 = InitialValue                                             |
+| Loop_Label:                                                               |
+|      Decrypt [(Register1 XOR Register2)+Begin_Address_Of_Encrypted_Data]  |
+|      Register1 += Random (Encrypted_Data_Size) AND -2                     |
+|                                     (Take care with this one!)            |
+|      Register1 = Register1 MOD Encrypted_Data_Size                        |
+|      Register2++                                                          |
+|      Register2 = Register2 MOD Encrypted_Data_Size                        |
+|      if Register2!=InitialValue GOTO Loop_Label                           |
+|      GOTO Begin_Address_Of_Encrypted_Data                                 |
++---------------------------------------------------------------------------+
+</pre>
+<p>That's it! Very short, very easy to code, and very randomized. Let's see it by parts, and I'll explain the mathematical aspects of the formula (why it's like this and no like other):</p>
+<p>The first thing to consider is the fact that the encrypted part must be a pow of 2. If you look at the formula, you can see that the generated decryption address came from a XOR between two random numbers. The fact is that a XOR (unlike ADD, SUB, etc.) never modifies a bit higher than the highest bit of the two numbers, which allows us to know always the top limit of the resulting number (always power of 2).</p>
+<p>Now, the used registers: Register1 is used as a modifier for the Register2, and it's a pseudo-random number every time, due to the fact that we generate its initial value randomly and we add to it a random number every loop. The work of this formula is done by the Register2, and if you look at it, you can see that Register2 is no other thing than a counter, so you can increase it or decrease it, it's up to you (or up to the engine :). Just keep it inside the limits (between 0 and Encrypted_Data_Size).</p>
+<p>Now the real revolution of this formula: I find out, after many tests, that when you have a counter (Register2) and you XOR a random number to it (always inside the limits and that, I'm not going to repeat this anymore :) you get a different number, and if you add to the XORing value a little special random number and increase the counter, the next time you do the XOR to the counter you will get another different number. When you have completed all the count sequence (from 0 till NumberPowerOf2), you get a sequence of random numbers which touch all the numbers from 0 till NumberPowerOf2, but without anyone repeated! It's like making a permutation of a sequence, but you don't have to store any vector nor generate any data. Since the formula randomizes all its numbers, it doesn't vary very much from the "standard" decryptor.</p>
+<p>I referred sometimes to a "special random number", which is the one that you have to XOR to the counter. This one is special because you have to keep it in a "level" down than the other random numbers. I explain this, and please keep attention to it, because is very important:</p>
+<p><em>When you use this technology, most random numbers are from 0 until the size of the data to decrypt (pow of 2). There's a particularity in the formula that it's necessary for the correct development and returning reliable values: you must "align" the numbers (so, the result of Random(Encrypted_Data_Size) must be multiple of 1 if we decrypt by byte ptr (nothing special here, then), be multiple of 2 if we decrypt by word ptr, and multiple of 4 if we decrypt by dword ptr). But the number that we add to the XORing value is slightly special because it has to be aligned in an upper grade, I mean, if you use byte ptr for decryption, that number must be multiple of 2, multiple of 4 for word ptr and of 8 for dword ptr. That is easily achieved by getting, before coding the opcode of the instruction, the random number to add, and then doing an instruction:<br/>
+AND Value,Encrypted_Data_Size-2 (for bytes), or<br/>
+AND Value,Encrypted_Data_Size-4 (for words), etc.<br/>
+(in the engine, not in the decryptor!).</em></p>
+<p>Just take this into account because, if not, the decrypted part will be touched two times, leaving it corrupted (I found out this after becoming mad and furious after several hours of seeing a correct engine and an incorrect decryption, and after coding thousands of little programs to test that :).</p>
+<p>This method, although powerful, can be defeated with the detection of the code loops, so we must do anything to break the linearity of the decryptor execution. The easiest way is to put some conditional jumps in the middle, but it seems that the emulators detect which zone of code is more frequently executed (or something like that), so I thought about it and created the next technique:</p>
+<h4><a name="p122"></a>1.2.2 Branching Technology</h4>
+<p>This one, combined with PRIDE (it seems a joke :P ) will allow us to defeat normal emulators (at least until this date), and of course with the help of the normal polymorphism techniques and complex garbage generation.</p>
+<p>When you look at a legitimal application, you can see that it has many conditional jumps, followed by code, and the normal thing is that a portion of code isn't executed an ununderstandable number of times as a decryption loop does. We must break this, and the way can be this:</p>
+<pre>
++----------------------------------------------------------------------------+
+|First we have this arrays and values:                                       |
+|                                                                            |
+|ArrayOfJumps       dd N dup (0)                                             |
+|ArrayOfJumpsNdx    dd 0                                                     |
+|JumpsToComplete    dd N dup (0)                                             |
+|JumpsToCompleteNdx dd 0                                                     |
+|                                                                            |
+|                                                                            |
+|        |                                                                   |
+|        | This is the beginning of the decryptor. This is the part when the |
+|        | registers are setted to their starting value, and all things that |
+|        | that we must put at the beginning.                                |
+|        |                                                                   |
+|        |                                                                   |
+|        x First address stored into ArrayOfJumps                            |
+|        |                                                                   |
+|        | Garbage                                                           |
+|        |                                                                   |
+|      .-*-. Random conditional jump with a very random probability of jump  |
+|      |   | Garbage                                                         |
+|      x   x 2nd and 3rd address stored into ArrayOfJumps                    |
+|      |   | Garbage                                                         |
+|     .*. .*. Random conditional jumps                                       |
+|     | | | |                                                                |
+|     | | | | Four decryption algorithms that perform the same op. but with  |
+|     | | | |  different code.                                               |
+|     | | | |                                                                |
+|     | | | |                                                                |
+|     | | | | Final-of-decryption check                                      |
+|     R R R R Loop to continue decrypting (jump randomly to one of the addr. |
+|     | | | |  stored in ArrayOfJumps)                                       |
+|     | | | | Garbage                                                        |
+|     | | | |                                                                |
+|     V V V V Jump to decrypted virus                                        |
+|                                                                            |
+|(This would be generated with 3 levels of recursivity. Just look down to see|
+|the explanation)                                                            |
++----------------------------------------------------------------------------+
+</pre>
+<p>I think the technique is quite clear looking at the diagram, but I'll explain it in words:</p>
+<ol>
+<li><strong>First step</strong> You must code a recursive function that I'm going to call "DoBranch". This function has to manage the coding as if it were a tree. Once in the engine, when you begin to construct a decryptor, you insert first the instructions that set our going-to-be-used registers to their operative value. Once you have this, and after generating some garbage, you call to "DoBranch". You must sure that the function, since it's recursive, is going to execute several times, so don't put fixed memory variables. Use stack or indexed variables, instead.</li>
+<li><strong>Recursivity r0x!</strong> DoBranch takes the control, and the function doesn't return completely until the whole decryptor is finished. The function must know which level of recursivity is, so you have to put a variable that increases every time you enter into "DoBranch" (INC [RecursivityLevel] at the very beginning). Every time you return from the function you must decrease that variable.</li>
+<li><strong>Save this address</strong> Look if the recursivity level is the last one that we allow. If it is not, we store the actual instruction insertion address into our prepared set of variables: ArrayOfJumps+ArrayOfJumpsNdx, and we increase ArrayOfJumpsNdx.</li>
+<li><strong>Interjumping code</strong> If you didn't arrive to the desired level of recursivity (yet), and after saving the actual address (point 3), generate garbage (a good amount of). When you decide that you have enough, then generate a random conditional jump. It must be very random, just like CMP Reg1,Reg2/JA xxx or similar, begin Reg1 and Reg2 garbage registers, if possible (the ones you put on garbage instructions). There is a huge set of possibilities (another very good one is TEST Reg,Value / J(N)Z xxx, being Value a number power of 2 - only one bit set).
+<p>We must store then the address of the conditional jump we made, because we don't know yet to which address we have to jump, so we save this and later we'll calculate and complete this jumps. It's enough to push the address onto the stack.</p>
+<p>After saving this, we code this leave of the binary tree: you call "DoBranch" again, and when it returns... voil&acute;! We have a complete branch coded, and of course the index of instruction insertion points to the place where the next branch will be. So, we pop the address that we pushed before, we calculate the distance between the actual insertion index and the saved address, and then we complete the conditional jump that the save address point at with that calculated value. After this little operation, call "DoBranch" again, decrease [LevelOfRecursivity] and RET.</p></li>
+<li><strong>Control the number of branches</strong> The number of branches created by this function is going to be 2^MaxRecursivityLevelAllowed, so take care, since this function can generate a huge decryptor without many coding (I recommend 3 or 4 levels of recursion, which would generate 8 or 16 branches).</li>
+<li><strong>The last recursivity level allowed</strong> When you arrive to the last level of recursivity, then you code the decryption algorithm (just the decryption instruction, the index modification, the counter inc/decrementation, etc (all mixed with garbage) and all that. Make sure you are doing this very randomly, because you are coding this part 2^MaxRecursivityLevelAllowed times (usually 8 or 16), and if you code this very similar to the others, it's not polymorphism at all.
+<p>When you arrive to the comparision/cond_jmp pair (the one which loops to continue decryption if the encrypted part isn't decrypted yet), you have to code the comparision and leave the jump uncompleted, since we must wait to the complete return of "DoBranch" to assure that all branches are coded. So, we store this address into the other prepared array, JumpsToComplete, just like we made with the ArrayOfJumps.</p>
+<p>Then insert some garbage, code the jump to the decrypted part and RET.</p></li>
+<li><strong>The complete return of "DoBranch"</strong> After the return of the first call to DoBranch, we have to complete the jumps we stored in JumpsToComplete. This time we are going to use the two arrays that we constructed while coding all branches. All the power of the technique is based on this:
+<ol>
+<li>Take the first address in JumpsToComplete</li>
+<li>Select randomly an address in ArrayOfJumps</li>
+<li>Complete the address from JumpsToComplete with the other address, so we have finally a conditional jump to one place of the tree in a random way.</li>
+<li>Do it with all the addresses in JumpsToComplete</li>
+</ol></li>
+</ol>
+<p>When we finish, we'll have a decryptor that its behaviour is exactly the same as a normal one, but that you never know which branch of code is going to be executed every time, since when you jump to loop, you perform a random number of random comparisions and conditional jumps that will drive you to a random decryption part. Due to the fact that every final part of the branch does the same than the others, we don't care which one becomes executed every time, so we broke the linearity of execution and now, "from the outside", the decryptor resembles a normal application following its conditions, not a decryption loop.</p>
+<h3><a name="p13"></a>1.3 Internal recursivity</h3>
+<p>We have seen that Branching requires recursivity for an easy coding of the technique, but since we have done it, we can make the entire engine oriented to recursive functions, specially to generate indirect register/memory modifications. We are going to code some usual functions recursively, adding a variable that I call "recursivity level", which is a variable that is increased every time the function is called, and it's used to control the active instances of this function (so, when we arrive to a pre-decided number of callings, then we avoid calling this function recursively again). Let's see the MOV Reg,Value instruction and what happens if we code the function that generates this type of instruction in a recursive way:</p>
+<ol>
+<li><strong>Decide the MOV types</strong> Normally I use MOV Reg,Value, PUSH Value/POP Reg and LEA Reg,[Value], but it's up to you. There is another opcode for MOV Reg,Value (C7 C?), but try to avoid it since no compiler will generate it (although is completely correct for the processor, since it's the opcode for MOV DWORD PTR [Address],Value with the register-selection bits activated) since there are more optimized ways of doing it (concretely, the B? one-byte opcodes for direct value MOVs).
+<p>Now that we have this MOVs, we select them as a "last chance": we use them, for example, in a 25% of callings, and when we are in a quite deep recursivity level (5 or 6 is enough, I think). We'll call this function "DoMOVRegValue". So, at the beginning, we can put:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span>RecursivityLevel<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span>RecursivityLevel<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jae</span> &nbsp; &nbsp; MakeNoRecursive<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>And, to finish, we jump here instead of making RET:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">Return<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span>RecursivityLevel<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div></li>
+<li><strong>Not only this function, but more!</strong> To increase complexity of generated code, we have to make other functions that follow the same method as DoMOVRegValue. We can code DoMOVRegReg, DoMOVRegMem (this will make a MOV Reg,[Address] or similar), DoMOVMemReg, and the modifications (DoADDRegValue, <strong>SUB</strong>, <strong>XOR</strong>, etc.). We have to be careful with this ones, and we have to be sure that there's no error in its code, as we are going to code it all together at the same time (well, I prefer this method, but you can make it easier at first and increase the function's internal options when you have tested it). Then, DoMOVRegValue won't generate only the direct movings that we decided before, but we have more chances to make a value moving, for example:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; DL=Register to use</span><br/>
+<span style="color: black; font-style: italic;">; EAX=Value to move to the register</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GiveMeABufferAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Now, EBX=Buffer address where we can store a dword</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVMemValue &nbsp; <span style="color: black; font-style: italic;">; Using EBX as address and EAX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; as value</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVRegMem &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Using EBX as address and DL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; as register</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>This would be a direct case, but what if we do this?:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GiveMeABufferAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;AdjustMemToValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVRegMem<br/>
+<br/>
+AdjustMemToValue<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;Random <span style="color: black; font-style: italic;">; EAX=Random number</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVMemValue <span style="color: black; font-style: italic;">; Move EAX to [EBX]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;MakeGarbage<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoADDMemValue <span style="color: black; font-style: italic;">; Add EAX to [EBX]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>Of course, we don't use only ADD, but XOR, SUB, etc. And we don't use this only in memory addresses, so we can use it in another chance:</p>
+<p>(this is inside DoMOVRegValue and we arrive here randomly, since there are other options, of course):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;AdjustRegToValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+AdjustRegToValue<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVRegValue <span style="color: black; font-style: italic;">; Recursive call</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;MakeGarbage<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoADDRegValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>Then, possibilities are infinite. We can combine all the functions we made before to generate a quite complex MOVing. We can make the same with DoMOVRegReg (taking as not-recursives, for example, MOV Reg1,Reg2, LEA Reg1,[Reg2] or PUSH Reg2/POP Reg1). We can use also other functions to increase this: DoPUSHReg, DoPUSHMem, etc. Let's see an example of deep recursivity:</p>
+<ol>
+<li>We call DoMOVRegValue, and we arrive to:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GiveMeABufferAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;AdjustMemToValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVRegMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; Return<br/>
+&nbsp;</div></li>
+<li>So, we execute AdjustMemToValue, which internally calls to DoMOVMemValue and later to DoADDMemValue. Inside DoMOVMemValue we arrive to:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPUSHValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPOPMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; Return<br/>
+&nbsp;</div></li>
+<li>Executing DoPUSHValue, we arrive here:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GiveMeABufferAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;AdjustMemToValue<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPUSHMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; Return<br/>
+&nbsp;</div>
+<p>Buf! We are very deep now in recursive instances of that functions. After a while, it'll exit from AdjustMemToValue, and maybe it called other recursive functions that again called AdjustMemToValue, so that's why we have to control the number of recursive calls, since it can generate an enormous amount of code without a great effort. After doing DoPUSHValue, it executes DoPOPMem which strategically isn't recursive (and logically too, since there isn't a DoMOVMemMem instruction).</p>
+</li>
+<li>After returning completely from AdjustMemToValue, the function DoMOVRegMem will be executed. This function can also be very deep in recursivity calls, for example:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPUSHMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPOPReg<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; Return<br/>
+&nbsp;</div>
+<p>We know that DoPUSHMem doesn't make recursive calls, but the next function, DoPOPReg, can make them, for example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GiveMeABufferAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoPOPMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DoMOVRegMem<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; Return<br/>
+&nbsp;</div>
+<p>Again, more recursive calls :).</p>
+</li>
+</ol></li>
+</ol>
+<p>After this, you can see how powerful is the recursive code generation, and how a simple MOVing can derive in a quite complex set of assignations from to memory/registers, giving as a final result the desired value in the desired register. Many functions can be done in this way, and later we'll see its application to make garbage.</p>
+<h2><a name="p2"></a>2. Don't give a chance to AVs</h2>
+<p>But even the most recursive engine in the world can make all the work worthless if it's detected heuristically because it put a strange instruction or a quite common polymorphic structure, like:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JMP</span> Next<br/>
+Subroutine<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+Next<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;Subroutine<br/>
+&nbsp;</div>
+<p>or similars, because no normal application does that.</p>
+<h3><a name="p21"></a>2.1 Coherent decryptor structures</h3>
+<p>What to do, then? It's easy: just have an array of "inconcluded calls", I mean: you code the CALL instruction, but you don't code the subroutine yet. Then, you save the address of this instruction in an array and upon a random decision, or at the end of the decryptor, the engine generates the subroutines and completes the CALLs that are in the array to make them point to the new generated subroutines. Also a good way is pre-generate some subroutines before the entrypoint of the decryptor, and make calls to them (combining this type of CALLing with the "inconcluded call" type).</p>
+<p>With this, the decryptor looks more like a compiler-generated application, at least using CALL instructions. Other very polwerful thing is using a stack frame inside the generated subroutines: you make PUSH EBP / MOV EBP,ESP at the beginning and POP EBP at the end of the subroutine and then you can't determine in a first sight if the decryptor is a product of a compiler or not. Even better if you use that stack frame to retrieve values! :)</p>
+<p>Other thing: avoid this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JMP</span> Label<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; x Random bytes<br/>
+Label<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>Do you think it's normal to find this in a normal application? Then, the emulator thinks the same :). Avoid this and avoid inserting direct random data without being linked to any direct instruction.</p>
+<h3><a name="p22"></a>2.2 Opcodes to avoid</h3>
+<p>Have you ever scanned a virus that, although extremely polymorphic, inserts one-byte instructions like CMC, STI, etc.? If you have tried it with AVP, for example, you maybe noticed that automatically the antivirus enters in deep scan. Why? Because it's HIGHLY suspicious to use these instructions. Who uses CMC nowadays? And not only that, since the random generator trends to insert quite a lot of this dummy instructions, and the antivirus emulator knows that fact, so when it founds a more or less big number of these instructions (and some instructions directly, even if there is only one), it decides that the file is so suspicious that maybe worth the time to enter in deep scan. Maybe it doesn't found anything, but an average user can think that that file has anything more than the original application.</p>
+<p>This advide is also for some 16 bits instructions under win32 applications. While coding the TUAREG engine, I put nearly all the instructions the garbage generator could generate to use 8, 16 or 32 bits, and then, when scanning with AVP, the emulator switched always to deep scan. After thinking about it, I removed the generation of some 16 bits instructions and AVP didn't make that again. I don't know which instructions make AVP to activate that heuristic flag, but invariably I recommend to use as less as possible 16 bits instructions.</p>
+<h2><a name="p3"></a>3. Advanced garbage generation</h2>
+<p>Now, we are going to enter in one of my favorite subjects: garbage generation. My opinion is that the main power of a polymorphic engine is the function to generate garbage, since the garbage is the code that makes the emulators to give up tracing or help them to determine the nature of the program. So, the more normal the garbage seems, the less suspicious the decryptor seems, and the more complex the garbage is, the less an emulator can enter into the decryptor to emulate. Let's see some types, although there aren't all (obviously I'm not going to explain the easy ones). Imagination also counts!</p>
+<h3><a name="p31"></a>3.1 Memory accesses</h3>
+<p>Nowadays is a must to have it in an engine, if one wants to make it complex. Which type of application doesn't make any random-access memory operation in the first 300 bytes? Only a very weird program or an infected program with an attached polymorphic virus that doesn't implement memory writing instructions can do this (besides decryption process).</p>
+<p>But the fact is that, while in MS-DOS we had all the memory accesible, and we could read from everywhere, this isn't true for win32, and an attempt to read from "everywhere" will cause, in the great majority of times, an exception. Writing is much more restrictive under win32, because we can only write on the sections we defined as WRITABLE on the PE header (although we want to generate an exception, of course :). So, we can use some tricks to have frames of memory to read and/or write indiscriminatedly.</p>
+<p>In win32 executables, we have a section that exists in nearly all them: the ".bss" section. This section has a physical size (in file size) of 0, but virtually can be quite big (its size is normally 1000h bytes at least, but in huge programs can arrive to 64K or more). We can use that section to read and/or write anything we want, but always if we make our virus to execute at first, not doing Entry-Point Obscuring and such things, since the application would set all the void data in the section to whatever it needs. There is another solution, and is to use the void holes in the virus that we use to retrieve, for example, the current directory with GetCurrentDirectory or similar functions. Since we don't need that fields until the virus is executing, we can use that holes, if they are big enough, as frames of memory in the same way as .bss, where we can read and write things.</p>
+<p>So, once we have that frames, and we are sure that at least 256 or 512 bytes are free to do animalities :), we can code a function to retrieve a random memory address, for example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;Random<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0FCh</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>AddressOfMemoryFrame<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>That will return in EAX a memory address, which moreover is aligned in a dword boundary.</p>
+<h3><a name="p32"></a>3.2 API calls</h3>
+<p>OK, so after coding a good decryptor structure and memory accesses, to fuck up completely any initial suspiciousness about the "undesired traveller", we insert API calls.</p>
+<p>It's not easy to put them, and we only can call those ones that we know how to call, so we have to have information about all them (there isn't a "generic" way of calling them), and moreover we need to find and scan the import directory of the victim host while infecting it, so we have to deduce, from the virtual address (since we only know that about the import directory from the PE header), which physical address is, and then from the physical address convert to virtual address to have the imported API calling address.</p>
+<p>The method I follow is the next, assuming we have the host mapped in memory:</p>
+<ol>
+<li>We get the virtual address of the import directory, which is located at PE_Header+80h.</li>
+<li>Now, we scan all sections of the file to find in which section that virtual address will be.</li>
+<li>After finding the section, we subtract the virtual address of the section to the virtual address of the import, to get the relative position of the import directory in that section, and we add the result to the physical address of the section to get the physical address of the import.</li>
+<li>Now, we save the values we have obtained in the process, and we begin to scan the mapped import directory as if it were virtual, since later the program will be in that way in memory.</li>
+<li>We scan the imported modules and we look for known functions, but taking in account that every time we get an RVA first we have to convert it to physical (this applies while getting values from the array of RVAs to the names of the functions), so, having the RVA, we subtract the RVA of the section and we add the physical address of that section, so we get the physical address of the name of the function.</li>
+<li>Then, when we find the desired functions, we get the order in the array of imported addresses. We add to that number the virtual address of that array in order to get the virtual address where the imported address will be stored.</li>
+<li>We save that number, and we continue searching for more functions.</li>
+</ol>
+<p>After that, we get the addresses to the import where the virtual addresses to the functions will be stored. Now, a call like CALL [Obtained_Address] will make a call to the API. Just be careful with the parameters and with the functions were a buffer is required.</p>
+<p>Another thing: as Micro$oft programmers are dumb or worse, there are functions that can hang the application, like GetModuleHandleA. I've tried to pass to it a random pointer as the module name to get the handle of, but then an exception occurs, instead of returning an error telling "no valid string" or "module not found" or something like that, so be careful with some functions.</p>
+<h3><a name="p33"></a>3.3 Recursive garbage functions</h3>
+<p>Before we saw the potential of recursive calls to make things, and now we apply that to garbage. There are some types of garbage that we can make (and we must make) in a recursive way, like CALLs, random loops and some more. Here I'll explain CALLs and random loops.</p>
+<p>Before I explained a method of how to make CALLs without making suspicious structures, and I told that, later, at the end of the decryptor (for example), you can construct the subroutines that are called by that CALLs. To make the subroutines, we should use recursivity, so we have to code the DoGarbage function in a recursive way, I mean, the function can be called by itself. This has to be made to make better garbage inside the CALLs, and moreover in that way in that subroutines we can have other CALLs, also. But be careful, because something like this can happen:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">Subroutine1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;Subroutine2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+Subroutine2<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;Subroutine1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>That situation can produce a hang of the decryptor, and thus the application never executes. To avoid that, we can use arrays to store "levels" of calls, in this way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">CallsLevel1 &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;x dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+CallsLevel2 &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;x dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+CallsLevel3 &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;x dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>When we enter in the CALL generation part of the engine, we must increase a variable, like an internal recursivity level, to control the level of call that we are generating now, in a way that makes that Level 1 calls never will generate a call to Level 1 or upper, and the same for Level 2 and so on. In thas way we avoid situations like the one above, since a subroutine won't call other subroutine which will drive execution to the same subroutine again.</p>
+<p>Other recursive garbage generation is the random loop generation. We can put little, annoying loops that do nothing but that, loop (just seven or eight times, nothing that last very long). Since a random loop inside a random loop is equal to a geometrical increment of the loop duration, better if we avoid them, having a variable telling "I'm in a loop now, so don't make another". The same applies for CALLs, since we code them later, not in that moment, and maybe we put another loop inside the generated subroutine, which would produce the same problem. So, when generating looping code, avoid making other loops or calls. To make the loop, of course, we call to DoGarbage to fill some looping space (a void loop isn't normal, you know).</p>
+<p>And, as you could deduct, maybe, we can use DoMOVRegValue and all those functions that we coded to generate more garbage: just take a garbage register and a random number and use that functions.</p>
+<h2><a name="p4"></a>4. Last words</h2>
+<p>Well, this article is shorter than I expected, but I hope it'll be useful for you to bring you ideas while coding your new polymorphic engine. The great majority of ideas I expose here have been used in the TUAREG engine, and sometimes in the source code of the TUAREG I refer to this article to get the explanation of some techniques. Laterz!</p>
+[<a style="" href="/lib/?lang=EN&amp;index=PO#vmd03">Back to index</a>] [<a href="/lib/vmd03.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmd03">de</a><a href="/lib/index.php?lang=en&amp;id=vmd03">en</a><a href="/lib/index.php?lang=es&amp;id=vmd03">es</a><a href="/lib/index.php?lang=it&amp;id=vmd03">it</a><a href="/lib/index.php?lang=fr&amp;id=vmd03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmd03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmd03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmd03">ua</a></div>
+</body>
+</html>

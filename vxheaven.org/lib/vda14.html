@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Dark Angel 'System file tables and their usage' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Dark Angel"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Dark Angel,System file tables and their usage, device, cluster, read, tables, share, entry, sector, format, segment, table, hbyte, packed, handle, offsetsizedescription, sharing"/>
+<meta name="Description" content="A powerful though seldom-used technique in virus writing is the use of the system file table, an internal DOS structure similar in some respects to FCBs, albeit vastly more powerful."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"e2137b6718392a3d908a67fade1e74c13f73851d-1498757249-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vda14.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>System file tables and their usage</h1><p><a href="/lib/?lang=en&amp;author=Dark%20Angel"> Dark Angel</a><br/> <em><a href="/vx.php?fid=22#f22">40hex [11]</a></em><br/> <em>June 1993</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vda14.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vda14">Back to index</a>] [<a href="/lib/vda14.html#disqus_thread">Comments</a>]<br/> 
+<p>A powerful though seldom-used technique in virus writing is the use of the system file table, an internal DOS structure similar in some respects to FCBs, albeit vastly more powerful. The system file table holds the critical information on the state of an open file, including the current pointer location, the open mode, and the file size. Manipulation of the system file tables can often replace calls to corresponding DOS interrupt routines and therefore, when combined with other techniques, reduces the effectiveness of a TSR virus monitor and decreases code size.</p>
+<p>Each open file has a corresponding system file table. The following tables come from Ralf Brown's interrupt listing.</p>
+<p>Format of DOS 2.x system file tables:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Format of DOS 2.x system file tables">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>DWORD</td><td>pointer to next file table</td></tr>
+<tr><td>04h</td><td>WORD</td><td>number of files in this table</td></tr>
+<tr><td>06h</td><td>28h bytes per file</td><td>
+<table border="1" cellspacing="0" cellpadding="0" summary="per file">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>BYTE </td><td>number of file handles referring to this file</td></tr>
+<tr><td>01h</td><td>BYTE </td><td>file open mode (see AH=3Dh)</td></tr>
+<tr><td>02h</td><td>BYTE </td><td>file attribute</td></tr>
+<tr><td>03h</td><td>BYTE </td><td>drive (0 = character device, 1 = A, 2 = B, etc)</td></tr>
+<tr><td>04h</td><td>11 BYTEs</td><td>filename in FCB format (no path, no period, blank-padded)</td></tr>
+<tr><td>0Fh</td><td>WORD </td><td>???</td></tr>
+<tr><td>11h</td><td>WORD </td><td>???</td></tr>
+<tr><td>13h</td><td>DWORD</td><td>file size???</td></tr>
+<tr><td>17h</td><td>WORD </td><td>file date in packed format (see AX=5700h)</td></tr>
+<tr><td>19h</td><td>WORD </td><td>file time in packed format (see AX=5700h)</td></tr>
+<tr><td>1Bh</td><td>BYTE </td><td>device attribute (see AX=4400h)</td></tr>
+<tr><th colspan="3">character device</th></tr>
+<tr><td>1Ch DWORD pointer to device driver</td></tr>
+<tr><th colspan="3">block device</th></tr>
+<tr><td>1Ch</td><td>WORD </td><td>starting cluster of file</td></tr>
+<tr><td>1Eh</td><td>WORD </td><td>relative cluster in file of last cluster accessed</td></tr>
+<tr><td>20h</td><td>WORD </td><td>absolute cluster number of current cluster</td></tr>
+<tr><td>22h</td><td>WORD </td><td>???</td></tr>
+<tr><td>24h</td><td>DWORD</td><td>current file position???</td></tr>
+</table></td></tr>
+</table>
+<p>Format of DOS 3.x system file tables and FCB tables:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Format of DOS 3.x system file tables and FCB tables">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>DWORD</td><td>pointer to next file table</td></tr>
+<tr><td>04h</td><td>WORD</td><td>number of files in this table</td></tr>
+<tr><td>06h</td><td>35h bytes per file</td><td>
+<table border="1" cellspacing="0" cellpadding="0" summary="per file">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>WORD </td><td>number of file handles referring to this file</td></tr>
+<tr><td>02h</td><td>WORD </td><td>file open mode (see AH=3Dh) bit 15 set if this file opened via FCB</td></tr>
+<tr><td>04h</td><td>BYTE </td><td>file attribute</td></tr>
+<tr><td>05h</td><td>WORD </td><td>device info word (see AX=4400h)</td></tr>
+<tr><td>07h</td><td>DWORD</td><td>pointer to device driver header if character device else pointer to DOS Drive Parameter Block (see AH=32h)</td></tr>
+<tr><td>0Bh</td><td>WORD </td><td>starting cluster of file</td></tr>
+<tr><td>0Dh</td><td>WORD </td><td>file time in packed format (see AX=5700h)</td></tr>
+<tr><td>0Fh</td><td>WORD </td><td>file date in packed format (see AX=5700h)</td></tr>
+<tr><td>11h</td><td>DWORD</td><td>file size</td></tr>
+<tr><td>15h</td><td>DWORD</td><td>current offset in file</td></tr>
+<tr><td>19h</td><td>WORD </td><td>relative cluster within file of last cluster accessed</td></tr>
+<tr><td>1Bh</td><td>WORD </td><td>absolute cluster number of last cluster accessed 0000h if file never read or written???</td></tr>
+<tr><td>1Dh</td><td>WORD </td><td>number of sector containing directory entry</td></tr>
+<tr><td>1Fh</td><td>BYTE </td><td>number of dir entry within sector (byte offset/32)</td></tr>
+<tr><td>20h</td><td>11 BYTEs</td><td>filename in FCB format (no path/period, blank-padded)</td></tr>
+<tr><td>2Bh</td><td>DWORD</td><td>(SHARE.EXE) pointer to previous SFT sharing same file</td></tr>
+<tr><td>2Fh</td><td>WORD </td><td>(SHARE.EXE) network machine number which opened file</td></tr>
+<tr><td>31h</td><td>WORD </td><td>PSP segment of file's owner (see AH=26h)</td></tr>
+<tr><td>33h</td><td>WORD </td><td>offset within SHARE.EXE code segment of sharing record (see below) 0000h = none</td></tr>
+</table></td></tr>
+</table>
+<p>Format of DOS 4+ system file tables and FCB tables:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Format of DOS 4+ system file tables and FCB tables">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>DWORD</td><td>pointer to next file table</td></tr>
+<tr><td>04h</td><td>WORD</td><td>number of files in this table</td></tr>
+<tr><td>06h</td><td>3Bh bytes per file</td><td>
+<table border="1" cellspacing="0" cellpadding="0" summary="per file">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h</td><td>WORD </td><td>number of file handles referring to this file</td></tr>
+<tr><td>02h</td><td>WORD </td><td>file open mode (see AH=3Dh) bit 15 set if this file opened via FCB</td></tr>
+<tr><td>04h</td><td>BYTE </td><td>file attribute</td></tr>
+<tr><td>05h</td><td>WORD </td><td>device info word (see AX=4400h) bit 15 set if remote file bit 14 set means do not set file date/time on closing</td></tr>
+<tr><td>07h</td><td>DWORD</td><td>pointer to device driver header if character device else pointer to DOS Drive Parameter Block (see AH=32h) or REDIR data</td></tr>
+<tr><td>0Bh</td><td>WORD </td><td>starting cluster of file</td></tr>
+<tr><td>0Dh</td><td>WORD </td><td>file time in packed format (see AX=5700h)</td></tr>
+<tr><td>0Fh</td><td>WORD </td><td>file date in packed format (see AX=5700h)</td></tr>
+<tr><td>11h</td><td>DWORD</td><td>file size</td></tr>
+<tr><td>15h</td><td>DWORD</td><td>current offset in file</td></tr>
+<tr><th colspan="3">---local file</th></tr>
+<tr><td>19h</td><td>WORD </td><td>relative cluster within file of last cluster accessed</td></tr>
+<tr><td>1Bh</td><td>DWORD</td><td>number of sector containing directory entry</td></tr>
+<tr><td>1Fh</td><td>BYTE </td><td>number of dir entry within sector (byte offset/32)</td></tr>
+<tr><th colspan="3">network redirector</th></tr>
+<tr><td>19h</td><td>DWORD</td><td>pointer to REDIRIFS record</td></tr>
+<tr><td>1Dh</td><td>3 BYTEs</td><td>???</td></tr>
+<tr><td>20h</td><td>11 BYTEs</td><td>filename in FCB format (no path/period, blank-padded)</td></tr>
+<tr><td>2Bh</td><td>DWORD</td><td>(SHARE.EXE) pointer to previous SFT sharing same file</td></tr>
+<tr><td>2Fh</td><td>WORD </td><td>(SHARE.EXE) network machine number which opened file</td></tr>
+<tr><td>31h</td><td>WORD </td><td>PSP segment of file's owner (see AH=26h)</td></tr>
+<tr><td>33h</td><td>WORD </td><td>offset within SHARE.EXE code segment of sharing record (see below) 0000h = none</td></tr>
+<tr><td>35h</td><td>WORD </td><td>(local) absolute cluster number of last clustr accessed (redirector) ???</td></tr>
+<tr><td>37h</td><td>DWORD</td><td>pointer to IFS driver for file, 0000000h if native DOS</td></tr>
+</table></td></tr>
+</table>
+<p>In order to exploit this nifty structure in DOS, the virus must first find the location of the appropriate system file table. This may be easily accomplished with a few undocumented DOS calls. Given the file handle in bx, the following code will return the address of the corresponding system file table:</p>
+<pre class="source">
+	mov ax,1220h		; Get job file table entry to ES:DI
+	int 2fh			; DOS 3+ only
+
+	mov bl,es:di		; get number of the SFT for the file handle
+				; -1 = handle not open
+	mov ax,1216h		; get address of the system file table
+	int 2fh			; entry number bx
+				; ES:DI now points to the system file table entry
+</pre>
+<p>Now that the system file table entry address is known, it is a trivial matter to alter the various bytes of the entry to fit your particular needs. Most viruses must first clear a file's attributes in order to open the file in read/write mode, since it would otherwise not be able to write to a read-only file. This handicap is easily overcome by opening the file in read-only mode (al = 0) and changing the byte (or word) referring to the file's open mode to 2. This has the added benefit of bypassing some resident alarms, which generally do not go off if a file is opened in read only mode. It is also possible to set a file's pointer by altering the double word at offset 15h (in DOS 3+). So a quick and easy way to reset the file pointer is:</p>
+<pre class="source">
+	mov es:di+15h,0
+	mov es:di+17h,0
+</pre>
+<p>It is acceptable to ignore the DOS 2.X system file table format. DOS 2.X is not in common use today and many programs simply refuse to run under such primitive versions. Most of the useful offsets are constant in DOS 3.X+, which simplifies the code tremendously.</p>
+<p>This is only a surface treatment of a topic which warrants further investigation. Numerous opportunities exist for the enterprising virus author to exploit the power of the system file tables. But the only way to find these opportunities is to experiment. Have fun!</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vda14">Back to index</a>] [<a href="/lib/vda14.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vda14">de</a><a href="/lib/index.php?lang=en&amp;id=vda14">en</a><a href="/lib/index.php?lang=es&amp;id=vda14">es</a><a href="/lib/index.php?lang=it&amp;id=vda14">it</a><a href="/lib/index.php?lang=fr&amp;id=vda14">fr</a><a href="/lib/index.php?lang=pl&amp;id=vda14">pl</a><a href="/lib/index.php?lang=ru&amp;id=vda14">ru</a><a href="/lib/index.php?lang=ua&amp;id=vda14">ua</a></div>
+</body>
+</html>

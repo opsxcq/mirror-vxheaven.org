@@ -1,0 +1,484 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'Code Mutations via Behaviour Analysis' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,Code Mutations via Behaviour Analysis, data, registers, block, pointer, memory, mirror, dword, values, behaviour, permutation, shrinking, extention, create, stack, including"/>
+<meta name="Description" content="The basic idea is: The file analyses the behaviour of its own code and compares it with the behaviour of a randomly generated code. If the behaviour is the same, the original file-code will be substituted by the new random code."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"e8a6104accd903b535b8e179227d0dd4ece385fb-1498757795-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp27.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Code Mutations via Behaviour Analysis</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em><a href="/vx.php?fid=1940#f1940">Virus Writing Bulletin [1]</a></em><br/> <em>January 2011</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp27.html';</script><div class="ci"><a href="/lib/?ci=vsp27">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=VT#vsp27">Back to index</a>] [<a href="/lib/vsp27.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">1) Introduction</a></li>
+<li><a href="#c2">2) Basics - Register Operators only</a>
+<ul>
+<li><a href="#c21">2.1) Analyse me: Local Behaviour Table</a></li>
+<li><a href="#c22">2.2) Create Random Code</a></li>
+<li><a href="#c23">2.3) Compare me: Blackbox-Analyse</a></li>
+<li><a href="#c24">2.4) More Freedom: Global Behaviour Table</a></li>
+</ul></li>
+<li><a href="#c3">3) Extentions</a>
+<ul>
+<li><a href="#c31">3.1) Including the Stack</a></li>
+<li><a href="#c32">3.2) Including Memory</a></li>
+</ul></li>
+<li><a href="#c4">4) Possible extentions</a>
+<ul>
+<li><a href="#c41">4.1) Hide me: Global Behaviour Table at Runtime</a></li>
+<li><a href="#c42">4.2) Permutation - easy as it can be</a></li>
+<li><a href="#c43">4.3) Jump somewhere</a></li>
+<li><a href="#c44">4.4) Behaviour Flow</a></li>
+<li><a href="#c45">4.5) Automatic shrinking/extention/trash</a></li>
+</ul></li>
+<li><a href="#c5">5) Conclusion</a></li>
+</ul>
+<h2><a name="c1"></a>1) Introduction</h2>
+<p>The basic idea is: The file analyses the behaviour of its own code and compares it with the behaviour of a randomly generated code. If the behaviour is the same, the original file-code will be substituted by the new random code.</p>
+<p>This article describes how this idea can be realized.</p>
+<h2><a name="c2"></a>2) Basics - Register Operators only</h2>
+<h3><a name="c21"></a>2.1) Analyse me: Local Behaviour Table</h3>
+<p>The program's code is splitted into 8byte blocks of code, padded with NOPs). With that knowlegde we can parse the whole file, and analyse the behaviour of each 8byte part.</p>
+<p>We only use Register operators for the moment. When we run an unknown code, all that can be changed are the 8 Registers and FLAGS Registers.</p>
+<p>We define a table consisting of 8+1 * 4 bytes:</p>
+<pre class="source">
+	Local Behaviour Table (LBT):
+
+	Each behaviour Block consists of:
+	Registers: 9*4=36 byte
+		0x00 dd EAX
+		0x04 dd EBX
+		0x08 dd ECX
+		0x0C dd EDX
+		0x10 dd EBP
+		0x14 dd ESI
+		0x18 dd EDI
+		0x1C dd FLAGS
+		0x20 dd ESP
+</pre>
+<p>Before running the unknown code, we set all registers (except of EPS) to zero. After running the code, we save the change of the registers:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span>LBT<span style="color: #339933;">+</span><span style="color: #ff0000;">0x00</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span>LBT<span style="color: #339933;">+</span><span style="color: #ff0000;">0x04</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; ...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span>LBT<span style="color: #339933;">+</span><span style="color: #ff0000;">0x20</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp;</div>
+<p>(For the flag-register: pushfd/pop Reg32) With that table, we know the principal behaviour of out code. Thats all we need for the moment.</p>
+<h3><a name="c22"></a>2.2) Create Random Code</h3>
+<p>We want to create an 8 byte random code. The best way is to use a template system. One template could look like this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">OPAlImm8<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>RandomCodeBufferSize<span style="color: #339933;">-</span><span style="color: #ff0000;">2</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jg</span>&nbsp; &nbsp; &nbsp; EndCRCCycle<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; CreateSpecialRndNumber<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span><span style="color: black;">&#91;</span>RandomCode<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x04</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; add al, Imm8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; OPAlImm8Cont<br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; ...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span><span style="color: black;">&#91;</span>RandomCode<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x3C</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; cmp al, Imm8 </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">7</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; OPAlImm8Cont<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; OPAlImm8End<br/>
+<br/>
+OPAlImm8Cont<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span><span style="color: black;">&#91;</span>RandomCode<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; EndCRCCycle<br/>
+OPAlImm8End<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>One important restriction is the ESP. The Stack Pointer must stay in the reserved Stack Memory (from [fs:0x04]-[fs:0x08]). Therefore the RCG must not be the source of MOV, ADD, ... . INC and DEC are usually OK if you restore the ESP variable after running the unknown code.</p>
+<h3><a name="c23"></a>2.3) Compare me: Blackbox-Analyse</h3>
+<p>We could create a Local Behaviour Table for the file code and the random code now, and compare the tables. Thats all?</p>
+<p>No! We have used an initial condition (setting all registers to zero), thus the LBT is dependent on that. For example these codes would have the same LBT:</p>
+<pre class="source">
+	mov eax, 1		inc al
+	inc bl			inc bl
+</pre>
+<p>Or this one:</p>
+<pre class="source">
+	mov eax, ebx		xor eax, eax
+</pre>
+<p>That means, when we found equivalent LBTs, we have to make further tests using different initial conditions.</p>
+<p>We can change the registers and the flags to random values, and create new LBTs with that new conditions. If we run that test with always changing conditions for a big number of times (I used 100 and 1000 for register only and flags tests, respectivly), and every single LBT of the programs code and the random code is equal, we found a code with same behaviour, and can substitute the old one.</p>
+<h3><a name="c24"></a>2.4) More Freedom: Global Behaviour Table</h3>
+<p>It is a very strict restriction to the new random code that it has to have exactly the same behaviour. Usually its not required to have have the same behaviour in all registers, most are unused anyway.</p>
+<p>We could use this additional freedom, and creating a Global Behaviour Table (GBT) and compile-time, giving the code the information of which registers have to be the same and which can be different.</p>
+<p>Its a good idea to use a macro and symbolic variables for that (everything else would be insane):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Restrictions:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; A=EAX, B=EBX, C=ECX, D=EDX, P=EPB, S=ESI, I=EDI, F=FLAGS</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rNoRes&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">00000000b</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rA&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">00000001b</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rB&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">00000010b</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rAB &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">00000011b</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rC&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">00000100b</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; ...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rABCDPSIF &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">11111111b</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; GlobalBehaviourTableList <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; macro cc restr<span style="color: #339933;">*,</span> instr<span style="color: #339933;">*,</span> op1<span style="color: #339933;">,</span> op2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Macro for padding commands to 8byte each and for</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; adding the restrictions to the GlobalBehaviourTableList</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; local StartCommand<span style="color: #339933;">,</span> EndCommand<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; StartCommand<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if op2 eq<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if op1 eq<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; instr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; instr op1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; end if<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; instr op1<span style="color: #339933;">,</span>op2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; end if<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; EndCommand<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">times</span> <span style="color: black;">&#40;</span><span style="color: #ff0000;">8</span><span style="color: #339933;">-</span>EndCommand<span style="color: #339933;">+</span>StartCommand<span style="color: black;">&#41;</span><span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">nop</span>&nbsp; <span style="color: black; font-style: italic;">; padding</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; match any<span style="color: #339933;">,</span> GlobalBehaviourTableList &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Add further elements to list</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GlobalBehaviourTableList <span style="color: #0000ff; font-weight: bold;">equ</span> GlobalBehaviourTableList<span style="color: #339933;">,</span>restr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; match <span style="color: #339933;">,</span> GlobalBehaviourTableList&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Add first element to list</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GlobalBehaviourTableList <span style="color: #0000ff; font-weight: bold;">equ</span> restr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>There is no restiction for ESP, as this register always has to be equivalent in file code and random code.</p>
+<p>One simple example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rNoRes<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rA<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">mov</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax=0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rA<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">inc</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax=1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rA<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">add</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax=3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rA<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">nop</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax=3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rC<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">mov</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ecx=3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cc&nbsp; &nbsp; &nbsp; rC<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">nop</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ecx=3 &nbsp;</span><br/>
+&nbsp;</div>
+<p>will be translated to</p>
+<pre class="source">
+       00402000 > $ 90             NOP
+       00402001   . 90             NOP
+       00402002   . 90             NOP
+       00402003   . 90             NOP
+       00402004   . 90             NOP
+       00402005   . 90             NOP
+       00402006   . 90             NOP
+       00402007   . 90             NOP
+       00402008   . B8 00000000    MOV EAX,0
+       0040200D   . 90             NOP
+       0040200E   . 90             NOP
+       0040200F   . 90             NOP
+       00402010   . 40             INC EAX
+       00402011   . 90             NOP
+       00402012   . 90             NOP
+       00402013   . 90             NOP
+       00402014   . 90             NOP
+       00402015   . 90             NOP
+       00402016   . 90             NOP
+       00402017   . 90             NOP
+       00402018   . 83C0 02        ADD EAX,2
+       0040201B   . 90             NOP
+       0040201C   . 90             NOP
+       0040201D   . 90             NOP
+       0040201E   . 90             NOP
+       0040201F   . 90             NOP
+       00402020   . 90             NOP
+       00402021   . 90             NOP
+       00402022   . 90             NOP
+       00402023   . 90             NOP
+       00402024   . 90             NOP
+       00402025   . 90             NOP
+       00402026   . 90             NOP
+       00402027   . 90             NOP
+       00402028   . 89C1           MOV ECX,EAX
+       0040202A   . 90             NOP
+       0040202B   . 90             NOP
+       0040202C   . 90             NOP
+       0040202D   . 90             NOP
+       0040202E   . 90             NOP
+       0040202F   . 90             NOP
+       00402030   . 90             NOP
+       00402031   . 90             NOP
+       00402032   . 90             NOP
+       00402033   . 90             NOP
+       00402034   . 90             NOP
+       00402035   . 90             NOP
+       00402036   . 90             NOP
+       00402037   . 90             NOP
+</pre>
+<p>After a few minutes, the new code looks like that:</p>
+<pre class="source">
+       00402000 > $ 80D5 39        ADC CH,39
+       00402003   . 90             NOP
+       00402004   . 92             XCHG EAX,EDX
+       00402005   . 4B             DEC EBX
+       00402006   . 8BD6           MOV EDX,ESI
+       00402008   . 45             INC EBP
+       00402009   . 20C8           AND AL,CL
+       0040200B   . 33C0           XOR EAX,EAX
+       0040200D   . 2BF2           SUB ESI,EDX
+       0040200F   . 4F             DEC EDI
+       00402010   . 88EE           MOV DH,CH
+       00402012   . 39CD           CMP EBP,ECX
+       00402014   . 12F5           ADC DH,CH
+       00402016   . 40             INC EAX
+       00402017   . 4F             DEC EDI
+       00402018   . 22FA           AND BH,DL
+       0040201A   . 14 02          ADC AL,2
+       0040201C   . 13C8           ADC ECX,EAX
+       0040201E   . 3C 07          CMP AL,7
+       00402020   . 83ED C6        SUB EBP,-3A
+       00402023   . 29DE           SUB ESI,EBX
+       00402025   . 83DA D9        SBB EDX,-27
+       00402028   . 8BD8           MOV EBX,EAX
+       0040202A   . 80E2 37        AND DL,37
+       0040202D   . 23D4           AND EDX,ESP
+       0040202F   . 91             XCHG EAX,ECX
+       00402030   . 2C 05          SUB AL,5
+       00402032   . 88CE           MOV DH,CL
+       00402034   . 21EF           AND EDI,EBP
+       00402036   . 4F             DEC EDI
+       00402037   . 90             NOP                   ; ecx=3
+</pre>
+<h2><a name="c3"></a>3) Extentions</h2>
+<h3><a name="c31"></a>3.1) Including the Stack</h3>
+<p>Including Stack-Commands is quite easy. There are some things to note:</p>
+<p>What happens at 'pop Reg32'? Reg32 changes and ESP changes, we already have all of that informations in the LBT, so nothing to change for POP.</p>
+<p>But what is with 'push Reg32/Imm32'? ESP changes, but we dont know what is on the stack from the above rules. 'PUSH 0x0' would result in the same LBT as 'PUSH 0x1' does.</p>
+<p>Therefore we have to add an additional dword to the LBT, defining the latest value of the stack (if newESP=oldESP-4 changed):</p>
+<pre class="source">
+                  Local Behaviour Table (LBT):
+                          ...
+                     Stack: 1*4=4 byte
+                     0x44 STACK change (if push is used)
+</pre>
+<p>One restriction to the random code appears, too: You must not use pop/push as trash (push/pop is ok). As an example, you have:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>This could be translated to:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>In principal, a legal substituation from the rules above, but fatal.</p>
+<p>One can solve that in two ways: Increase the Local Behaviour Table by 8 dwords, and compare the changing of the stack; or you could just add a byte to note whether the pop occured before the push (this is what I've used in my example virus).</p>
+<h3><a name="c32"></a>3.2) Including Memory</h3>
+<p>It is very tricky to use memory instructions for the random code and get the behaviour later.</p>
+<p>First thing is, that we have to use an Exception Handler. I tried SEH, but there are problems because the EXCEPTION_REGISTRATION and the callback function handle has to be on the stack, and this value can be changed by the random code (for instance "SBB DWORD PTR SS:[ESP+B],EAX", which actually happened). As it's the worst thing when the Exception Handler will be destroyed, we have to use something else: VEH (Vectored Exception Handler). This is provided by Windows XP+ as AddVectoredExceptionHandler-API.</p>
+<p>Second problem: The memory may overwrite any data that is not protected. That means: Its own code (if its in the .data section), any data created with Virtual Alloc (and was no Read/Execution-Only-Flag). We have to use VirtualProtect to any allocated memory.</p>
+<p>Third problem: We can not and should not protect the .data section, as we want new code-substituations for that, too. But the random code can overwrite some important data in the .data section. A solution is to mirror the .data memory with READ-ONLY potection (or NOACCESS flag) After the execution and analyse of the random code, we can restore the original .data section.</p>
+<p>Fourth problem: We have to save the pointer to the DataMirror somewhere. The register may change, so we have to use the .data section. But this pointer can be overwritten by random code, then we dont know the place of the DataMirror anymore, and can not restore the original .data - big problem! However, we can use some self-repair technique: We store the pointer to the DataMirror three times at totally different positions in the .data section, and after execution use that algorithm:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> hDataMirror1<span style="color: black; font-style: italic;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;if (hDataMirror1!=hDataMirror2) {</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> hDataMirror3<span style="color: black; font-style: italic;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;}</span><br/>
+&nbsp;</div>
+<p>eax is the pointer to the DataMirror if there is maximum one destroyed pointer. This should be enough for us (we just have 8 byte of random code).</p>
+<p>Fifth problem: The instructions may rely on the values of the memory, just the same thing as with initial register values. We have to fill the memory as well as the stack with random memory, to prevent that dependence on the initial values.</p>
+<p>Sixth problem: The result of the random code (the local behaviour table) can not be saved in .data (as this one will be restored later) or in the DataMirror (as this one is used for comparing). So one has to allocate additional memory for saving the LBT temporarily, and copy it to the restored .data Section later.</p>
+<p>For saving the results I added 2*4 additional dwords to the Local Behaviour Table:</p>
+<pre class="source">
+	Memory: 2*4*4=8*4=32 byte:
+		0x24 dd MemOffset1
+		0x28 dword[MemOffset1]
+		0x2C dd MemOffset2
+		0x30 dword[MemOffset2]
+		0x34 dd MemOffset3
+		0x38 dword[MemOffset3]
+		0x3C dd MemOffset4
+		0x40 dword[MemOffset4]
+</pre>
+<p>There is space for saving results of four changes of the random code, each change uses two dwords, one for the addresse that has been changed, and one for the actual data that has been changed.</p>
+<p>The chance that a valid change appears is very slow if we use totally random initial values. One could increase the chance by using the following trick:</p>
+<p>All registers get a small random value between 0 and ~200, and one variable gets the value of the .data-section:</p>
+<pre class="source">
+	eax=0x33	ebp=0x67
+	ebx=0x8A	esi=.data + 0x12
+	ecx=0x04	edi=0xAA
+	edx=0x12	esp=esp
+</pre>
+<p>This increases the chance of valid memory changes alot - for instance:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;</div>
+<p>will be valid, which would have not be if the registers were totally random.</p>
+<p>This diagram shows what will be done with the memory blocks while analysing one unknown code:</p>
+<pre>
+     Preparation
+     ===========
+
+                        ___________ 
+            mirroring  |           |
+           ----------> | Data      |
+          |            |   Mirror  |
+     ___________       |           |
+    |           |      |           |
+    | .data     |      |___________|       ___________ 
+    |           |                         |           |
+    |           |                         | Random    |
+    |           |  -------------------->  |   Data    |
+    |___________|    important values     |           |
+                                          |           |
+                                          |___________|
+
+
+                        ___________ 
+                       |           |
+                       | Data      |
+                       |   Mirror  |
+     ___________       |           |
+    |           |      |           |
+    | .data     |      |___________|       ___________ 
+    |           |                         |           |
+    |           |                         | Random    |
+    |           |  &lt;--------------------  |   Data    |
+    |___________|     randomize .data     |           |
+                                          |           |
+                                          |___________|
+
+
+
+
+                    E X E C U T I O N
+
+
+
+     Comparison
+     ==========
+                        ___________ 
+                       |           |
+                       | Data      |
+                       |   Mirror  |
+     ___________       |           |
+    |           |      |           |
+    | .data     |      |___________|       ___________ 
+    |           |                         |           |
+    |           |                         | Random    |
+    |           |  &lt;&lt;------------------>> |   Data    |
+    |___________|       compare data      |           |
+                             |            |           |
+                             |            |___________|
+                             |             ___________
+                             |            |           |
+                             -----------> | temp. LBT |
+                               results    |___________|
+
+
+     Restoration 
+     ===========
+
+
+                        ___________ 
+            restore    |           |
+           ----------  | Data      |
+          |            |   Mirror  |
+          V            |           |
+     ___________       |           |
+    |           |      |___________|
+    | .data     |      
+    |           |  
+    |           |                        ___________
+    |           |        save LBT       |           |
+    |___________|  &lt;------------------- | temp. LBT |
+                                        |___________|  
+</pre>
+<h2><a name="c4"></a>4) Possible extentions</h2>
+<p>These are some ideas that increase the power of this technique and are easy to implement - everything without the need of deep code analyse or full disassembling.</p>
+<h3><a name="c41"></a>4.1) Hide me: Global Behaviour Table at Runtime</h3>
+<p>The technique above uses a behaviour-table hardcoded in the file, which could be a source for detection by lazy avers. There is no need for that, one could create the GBT at runtime, and write it to the memory. It's just a little bit tricky as the GBT is defined implicit for all commands - but some fake-code or hand-adjusted GBT can solve that problem.</p>
+<h3><a name="c42"></a>4.2) Permutation - easy as it can be</h3>
+<p>As the whole code consists of 8byte command blocks, its very easy to use permutation - there is no need of disassembling as in usual permutation engines. One can simply copy the different 8byte blocks to a random place in the file and connect them with Jmp-Operations.</p>
+<h3><a name="c43"></a>4.3) Jump somewhere</h3>
+<p>One weakness of this technique may be the handling of jmp/ret/call commands. One must not execute them due to unexpected behaviour, therefore I have defined a further restriction in the GBT: rNoEmul. If this command appears, the corresponding 8byte block will not be analysed, thus no equivalent codes will be found. As the code knows where a jump will be (because of that rNoEmul byte in the GBT), it can include trash or change the instruction (call -> pop Reg32 + jmp Reg32). When trash is included, it should restrict the trash to not contain significant operation opcodes (0xC3 = ret, 0xE8 = call, 0xEB = jmp, 0x7x = jxxx).</p>
+<h3><a name="c44"></a>4.4) Behaviour Flow</h3>
+<p>Imagine you have a code like this:</p>
+<pre class="source">
+	cc rA,	mov, eax, 0
+	cc rAB,	mov, ebx, eax
+	cc rB,	inc, ebx
+	cc rBC,	xor, ecx, ecx
+</pre>
+<p>Command 3 and 4 are independent and could be exchanged. But how can the code itself find that out?</p>
+<p>We could analyse both commands (16 bytes) together in a black-box test and compare output. If the behaviour of the changed 16 bytes is the same as the original one, we could use the new one. We can see immediatly that line 2 and 3 can not be exchanged - exactly the same result we would get in the blackbox test.</p>
+<p>The only thing we have to think of is to adjust the restrictions, which is straight forward.</p>
+<p>In the end, we get some kind of behaviour flow, a very beautiful result:</p>
+<pre class="source">
+cc rA,   mov, eax, 0        cc rA,   mov, eax, 0          cc rA,   mov, eax, 0
+cc rAB,  mov, ebx, eax      cc rAB,  mov, ebx, eax        cc rAC,  xor, ecx, ecx
+cc rB,   inc, ebx      ->   cc rBC,  xor, ecx, ecx   ->   cc rABC, mov, ebx, eax
+cc rBC,  xor, ecx, ecx      cc rBC,  inc ebx              cc rBC,  inc ebx
+</pre>
+<h3><a name="c45"></a>4.5) Automatic shrinking/extention/trash</h3>
+<p>Shrinking and extention is usually a very hard buisness - requires full code disassembling to some meta-languages. Here it is much easier, the only thing we have to do is adjusting the jump addresses.</p>
+<p>For shrinking, we just use take a 16byte block (instead of the usual 8 byte block) for analysing, and compare it with a 8 byte block of random data - very simple!</p>
+<p>The extention is the inverse process - we take a 8byte code from the file code and compare it with a 16byte block of random code. The random 16byte block should consist of 2 independent 8 byte blocks, to prevent problems when this code will be analysed alone. This is very trivial too.</p>
+<p>The trash is a similar technique: We get an 8 byte code and analyse its behaviour with respect to the restrictions of the direct-above block. Again - very simple.</p>
+<h2><a name="c5"></a>5) Conclusion</h2>
+<p>Analysing the behaviour of code and substituate with random instructions is powerful as well as beautiful.</p>
+<p>We should use more the power of unpredictable randomness!</p>
+<div align="right">Dr. Theodore Spankman<br/>December 2010</div>
+<p>PS1: The initial idea comes from <a href="/lib/vsp14.html">an article</a> released in August 2004</p>
+<p>PS2: Special thanks goes to hh86 for motivation, help and useful ideas in connection with this research... Merci! :)</p>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#vsp27">Back to index</a>] [<a href="/lib/vsp27.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp27">de</a><a href="/lib/index.php?lang=en&amp;id=vsp27">en</a><a href="/lib/index.php?lang=es&amp;id=vsp27">es</a><a href="/lib/index.php?lang=it&amp;id=vsp27">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp27">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp27">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp27">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp27">ua</a></div>
+</body>
+</html>

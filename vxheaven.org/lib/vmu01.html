@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Murkry 'Win95 structures and secrets' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Murkry"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Murkry,Win95 structures and secrets, windows, large, file, table, pointers, filename, host, starts, call, offset, tables, tasm, tile, messageboxa, command"/>
+<meta name="Description" content="[...] Since the start of Win95 many things that virii writers came to accept as easy to get, became harder. Things like the interrupt calls, filename paths to the system files. Well the API calls have replaced interrupts and virii writers have used several tricks to get the address to these calls. [...]"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"b84aba7941a5d501ab8ca9d2e58d9f5d19847ddb-1498757595-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmu01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Win95 structures and secrets</h1><p><a href="/lib/?lang=en&amp;author=Murkry"> Murkry</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmu01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vmu01">Back to index</a>] [<a href="/lib/vmu01.html#disqus_thread">Comments</a>]<br/> 
+<p>Since the start of Win95 many things that virii writers came to accept as easy to get, became harder. Things like the interrupt calls, filename paths to the system files. Well the API calls have replaced interrupts and virii writers have used several tricks to get the address to these calls.</p>
+<p>As for filename or path to system files, we have hard coded possible ones and also used the API's (of course this added a bit to our code). Of course back in the DOS days if we search the PSP we could find much of this info without relying on API calls. Well as many readers of Windows95 System Programming Secrets are aware there are several tables (or K32 objects) that are available for us but finding these tables requires API (or at least in the book they do). Well as you may have guessed by now the pointers to these tables are readily avaiable. In win95, A and B version as well as some of the earlier version the Registers seem to startup with similiar info.</p>
+<p>Be warned that this info does not apply to WinNT in the release of Win98 I saw it was true though. (Side note, nice check for win95 to win nt is eax != eip then your probably not in 95 or something was playing with the registers b4 you got them. Hmm make sure your viruses restore all regs or some smart programmers may actually write some self aware programs that check this ;)</p>
+<p>Anyway all 95 versions I have checked Regs start out with</p>
+<pre>
+        EAX  =  EIP of startup
+        EBX  =  ???
+        ECX  =  K32OBJ_MUTEX              appears
+        EDX  =  K32OBJ_CRITICAL_SECTION   appears
+        ESI  =  K32OBJ_PROCESS
+        EDI  =  K32OBJ_THREAD
+        EBP  =
+        ESP  =  Strange info see below
+</pre>
+<p>Ok b4 all you experts yell (wait,, experts?? hell you write this):</p>
+<dl>
+<dt>EAX</dt><dd>is basicaly a fact</dd>
+<dt>Ebx</dt><dd>00530000 or similiar number never points to a in processs address though</dd>
+<dt>ECX</dt><dd>This is a Guess but it seems to point to a table and starts with 03 Read the Book to understand why 03 means something</dd>
+<dt>ESI</dt><dd>points to a table that starts with 05 and I have used this table to get to the enviroment database which wonders of wonders has things like Full path and file name of executing file Paths and command line Startupinfo. Again reading the book will explain all or if you have access to the ddk you can verify this as I have done.</dd>
+<dt>EDI</dt><dd>Table starts up with 06 and has all sorts of info in it</dd>
+<dt>EBP</dt><dd>somewhere I have notes on what this points at, but I can't locate it I think MarkJ may have eaten it when I last babysat for him ;)</dd>
+<dt>ESP</dt><dd>strange but if you look at a start up there are some very intersting numbers that always show up.</dd>
+</dl>
+<p>now this varies depending on lenght of name, but again we find pointers to locations that when examine are tables or pointers to entries in the tables as well as SEH pointers:</p>
+<pre>         
+                +10 = File name of file being excuted
+                        format is strange 'Host1',0,'EXE',0
+                        whether or not you enter the extension or not it will
+                        be caps and the name will be caps first letter
+                        lowercase rest
+                +c  = ebp = Dammit what is this number
+                +8  = esi = obj_process database
+                +4  = edi = obj_thread database
+            EsP +0  = pnter into location in Kernel32
+</pre>
+<p>What does this mean to us virii/hackers of win95 lets say we want to write a virus that adds info to the end of the host but does not modify the host PE header so while the info is there it is not loaded into memory. (A new LE\Macro infector works like this) Step one we need the file name well check out the code below which will show a MessageBox with the file name in quotes when ran normaly but will show the file name without quotes if in td32 and I assume other debuggers (probaly not SI though) Be warn about this feature since this means if you are running a debugger to test it will work diffrently ie if you used this pointer to try and open the file it will fail since file "c:\filepath\foo.exe" is the file you will try to open not c:\filepath\foo.exe.</p>
+<p>NOTE this is one way to get the info i could just use esi rather than get the info off the stack</p>
+<pre class="source">
+        mov     edi,[esp +8]    ; Get the Pointer to process Database
+        mov     edi,[edi+040h]  ; Within DataBase get pointer to the Enviroment
+                                ; DataBase
+        mov     edi,[edi+8]     ; In Enviroment DataBase get the Pnter to
+                                ; Command line
+        call    MessageBoxA,large 0,edi, offset tile,large 1
+</pre>
+<p>now there are a lot of other info avaiable in the other Database but the Enviroment Table is structured as:</p>
+<pre>
+     Offset
+        00h    Ptr to the enviroment string  
+               as you scan through the table you find  
+                     =C:=C:\tasm\virii\over
+                     TEMP=C:\WINDOWS\TEMP
+                     PROMPT=$p$g
+                     winbootdir=C:\WINDOWS
+                     COMSPEC=C:\WINDOWS\COMMAND.COM
+                     PATH=C:\BTI\WIN\BIN;C:\WINDOWS;C:\WINDOWS\COMMAND;C:\UTIL;
+                     TMP=C:\WINDOWS\TEMP
+                     windir=C:\WINDOWS
+                     CMDLINE=td32 host1
+               
+        * While the ; is used in the path all other items are delimited by 00h
+
+        04h    unknown Zero as far as I have seen
+        0Ch    pntr to str Current directory note when in 
+                     td32
+                          C:\TASM\VIRII\OVER\HOST1.EXE
+                     Normal
+                          "C:\TASM\VIRII\OVER\HOST1.EXE"
+        10h     ptr to a copy of StartupInfo 
+</pre>
+<p>There are other entries but these are the ones I am showing for now since they are the ones I view as nice to have for virii related, See the book or DDK for more info.</p>
+<p>As you can see the Enviroment database is as useful as the old dos psp oh btw there is still a PSP see Process Database offset 24h of course its the linear address, But exploring info that the stack has to offer is fun as well and as for the infamous FS:[0] seh area</p>
+<p>this is called (in the book) Thread Information Block TIB point at by edi starting at offset 10h in that database.</p>
+<p>Strangely this same info is also in the thread database</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="">
+<tr><td>00 </td><td>dd</td><td>pointer to existing Exception handler (see 29A#2 for more info)</td></tr>
+<tr><td>04 </td><td>dd</td><td>top of stack</td></tr>
+<tr><td>08 </td><td>dd</td><td>stack low</td></tr>
+<tr><td>0ch</td><td>dw</td><td>w16tdb</td></tr>
+<tr><td>0eh</td><td>dw</td><td>StackSelector 16 byte</td></tr>
+<tr><td>10h</td><td>dd</td><td>Selman list</td></tr>
+<tr><td>14h</td><td>dd</td><td>User Pointer user accessable ???</td></tr>
+<tr><td>18h</td><td>dd</td><td>pnter TIB (book says) to me points to ESI obj process database</td></tr>
+<tr><td>1ch</td><td>dw</td><td>tibflags</td></tr>
+<tr><td>1eh</td><td>dw</td><td>win16MutexCount</td></tr>
+<tr><td>20h</td><td>dd</td><td>DebugContext</td></tr>
+<tr><td>24h</td><td>dd</td><td>pntr Current Priority</td></tr>
+<tr><td>28h</td><td>dd</td><td>Message Queue</td></tr>
+<tr><td>2ch</td><td>dd</td><td>pntr TLS Array</td></tr>
+</table>
+<p>Get this grab the top of stack</p>
+<pre>
+now sub 4   get   0
+        8         a pnter inside some location in Kernel32
+        c         ?
+        10        0
+        14        looks like a copy of the PE header and a NE header of some
+                  sort this entry may be important?? not sure
+</pre>
+<p>Again don't bet the house on this info, while the tables are documented I am sure a number of my fellow PE 32 bit virii friends will point out "Its not documented" when refering to my method od using esi or stack refrence to get the Process database location. I suspect in Win95\98 stays around long enough these items will be documented as people use them more and more. Of course just use the SEH method to protect your code and then feel free to try these ideas out if they SEH catches it then you can exit gracefully.</p>
+<p>Anyway I include with this article a bried example file that shows the two methods of getting the File being excuted. I could have used esi to get the K32OBJ_PROCESS but I instead show the stack method of doing it.</p>
+<pre class="source">
+-------------------------------------------------------------------------------
+And here is some sample code. Compile as usual:
+tasm32 /ml /m4 host1,,;
+tlink32 /Tpe /aa /c /x host1,,, import32.lib
+-------------------------------------------------------------------------------
+
+.486
+.model flat,stdcall
+
+
+;Define the needed external functions and constants here.
+
+extrn           ExitProcess:PROC
+extrn           MessageBoxA:PROC
+
+.data                                   ;the data area
+dummy           dd      ?               ;just so tasm will compile it 
+tile           db      'Hmm',0
+.code                                   ;executable code starts here
+ 
+HOST:
+ 
+;Example of getting filename off stack
+        mov     al,0
+        lea     edi,[esp + 16D]         ;file name
+        push    edi
+        repne    scasb
+        mov     byte ptr [edi - 1],2eh
+        pop     edi
+        call    MessageBoxA,large 0,edi, offset tile,large 1
+
+;example  getiing the obj_process off the stack
+; then geting enviroment database at offset 40h then offset to the filename
+; notice the " "
+        mov     edi,[esp +8]
+        mov     edi,[edi+040h]
+        mov     edi,[edi+8]
+        call    MessageBoxA,large 0,edi, offset tile,large 1
+
+        jmp     here
+
+
+ 
+here:
+        push    LARGE -1
+        call    ExitProcess             ;Dummy host does nothing but end 
+                                        ;like int 20 in Dos 
+        end     HOST
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vmu01">Back to index</a>] [<a href="/lib/vmu01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmu01">de</a><a href="/lib/index.php?lang=en&amp;id=vmu01">en</a><a href="/lib/index.php?lang=es&amp;id=vmu01">es</a><a href="/lib/index.php?lang=it&amp;id=vmu01">it</a><a href="/lib/index.php?lang=fr&amp;id=vmu01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmu01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmu01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmu01">ua</a></div>
+</body>
+</html>

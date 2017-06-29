@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Mister Sandman 'AVP 2.2 naked' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Mister Sandman"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Mister Sandman,AVP 2.2 naked, kernel, viruses, start, original, bugs, push, debugger, file, intercept, detection, code, tracing, detect, virus, result"/>
+<meta name="Description" content="We all know AVP is the best antivirus in the world, no doubt about it. The most complete, the most reliable, above all, the most professional, but... is it also the safest? the answer is no :)We also know there's no antivirus invulnerable to a good codefuck. What we'll do with this report is to show some -until know- secret holes in AVP, and how to exploit them in order to write new retro functions."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8c139ff16e81d6de659d5c141ee895229228ebe1-1498755621-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vma01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>AVP 2.2 naked</h1><p><a href="/lib/?lang=en&amp;author=Mister%20Sandman"> Mister Sandman</a><br/> <em><a href="/vx.php?fid=5#f5">29a [1]</a></em><br/> <em>December 1996</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vma01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AR#vma01">Back to index</a>] [<a href="/lib/vma01.html#disqus_thread">Comments</a>]<br/> 
+<p>We all know AVP is the best antivirus in the world, no doubt about it. The most complete, the most reliable, above all, the most professional, but... is it also the safest? the answer is no :)</p>
+<p>We also know there's no antivirus invulnerable to a good codefuck. What we'll do with this report is to show some -until know- secret holes in AVP, and how to exploit them in order to write new retro functions.</p>
+<h2>KERNEL.AVB</h2>
+<p>AVP uses a detection scheme based on a sort of antiviral databases, which contain the necessary data (search strings, decryption routines, cleaning info...) for detecting and disinfecting viruses. They're predefined, and these are their names:</p>
+<dl>
+<dt>CA.AVB</dt><dd>AVP's heuristics (code analyzer)</dd>
+<dt>EXTRACT.AVB</dt><dd>Decompression routines (ZIP, ARJ, RAR...)</dd>
+<dt>KERNEL.AVB</dt><dd>AVP's kernel database</dd>
+<dt>MACRO.AVB</dt><dd>Macro viruses detection</dd>
+<dt>TROJAN.AVB</dt><dd>Trojan detection</dd>
+<dt>UNPACK.AVB</dt><dd>Unpacking routines (PkLite, Diet...)</dd>
+<dt>V_YYMMDD.AVB</dt><dd>Main base, with all the viruses</dd>
+<dt>UPYYMMDD.AVB</dt><dd>Weekly updates</dd>
+</dl>
+<p>All these databases are defined in AVP.SET, which is the file AVP reads before loading the them. Here is where AVP problems start... there's a good point to attack its kernel, because it contains all the necessary info about how to use the rest of the antiviral databases. Without it, AVP can't detect any virus, because it doesn't know how to interpret the data stored there... it's enough to comment it out from AVP.SET by means of a semicolon in order to knock out AVP; even if KERNEL.AVB is loaded b4 the rest of the databases, in other than first position.</p>
+<p>It would be enough to have a simple resident program (which might be a virus, of course) which would intercept function 4bh of int 21h and test for AVP.EXE; when being this file executed, it'd only have to open and modify AVP.SET by replacing the first character (KERNEL.AVB's "K") with a semicolon (;). Being executed in this way, AVP would detect *NOTHING*.</p>
+<p>Another interesting method is to change the DX value when AVP's about to read AVP.SET; instead of the original value (0004), we might enter 0010, so it would point to the second line of AVP.SET, skipping KERNEL.AVB.</p>
+<p>As a last thing, have a look at Tcp's AVP-Aids and at my AntiCARO... they both fool AVP in order to exploit some bugs which favour the spreading of our viruses :)</p>
+<p>Of course, due to the basereading system AVP uses, we can fuck the heuristic scanning (CA.AVB), the main virus database (V_YYMMDD.AVB), etc.</p>
+<h2>MODIFICATIONS ON THE FLY</h2>
+<p>Another head-breaking problem for AVP. We're still trying to avoid the AVP detection, this time in a less abrupt method, which consists on modifying the executable itself in memory. Intercepting the open and read functions, after some tracing, we reach a key point: a couple of conditional jumps, with which AVP decides whether a file is infected or not. Let's have a look at them:</p>
+<h2>INTERNAL DEBUGGER</h2>
+<pre class="source">
+2B9C:00D3 55		PUSH BP
+2B9C:00D4 8BEC		MOV BP,SP
+2B9C:00D6 56		PUSH SI
+2B9C:00D7 8B760A 	MOV SI,[BP+0A]
+2B9C:00DA C45E06 	LES BX,[BP+06]
+2B9C:00DD 26837F0A00	CMP Word Ptr ES:[BX+0A],+00
+2B9C:00E2 7506		JNE 00EA &lt;- First jump --------.
+2B9C:00E4 33D2		XOR DX,DX                      |
+2B9C:00E6 33C0		XOR AX,AX                      |
+2B9C:00E8 EB53		JMP 013D                       |
+2B9C:00EA C45E06	LES BX,[BP+06]                 |
+2B9C:00ED 26C45F19	LES BX,ES:[BX+19]              |
+2B9C:00F1 8BC6		MOV AX,SI                      |
+2B9C:00F3 D1E0		SHL AX,1                       |
+2B9C:00F5 03D8		ADD BX,AX                      |
+2B9C:00F7 26833F00	CMP Word Ptr ES:[BX],+00       |
+2B9C:00FB 742A		JZ 0127 &lt;- Second jump --------'
+2B9C:00FD 33C0		XOR AX,AX
+2B9C:00FF 50		PUSH AX
+</pre>
+<p>Ok... it's rather obvious that we have to modify the first jump, but... ohhh, little fucking surprise; AVP stops its scanning and displays the following message:</p>
+<pre>
+General protection fault at ED22:050B ;-)
+</pre>
+<p>Hoho... watch out... the old russian bearded beerdrinker has implemented a protection routine in its code! and i recognize that i had a lot of fun when i saw that winking smiley... ok, one point for Kaspersky :)</p>
+<p>Nevertheless, if we 'touch' the second jump (74 -> 75, so the jz turns into a jnz), there's no stupid message and AVP's detection is completely blowed out... it will continue scanning without noticing any infection... Mister Sandman scores and ties ;)</p>
+<p>Anyway, if you don't wanna spend so many time (five minutes :) tracing thru AVP's code, just use this other way to reach the same result by following a simpler method. Your weapon will be GameTools or any other debugger able to intercept functions on the fly. Start intercepting every open with 3dh/int 21h; then intercept the file read (3fh/int 21h), and start tracing AVP's code as soon as it gets intercepted:</p>
+<h2>INTERNAL DEBUGGER</h2>
+<pre class="source">
+1610:0C14 B43F		MOV AH,3F &lt;- intercepted function
+1610:0C16 8B5E06	MOV BX,[BP+06]
+1610:0C19 8B4E0C	MOV CX,[BP+0C]
+1610:0C1C C55608	LDS DX,[BP+08]
+1610:0C1F CD21		INT 21
+1610:0C21 1F		POP DS
+1610:0C22 7202		JB 0C26 [...]
+</pre>
+<p>Once you've got this, just change b43f for b43c, so AVP will close the file instead of reading from it... the result will be that, as usual, AVP won't detect any virus. This method is a bit bully, but you'll save some time and the result will be the same :)</p>
+<p>Oh, btw... i was gonna forget it... Mister Sandman, 2; Kaspersky, 1 ;-P</p>
+<h2>WILD TROJANS</h2>
+<p>Another of the resources in order to fuck AVP is using trojans, albeit from here on, imagination is worth it. The twister ideas you have, the better and more original results you get ;)</p>
+<p>These are two of the ideas i've practised (i can't include their code as it's destructive and goes against the rules of 29A) :)</p>
+<ul>
+<li>Check every time AVP opens and reads from a file; then, trunk this file by using 3ch/int 21h... in this way, every file scanned by AVP will turn into a 0 byte file :*)</li>
+<li>Intercept AVP scanning and then infect, or even overwrite the file it's being scanned with a tiny virus... Trivial.22, for instance :)</li>
+</ul>
+<h2>MODIFICATIONS ON THE EXECUTABLE</h2>
+<p>Just note one more. In the AV community (sect?), the ratio between the stupidity of the sanity check is directly proportional with the stupidity of its author. And Kaspersky is part of that AV community, of course :)</p>
+<p>As he ain't a dork at all, the sanity check is quite original and effective. It just consists on a simple comparison of the address of the original entry point with the actual one.</p>
+<p>What does this mean? oh, well... just stop and think for a while about viruses which don't modify the entry point of the file they infect ;)</p>
+<p>As you can see, all it takes is some knowledge on how AVP behaves and some imagination to exploit its bugs. I stopped commenting the AVP.EXE disassembly, as AVP 3.0 will be released very soon, and its kernel has been written in ASM, so it will be much easier to explore than the code of previous versions, which was written in C++ &lt;g>, and be sure that i'll bring you more news and bugs on it in 29A#2 ;)</p>
+<pre>
+				Mister Sandman,
+				bring me a dream.
+</pre>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vma01">de</a><a href="/lib/index.php?lang=en&amp;id=vma01">en</a><a href="/lib/index.php?lang=es&amp;id=vma01">es</a><a href="/lib/index.php?lang=it&amp;id=vma01">it</a><a href="/lib/index.php?lang=fr&amp;id=vma01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vma01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vma01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vma01">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Virus engines: common recomendations (3rd edition)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Virus engines: common recomendations (3rd edition), killer, struct, dword, user, virus, engines, build, randseed, push, data, include, generated, define, passed, callw"/>
+<meta name="Description" content="Virus engines are very similar to C/C++ classes (objects), and has many identical properties. These both substances are directed to modularity. The only difference is that C++ class has larger interface part while virus engine is oriented to implementation.Today virus engines are on the same step as programs was many years ago, when OOP was only introduced. And now is time to change.This text was written with a single goal: to denote characterictics of virus engine, which will make it handy and useful."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ed308698f489002a806a871c87b00e3228a7c225-1498757461-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo17.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Virus engines: common recomendations (3rd edition)</h1><p><a href="/lib/?lang=en&amp;author=Z0mbie"> Z0mbie</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo17.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vzo17">Back to index</a>] [<a href="/lib/vzo17.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Intro</a></li>
+<li><a href="#p2">Code</a></li>
+<li><a href="#p3">PUBLIC-functions</a></li>
+<li><a href="#p4">Sources</a></li>
+<li><a href="#p5">Documentation</a></li>
+<li><a href="#p6">Best way</a></li>
+<li><a href="#p7">Results</a></li>
+<li><a href="#p8">Example</a>
+<ul>
+<li><a href="#killerasm">killer.asm</a></li>
+<li><a href="#killerinc">killer.inc</a></li>
+<li><a href="#killercpp">killer.cpp</a></li>
+<li><a href="#killerash">killer.ash</a></li>
+<li><a href="#killerhpp">killer.hpp</a></li>
+<li><a href="#exampleasm">example.asm</a></li>
+<li><a href="#examplecpp">example.cpp</a></li>
+<li><a href="#buildasm">build.asm</a></li>
+<li><a href="#haxorcpp">haxor.cpp</a></li>
+</ul></li>
+</ul>
+<dl>
+<dt><strong>ENGINE</strong></dt>
+<dd>is an independend virus module, represented in binary and/or source form.</dd>
+</dl>
+<a name="p1"></a><h2>Intro</h2>
+<p>Virus engines are very similar to C/C++ classes (objects), and has many identical properties. These both substances are directed to modularity. The only difference is that C++ class has larger interface part while virus engine is oriented to implementation.</p>
+<p>Today virus engines are on the same step as programs was many years ago, when OOP was only introduced. And now is time to change.</p>
+<p>This text was written with a single goal: to denote characterictics of virus engine, which will make it handy and useful.</p>
+<p>An idea to write this text appeared right after i understood all the advantages of using independent components (modules) in virus writing. And there were written the following engines: LDE32, KME's, ETG, CMIX, DSCRIPT, EXPO, RPME, CODEGEN, PRCG, MACHO and MISTFALL <em>[see Download/Engines section on this site -- herm1t]</em>, having mostly all the properties signed in this text.</p>
+<p>But even this little attempt to standartize these engines showed me all the importance of standartization. Here should be said that such standartization has an influence mostly on interface part of the engine, while implementation in most cases remains the same. And, for sure, it will not simplify avers work.</p>
+<a name="p2"></a><h2>Code</h2>
+<ul>
+<li>Engine must contain only executable code. Thus, it must not contain data in evident form. This can be achieved by means of  data in code generation.</li>
+<li>Engine must not contain absolute offsets. This can be achieved by means of creating data structure on the stack, and passing pointer to this structure.</li>
+<li>Engine must not use directly external data structures, and must not directly CALL external subroutines. Instead of it, pointers to such data and subroutines must be passed to the engine as arguments.</li>
+<li>(optionally) Engine must not perform system calls. Instead of it, pointers to own subroutines must be passed to the engine, and engine must call system subroutines through them.</li>
+</ul>
+<a name="p3"></a><h2>PUBLIC-functions</h2>
+<ul>
+<li>Parameters must be passed on the stack. (not in registers)</li>
+<li>Function result (if required) must be returned in EAX.</li>
+<li>All the registers must be preserved (except EAX).</li>
+<li>(optionally) On function exit, DF flag must be set to 0. (CLD)</li>
+</ul>
+<a name="p4"></a><h2>Sources</h2>
+<ul>
+<li>If there are sources, then variables, arguments, constants, internal subroutines and other names and labels must be unique, to not coincide with labels used in user's sources or in other engines. Here is 2 solutions: in asm use local labels, and in C++ use namespace directive.</li>
+<li>If there is some data structures and/or constants, or exit codes, used in engine call, it all must be described in the separate .INC file.</li>
+</ul>
+<a name="p5"></a><h2>Documentation</h2>
+<p>Engine must be accompanied by some documentation, where the folloing
+things should be described:</p>
+<ul>
+<li>the engine, its algorithm, its primary goals, i.e. what is it intended for and how it works.</li>
+<li>description of each PUBLIC-function and its parameters</li>
+<li>(optionally) bugs and features</li>
+<li>(optionally) where engine has been tested, where it works and where it doesnt.</li>
+</ul>
+<a name="p6"></a><h2>Best way</h2>
+<ul>
+<li>Engine has single PUBLIC-function, in the beginning of the engine's code (wanna in the middle - use JMP in the beginning), and this main function has CDECL calling convention (PUSH*n,CALL,RETN,ADD ESP,n*4).</li>
+<li>Engine uses only on-stack data variables. (arguments and local variables space)</li>
+<li>Engine works in multithread environment. (i.e. when pointers to external data structures are passed to the engine, and multiply instances of the engine will correctly work with these data structures)</li>
+<li>Engine uses only .386 realmode opcodes, i.e. all the priviledged or .486+ opcodes, such as bswap or cmpxchg are absent.</li>
+</ul>
+<a name="p7"></a><h2>Results</h2>
+<p>Using all the features listed above,
+the engine code become independend from OS, ring0/3 and offset
+where engine is located.
+Such code can be permutated, i.e. any instructions can be easily
+analyzed and moved and/or replaced.
+Code or sources of such engines can be easily used by any other
+engines or viruses, virus constructors or generators, or turned
+into virus plugins.</p>
+<p>Moreover, the task of linking asm- and cpp- code
+without using .obj files is solved.</p>
+<a name="p8"></a><h2>Example</h2>
+<p>Engine: KILLER. Goal: hangup with probability of 1/1000.</p>
+<p>Source file:</p>
+<a name="killerasm"></a>
+<pre class="source">
+----[begin KILLER.ASM]--------------------------------------------------
+; KILLER engine version 1.00 FREEWARE
+; action: hangup with probability of 1/1000;
+; CDECL calling convention;
+; 5 arguments;
+; no return value, no registers modified
+killer_engine           proc    c
+                        arg     user_param  ; user-data
+                        arg     user_random ; external randomer
+                        arg     arg1
+                        arg     arg2        ; other parameters
+                        arg     arg3
+                        pusha
+                        cld
+                        ;;
+                        push    1000
+                        push    user_param  ; maybe ptr to some struct
+                        call    user_random ; call external subroutine
+                        add     esp, 8
+                        ;;
+                        cmp     eax, 666
+                        je      $
+                        ;;
+                        popa
+                        ret                 ; TASM produces LEAVE+RETN
+                        endp
+----[end KILLER.ASM]----------------------------------------------------
+</pre>
+<p>Generated ASM include file:</p>
+<a name="killerinc"></a>
+<pre class="source">
+----[begin KILLER.INC]--------------------------------------------------
+; GENERATED FILE. DO NOT EDIT.
+; KILLER 1.00 engine
+killer_engine_size equ 30
+killer_engine:
+db 0C8h,000h,000h,000h,060h,0FCh,068h,0E8h
+db 003h,000h,000h,0FFh,075h,008h,0FFh,055h
+db 00Ch,083h,0C4h,008h,03Dh,09Ah,002h,000h
+db 000h,074h,0FEh,061h,0C9h,0C3h
+----[end KILLER.INC]----------------------------------------------------
+</pre>
+<p>The same, but in C/C++:</p>
+<a name="killercpp"></a>
+<pre class="source">
+----[begin KILLER.CPP]--------------------------------------------------
+// GENERATED FILE. DO NOT EDIT.
+// KILLER 1.00 engine
+#define killer_engine_size 30
+BYTE killer_engine_bin[killer_engine_size] =
+{
+  0xC8,0x00,0x00,0x00,0x60,0xFC,0x68,0xE8,
+  0x03,0x00,0x00,0xFF,0x75,0x08,0xFF,0x55,
+  0x0C,0x83,0xC4,0x08,0x3D,0x9A,0x02,0x00,
+  0x00,0x74,0xFE,0x61,0xC9,0xC3
+};
+----[end KILLER.CPP]----------------------------------------------------
+</pre>
+<p>ASM header file:</p>
+<a name="killerash"></a>
+<pre class="source">
+----[begin KILLER.ASH]--------------------------------------------------
+; KILLER 1.00 engine
+KILLER_VERSION          equ     0100h
+----[end KILLER.ASH]----------------------------------------------------
+</pre>
+<p>C/C++ header file:</p>
+<a name="killerhpp"></a>
+<pre class="source">
+----[begin KILLER.HPP]--------------------------------------------------
+// KILLER 1.00 engine
+#ifndef __KILLER_HPP__
+#define __KILLER_HPP__
+
+#define KILLER_VERSION  0x0100
+
+typedef
+void __cdecl killer_engine(
+                DWORD   user_param,             // user-parameter
+                DWORD __cdecl user_random(DWORD user_param, DWORD range),
+                DWORD   arg1,
+                DWORD   arg2,
+                DWORD   arg3);
+
+#endif //__KILLER_HPP__
+----[end KILLER.HPP]----------------------------------------------------
+</pre>
+<p>Usage example, in ASM:</p>
+<a name="exampleasm"></a>
+<pre class="source">
+----[begin EXAMPLE.ASM]-------------------------------------------------
+; KILLER 1.00 usage example
+include                 <a href="#killerash">killer.ash</a>
+
+callW                   macro   x
+                        extern  x:PROC
+                        call    x
+                        endm
+
+v_data                  struc
+v_randseed              dd      ?
+;                       ...
+                        ends
+
+                        p386
+                        model   flat
+                        locals  __
+
+                        .data
+                        dd      ?
+                        .code
+
+start:                  call    virus_code
+                        push    -1
+                        callW   ExitProcess
+
+virus_code:             pusha
+                        sub     esp, size v_data
+                        mov     ebp, esp
+                        ;;
+                        callW   GetTickCount
+                        xor     [ebp].v_randseed, eax  ; randomize
+                        ;;
+                        push    3
+                        push    2           ; parameters
+                        push    1
+                        call    $+5+2       ; push pointer to randomer
+                        jmp     short my_random
+                        push    ebp         ; user-param == v_data ptr
+                        call    killer_engine
+                        add     esp, 4*5
+                        ;;
+                        add     esp, size v_data
+                        popa
+                        retn
+
+; DWORD __cdecl random(DWORD user_param, DWORD range)
+;                       [esp+4]        [esp+8]
+my_random:              mov     ecx, [esp+4]   ; v_data ptr
+                        mov     eax, [ecx].v_randseed
+                        imul    eax, 214013
+                        add     eax, 2531011
+                        mov     [ecx].v_randseed, eax
+                        shr     eax, 16
+                        imul    eax, [esp+8]
+                        shr     eax, 16
+                        retn
+
+;killer_engine:
+include                 <a href="#killerinc">killer.inc</a>
+
+virus_size              equ     $-virus_code
+                        end     start
+----[end EXAMPLE.ASM]---------------------------------------------------
+</pre>
+<p>Usage example, C/C++:</p>
+<a name="examplecpp"></a>
+<pre class="source">
+----[begin EXAMPLE.CPP]-------------------------------------------------
+#include &lt;windows.h&gt;
+#pragma hdrstop
+#include "<a href="#killerhpp">killer.hpp</a>"
+#include "<a href="#killercpp">killer.cpp</a>"
+struct v_struct
+{
+  DWORD rseed;
+//...
+};
+DWORD __cdecl my_random(DWORD user_arg, DWORD range)
+{
+  v_struct* v = (v_struct*) user_arg;
+  return range ? (v->rseed = v->rseed * 214013 + 2531011) % range : 0;
+}
+void main()
+{
+  v_struct* v_data = (v_struct*) GlobalAlloc( GPTR, sizeof(v_struct) );
+  v_data->rseed = GetTickCount();  // randomize
+  void* engine_ptr = &amp;killer_engine_bin;
+  (*(killer_engine*)engine_ptr)((DWORD)v_data, my_random, 1,2,3);
+}
+----[end EXAMPLE.CPP]---------------------------------------------------
+</pre>
+<p>Example program to compile engine:</p>
+<a name="buildasm"></a>
+<pre class="source">
+----[begin BUILD.ASM]---------------------------------------------------
+                        p386
+                        model   flat
+                        locals  __
+                        .data
+                        db      0EBh,02h,0FFh,01h       ; signature
+include                 <a href="#killerasm">killer.asm</a>
+                        db      0EBh,02h,0FFh,02h       ; signature
+                        .code
+start:                  push    -1
+                        callW   ExitProcess
+                        end     start
+----[end BUILD.ASM]-----------------------------------------------------
+</pre>
+<p>Example program to rip engine in binary (DB,DB,...) form
+from the previous file.</p>
+<a name="haxorcpp"></a>
+<pre class="source">
+----[begin HAXOR.CPP]---------------------------------------------------
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;io.h&gt;
+#pragma hdrstop
+void main()
+{
+  FILE*f=fopen("build.exe","rb");
+  int bufsize = filelength(fileno(f));
+  BYTE* buf = new BYTE[bufsize+1];
+  fread(buf, 1,bufsize, f);
+  fclose(f);
+  int id1=0, id2=0;
+  for (int i=0; i&lt;bufsize; i++)
+  {
+    if (*(DWORD*)&amp;buf[i] == 0x01FF02EB) id1=i+4;        // check signature
+    if (*(DWORD*)&amp;buf[i] == 0x02FF02EB) id2=i;          // check signature
+  }
+  f=fopen("<a href="#killerinc">killer.inc</a>","wb");
+  fprintf(f,"; GENERATED FILE. DO NOT EDIT.\r\n");
+  fprintf(f,"; KILLER 1.00 engine\r\n");
+  fprintf(f,"killer_size equ %i\r\n", id2-id1);
+  fprintf(f,"killer_engine:\r\n", id2-id1);
+  for (int i=0; i&lt;id2-id1; i++)
+  {
+    if ((i%8)==0) fprintf(f,"db ");
+    fprintf(f,"0%02Xh", buf[id1+i]);
+    if (((i%8)==7)||(i==id2-id1-1)) fprintf(f,"\r\n"); else fprintf(f,",");
+  }
+  fclose(f);
+  f=fopen("<a href="#killercpp">killer.cpp</a>","wb");
+  fprintf(f,"; GENERATED FILE. DO NOT EDIT.\r\n");
+  fprintf(f,"// KILLER 1.00 engine\r\n");
+  fprintf(f,"#define killer_engine_size %i\r\n",id2-id1);
+  fprintf(f,"BYTE killer_engine_bin[killer_engine_size] = {\r\n");
+  for (int i=0; i&lt;id2-id1; i++)
+  {
+    if ((i%8)==0) fprintf(f,"  ");
+    fprintf(f,"0x%02X", buf[id1+i]);
+    if (i!=id2-id1-1) fprintf(f,",");
+    if ((i%8)==7) fprintf(f,"\r\n");
+  }
+  fprintf(f," };\r\n");
+  fclose(f);
+}
+----[end HAXOR.CPP]-----------------------------------------------------
+</pre>
+<p>Now, lets take a look into <a href="#exampleasm">example.asm</a> --
+the future virus prototype. This file uses engine, an engine uses external
+randomer, and randomer uses randseed which is initialized within main
+virus body. As a result, many engines can call the same rnd(),
+or file io functions, or each other in one way - via this common
+structure, which is equivalent to main object.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#vzo17">Back to index</a>] [<a href="/lib/vzo17.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo17">de</a><a href="/lib/index.php?lang=en&amp;id=vzo17">en</a><a href="/lib/index.php?lang=es&amp;id=vzo17">es</a><a href="/lib/index.php?lang=it&amp;id=vzo17">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo17">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo17">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo17">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo17">ua</a></div>
+</body>
+</html>

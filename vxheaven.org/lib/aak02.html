@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov 'Mayhem - a hidden threat for *nix web servers' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Kovalev, Andrew; Otrashkevich, Konstantin; Sidorov, Evgeny,Mayhem - a hidden threat for *nix web servers, plug, file, malware, data, figure, brute, force, http, servers, system, script, commands, command, mayhem, function"/>
+<meta name="Description" content="Andrew Kovalev and colleagues describe ‘Mayhem’ – a new kind of malware for *nix web servers that has the functions of a traditional Windows bot, but which can act under restricted privileges in the system."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"df66c384e1d70dd1e52039716775bdeb8c6ed79d-1498756756-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/aak02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Mayhem - a hidden threat for *nix web servers</h1><p><a href="/lib/?lang=en&amp;author=Kovalev%2C%20Andrew">Andrew Kovalev</a>, <a href="/lib/?lang=en&amp;author=Otrashkevich%2C%20Konstantin">Konstantin Otrashkevich</a>, <a href="/lib/?lang=en&amp;author=Sidorov%2C%20Evgeny">Evgeny Sidorov</a><br/> <em>Virus Bulletin, Jul 2014</em><br/> <em>ISSN 0956-9979</em><br/> <em>July 2014</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/aak02.html';</script><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Mayhem%20-%20a%20hidden%20threat%20for%20%2Anix%20web%20servers.pdf">Download</a> PDF (2.72Mb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=AN#aak02">Back to index</a>] [<a href="/lib/aak02.html#disqus_thread">Comments</a>]<br/> 
+<address>
+Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov<br/>
+Yandex, Russia<br/>
+Editor: Martijn Grooten
+</address>
+<ul>
+<li><a href="#c0">Abstract</a></li>
+<li><a href="#c1">Introduction</a></li>
+<li><a href="#c2">Malware representation</a></li>
+<li><a href="#c3">Shared object initialization</a></li>
+<li><a href="#c4">Main loop function</a></li>
+<li><a href="#c5">C&amp;C commands</a>
+<ul>
+<li><a href="#c51">The 'R' command (outbound)</a></li>
+<li><a href="#c52">The 'G' command (inbound)</a></li>
+<li><a href="#c53">The 'F' command (outbound)</a></li>
+<li><a href="#c54">The ‘L’ command (inbound)</a></li>
+<li><a href="#c55">The ‘Q’ command (outbound &amp; inbound)</a></li>
+<li><a href="#c56">The ‘P’ command (outbound)</a></li>
+<li><a href="#c57">The ‘S’ command (inbound)</a></li>
+<li><a href="#c58">Summary</a></li>
+</ul></li>
+<li><a href="#c6">Configuration</a></li>
+<li><a href="#c7">Hidden file system</a></li>
+<li><a href="#c8">Analysis of plug-ins</a>
+<ul>
+<li><a href="#c81">Plug-ins interface</a></li>
+<li><a href="#c82">rfiscan.so</a></li>
+<li><a href="#c83">wpenum.so</a></li>
+<li><a href="#c84">cmsurls.so</a></li>
+<li><a href="#c85">bruteforce.so</a></li>
+<li><a href="#c86">bruteforceng.so</a></li>
+<li><a href="#c87">ftpbrute.so</a></li>
+<li><a href="#c88">crawlerng.so</a></li>
+<li><a href="#c89"><em>crawlerip.so</em></a></li>
+</ul></li>
+<li><a href="#c9">Analysis of C&amp;Cs</a></li>
+<li><a href="#ca">Comparison with other malware families</a></li>
+<li><a href="#cb">Conclusions</a></li>
+<li><a href="#cc">Acknowledgements</a></li>
+<li><a href="#cd">Bibliography</a></li>
+</ul>
+<h2><a name="c0"></a>Abstract</h2>
+<p>Andrew Kovalev and colleagues describe ‘Mayhem’ – a new kind of malware for *nix web servers that has the functions of a traditional Windows bot, but which can act under restricted privileges in the system.</p>
+<p>Over the last several years, malware writers have clearly come to understand that gaining access to web servers can bring more benefits than infecting users’ PCs. Nowadays, there are millions of completely unprotected web servers with different kinds of vulnerabilities, so it is easy for attackers to upload web shells and gain access to them. Although in the vast majority of cases such access is restricted by the web server’s rights on the target system, attackers successfully find ways to gain maximum advantage. In this article we describe ‘Mayhem’ – a new kind of malware for *nix web servers that has the functions of a traditional <em>Windows</em> bot, but which can act under restricted privileges in the system.</p>
+<h2><a name="c1"></a>Introduction</h2>
+<p>The infection of websites and even entire web servers has become common. Usually such infections are used for stealing traffic, black hat SEO, drive-by download attacks, and so on, and in the vast majority of cases this kind of malware comprises relatively simple PHP scripts. But in the last two years, several more sophisticated malware families have been discovered. Mayhem is a multi-purpose modular bot for web servers. Our team studied the bot in order to gain an understanding not only of the client part of the malware, but also some of its command and control (C&amp;C) servers, allowing us to collect some statistics.</p>
+<p>This article should be considered as an addition to the one published by the<em> Malware Must Die</em> team [<a href="#f1">1</a>]. We faced the Mayhem bot in April 2014, and this paper is a result of our own independent research. [<a href="#f2">2</a>] is the only other publication on Mayhem we’ve found. During our research, we also discovered that Mayhem is a continuation of a bigger ‘Fort Disco’ brute-force campaign, disclosed in [<a href="#f3">3</a>].</p>
+<h2><a name="c2"></a>Malware representation</h2>
+<p>Initially, the piece of malware appears as a PHP script. We analysed the version of the PHP dropper with the SHA256 hash: b3cc1aa3259cd934f56937e6371f270c23edf96d2c0801728b0379dd07a0a035.</p>
+<p>The results of analysing this script with the <em>VirusTotal</em> service are presented in Table 1.</p>
+<table summary="The results of checking the PHP dropper using the VirusTotal service." border="1">
+<tr><th align="center">Date</th><th align="center">VirusTotal results</th></tr>
+<tr><td>2014-06-17</td><td>3/54</td></tr><tr><td>2014-06-05</td><td>3/51</td></tr>
+<tr><td>2014-06-03</td><td>3/52</td></tr><tr><td>2014-04-06</td><td>1/51</td></tr>
+<tr><td>2014-03-18</td><td>1/49</td></tr>
+</table>
+<p><strong>Table 1. The results of checking the PHP dropper using the VirusTotal service.</strong></p>
+<p>After execution, the script kills all ‘/usr/bin/host’ processes, identifies the system architecture (x64 or x86) and system type (<em>Linux</em> or <em>FreeBSD</em>), and drops a malicious shared object named ‘libworker.so’. The script also defines a variable ‘AU’, which contains the full URL of the script being executed. The first part of the PHP script is shown in Figure 1.</p>
+<div align="center">
+<img src="img/aak02/fig1.jpg" alt="First part of the PHP dropper."/>
+<p><strong>Figure 1. First part of the PHP dropper.</strong></p>
+</div>
+<p>After that, the PHP dropper creates a shell script named ‘1.sh’, the contents of which are depicted in Figure 2. Besides all of this, the script also creates the environment variable ‘AU’, which is the same as the one defined in the PHP script.</p>
+<p>Then the PHP dropper executes the shell script by running the command ‘at now -f 1.sh’. This command adds a cron task. After execution, the dropper waits for at most five seconds, then deletes the corresponding cron task. If execution of the ‘at’ command fails, the dropper runs the ‘1.sh’ script directly. This part of the PHP dropper is presented in Figure 3.</p>
+<h2><a name="c3"></a>Shared object initialization</h2>
+<p>The LD_PRELOAD technique allows the shared object to be the first to be loaded and allows it to hook into different functions easily. If a standard library function is re implemented in such a library, that library will intercept all calls to that function. The malicious sample contains its own implementation of the ‘exit’ function, so this one is invoked by ‘/usr/bin/host’ instead of the original one.</p>
+ 
+<div align="center">
+<img src="img/aak02/fig2.jpg" alt="The contents of the ‘1.sh’ script.2."/>
+<p><strong>Figure 2. The contents of the ‘1.sh’ script.2.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak02/fig3.jpg" alt="The last part of the PHP dropper."/>
+<p><strong>Figure 3. The last part of the PHP dropper.</strong></p>
+</div>
+<p>During execution of the hooked ‘exit’ function an additional initialization function is called. The workflow of this function is shown in Figure 4. During the initialization, the following steps are performed:</p>
+<ul type="disc">
+<li>An ELF file with only an ‘exit’ function is dropped</li>
+<li>The process forks and the child process runs the ELF file and finishes its execution</li>
+<li>The parent process performs further initialization: it tries to connect to the <em>Google</em> DNS service (the IP address is 8.8.8.8), decrypts and parses the configuration file and obtains the parameters of the system.</li>
+</ul>
+<div align="center">
+<img src="img/aak02/fig4.jpg" alt="The workflow of the initialization function."/>
+<p><strong>Figure 4. The workflow of the initialization function.</strong></p>
+</div>
+<p>Once initialization is complete, the shared object file is removed from the disk. The malware then tries to open and map to memory a file with a hidden file system. If the file does not exist, it is created, mapped to memory, and a hidden file system is initialized. Then this process forks, the parent process exits, and the child process continues the execution. A high-level workflow of the hooked ‘exit’ function is shown in Figure 5. The successful execution path is marked on the workflow in red. As you can see, the execution path is neither only parent nor only child. We assume that this is an anti-debugging trick for debuggers that are configured to follow only child processes or only parent processes after a fork.</p>
+<p>After all of these steps, the child process (the only one that is alive) runs the main infinite loop of the malware. The malware sleeps for the period of time defined in its configuration and runs functions that do useful jobs.</p>
+<h2><a name="c4"></a>Main loop function</h2>
+<p>This function first sets up a socket for communication with the C&amp;C server, then checks whether information about the infected host has been sent to the C&amp;C since this working session started, i.e. since the malware was executed. If the flag indicates that information has successfully been sent to the C&amp;C server, the malware sends a ‘ping’ packet, then receives and executes C&amp;C commands.</p>
+<p>If the flag indicates that the information has not been sent yet, the malware prepares an HTTP packet that contains
+ 
+the output of the ‘uname -a’ command, the architecture of the infected system, and information about the rights of the system user executing the process. After the packet has been sent, the malware reads the C&amp;C response and if something goes wrong it exits this function. If everything is fine, the malware updates the flag and tries to read and execute other commands in the C&amp;C response.</p>
+<div align="center">
+<img src="img/aak02/fig5.jpg" alt="High-level workflow of the hooked ‘exit’ function."/>
+<p><strong>Figure 5. High-level workflow of the hooked ‘exit’ function.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak02/fig6.jpg" alt="High-level workflow of the main loop function in the shared object."/>
+<p><strong>Figure 6. High-level workflow of the main loop function in the shared object.</strong></p>
+</div>
+<p>A high-level workflow of the main loop function is presented in Figure 6.</p>
+<p>During the work, the malware maintains four lists and two queues. One queue is used for input strings (strings received from the C&amp;C server), and the other is used for output strings (strings that will be sent to the C&amp;C server). The first list is used to store the addresses of the working functions of plug-ins, the second to store the addresses of functions that process data before writing to a socket (one used to transmit data to the C&amp;C), the third to store the addresses of functions that process data read from a socket (data received from the C&amp;C), and the fourth to store the addresses of functions that will process data from string queues. Figure 7 shows how these queues and lists are used in the malware’s dataflow.</p>
+<div align="center">
+<img src="img/aak02/fig7.jpg" alt="Workflow of data received from the C&amp;C server."/>
+<p><strong>Figure 7. Workflow of data received from the C&amp;C server.</strong></p>
+</div>
+<p>Figure 8 shows the dataflow when the malware processes a task.</p>
+ 
+<div align="center">
+<img src="img/aak02/fig8.jpg" alt="Dataflow of strings that are processed by plug-ins."/>
+<p><strong>Figure 8. Dataflow of strings that are processed by plug-ins.</strong></p>
+</div>
+<h2><a name="c5"></a>C&amp;C commands</h2>
+<p>There are seven different commands that are used in communications between the C&amp;C server and the malware. The commands can be divided into two groups: inbound commands (C&amp;C to bot) and outbound commands (bot to C&amp;C). All of these commands are sent in HTTP POST requests/responses, i.e. inbound commands are transmitted in HTTP POST requests and outbound commands are transmitted in HTTP responses to the POST requests.</p>
+<h3><a name="c51"></a>The 'R' command (outbound)</h3>
+<p>By sending this command the malware tells the C&amp;C that it has successfully been loaded and is ready to work. If the web server is run with root privileges, the format of the ‘R’ command sent to the C&amp;C is:</p>
+<pre class="source">R,20130826,&lt;system architecture - 64 or 32&gt;,&lt;EI_OSABI value from ‘/usr/bin/host’ ELF header&gt;,ROOT,&lt;output of ‘uname -a command’&gt;</pre>
+<p>If the web server is run with restricted privileges, then the command is the same, but instead of ‘ROOT’ there is the output of getenv(‘AU’) – the URL for the PHP script used to start the malware. If everything is fine, the C&amp;C server returns ‘R,200’.</p>
+<h3><a name="c52"></a>The 'G' command (inbound)</h3>
+<p>This command is sent from the C&amp;C server to the malware. The command has the following format:</p>
+<pre class="source">G,&lt;task ID&gt;</pre>
+<p>If the current task ID is not equal to the one received, the malware will finalize the currently running task and start a number of new working threads. The number of working threads is set by the ‘L’ command.</p>
+<h3><a name="c53"></a>The 'F' command (outbound)</h3>
+<p>This command is used to request files from the server. If the malware wants to request a new file, it will send the following command:</p>
+<pre class="source">F,&lt;file name&gt;,0</pre>
+<p>If the malware wants to check if there is a new version of a previously obtained file, it will send:</p>
+<pre class="source">F,&lt;file name&gt;,&lt;CRC32 sum of the file&gt;</pre>
+<p>If the file is not found on the C&amp;C server, the server will respond:</p>
+<pre class="source">F,404,&lt;file name&gt;</pre>
+<p>If the file hasn’t been changed since it was received, the C&amp;C will respond:</p>
+<pre class="source">F,304,-</pre>
+<p>If the new/updated file is found, the server will respond</p>
+<pre class="source">F,200,&lt;file name&gt;,&lt;BASE64 encoded file data&gt;</pre>
+<p>After receiving the command with data, the malware decodes the BASE64-encoded data, writes it to disk and into a hidden file system. Then it tries to determine whether the received file is a plug-in. If the file is a plug-in, the malware checks its CRC32 sum, which is stored in unused ELF header fields, and loads the plug-in into memory.</p>
+<h3><a name="c54"></a>The ‘L’ command (inbound)</h3>
+<p>The ‘L’ command is used by the C&amp;C server to configure the malware and to make it load a plug-in. If the C&amp;C wants to configure the core module of the malware, it will send:</p>
+<pre class="source">L,core,&lt;number of working threads&gt;,&lt;sleep timeout&gt;,&lt;socket timeout&gt;</pre>
+<p>After receiving this command, the malware will finalize all working threads, then update the number of working threads, the sleep timeout and the socket timeout.</p>
+<p>If the C&amp;C wants the malware to load a plug-in, it will send:</p>
+<pre class="source">L,&lt;plug-in file name&gt;,&lt;plug-in parameters separated by comma&gt;</pre>
+<p>If the malware receives this command and another plug-in is already running, the running plug-in will be stopped and the new one will be looked up in the hidden file system. If the lookup fails, a file with plug-in will be requested from the C&amp;C via the ‘F’ command. Then the plug-in will be loaded, initialized and run.</p>
+<h3><a name="c55"></a>The ‘Q’ command (outbound &amp; inbound)</h3>
+<p>This command is used to transmit working data from the C&amp;C to the malware and vice versa. If the C&amp;C wants to add a string to the malware’s processing queue, it will send:</p>
+ 
+<pre class="source">Q,string</pre>
+<p>All of these strings are added to the malware’s input queue and will be processed by a plug-in that is being run. If the malware wants to upload the results of its work, it will send:</p>
+<pre class="source">Q,&lt;plug-in name&gt;, &lt;string with results&gt;</pre>
+<p>then remove these strings from its output queue.</p>
+<h3><a name="c56"></a>The ‘P’ command (outbound)</h3>
+<p>This command is used by the malware to send its current state to the C&amp;C server. The format of this command is:</p>
+<pre class="source">
+	P,
+		&lt;flag is a task is run&gt;,
+		&lt;UNKNOWN&gt;,
+		&lt;count of working threads&gt;,
+		&lt;number of read/write requests to servers per second&gt;,
+		&lt;total number of read/write operations to server since this number has been set to zero&gt;
+</pre>
+<h3><a name="c57"></a>The ‘S’ command (inbound)</h3>
+<p>If the malware receives this command it will finalize all working threads, empty the input and output queue and release other system resources. After that, it is ready to process a new task.</p>
+<h3><a name="c58"></a>Summary</h3>
+<p>In summary, the commands are as follows:</p>
+<dl>
+<dt>Outbound commands</dt>
+<dd>
+<p>R - report home</p>
+<p>F - request file</p>
+<p>Q - send data</p>
+<p>P - report state</p>
+</dd>
+<dt>Inbound commands</dt>
+<dd>
+<p>G - run new task</p>
+<p>L - load plug-in</p>
+<p>Q - send data</p>
+<p>S - stop current task</p>
+</dd>
+</dl>
+<h2><a name="c6"></a>Configuration</h2>
+<p>The shared object contains configuration information stored in the data segment in an encrypted form. The decryption key is also stored in the data segment. Initially, only the first eight bytes are decrypted, then the malware checks whether the last four bytes are equal to 0xDEADBEEF. If they are, then the first four bytes represent the length of the encrypted data. After this, the rest of the ciphertext is decrypted. Figure 9 shows the pseudocode of the decryption algorithm.</p>
+<div align="center">
+<img src="img/aak02/fig9.jpg" alt="The decryption algorithm used in the malware."/>
+<p><strong>Figure 9. The decryption algorithm used in the malware.</strong></p>
+</div>
+<p>We analysed the code of the algorithm and found that this is an implementation of the XTEA encryption algorithm [<a href="#f4">4</a>], [<a href="#f5">5</a>] with the number of rounds equal to 32; the mode of operations is ECB [<a href="#f6">6</a>], [<a href="#f7">7</a>].</p>
+<p>An example of the decrypted configuration is shown in Figure 10.</p>
+<div align="center">
+<img src="img/aak02/fig10.jpg" alt="Decrypted configuration of the sample."/>
+<p><strong>Figure 10. Decrypted configuration of the sample.</strong></p>
+</div>
+<p>All the samples we analysed had the same format for the configuration. The first part of the configura-tion contains special flags and offsets to data in the rest of the configuration array. The format of the decrypted configuration is presented in Table 2.</p>
+ 
+<table summary="Description of the malware configuration." border="1">
+<tr><th align="center">Offset</th><th align="center">Size in bytes</th><th align="center">Description</th></tr>
+<tr><td>0</td><td>4</td><td>This field contains the number of eight-byte blocks in the configuration – in other words, the length of the configuration in eight-byte blocks</td></tr>
+<tr><td>4</td><td>4</td><td>Special marker 0xDEADBEEF</td></tr>
+<tr><td>8</td><td>4</td><td>Offset to the C&amp;C URL</td></tr>
+<tr><td>12</td><td>4</td><td>Sleep time between executions of the main loop function of the malware</td></tr>
+<tr><td>16</td><td>4</td><td>Size of file mapping for the hidden file system</td></tr>
+<tr><td>20</td><td>4</td><td>Offset to the name of the file that contains the hidden file system</td></tr>
+</table>
+<p><strong>Table 2. Description of the malware configuration.</strong></p>
+<p>As can be seen from Table 2, a C&amp;C address is defined directly in the malware configuration and no DGA is used.</p>
+<h2><a name="c7"></a>Hidden file system</h2>
+<p>As stated previously, the malware uses a hidden file system to store its files. The file system comprises a file that is created during the initialization. The filename of the hidden file system is defined in the configuration, but its name is usually ‘.sd0’. To work with this file system an open-source library ‘FAT 16/32 File System Library’, [<a href="#f8">8</a>] is used. The library contains code to create and work with the FAT file system, but it is not used in the original form – some functions have been modified to support encryption. Every block is encrypted with 32 rounds of XTEA algorithm in ECB mode and the encryption key differs from block to block.</p>
+<p>The hidden file system is used to store plug-ins and files with strings to process: lists of URLs, usernames, passwords, etc. The content of one instance of the file system is shown in Figure 11.</p>
+<div align="center">
+<img src="img/aak02/fig11.jpg" alt="The content of one instance of the file system."/>
+<p><strong>Figure 11. The content of one instance of the file system.</strong></p>
+</div>
+<p>We developed a simple tool based on the open-source library [<a href="#f8">8</a>] for decrypting and extracting files from such file systems. The script can be found in [<a href="#f9">9</a>].</p>
+<h2><a name="c8"></a>Analysis of plug-ins</h2>
+<p>As mentioned before, the malware has functionality which allows it to use plug-ins. During our research we found eight different plug-ins for this bot. Plug-ins and their configuration files are stored in the hidden file system. All the plug-ins described here have been found in the wild and are used by the malware.</p>
+<h3><a name="c81"></a>Plug-ins interface</h3>
+<p>Every plug-in exports a structure that contains two special markers: pointers to useful plug-in functions and a string that contains the plug-in name. Every plug-in has at least two such pointers: a pointer to the plug-in initialization function and a pointer to the function that performs deinitialization. Two markers in this structure are constants: 0xDEADBEEF and a constant 20130826 that we suspect is a version of the plug-in. An example of such a structure is shown in Figure 12.</p>
+<div align="center">
+<img src="img/aak02/fig12.jpg" alt="An example of the structure that describes one of the plug-ins."/>
+<p><strong>Figure 12. An example of the structure that describes one of the plug-ins.</strong></p>
+</div>
+<p>Due to the fact that all of the plug-ins are stored in the hidden file system, none of them were detected by any AV vendor when we checked on <em>VirusTotal</em>.</p>
+<h3><a name="c82"></a>rfiscan.so</h3>
+<p>SHA256 hash sum: 9efed12a67e5835c73df5882321c4cd2dd23e4a571e5f99ccd7ec13176ab12cb</p>
+<p>This plug-in is used to find websites that contain a remote file inclusion (RFI) vulnerability. During initialization, the plug in downloads a list of patterns and a list of websites to check. Then it sends special HTTP requests to the websites that try to include the ‘http://www.google.com/humans.txt’ file
+ 
+and analyse the corresponding HTTP responses. If the HTTP response contains the ‘we can shake’ substring, then the plug-in decides that the website has a remote file inclusion vulnerability. A part of the list with patterns is shown in Figure 13.</p>
+<div align="center">
+<img src="img/aak02/fig13.jpg" alt="Some patterns used by ‘rfiscan.so’ to find websites that are vulnerable to RFI."/>
+<p><strong>Figure 13. Some patterns used by ‘rfiscan.so’ to find websites that are vulnerable to RFI.</strong></p>
+</div>
+<p>The results are transmitted to the C&amp;C server with the use of ‘Q’ commands. The meanings of the commands are presented in Table 3.</p>
+<table summary="Descriptions of ‘rfiscan’ plug-in ‘Q’ commands." border="1">
+<tr><th align="center">Command</th><th align="center">Description</th></tr>
+<tr><td>Q,rfiscan,&lt;host&gt;,&lt;vulnerable URL&gt;</td><td>An RFI vulnerability has successfully been found</td></tr>
+<tr><td>Q,rfiscan,&lt;host&gt;,-</td><td>RFI vulnerabilities haven’t been found</td></tr>
+</table>
+<p><strong>Table 3. Descriptions of ‘rfiscan’ plug-in ‘Q’ commands.</strong></p>
+<h3><a name="c83"></a>wpenum.so</h3>
+<p>SHA256 hash sum: 9707e7682dd4f2c7850fdff0b0b33a3f499e93513f025174451b503eaeadea88</p>
+<p>This plug-in is used to enumerate users of <em>WordPress</em> sites. The working function of this plug-in receives a URL, transforms it, and makes HTTP requests with the following query template:</p>
+<pre class="source">&lt;original query without last part&gt;/?author=&lt;user id&gt;</pre>
+<p>The user ID ranges from 0 to 5. If the corresponding HTTP response contains the substring ‘Location:’ and the destination URL contains the substring ‘/author/’ then the username is extracted from the destination URL. The first user to be found is transmitted to the C&amp;C with the use of ‘Q’ commands. The meanings of the commands are presented in Table 4.</p>
+<table summary="Descriptions of ‘wpenum’ plug-in ‘Q’ commands." border="1">
+<tr><th align="center">Command</th><th align="center">Description</th></tr>
+<tr><td>Q,wpenum,&lt;original URL&gt;,&lt;transformed URL&gt;,&lt;user name&gt;</td><td>Username has successfully been found</td></tr>
+<tr><td>Q,wpenum,&lt;original URL&gt;,&lt;original URL&gt;,no_matches</td><td>No username has been found</td></tr>
+<tr><td>Q,wpenum,&lt;original URL&gt;,-</td><td>Connection failed</td></tr>
+</table>
+<p><strong>Table 4. Descriptions of ‘wpenum’ plug-in ‘Q’ commands.</strong></p>
+<h3><a name="c84"></a>cmsurls.so</h3>
+<p>SHA256 hash sum: 84725fb3f68bde780a6349d0419bec39b03c85591e4337c6a02dcaa87b2e4ea3</p>
+<p>The working function of this plug-in receives the hostname, makes an HTTP GET request to this host with the ‘/wp-login.PHP’ query, and searches for the substring ‘name="log"’ in the corresponding query. So this plug-in identifies user login pages in sites based on the <em>WordPress</em> CMS. The results are sent to the C&amp;C with the use of ‘Q’ commands. The meanings of the commands are presented in Table 5.</p>
+<table summary="Descriptions of ‘cmsurls.so’ plug-in ‘Q’ commands." border="1">
+<tr><th align="center">Command</th><th align="center">Description</th></tr>
+<tr><td>Q,cmsurls,&lt;hostname&gt;,&lt;URL to login page (ends with ‘wp-login.PHP’)&gt;</td><td>URL for login page has successfully been found</td></tr>
+<tr><td>Q,cmsurls,&lt;hostname&gt;</td><td>URL for login page has not been found</td></tr>
+<tr><td>Q,cmsurls,&lt;hostname&gt;,-</td><td>Connection failed</td></tr>
+</table>
+<p><strong>Table 5. Descriptions of ‘cmsurls.so’ plug-in ‘Q’ commands.</strong></p>
+<h3><a name="c85"></a>bruteforce.so</h3>
+<p>SHA256 hash sum: 6f96d63ab5288a38e8893043feee668eb6cee7fd7af8ecfed16314fdba4d32a6</p>
+<p>This plug-in is used to brute force passwords for sites based on the <em>WordPress</em> and <em>Joomla</em> CMSs. The plug-in doesn’t support HTTPS. During our research, we found a dictionary containing passwords used by the plug-in. The dictionary contains 17,911 passwords. The lengths of the passwords range from 1 to 32 symbols.</p>
+<h3><a name="c86"></a>bruteforceng.so</h3>
+<p>SHA256 hash sum: 992c36b2fcc59117cf7285fa39a89386c62a56fe4f0a192a05a379e7a6dcdea6</p>
+<p>This plug-in is also used to brute force passwords for sites, but unlike bruteforce.so, this plug-in supports HTTPS, and regular expressions, and can be configured to brute force almost any login page. An example of such a configuration is presented in Figure 14.</p>
+ 
+<div align="center">
+<img src="img/aak02/fig14.jpg" alt="An example configuration of the ‘bruteforceng.so’ plug-in."/>
+<p><strong>Figure 14. An example configuration of the ‘bruteforceng.so’ plug-in.</strong></p>
+</div>
+<p>We analysed other configuration files for this plug-in and found that it was also used to brute force credentials for DirectAdmin control panels.</p>
+<h3><a name="c87"></a>ftpbrute.so</h3>
+<p>SHA256 hash sum: 38ee32e644cb8421a89cbcba9c844a5b482b4524d51f5c10dcb582c3c4ed8101</p>
+<p>This plug-in is used to brute force FTP accounts.</p>
+<h3><a name="c88"></a>crawlerng.so</h3>
+<p>SHA256 hash sum: d9d3d93c190e52cc0860f389f9554a86c8c67d56d2f4283356ca7cf5cda178a0</p>
+<p>This plug-in is used to crawl web pages and extract useful information. A list of websites to crawl, as well as depth level and other parameters, are obtained from the C&amp;C server. The plug-in also supports HTTPS protocol and uses the SLRE [<a href="#f10">10</a>] library to work with regular expressions. The plug-in is very flexible. One of the configuration files for this plug-in is presented in Figure 15. As you can see, in this case the plug-in was used to find and collect pharmacy-related web pages.</p>
+<div align="center">
+<img src="img/aak02/fig15.jpg" alt="A configuration file of the ‘crawlerng.so’ plug-in."/>
+<p><strong>Figure 15. A configuration file of the ‘crawlerng.so’ plug-in.</strong></p>
+</div>
+<h3><a name="c89"></a><em>crawlerip.so</em></h3>
+<p>SHA256 hash sum: 1fc6a6a98bf854421054254bd504f0b596f01fcb9118a3e525c16049a26e3e11</p>
+<p>This plug-in is the same as the ‘crawlerng.so’ plug-in. The only difference is that this one works with a list of IP addresses instead of URLs.</p>
+<h2><a name="c9"></a>Analysis of C&amp;Cs</h2>
+<p>During our research we found that three C&amp;C servers were used to manage the botnet. We were able to gain access to two of them and to collect some statistics. A general overview of the C&amp;C administration panel is presented in Figure 16. The interface that allows the user to add tasks to bots is shown in Figure 17.</p>
+<div align="center">
+<img src="img/aak02/fig16.jpg" alt="(List of bots in the C&amp;C administration panel."/>
+<p><strong>Figure 16. (List of bots in the C&amp;C administration panel.</strong></p>
+</div>
+ 
+<div align="center">
+<img src="img/aak02/fig17.jpg" alt="Task addition interface in the C&amp;C."/>
+<p><strong>Figure 17. Task addition interface in the C&amp;C.</strong></p>
+</div>
+<p>These two C&amp;C servers managed about 1,400 bots between them. The first botnet contained about 1,100 bots, the second about 300 bots. At the time of the analysis, bots from both botnets were used to brute force WordPress passwords. A picture of the brute force task is presented in Figure 18 and some results of this brute force task are presented in Figure 19.</p>
+<div align="center">
+<img src="img/aak02/fig18.jpg" alt="Brute force task in the larger botnet administration panel."/>
+<p><strong>Figure 18. Brute force task in the larger botnet administration panel.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak02/fig19.jpg" alt="Some results of a brute force task run by the botnet."/>
+<p><strong>Figure 19. Some results of a brute force task run by the botnet.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak02/fig20.jpg" alt="Geographic distribution of infected servers in the larger botnet. Darker blue means more infected servers."/>
+<p><strong>Figure 20. Geographic distribution of infected servers in the larger botnet. Darker blue means more infected servers.</strong></p>
+</div>
+ 
+<p>The geographical distribution of the infected servers of the botnets is presented in Figure 20. As can be seen, the countries with the highest rates of infection are USA, Russia, Germany and Canada.</p>
+<p>The third C&amp;C server had also been identified by the <em>Malware Must Die </em>team [<a href="#f1">1</a>], and at the time of our analysis it was switched off.</p>
+<p>We analysed the sources of both active C&amp;C servers. Besides the main page, the sources also contain two additional PHP scripts: config.php and update.php.</p>
+<p>The first script contains configuration data: database credentials, MD5 hash of the administrative panel, maximum pending time for tasks, bot wake up time, etc. Part of this script is shown in Figure 21.</p>
+<div align="center">
+<img src="img/aak02/fig21.jpg" alt="Part of the C&amp;C configuration data."/>
+<p><strong>Figure 21. Part of the C&amp;C configuration data.</strong></p>
+</div>
+<p>The update.php script is used for waking up bots. This script visits a host with inactive bots and runs the PHP script described in the ‘Malware representation’ section.</p>
+<p>We also found that the C&amp;C server supports a number of plug-ins that we haven’t found in the wild. For example, a plug-in that exploits the recently identified ‘Heartbleed’ vulnerability and collects data from vulnerable servers. A piece of code that describes all the available plug-ins is shown in Figure 22.</p>
+<div align="center">
+<img src="img/aak02/fig22.jpg" alt="This piece of code shows that there are a number of plug-ins we haven’t seen in the wild."/>
+<p><strong>Figure 22. This piece of code shows that there are a number of plug-ins we haven’t seen in the wild.</strong></p>
+</div>
+<p>The C&amp;C uses MySQL and memcached (if it is available) as data storage, but plug-ins are stored on disk.</p>
+<p>We also found that the code of the C&amp;C scripts contains a number of security flaws, but a description of these vulnerabilities is beyond the scope of this article.</p>
+<h2><a name="ca"></a>Comparison with other malware families</h2>
+<p>During our analysis, we found some common features shared between Mayhem and some other *nix malware. The malware is similar to ‘Trololo_mod’ and ‘Effusion’ [<a href="#f11">11</a>] – two injectors for <em>Apache</em> and <em>Nginx</em> servers respectively. All three malware families have the following similarities:</p>
+<ul type="disc">
+<li>configuration has the same format</li>
+<li>XTEA algorithm in ECB mode is used for encryption</li>
+<li>0xDEADBEEF markers are widely used in configuration files and other parts of code</li>
+<li>ELF headers of shared objects are corrupted in the same way.</li>
+</ul>
+<p>Despite a lack of evidence, we suspect that all these malware families were developed by the same gang.</p>
+<h2><a name="cb"></a>Conclusions</h2>
+<p>Having completed this research, we can confidently say that botnets made up of *nix web servers are becoming more and more popular, as a modern trend in malware. Why is this the case? We think the following are some of the reasons:</p>
+<ul type="disc">
+<li>Web server botnets offer a unique model of monetization through traffic redirection, drive-by download attacks, black hat SEO, etc.</li>
+ 
+<li>Web servers have good uptime, network channels and are more powerful than ordinary personal computers.</li>
+<li>In the *nix world, autoupdate technologies aren’t widely used, especially in comparison with desktops and smartphones. The vast majority of webmasters and system administrators have to update their software manually and test that their infrastructure works correctly. For ordinary websites, serious maintenance is quite expensive and often webmasters don’t have an opportunity to do it. This means it is easy for hackers to find vulnerable web servers and to use such servers in their botnets.</li>
+<li>In the *nix world, the use of anti-virus technologies isn’t widespread. A lot of vendors don’t offer any proactive defence or process memory checking modules. In addition, an ordinary webmaster usually doesn’t want to spend time reading the manuals of such software and solving possible performance issues that might occur.</li>
+</ul>
+<p>Mayhem is a very interesting and sophisticated piece of malware that has a flexible and complicated architecture. We hope that our research will help the security community in the struggle against such threats.</p>
+<h2><a name="cc"></a>Acknowledgements</h2>
+<p>We would like to thank Fraser Howard and Charles McCathie Nevile, whose comments and suggestions helped us to improve this article.</p>
+<h2><a name="cd"></a>Bibliography</h2>
+<ol>
+<li><a name="f1"></a>http://blog.malwaremustdie.org/2014/05/elf-shared-so-dynamic-library-malware.html .</li>
+<li><a name="f2"></a>http://sysadminblog.net/2013/11/fake-wordpress-plug-ins/ .</li>
+<li><a name="f3"></a>Fort Disco Bruteforce Campaign. http://www.arbornetworks.com/asert/2013/08/fort-disco-bruteforce-campaign/ .</li>
+<li><a name="f4"></a>Wheeler, D.; Needham, R. Correction to XTEA. http://www.movable-type.co.uk/scripts/xxtea.pdf .</li>
+<li><a name="f5"></a>http://en.wikipedia.org/w/index.PHP?title=XTEA&amp;oldname=558387953 .</li>
+<li><a name="f6"></a>Wikipedia. Block cipher mode of operation. http://en.wikipedia.org/w/index.PHP?title=Block_cipher_mode_of_operation&amp;oldname=582012907 .</li>
+<li><a name="f7"></a>Schneier, B. Applied Cryptography. John Wiley &amp; Sons, 1996.</li>
+<li><a name="f8"></a>http://ultra-embedded.com/fat_filelib .</li>
+<li><a name="f9"></a>https://github.com/freeoks/SD0_reader .</li>
+<li><a name="f10"></a>http://slre.sourceforge.net/ .</li>
+<li><a name="f11"></a><a href="/lib/aak01.html">Effusion – a new sophisticated injector for Nginx web servers</a>.</li>
+<li><a></a>http://www.linuxjournal.com/article/7795 .</li>
+</ol>
+ 
+[<a style="" href="/lib/?lang=EN&amp;index=AN#aak02">Back to index</a>] [<a href="/lib/aak02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=aak02">de</a><a href="/lib/index.php?lang=en&amp;id=aak02">en</a><a href="/lib/index.php?lang=es&amp;id=aak02">es</a><a href="/lib/index.php?lang=it&amp;id=aak02">it</a><a href="/lib/index.php?lang=fr&amp;id=aak02">fr</a><a href="/lib/index.php?lang=pl&amp;id=aak02">pl</a><a href="/lib/index.php?lang=ru&amp;id=aak02">ru</a><a href="/lib/index.php?lang=ua&amp;id=aak02">ua</a></div>
+</body>
+</html>

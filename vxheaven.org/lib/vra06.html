@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Ratter 'Gaining important datas from PEB under NT boxes' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Ratter"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Ratter,Gaining important datas from PEB under NT boxes, struct, dword, void, unicode, goto, directory, current, list, entry, data, base, environment, families, operating, system"/>
+<meta name="Description" content="After some years of using it, you are very familiar with SEH - Structured Exception Handling. When you set a exception frame you use more or less the same code snippet which works with the fs selector. Probably you also know that this selector points to a data structure known as TEB ie Thread Environment Block. This structure contains a lot of more or less useful values and structures and - what is important for us - also a pointer to PEB - Process Environment Block."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"521db5ec55636ab39f5dbe518df10bd6147c7cb6-1498756323-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vra06.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Gaining important datas from PEB under NT boxes</h1><p><a href="/lib/?lang=en&amp;author=Ratter"> Ratter</a><br/> <em><a href="/vx.php?fid=11#f11">29a [6]</a></em><br/> <em>March 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vra06.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vra06">Back to index</a>] [<a href="/lib/vra06.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">Intro</a></li>
+<li><a href="#c2">Operating system families differentiating</a></li>
+<li><a href="#c3">Getting the kernel32.dll base from PEB</a></li>
+<li><a href="#c4">Getting kenel32.dll image base</a></li>
+<li><a href="#c5">Getting the current directory from PEB</a></li>
+<li><a href="#c6">Getting current directory</a></li>
+<li><a href="#c7">Closing</a></li>
+</ul>
+<h2><a name="c1"></a>Intro</h2>
+<p>After some years of using it, you are very familiar with SEH - Structured Exception Handling. When you set a exception frame you use more or less the same code snippet which works with the fs selector. Probably you also know that this selector points to a data structure known as TEB ie Thread Environment Block. This structure contains a lot of more or less useful values and structures and - what is important for us - also a pointer to PEB - Process Environment Block.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> TEB <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> _NT_TIB NtTib<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> EnvironmentPointer<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> _CLIENT_ID ClientId<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> ActiveRpcHandle<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> ThreadLocalStoragePointer<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> _PEB<span style="color: #339933;">*</span> ProcessEnvironmentBlock<span style="color: #339933;">;</span> &nbsp; <span style="color: #339933;">;</span> offset 30h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ....<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> _ACTIVATION_CONTEXT_STACK ActivationContextStack<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>This is also the first use of PEB in virus coding. Since PEB under NT is always mapped at address 7FFDF000h (ie below 80000000h becoz above is the memory occupied by the NT kernel and drivers) but under Win9x it is always above 80000000h in the shared memory region we can use it for differentiating these operating system families. See this code snippet from Win2k.TaiChi:</p>
+<h2><a name="c2"></a>Operating system families differentiating</h2>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #46aa03; font-weight: bold;">fs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; gimme the PEB pointer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; it is above 80000000h ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">js</span> jmp_to_host&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; if yep end ...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; runned under WinNT box</span><br/>
+&nbsp;</div>
+<h2><a name="c3"></a>Getting the kernel32.dll base from PEB</h2>
+<p>For us will be important two data structures in PEB - PEB_LDR_DATA and RTL_USER_PROCESS_PARAMETERS. First we will use PEB_LDR_DATA which is at PEB:0ch offset to locate the kernel32.dll image base.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> PEB_LDR_DATA <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD Length<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> <span style="color: #0000dd;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BYTE Initialized<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> <span style="color: #0000dd;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> SsHandle<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> <span style="color: #0000dd;">8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> LIST_ENTRY InLoadOrderModuleList<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> 0ch<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> LIST_ENTRY InMemoryOrderModuleList<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> 14h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> LIST_ENTRY InInitializationOrderModuleList<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> 1ch<br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">struct</span> LIST_ENTRY <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> LIST_ENTRY<span style="color: #339933;">*</span> Flink<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> <span style="color: #0000dd;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> LIST_ENTRY<span style="color: #339933;">*</span> Blink<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span> <span style="color: #0000dd;">4</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>On the first sight it could look out a little bit confusing. But it isn't believe me. Let's have a deeper look at the PEB_LDR_DATA structure. For our needs we will use that data structure at address PEB:PEB_LDR_DATA:1ch. This is the list of initialization order of modules (ie dlls). Because it is the LIST_ENTRY what in fact is the two ways list (forwards and backwards) we'll go forward to the first module in the list. If we would need image base of ntdll.dll this would be the right entry for us. But because we want the kernel32.dll image base we go forward again and that's exactly what we need. Let's have a look at the code snippet (hope it will be less confusing :))</p>
+<h2><a name="c4"></a>Getting kenel32.dll image base</h2>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #46aa03; font-weight: bold;">fs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; PEB base in eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0ch</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">; goto PEB_LDR_DATA</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1ch</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">; get the first entry in the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; InitOrderModuleList</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; now the esi points to the LIST_ENTRY entry which also contains</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; (besides others) the image base of ntdll.dll</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; *esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; dd&nbsp; &nbsp; &nbsp; *forwards_in_the_list &nbsp; ; esi+0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; dd&nbsp; &nbsp; &nbsp; *backwards_in_the_list&nbsp; ; &nbsp; &nbsp;+4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; dd&nbsp; &nbsp; &nbsp; imagebase_of_ntdll.dll &nbsp;; &nbsp; &nbsp;+8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; ...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; dd&nbsp; &nbsp; &nbsp; imagetimestamp&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ; &nbsp; &nbsp;+44h</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; we go forwards</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">08h</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">; and finally we get the image base</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; of kernel32.dll</span><br/>
+&nbsp;</div>
+<p>We can of course go forward again in the list and then we could find informations about other modules in the chain (if other we're imported by the program of course ...)</p>
+<h2><a name="c5"></a>Getting the current directory from PEB</h2>
+<p>Now the time has come to have a look at RTL_USER_PROCESS_PARAMETERS structure. This structure is located at PEB:10h. First let's have a look at it's entries.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> RTL_USER_PROCESS_PARAMETERS <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD MaximumLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD Length<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD Flags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD DebugFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> ConsoleHandle<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD ConsoleFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> StandardInput<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> StandardOutput<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> StandardError<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> CURDIR CurrentDirectory<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING DllPath<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING ImagePathName<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING CommandLine<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> Environment<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD StartingX<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD StartingY<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD CountX<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD CountY<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD CountCharsX<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD CountCharsY<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD FillAttribute<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD WindowFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD ShowWindowFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING WindowTitle<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING DesktopInfo<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING ShellInfo<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING RuntimeData<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">struct</span> CURDIR <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> UNICODE_STRING DosPath<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span><span style="color: #339933;">*</span> Handle<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">struct</span> UNICODE_STRING <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WORD Length<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WORD MaximumLength<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD<span style="color: #339933;">*</span> Buffer<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>As you might see there is a lot of very usefull datas. For example CommandLine, StandardInput, StandardOutput and others. We will use this structure to get the current directory. Because it's not a lot to explain let's go directly to the code snippet.</p>
+<h2><a name="c6"></a>Getting current directory</h2>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #46aa03; font-weight: bold;">fs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; goto PEB</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">; goto RTL_USER_PROCESS_PARAMETERS</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">24h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; goto CurrentDirectory</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; gimme unicode_buffer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; now in eax we have the pointer to the unicode current directory</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; you can convert it to ansi or work with it as it is ...</span><br/>
+&nbsp;</div>
+<h2><a name="c7"></a>Closing</h2>
+<p>You could see, that in PEB but also in TEB there are a lot of useful informations. A lot of functions of Win32 api are touching exactly these structures. Go on with exploring them with reverse engineering (mainly ntdll.dll) and show us what you'll get ...</p>
+<div align="right">Ratter/29A - I'm a stranger in the world I haven't made.</div>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vra06">de</a><a href="/lib/index.php?lang=en&amp;id=vra06">en</a><a href="/lib/index.php?lang=es&amp;id=vra06">es</a><a href="/lib/index.php?lang=it&amp;id=vra06">it</a><a href="/lib/index.php?lang=fr&amp;id=vra06">fr</a><a href="/lib/index.php?lang=pl&amp;id=vra06">pl</a><a href="/lib/index.php?lang=ru&amp;id=vra06">ru</a><a href="/lib/index.php?lang=ua&amp;id=vra06">ua</a></div>
+</body>
+</html>

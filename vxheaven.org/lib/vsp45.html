@@ -1,0 +1,313 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'Metamorphism and Self-Compilation in JavaScript' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,Metamorphism and Self-Compilation in JavaScript, virus, symbols, function, obfuscate, permutator, metamorphism, viruses, instructions, functions, variables, metamorphic, scope, methode, infecting, variable"/>
+<meta name="Description" content="Metamorphic script viruses have not been seen - until now. Here I show an implementation in JavaScript, which have been used in JS.Transcriptase. I explain the self-hosting compiler and the meta-level language and take a short look into the future."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"e873668e2b26272eef8b6353f2cf13397d1dcdb0-1498756766-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp45.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Metamorphism and Self-Compilation in JavaScript</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em><a href="/vx.php?fid=2009#f2009">Valhalla #3</a></em><br/> <em>December 2012</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp45.html';</script><div class="ci"><a href="/lib/?ci=vsp45">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=ME#vsp45">Back to index</a>] [<a href="/lib/vsp45.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">1) Introduction</a></li>
+<li><a href="#c2">2) Getting information: Decompilation versus Self-Hosting compilers</a></li>
+<li><a href="#c3">3) Meta-Level Language and Compilation</a>
+<ul>
+<li><a href="#c31">3.1) General idea</a></li>
+<li><a href="#c32">3.2) Permutator</a></li>
+<li><a href="#c33">3.3) Variable/Function-Name randomization</a></li>
+<li><a href="#c34">3.4) Meta-Language Symbols</a></li>
+<li><a href="#c35">3.5) Code Derivation</a></li>
+<li><a href="#c36">3.6) Variable/Function insertion</a></li>
+<li><a href="#c37">3.7) Additional surprises</a></li>
+</ul></li>
+<li><a href="#c4">4) Possible Extentions</a></li>
+<li><a href="#c5">5) Conclusion</a></li>
+</ul>
+<h2><a name="c1"></a>1) Introduction</h2>
+<p>Metamorphism for viruses is a technique to change the internal structure of a code to obtain highly-obfuscated new generations. This is done by getting information of the virus-code in a meta-language which is designed to allow derivation of logically equivalent but structurally different code.</p>
+<p>This technique has been implemented in a few viruses infecting executable files; first by virus-writers, later also by scientific researchers.</p>
+<p>Metamorphic script viruses have not been seen - until now. Here I show an implementation in JavaScript, which have been used in JS.Transcriptase. I explain the self-hosting compiler and the meta-level language and take a short look into the future.</p>
+<h2><a name="c2"></a>2) Getting information: Decompilation versus Self-Hosting compilers</h2>
+<p>As written above, a metamorphic virus needs the information of its code in some sort of meta-level language. There are two ways how this can be done:</p>
+<ul>
+<li>Decompilation (reverse-engineering) and optimization of the executeable code into a low-order form of the meta-language. The optimization needs to de-permutate and de-obfuscate the executeable code, otherwise the virus-size would grow exponentially after every generation.</li>
+<li>One example that implements this paradigm is MetaPHOR by The Mental Driller [1], which decompiled its own code into a pseudo-assembler meta-language.</li>
+</ul>
+<p>In my opinion, there are some contras in the first methode, which I've already mentioned in another text [3]. There are two main concerns:</p>
+<ul>
+<li>The decompilation/reverse-engineering engine used by the virus could directly be used by anti-virus programs to detect the code. herm1t argues against such a scenario [4], by mentioning the "no-zeroing-theorem" (you can not find the smallest form of an algorithm) and giving examples where optimization could lead to infinite-loops. This is certainly true, however approximative algorithm could be used to overcome AVers problems. And furthermore, despite the mathematical theorems that full zeroing/optimization is not possible, using the deobfuscator from the virus definitivly leads to a significant advantage for AVers: They dont need to deal with fully obfuscated code anymore, but can investigate some low-order obfuscated code.</li>
+<li>When the virus can obfuscate and de-obfuscate itself, it leads to a symmetric system in terms of complexity: It is similar hard to obfuscate than to de-obfuscate. But this is definitivly not what we want, we want that obfuscation is simple compared to deobfuscation. That's what Eric Filiol and Philippe Beaucamps [5,6] explain: Derivation of metamorphic generations so far are rather trivial due to the used grammar. It seems reasonable that implementation with more complex grammars are much easier without reverse-engineering.</li>
+</ul>
+<p>Due to the reasons above and the fact that this has never been implemented, I decided to write the engine as a self-hosted compiler, which contains its own meta-language source-code.</p>
+<p>One bottleneck for sources in the body is the detecion of the source itself. This has to be prevented - but simple decryption or integration in the code-flow should be enough most of the time.</p>
+<h2><a name="c3"></a>3) Meta-Level Language and Compilation</h2>
+<h3><a name="c31"></a>3.1) General idea</h3>
+<p>The great advantage when you define your own language is, that you have the whole information about the behaviour directly accessable, instead of reverse-engineering where much information may become very obfuscated or hidden in the code.</p>
+<p>The compiler creates the new JavaScript code with three steps:</p>
+<ul>
+<li>a) Permutation and Variable/Function-Name randomization</li>
+<li>b) Code Creation</li>
+<li>c) Variable/Function insertation</li>
+</ul>
+<p>The sketch of every line of the meta-code looks like this:</p>
+<pre class="source">
+	(Identifyer|Restrictions)instruction
+</pre>
+<p>For instance:</p>
+<pre class="source">
+	(200|)var b=0
+	(300|200)c+1(b)
+</pre>
+<p>The "(Identifyer|Restrictions)" corresponds to information for the Permutator, the "instruction" will be used for creating the code.</p>
+<h3><a name="c32"></a>3.2) Permutator</h3>
+<p>The Permutator goes thru every scope of the meta-code (global scope, and every sub-scope for functions/ifs/whiles) and collects information about the instruction-identifyers and the restrictions. Then it starts to randomly permutate the instructions.</p>
+<p>Example:</p>
+<pre class="source">
+	(100|)var a=1
+	(200|)var b=0
+	(300|)def c=true
+	(400|200)c+1(b)		// c+1(b) means increasing b by 1: i.e. b++
+	(500|400,100)c+n(b,a)	// c+n(b,a) means increasing b by a: i.e. b+=a
+	(600|500)xWScript.Echo(b)
+</pre>
+<p>The code would be randomly put together if all restriction-entries were empty, which would lead to 6!=720 different possible combinations. But as some instructions are dependend on other instructions, not all combinations lead to valid behaviour.</p>
+<p>In this example, the instruction 400 depends on instruction 200, because the variable has to be defined before it can be increased; 500 depends on 400 and 100; and 600 depends on 500.</p>
+<p>One potential output would be:</p>
+<pre class="source">
+	var b=0
+	c+1(b)
+	var a=1
+	c+n(b,a)
+	xWScript.Echo(b)
+	def c=true 
+</pre>
+<p>Due to the fast grow-rate of the permuation-function, this technique is especially useful for big numbers of instructions in the same scope.</p>
+<h3><a name="c33"></a>3.3) Variable/Function-Name randomization</h3>
+<p>The compiler searches for all "var", "def", "while" and "function" instructions of the code. Then it gets the hard-coded names in those instructions and replaces them with a randomized name. Then it replaces all instances of the hard-coded name in the current scope with the new random name.</p>
+<p>Example:</p>
+<pre class="source">
+	function myfunction(somename){return 2*somename;}
+	var arg1=1
+	def abc=myfunction(arg1)
+</pre>
+<p>could become</p>
+<pre class="source">
+	function qnejobvasjok(twldceyzls){return 2*twldceyzls;}
+	var lthqppbdli=1
+	def bsyomafdst=qnejobvasjok(lthqppbdli)
+</pre>
+<h3><a name="c34"></a>3.4) Meta-Language Symbols</h3>
+<p>After Permutation and name randomization, the compiler parses thru the meta-code and derives a valid JavaScript code for every instruction.</p>
+<p>Before derivating the actual instruction, several meta-level symbols are processed. Those symbols indicate the information that there is a string, a number, an object or an element that can be derived before the actual code is derived.</p>
+<p>For instance:</p>
+<pre class="source">
+	var number=#n1n#		// #n...n# - Numbers
+	var str=#"Hello VXers"#		// #"..."# - Strings
+	var exp=#x1true1x#		// #xN...Nx# - Elements
+	x#O1WScript#.Echo(°+str+°)1O#	// #O1... #. ...1O# - Objects 
+</pre>
+<p>When any of those symbols are recognized, they will be obfuscated before the instruction itself. For example:</p>
+<ul>
+<li>Numbers -> variables, functions, arithmetic calculations</li>
+<li>Strings -> variables, functions, String.fromCharCode(...); (in additions, strings are splitted into substrings, and independent obfuscations are applied on them)</li>
+<li>Elements -> variables, functions, eval()</li>
+<li>Objects: object.methode() -> f().methode(); function f(){return(object);}</li>
+</ul>
+<p>The symbol "°+ ... +°" indicates that the variable inside must be given as an argument for a function, if it is derived into a function:</p>
+<pre class="source">
+	x#O1WScript#.Echo(°+str+°)1O#
+</pre>
+<p>could become</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000066; font-weight: bold;">function</span> SomeFunctionName<span style="color: black;">&#40;</span>SomeArgName<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span>SomeArgName<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span><br/>
+SomeFunctionName<span style="color: black;">&#40;</span>str<span style="color: black;">&#41;</span><br/>
+&nbsp;</div>
+<p>All of those meta-symbols can be combined:</p>
+<pre class="source">
+xreturn(#x1#x2fGiveMeString(#n95n#)2x#+#x4fGiveMeString(#n42n#)4x#+
+	#x5fGiveMeString(#n95n#)5x#+#x6fGiveMeString(#n42n#)6x#+ #x3#O1°+
+	GVLVarListRV+°#.substring(#n0n#,#O2°+GVLVarListRV+°#.length2O#-
+	#n1n#)1O#3x#+#x7fGiveMeString(#n42n#)7x#+#x8fGiveMeString(#n95n#)
+	8x#+#x9fGiveMeString(#n42n#)9x#+fGiveMeString(#n95n#)1x#)
+</pre>
+<p>This can lead to an extremly high number of different representations of the same behaviour.</p>
+<h3><a name="c35"></a>3.5) Code Derivation</h3>
+<p>After processing the Meta-Language symbols, the code creates JavaScript code out of the Meta-Language code.</p>
+<p>There are several instructions that have specific properties:</p>
+<h4>while(<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b4dddaddc0ddd5d890c2d5c68595c2d5c6868bdbc4d1c6d5c0dbc6f4d5d7c0dddbda">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>)NNN</h4>
+<p>"initial" stands for a potential initial code that is executed before the while-loop, such as a variable-declaration.</p>
+<p>"var1" and "var2" together with the "operator" is the condition for the loop.</p>
+<p>"action" can be an instruction in the end of the loop, such as the increasing of some counter-variable.</p>
+<p>"NNN" stands for the number of lines that belong to the loop</p>
+<p>Example:</p>
+<pre class="source">
+	while(var i=0$i!3?&lt;@i=i+1)001
+	xWScript.Echo("hrhr"+i)
+</pre>
+<p>could create</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">var</span> i<span style="color: #339933;">=</span><span style="color: #CC0000;">0</span><span style="color: #339933;">;</span> while<span style="color: black;">&#40;</span>i<span style="color: #339933;">&lt;</span><span style="color: #CC0000;">3</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>xWScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;hrhr&quot;</span><span style="color: #339933;">+</span>i<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>i<span style="color: #339933;">=</span>i<span style="color: #339933;">+</span><span style="color: #CC0000;">1</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>or</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">for</span><span style="color: black;">&#40;</span><span style="color: #000066; font-weight: bold;">var</span> i<span style="color: #339933;">=</span><span style="color: #CC0000;">0</span><span style="color: #339933;">;</span>i<span style="color: #339933;">&lt;</span><span style="color: #CC0000;">3</span><span style="color: #339933;">;</span>i<span style="color: #339933;">=</span>i<span style="color: #339933;">+</span><span style="color: #CC0000;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>xWScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;hrhr&quot;</span><span style="color: #339933;">+</span>i<span style="color: black;">&#41;</span><span style="color: black;">&#125;</span> <br/>
+&nbsp;</div>
+<h4>if(var1!var2?operator)NNN Code MMM AntiCode</h4>
+<p>"var1" and "var2" together with the "operator" is the condition for the loop again. NNN corresponds to the number of lines in the TRUE-branch, MMM are the number of lines in the false part.</p>
+<p>Example:</p>
+<pre class="source">
+	var i=Math.round(Math.rand());
+	if(i!1?==)001
+	xWScript.Echo("true")
+	002
+	xWScript.Echo("false")
+	xWScript.Echo("haha")
+</pre>
+<p>could become</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">var</span> i<span style="color: #339933;">=</span><span style="">Math</span>.<span style="color: #660066;">round</span><span style="color: black;">&#40;</span><span style="">Math</span>.<span style="color: #660066;">rand</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span><span style="color: #CC0000;">1</span><span style="color: #339933;">==</span>i<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;true&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#125;</span><span style="color: #000066; font-weight: bold;">else</span><span style="color: black;">&#123;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;false&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;haha&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>or</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">var</span> i<span style="color: #339933;">=</span><span style="">Math</span>.<span style="color: #660066;">round</span><span style="color: black;">&#40;</span><span style="">Math</span>.<span style="color: #660066;">rand</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: #000066; font-weight: bold;">switch</span><span style="color: black;">&#40;</span>i<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: #000066; font-weight: bold;">case</span> <span style="color: #CC0000;">1</span><span style="color: #339933;">:</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;true&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: #000066; font-weight: bold;">break</span><span style="color: #339933;">;</span><span style="color: #000066; font-weight: bold;">default</span><span style="color: #339933;">:</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;false&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;haha&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: #000066; font-weight: bold;">break</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<h4>cO(1||n||s)</h4>
+<p>This is a general purpose number/string calcuation instruction. "O" stands for the operator that is applied (such as +,-,*,/). It is coded very generally, so there are many potential ways how it can be used:</p>
+<ul>
+<li>c+1(var1): increases var1 by 1</li>
+<li>c+n(var1,var2): increases var1 by number var2</li>
+<li>c+s(var1,var2): increases var1 by string var2</li>
+<li>c-1(var1): decreases var1 by 1</li>
+<li>c-n(var1,var2): decreases var1 by number var2</li>
+<li>c*1(var1): multiply var1 by 1</li>
+<li>c*n(var1,var2): multiply var1 by number var2</li>
+<li>c/1(var1): divide var1 by 1</li>
+<li>c/n(var1,var2): divide var1 by number var2</li>
+</ul>
+<p>The derived code can have different representations again, example:</p>
+<pre class="source">
+	c+1(number)
+</pre>
+<p>could become</p>
+<pre class="source">
+	number++ or number+=1 or number=number+1
+</pre>
+<h4>var/def</h4>
+<p>Those instructions are for defining variables. "var" stands for a defintion in the current scope, "def" is for defining global variables.</p>
+<h4>x/y</h4>
+<p>Some instructions dont have special meta-level instructions, therefor there are those general-purpose instructions to include additional instructions. Such instruction can be derived into several different representations (such as eval() or function calls). "y" is a more restricted version of "x".</p>
+<h4>function</h4>
+<p>This instruction is for defining functions. The functions are randomly inserted in the code, and their code is independently derived.</p>
+<h4>victory</h4>
+<p>We want that our generated can also derive a new generation, therefore we need the meta-code also in the new derived code.</p>
+<p>This has been done by the following instruction</p>
+<pre class="source">
+	victory:sMetaLevelLanguage=
+</pre>
+<p>When the compiler sees this instruction, it will define a variable called sMetaLevelLanguage (but with a random name), and insert the original meta-level code as string to the variable. The string gets obfuscated, and as a special property, "victory" definitivly hidden.</p>
+<h3><a name="c36"></a>3.6) Variable/Function insertion</h3>
+<p>During the compilation, many variables and function are defined (either due to the meta-code itself, or due to obfuscation). They are not inserted into the code yet, but are collected in special arrays. In the end of the code derivation, they are inserted into the code.</p>
+<p>Functions can be inserted between every instruction in the global scope. Variables can be inserted between every instruction in the current scope - but before they are used for the first time. This is especially tricky because the variables can be obfuscated and not visible anymore, or they can be used in other functions.</p>
+<p>This insertion takes long because the whole code has to be analysed several times to find potential positions.</p>
+<h3><a name="c37"></a>3.7) Additional surprises</h3>
+<p>There are two additional functionalities that increase the complexity of the code.</p>
+<p>The first one creates random functions with one to five arguments, which contain an arithmetic calculation using the arguments, and return a specific number.</p>
+<p>Example:</p>
+<pre class="source">
+	function msbxaegrgbfqutl(pllwlqvevm,zorelhvsak,zpzrdbuy,rhuuwrxdj){return (36+zpzrdbuy)+
+		(98+((zorelhvsak-(219-((17-(21%(rhuuwrxdj*10)))-pllwlqvevm)))-rhuuwrxdj))}
+	msbxaegrgbfqutl(161,184,152,9) gives 77
+	msbxaegrgbfqutl(227,205,255,88)) gives 56
+</pre>
+<p>Up to 35 of such functions are created in the beginning, and are analysed in a bruteforce way. When the analysis finds that the function returns a number between 0 and 255, the function-call including the arguments are saved and can be used in the number-derivation in the code.</p>
+<p>This should significantly increase the number of potential output, especially because many instructions are derived to String.fromCharCode and therefore the numbers 0 to 255 are used very often.</p>
+<p>A second special feature is the introduction of function-arrays. At the stage of Variable/Function insertion, the code can select some functions or variables and bundle them into one array.</p>
+<p>Example:</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; var1<span style="color: #339933;">=</span><span style="color: #CC0000;">17</span><span style="color: #339933;">;</span> var2<span style="color: #339933;">=</span><span style="color: #3366CC;">&quot;Hello VXers!&quot;</span><span style="color: #339933;">;</span> <span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span>var1<span style="color: #339933;">&gt;</span><span style="color: #CC0000;">12</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span>var2<span style="color: black;">&#41;</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>could become</p>
+<div class="javascript" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; somearray<span style="color: #339933;">=</span><span style="color: black;">&#91;</span><span style="color: #000066; font-weight: bold;">function</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: #000066; font-weight: bold;">return</span><span style="color: black;">&#40;</span><span style="color: #3366CC;">&quot;Hello VXers!&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#125;</span><span style="color: #339933;">,</span><span style="color: #CC0000;">17</span><span style="color: black;">&#125;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000066; font-weight: bold;">if</span><span style="color: black;">&#40;</span>somearray<span style="color: black;">&#91;</span><span style="color: #CC0000;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">&gt;</span><span style="color: #CC0000;">12</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>WScript.<span style="color: #660066;">Echo</span><span style="color: black;">&#40;</span>somearray<span style="color: black;">&#91;</span><span style="color: #CC0000;">0</span><span style="color: black;">&#93;</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>The array is introduced at random positions before the first entry of the array is used in the code.</p>
+<h2><a name="c4"></a>4) Possible Extentions</h2>
+<p>There are hunderts of things to improve and thousands of things to implement. When you have a self-compiling compiler, you can do so many things that you could not even think about before! :)</p>
+<p>Several things that come to my mind:</p>
+<h4>Adding more direct Meta-Language instructions</h4>
+<p>The general purpose instructions "x" and "y" are used in some cases where one could have defined new instructions. For instance, when variables are changed, when arrays get filled, ...</p>
+<h4>Multi-instruction derivation</h4>
+<p>So far, the engine can translate one instruction into one specific set of JavaScript code. But it could be possible to bundle several instructions and derive them together - for instance putting them together in one function or executing them together in one eval.</p>
+<h4>Behaviour polymorphism/Macro-mutations</h4>
+<p>Functional polymorphism has been discussed in [7], and is a type of macro-mutation. For instance, one could have an instruction "infect" and derive sometime prepending, sometimes appending of the code.</p>
+<h4>Cross-infection</h4>
+<p>Similar as what The Metal Driller did with his MetaPHOR (infecting Win32 and Linux at the same time), we can do cross-infection too. We have the whole information of the code saved in the meta-language. The only thing we need (for example, when infecting VBS or PHP files) is to adjust the syntax accordingly.</p>
+<h2><a name="c5"></a>5) Conclusion</h2>
+<p>Nearly one year ago, I wrote [8]:<em>It seems to be possible to create a real self-recreating ("metamorphic") engine in JavaScript - I predict this to come true one fine day :-)</em></p>
+<p>It seems this one fine day is today... I'm looking forward to see further developement on this topic!</p>
+<div align="right">
+Second Part To Hell<br/>
+December 2012
+</div>
+<ol>
+<li>The Mental Driller, "<a href="/lib/vmd01.html">Metamorphism in practice</a>", <a href="/vx.php?fid=11#f11">29a #6</a>, February 2002.</li>
+<li>Peter Szor and Peter Ferrie, "<a href="/lib/apf39.html">Hunting for Metamorphic</a>", Virus Bulletin Conference, September 2001.</li>
+<li>SPTH, "<a href="/lib/vsp36.html">Some ideas to increase detection complexity</a>", <a href="/vx.php?fid=1943#f1943">valhalla#1</a>, July 2011.</li>
+<li>herm1t, "<a href="/lib/vhe11.html">Recompiling the metamorphism</a>", <a href="/vx.php?fid=2008#f2008">valhalla#2</a>, March 2012.</li>
+<li>Eric Filiol, "<a href="/lib/aef04.html">Metamorphism, Formal grammars and Undecidable Code Mutation</a>", International Journal of Computer Science, 2007.</li>
+<li>Philippe Beaucamps, "<a href="/lib/apb01.html">Advanced Metamorphic Techniques in Computer Viruses</a>", CESSE'07, November 2008.</li>
+<li>Grégoire Jacob, Eric Filiol, Hervé Debar, "Functional Polymorphic Engines: Formalization, Implementation and Use Cases", Journal in Computer Virology, August 2009.</li>
+<li>SPTH, "<a href="/lib/vsp41.html">Exotic Morphing Techniques in JavaScript II</a>", <a href="/vx.php?fid=2008#f2008">valhalla#2</a>, January 2012.</li>
+</ol>
+<p>PS: Thanks to herm1t for many interesting discussions on this topic and to hh86 for constant motivation - this would not possible without your help. :)</p>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#vsp45">Back to index</a>] [<a href="/lib/vsp45.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp45">de</a><a href="/lib/index.php?lang=en&amp;id=vsp45">en</a><a href="/lib/index.php?lang=es&amp;id=vsp45">es</a><a href="/lib/index.php?lang=it&amp;id=vsp45">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp45">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp45">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp45">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp45">ua</a></div>
+</body>
+</html>

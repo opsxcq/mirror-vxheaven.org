@@ -1,0 +1,323 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'About reversing' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,About reversing, opcode, virus, multiexec, code, call, thread, file, dlls, multithread, multi, tracing, order, instruction, instructions, find"/>
+<meta name="Description" content="Reversing of executable files is the only base to write undetectable viruses.This is based on the following axiom: complexity C1 of detecting virus itself,  when  virus  location  is  given,  and  complexity  C2 of finding possible virus locations within infected objects, are different; and total complexity of detecting virus precence is a product of them, i.e. C1 * C2. Both  complexities are interrelated; and both are limited by the object to be  infected. This means that there exists some maximal complexity, which, when  reached, will divide object and virus into different parts. As such, our  task  is  to  build  optimal infection methods: when product of these complexities  will  be  maximal,  but  not  critically high, and thus only iteration-based detection methods will be effective.For example. Writing poly decryptor is good, but inserting it always into constant place, such as end of last section, is bad. Writing very big poly  decryptor is bad in any case. Putting plain virus, into any place of the  program,  even  into random place, is bad. So, the questions are: how much  should be the virus polymorphic; in how many ways may it be inserted into  file;  and,  because these two things are interrelated, where is the optimal combination.To find  answers to these questions, virus must know everything about itself  and  about file to be infected. First part can be easily achieved; this  was  shown  us  in  lots of metamorphic viruses. Second part is much harder,  and  this  is  also the subject of this article: how can virus to find out more information about the file it want to infect."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a129d664f171822cae662069097c7f3c67c1a854-1498755422-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo14.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>About reversing</h1><p><a href="/lib/?lang=en&amp;author=Z0mbie"> Z0mbie</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo14.html';</script><div class="ci"><a href="/lib/?ci=vzo14">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=ME#vzo14">Back to index</a>] [<a href="/lib/vzo14.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Abstract</a></li>
+<li><a href="#p2">Base methods</a></li>
+<li><a href="#p3">Sample file</a></li>
+<li><a href="#p4">Disassembling</a></li>
+<li><a href="#p5">Tracing</a></li>
+<li><a href="#p6">Synthesis</a></li>
+</ul>
+<a name="p1"></a><h2>Abstract</h2>
+<p> Reversing of executable files is the only base to write undetectable
+viruses.</p>
+<p> This is based on the following axiom: complexity C1 of detecting virus
+itself, when virus location is given, and complexity C2 of finding
+possible virus locations within infected objects, are different; and total
+complexity of detecting virus precence is a product of them, i.e. C1 * C2.
+Both complexities are interrelated; and both are limited by the object to
+be infected. This means that there exists some maximal complexity, which,
+when reached, will divide object and virus into different parts. As such,
+our task is to build optimal infection methods: when product of these
+complexities will be maximal, but not critically high, and thus only
+iteration-based detection methods will be effective.</p>
+<p> For example. Writing poly decryptor is good, but inserting it always
+into constant place, such as end of last section, is bad. Writing very big
+poly decryptor is bad in any case. Putting plain virus, into any place of
+the program, even into random place, is bad. So, the questions are: how
+much should be the virus polymorphic; in how many ways may it be inserted
+into file; and, because these two things are interrelated, where is the
+optimal combination.</p>
+<p> To find answers to these questions, virus must know everything about
+itself and about file to be infected. First part can be easily achieved;
+this was shown us in lots of metamorphic viruses. Second part is much
+harder, and this is also the subject of this article: how can virus to
+find out more information about the file it want to infect.</p>
+<a name="p2"></a><h2>Base methods</h2>
+<p> There are only two common methods i can see: disassembling and
+tracing, or, in other words, static and dynamic analysis.</p>
+<p> By combining these methods it is possible to find such things about
+each useful instruction of the file, which were never imagined before.</p>
+<a name="p3"></a><h2>Sample file</h2>
+<p> Sample file performs the following actions:</p>
+<ol>
+<li>REP CMPSB, to show how tracer will bypass similar instructions </li>
+<li>"Multi-exec" code, i.e. opcodes executed more than once, or in cycles, or code in subroutines called more than once</li>
+<li>Thread creation</li>
+<li>Exception generation and handling (SEH)</li>
+<li>"Multi-thread" code, i.e. opcodes executed in different threads</li>
+</ol>
+<p> Here are shown a program, i.e. offsets and opcodes, which will be
+later used in disassembly/trace results:</p>
+<pre class="source">
+; CODE section
+00401000 BE 00 10 40 00    start:          mov     esi, offset start
+00401005 8B FE                             mov     edi, esi
+00401007 B9 00 10 00 00                    mov     ecx, 4096
+0040100C F3 A6                             repe    cmpsb
+0040100E B8 0A 00 00 00                    mov     eax, 10
+00401013 48                multiexec:      dec     eax
+00401014 75 FD                             jnz     short multiexec
+00401016 E8 55 00 00 00                    call    multiexec_and_multithread
+0040101B 50                                push    eax
+0040101C 54                                push    esp
+0040101D 6A 00                             push    0
+0040101F 68 3F 10 40 00                    push    offset quit
+00401024 68 46 10 40 00                    push    offset new_thread
+00401029 6A 00                             push    0
+0040102B 6A 00                             push    0
+0040102D E8 4C 00 00 00                    call    CreateThread
+00401032 58                                pop     eax
+00401033 68 E8 03 00 00    halt:           push    1000
+00401038 E8 3B 00 00 00                    call    Sleep
+0040103D EB F4                             jmp     short halt
+0040103F 6A FF             quit:           push    -1
+00401041 E8 2C 00 00 00                    call    ExitProcess
+00401046 55                new_thread:     push    ebp
+00401047 E8 06 00 00 00                    call    seh_init
+0040104C 8B 64 24 08       seh_handler:    mov     esp, [esp+8]
+00401050 EB 15                             jmp     short seh_done
+00401052 64 67 FF 36 00 00 seh_init:       push    dword ptr fs:[0]
+00401058 64 67 89 26 00 00                 mov     fs:[0], esp
+0040105E E8 0D 00 00 00                    call    multiexec_and_multithread
+00401063 33 C0                             xor     eax, eax
+00401065 F7 F0             exception:      div     eax
+00401067 64 67 8F 06 00 00 seh_done:       pop     dword ptr fs:[0]
+0040106D 58                                pop     eax
+0040106E 5D                                pop     ebp
+0040106F C3                                retn
+00401070 90     multiexec_and_multithread: nop
+00401071 C3                                retn
+00401072 FF 25 38 30 40 00 ExitProcess:    jmp     ds:__imp_ExitProcess
+00401078 FF 25 3C 30 40 00 Sleep:          jmp     ds:__imp_Sleep
+0040107E FF 25 40 30 40 00 CreateThread:   jmp     ds:__imp_CreateThread
+; .idata section
+00403038 ?? ?? ?? ??                       extrn __imp_ExitProcess:dword
+0040303C ?? ?? ?? ??                       extrn __imp_Sleep:dword
+00403040 ?? ?? ?? ??                       extrn __imp_CreateThread:dword
+</pre>
+<a name="p4"></a><h2>Disassembling</h2>
+<p> At first, if we will sequentally parse the file, instruction by
+instruction, and collect all available info, the following list can be
+generated: (using Mistfall engine)</p>
+<pre class="source">
+00401000: SECTALIGN
+00401000: LABEL, DREF (flag=00000108)
+00401000: OPCODE  BE
+00401001: FIXUP 00001000
+00401005: OPCODE  8B FE
+00401007: OPCODE  B9 00 10 00 00
+0040100C: OPCODE  F3 A6
+0040100E: OPCODE  B8 0A 00 00 00
+00401013: LABEL, CREF (flag=00000088)
+00401013: OPCODE  48
+00401014: OPCODE  75 FD
+00401016: OPCODE  E8 55 00 00 00
+0040101B: OPCODE  50
+0040101C: OPCODE  54
+0040101D: OPCODE  6A 00
+0040101F: OPCODE  68
+00401020: FIXUP 0000103F
+00401024: OPCODE  68
+00401025: FIXUP 00001046
+00401029: OPCODE  6A 00
+0040102B: OPCODE  6A 00
+0040102D: OPCODE  E8 4C 00 00 00
+00401032: OPCODE  58
+00401033: LABEL, CREF (flag=00000088)
+00401033: OPCODE  68 E8 03 00 00
+00401038: OPCODE  E8 3B 00 00 00
+0040103D: OPCODE  EB F4
+0040103F: LABEL, DREF (flag=00000108)
+0040103F: OPCODE  6A FF
+00401041: OPCODE  E8 2C 00 00 00
+00401046: LABEL, DREF (flag=00000108)
+00401046: OPCODE  55
+00401047: OPCODE  E8 06 00 00 00
+0040104C: OPCODE  8B 64 24 08
+00401050: OPCODE  EB 15
+00401052: LABEL, CREF (flag=00000088)
+00401052: OPCODE  64 67 FF 36 00 00
+00401058: OPCODE  64 67 89 26 00 00
+0040105E: OPCODE  E8 0D 00 00 00
+00401063: OPCODE  33 C0
+00401065: OPCODE  F7 F0
+00401067: LABEL, CREF (flag=00000088)
+00401067: OPCODE  64 67 8F 06 00 00
+0040106D: OPCODE  58
+0040106E: OPCODE  5D
+0040106F: OPCODE  C3
+00401070: LABEL, CREF (flag=00000088)
+00401070: OPCODE  90
+00401071: OPCODE  C3
+00401072: LABEL, CREF (flag=00000088)
+00401072: OPCODE  FF 25
+00401074: FIXUP 00003038
+00401078: LABEL, CREF (flag=00000088)
+00401078: OPCODE  FF 25
+0040107A: FIXUP 0000303C
+0040107E: LABEL, CREF (flag=00000088)
+0040107E: OPCODE  FF 25
+00401080: FIXUP 00003040
+00402000: SECTALIGN
+00403000: SECTALIGN
+00403038: LABEL, DREF (flag=00000108)
+00403038: RVA 00003056
+0040303C: LABEL, DREF (flag=00000108)
+0040303C: RVA 00003064
+00403040: LABEL, DREF (flag=00000108)
+00403040: RVA 0000306C
+</pre>
+<p> This list contains all the info (really it has been reduced) that we
+need to rebuild the whole program. By means of adding new entries to such
+list we can add new instructions to the program. By means of deleting
+entries, we can remove instructions from the program. Because all the
+dependencies between instructions are present in such list, it contains
+not relative arguments (in case of jmp/call-alike instructions), but links
+to another list entries. This is like a fishing net, which were raised up
+by millions hands, after untied; and now you can command to each hand to
+do whatever you want with corresponding element; and then, after net is
+put down and automatically tied, everything will be as before, except some
+changes you did.</p>
+<p> Such list is, first, tool and method to work with executable files;
+and, second, it is enumerator object, which allow you to sequentally
+analyze each instruction.</p>
+<a name="p5"></a><h2>Tracing</h2>
+<p> Tracing (using win32 api) allows us to find order of instruction
+execution, and some other things. Process is traced for few random amount
+of time, or until it does something wrong.</p>
+<p> The following things can be found out using tracing:</p>
+<ol>
+<li>If instruction is really executed</li>
+<li>Execution order, global (per process) and local (per thread)</li>
+<li>Instruction, previous to each one</li>
+<li>Cycles and subroutines, i.e. "multi-exec" code.</li>
+<li>Threads and "multi-thread" code.</li>
+<li>Exception addresses and some exception handlers.</li>
+<li>Variables which were modified after tracing</li>
+<li>Order and names of API functions called</li>
+<li>Everything alredy said above, but also for each DLL used</li>
+<li>Other modules and DLLs loaded by main executable, was it static load or LoadLibrary</li>
+<li>...</li>
+</ol>
+<p> Here is a list, generated while tracing the sample code:</p>
+<pre class="source">
+original   previous   thread     global    thread#     # of     M0  M1   flags
+   va         va      index      index                 execs
+00401000 p=77F9279F l=00005DEA g=00005DEA t=00000001 c=00000001 BE->BE [ R_OPCODE ]
+00401005 p=00401000 l=00005DEB g=00005DEB t=00000001 c=00000001 8B->8B [ R_OPCODE ]
+00401007 p=00401005 l=00005DEC g=00005DEC t=00000001 c=00000001 B9->B9 [ R_OPCODE ]
+0040100C p=00401007 l=00005DED g=00005DED t=00000001 c=00000001 F3->F3 [ R_OPCODE ]
+0040100E p=0040100C l=00005DEE g=00005DEE t=00000001 c=00000001 B8->B8 [ R_OPCODE ]
+00401013 p=00401014 l=00005DEF g=00005DEF t=00000001 c=0000000A 48->48 [ R_OPCODE R_MULTIEXEC ]
+00401014 p=00401013 l=00005DF0 g=00005DF0 t=00000001 c=0000000A 75->75 [ R_OPCODE R_MULTIEXEC ]
+00401016 p=00401014 l=00005E03 g=00005E03 t=00000001 c=00000001 E8->E8 [ R_OPCODE ]
+0040101B p=00401071 l=00005E06 g=00005E06 t=00000001 c=00000001 50->50 [ R_OPCODE ]
+0040101C p=0040101B l=00005E07 g=00005E07 t=00000001 c=00000001 54->54 [ R_OPCODE ]
+0040101D p=0040101C l=00005E08 g=00005E08 t=00000001 c=00000001 6A->6A [ R_OPCODE ]
+0040101F p=0040101D l=00005E09 g=00005E09 t=00000001 c=00000001 68->68 [ R_OPCODE ]
+00401024 p=0040101F l=00005E0A g=00005E0A t=00000001 c=00000001 68->68 [ R_OPCODE ]
+00401029 p=00401024 l=00005E0B g=00005E0B t=00000001 c=00000001 6A->6A [ R_OPCODE ]
+0040102B p=00401029 l=00005E0C g=00005E0C t=00000001 c=00000001 6A->6A [ R_OPCODE ]
+0040102D p=0040102B l=00005E0D g=00005E0D t=00000001 c=00000001 E8->E8 [ R_OPCODE ]
+00401032 p=77E9652D l=00005F6D g=00005F6D t=00000001 c=00000001 58->58 [ R_OPCODE ]
+00401033 p=0040103D l=00005F6E g=00005F6E t=00000001 c=0000000F 68->68 [ R_OPCODE R_MULTIEXEC ]
+00401038 p=00401033 l=00005F6F g=00005F6F t=00000001 c=0000000F E8->E8 [ R_OPCODE R_MULTIEXEC ]
+0040103D p=77E84B7F l=00005FAE g=0000611D t=00000001 c=0000000E EB->EB [ R_OPCODE R_MULTIEXEC ]
+00401046 p=77E92CA5 l=00000025 g=00005FC7 t=00000002 c=00000001 55->55 [ R_OPCODE ]
+00401047 p=00401046 l=00000026 g=00005FC8 t=00000002 c=00000001 E8->E8 [ R_OPCODE ]
+0040104C p=77F92536 l=0000006A g=0000600C t=00000002 c=00000002 8B->8B [ R_OPCODE R_SEHHANDLER ]
+00401050 p=0040104C l=0000006C g=0000600E t=00000002 c=00000001 EB->EB [ R_OPCODE ]
+00401052 p=00401047 l=00000027 g=00005FC9 t=00000002 c=00000001 64->64 [ R_OPCODE ]
+00401058 p=00401052 l=00000028 g=00005FCA t=00000002 c=00000001 64->64 [ R_OPCODE ]
+0040105E p=00401058 l=00000029 g=00005FCB t=00000002 c=00000001 E8->E8 [ R_OPCODE ]
+00401063 p=00401071 l=0000002C g=00005FCE t=00000002 c=00000001 33->33 [ R_OPCODE ]
+00401065 p=00401063 l=0000002D g=00005FCF t=00000002 c=00000002 F7->F7 [ R_OPCODE R_EXCEPTION ]
+00401067 p=00401050 l=0000006D g=0000600F t=00000002 c=00000001 64->64 [ R_OPCODE ]
+0040106D p=00401067 l=0000006E g=00006010 t=00000002 c=00000001 58->58 [ R_OPCODE ]
+0040106E p=0040106D l=0000006F g=00006011 t=00000002 c=00000001 5D->5D [ R_OPCODE ]
+0040106F p=0040106E l=00000070 g=00006012 t=00000002 c=00000001 C3->C3 [ R_OPCODE ]
+00401070 p=0040105E l=00005E04 g=00005E04 t=FFFFFFFF c=00000002 90->90 [ R_OPCODE R_MULTITHREAD R_MULTIEXEC ]
+00401071 p=00401070 l=00005E05 g=00005E05 t=FFFFFFFF c=00000002 C3->C3 [ R_OPCODE R_MULTITHREAD R_MULTIEXEC ]
+00401078 p=00401038 l=00005F70 g=00005F70 t=00000001 c=0000000F FF->FF [ R_OPCODE R_MULTIEXEC ]
+0040107E p=0040102D l=00005E0E g=00005E0E t=00000001 c=00000001 FF->FF [ R_OPCODE ]
+00403038 p=00000000 l=00000000 g=00000000 t=00000000 c=00000000 56->BB [ R_VARIABLE ]
+00403039 p=00000000 l=00000000 g=00000000 t=00000000 c=00000000 30->B0 [ R_VARIABLE ]
+...
+00403042 p=00000000 l=00000000 g=00000000 t=00000000 c=00000000 00->E9 [ R_VARIABLE ]
+00403043 p=00000000 l=00000000 g=00000000 t=00000000 c=00000000 00->77 [ R_VARIABLE ]
+</pre>
+<a name="p6"></a><h2>Synthesis</h2>
+<p> Combining disassembling and tracing, it is possible to obtain more
+info about program, such as modifying variables, blocks of unused
+instructions, or even execution graph, including threads and DLLs.</p>
+<p> Moreover. Tracing allows us to get info not only about main
+executable, but also about DLLs it uses, and, as such, to disassemble
+these DLLs after tracing, to be able to modify both main file and these
+DLLs in a single context. This means that we have an ability to insert
+parts of virus into different files, EXE and/or DLL's it uses, but with
+known order of execution.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#vzo14">Back to index</a>] [<a href="/lib/vzo14.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo14">de</a><a href="/lib/index.php?lang=en&amp;id=vzo14">en</a><a href="/lib/index.php?lang=es&amp;id=vzo14">es</a><a href="/lib/index.php?lang=it&amp;id=vzo14">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo14">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo14">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo14">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo14">ua</a></div>
+</body>
+</html>

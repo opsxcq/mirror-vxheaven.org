@@ -1,0 +1,183 @@
+
+                            ...::Explaining the Usages::...
+                            ...::of Pipes in Virus coding....
+			    ........ass-koder.host.sk.......
+				....by  berniee/[Xero].....
+
+
+-Introduction:
+I am bored,listing to avril lavign instead of Oomph!,then I remembered an article
+I dunno where it was ;but it was about how to connect your process to a console process,
+and read the output of it by your process,this method called piping;I heard it is one of 
+microsoft's ripped off ideas from linux..
+So away from that article which I lost ,I decided After tiny googling and having quick peek at M$ sdk ,I found pretty 
+beautiful explanation,especially from Iczelion's .
+Now how could we create pipes and implementt it in viruses.thats what I am going to explain in this article
+ by describing how to create pipes(Anonymous types only,see next).
+
+-What is pipes?
+As Iczelion in his tutorial 21 said :"Pipe is a communication conduit or pathway with two ends. 
+You can use pipe to exchange the data between two different processes, or within the same process. 
+It's like a walkie-talkie. You give the other party one set and he can use it to communicate with you."
+Beautiful Quote :),and by this we give each of the both processes a walkie-talkie.
+Pipes is categorized into Anonymous and Named pipes;anonymous from the name mean
+you create the pipe but you won't know the name inorder to handle it,while named pipes you will need
+to know their names to get them work(duh!)..
+
+-How to create a pipe?
+let's see the following function
+BOOL CreatePipe(
+  PHANDLE hReadPipe,
+  PHANDLE hWritePipe,
+  LPSECURITY_ATTRIBUTES lpPipeAttributes,
+  DWORD nSize
+);
+
+so the CreatePipe api takes four parameters;note that this function creates anonymous pipes; 
+the parameters will be explained as follows:
+
+1-hReadPipe this will be pointer to handle(DWORD)of the pipe read end.
+2-hWritePipe this will be the pointer to the handle of the pipe write end
+***********************************************
+*pipes have read and write ends to communicate* 
+***********************************************
+3-lpPipeAttributes pointer to security descriptor structure that we should fill,it is as
+follows:
+typedef struct _SECURITY_ATTRIBUTES 
+{
+  DWORD nLength; 
+  LPVOID lpSecurityDescriptor;
+  BOOL bInheritHandle;
+} SECURITY_ATTRIBUTES, *PSECURITY_ATTRIBUTES;
+
+where nLenght will point to the security descriptor struct size,lpSecurityDescriptor will
+be left zeroed :),and the bInheritableHandle should be true so as the pipe will be inheritable.
+4-nSize is "Size of the buffer for the pipe, in bytes. The size is only a suggestion;
+ the system uses the value to calculate an appropriate buffering mechanism. If this parameter is zero,
+ the system uses the default buffer size"taken from m$ SDK.
+
+now lets put all of the above in a code
+;--------------------cut from here
+ .586
+.model flat,stdcall
+option casemap:none
+
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+
+
+.data
+db "piping is fun!!",0
+run_ db "cmd.exe /c dir",0 ;our test command
+
+.data?
+pipe_read dd ?
+pipe_write dd ?
+
+bwr dd ?
+
+security_attrib  SECURITY_ATTRIBUTES
+stinfo STARTUPINFO 
+pinfo PROCESS_INFORMATION
+buffer db 1024 dup(?)
+
+.code
+start:
+
+mov security_attrib.lpSecurityDescriptor,0
+mov security_attrib.bInheritHandle,TRUE
+mov security_attrib.nLength,sizeof SECURITY_ATTRIBUTES
+
+invoke CreatePipe,offset pipe_read,offset pipe_write,offset security_attrib,0 
+or eax,eax
+jz exit
+
+
+;------------------stop cutting!!
+
+-how to get the pipe working?
+till now we created a pipe with specific securtiy attributes ,then what next...
+here is the next,we will create child process and inforce it to send its output
+through the pipe_read handle,so going to create a process first, we should
+fill STARTUPINFO structure,we should call GetStartupInfo to fill our strucure first inorder to make things work 
+in both win9x and NT as Iczelion says.
+Then we change certain values in the STARTUPINFO struct which are :
+hStdOutput and change it to our pipe_write handle,this where we redirect the child process
+to pipe write end instead of its default StdOutput, also set hStdError as we did to hStdOutPut,
+and dwFlags to "STARTF_USESHOWWINDOW , STARTF_USESTDHANDLES" indicating that hStdOutput, hStdError and wShowWindow members 
+are valid and must be used ;lastly we
+set wShowWindow component to SW_HIDE.
+then we create the child process ;followed by closing the handle of the pipe_write
+"If we don't close the write handle from our end, there will be two write ends"Iczellions'
+
+Now see the following code:
+
+;---------------------cut'paste below the above cut code
+
+mov stinfo.cb,sizeof STARTUPINFO
+mov eax, pipe_write
+mov stinfo.hStdOutput,eax 
+mov stinfo.hStdError,eax 
+mov stinfo.dwFlags, STARTF_USESHOWWINDOW+ STARTF_USESTDHANDLES 
+mov stinfo.wShowWindow,SW_HIDE 
+
+invoke CreateProcess,0,offset run_,0,0,TRUE,0,0,0,offset stinfo,offset pinfo
+or eax,eax
+jz exit
+invoke CloseHandle,pipe_write
+
+
+
+;-----------------End of cut
+
+
+-Retrieving What?
+Now,we will enter into an infinite loop trying to read from the read end of our
+created file which was pipe_read  [since we launched our child process ,
+it will send us the data through the pipe write end] in this loop we use ReadFile function inorder to read 
+data output from the child process we have created.
+the code :
+
+;---------------------cut'paste below the above cut code
+loop_:
+invoke ReadFile,pipe_read,offset buffer,1024,offset bwr,0
+or eax,eax
+jz found_
+jmp loop_
+found_:
+invoke MessageBox,0,offset buffer,0,0
+exit:
+invoke ExitProcess,0
+end start
+;-----------------End of cut
+
+
+-Implementation:
+I found this quite attractive to me when I wanted to look for some help;that could be
+taken from some windows console appilcation..for e.g.
+  e.g.1 Imagine you want to get Mail Exchanger servers list from DNS;
+	 you can change the above run_ variable to 
+	"nslookup -type=mx google.com" and here you will have the list,ofcourse
+	after some string fixation,inorder to get it ptoperly.
+
+ e.g.2	Imagine you want to use batch files but without its annoying console;and you
+	want them to work by sending data to your running process,you also do that
+	make you own batch and run it  the same way above
+
+ and the examples continue..there are alot of implementaions to the piping,just use your brain.
+
+-Final Words:
+I hope the reader got the idea of this subject;and I would like to thank
+Iczelion for his magnificant work in win32asm ;and thank my friend mh for downloading
+m$ SDK for me[dude your hacked wireless is better than my paid one :( ]
+and yes I hope you have enjoyed reading this article/tutorial/crap...and for any
+thoughts e-mail me at:fakedminded@zeysan.every1.net
+
+-------------------------------------------------------------------------------------------
+(C)fakedminded 2006
+  
+

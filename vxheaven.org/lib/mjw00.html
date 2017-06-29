@@ -1,0 +1,517 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Jeffrey Walton 'Protection Schemes Based on Virus Survival Techniques' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Jeffrey Walton"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Walton, Jeffrey,Protection Schemes Based on Virus Survival Techniques, http, october, website, symantec, virus, reverse, native, side, engineering, fravia, user, data, product, boot, defense"/>
+<meta name="Description" content="This article will examine the evolution of virus code as documented by Peter Szor in his book The Art Of Computer Virus Research And Defense [3], and apply what is learned in the context of Protection Schemes. Certain areas of virus research such as Basic Self-Protection Strategies (Chapter 6) and Advanced Code Evolution Techniques and Computer Virus Generator Kits (Chapter 7) provide a windfall of techniques. Other areas such as Malicious Code Environments (Chapter 3) provide additional methods; while areas such as Classification of Infection Strategies (Chapter 4) offers insight into data hiding. In addition, the article will address some of the issues presented by the x86 architecture and Operating System."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"2e77f2f48845380e6d417fc5ceadc8ffa7bdffbc-1498757017-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/mjw00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Protection Schemes Based on Virus Survival Techniques</h1><p><a href="/lib/?lang=en&amp;author=Walton%2C%20Jeffrey">Jeffrey Walton</a><br/> <em>codeproject.com</em><br/> <em>October 2007</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/mjw00.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#mjw00">Back to index</a>] [<a href="/lib/mjw00.html#disqus_thread">Comments</a>]<br/> 
+<p><em>A Survey of Virus Survival Techniques Applied to Protection Schemes</em></p>
+<ul>
+<li><a href="#c1">Introduction</a></li>
+<li><a href="#c2">Motivation</a></li>
+<li><a href="#c3">Analysts</a></li>
+<li><a href="#c4">Malicious Code Definitions</a></li>
+<li><a href="#c5">Licensing Systems</a></li>
+<li><a href="#c6">Wintel Commodity Systems</a></li>
+<li><a href="#c7">Protection Systems</a></li>
+<li><a href="#c8">Security Through Obscurity</a></li>
+<li><a href="#c9">Life Cycle Development</a></li>
+<li><a href="#ca">Legality of Reverse Engineering</a>
+<ul>
+<li><a href="#ca1">Sega Enterprises Ltd v. Accolade </a></li>
+<li><a href="#ca2">Atari v. Nintendo </a></li>
+<li><a href="#ca3">Autodesk Inc v. Dyason</a></li>
+<li><a href="#ca4">Anacon Corp Ltd v. Environmental Research Technology</a></li>
+</ul></li>
+<li><a href="#cb">Reverse Engineering Tools</a>
+<ul>
+<li><a href="#cb1">Microsoft Windows</a></li>
+<li><a href="#cb2">Unix and Linux</a></li>
+</ul></li>
+<li><a href="#cc">Data Hiding Techniques</a>
+<ul>
+<li><a href="#cc1">NTFS Streams</a></li>
+<li><a href="#cc2">Extra Sectors</a></li>
+<li><a href="#cc3">Bad Sectors</a></li>
+<li><a href="#cc4">Last Sector</a></li>
+<li><a href="#cc5">Hidden Partition</a></li>
+</ul></li>
+<li><a href="#cd">Signaling</a>
+<ul>
+<li><a href="#cd1">Semaphores and Mutexes</a></li>
+<li><a href="#cd2">Message Passing</a></li>
+</ul></li>
+<li><a href="#ce">Protection System Techniques</a>
+<ul>
+<li><a href="#ce1">Stealth</a></li>
+<li><a href="#ce2">Non Standard API Calls</a></li>
+<li><a href="#ce3">Boot Time</a></li>
+<li><a href="#ce4">Robin Hood and Friar Tuck</a></li>
+<li><a href="#ce5">Layered</a></li>
+<li><a href="#ce6">Side by Side</a></li>
+<li><a href="#ce7">Just In Time (JIT)</a></li>
+<li><a href="#ce8">No API String Usage</a></li>
+<li><a href="#ce9">Coprocessor (FPU) Instructions</a></li>
+<li><a href="#cea">MMX Instructions</a></li>
+<li><a href="#ceb">Undocumented CPU Instructions</a></li>
+<li><a href="#cec">Structured Exception Handling</a></li>
+<li><a href="#ced">Execution Trap</a></li>
+<li><a href="#cee">CreateThread() API Use for Transfer Control</a></li>
+<li><a href="#cef">Mutlithreaded Viruses</a></li>
+<li><a href="#ceg">Brute Force Decryptors</a></li>
+</ul></li>
+<li><a href="#cf">System Implementations</a></li>
+<li><a href="#cg">Open Questions</a></li>
+<li><a href="#ch">References</a></li>
+</ul>
+<div align="right">
+<em>Since the device is primarily a computer, it will have to perform<br/>
+the elementary operations of arithmetics most frequently</em>
+<p>John von Neumann, June, 1945</p>
+</div>
+<h2><a name="c1"></a>Introduction</h2>
+<p>Though generally considered malevolent, computer viruses should be studied for academic reasons and practical purposes [1]. For the virus researcher the goal is clear: development of antivirus defense techniques. In the area of executable resistance to analysis, viruses seem to be well ahead of most protection schemes. This is a natural evolution - a virus writer's agenda is clearly to resist Anti-Virus programs. In contrast to the von Neumann model of a 'benign host' (an implicit presumption) [2], viral computer code must exist in a hostile environment - created by the various Anti-Virus software products. This environment is known as the 'malicious host' or 'hostile host'. In the context of Protection Scheme hardening, the term 'Endpoint Security' (physical devices in the hands of malicious users) [92] applies as well.</p>
+<p>This article will examine the evolution of virus code as documented by <a href="http://www.peterszor.com/">Peter Szor</a> in his book <a href="http://books.google.com/books?id=YkkPAAAACAAJ&amp;dq=0321304543&amp;ei=Ixr_RrvjE4iS7gLwydmJCA"><em>The Art Of Computer Virus Research And Defense</em></a> [3], and apply what is learned in the context of Protection Schemes. Certain areas of virus research such as Basic Self-Protection Strategies (Chapter 6) and Advanced Code Evolution Techniques and Computer Virus Generator Kits (Chapter 7) provide a windfall of techniques. Other areas such as Malicious Code Environments (Chapter 3) provide additional methods; while areas such as Classification of Infection Strategies (Chapter 4) offers insight into data hiding. In addition, the article will address some of the issues presented by the x86 architecture and Operating System.</p>
+<p>In this article, the following topics will be visited:</p>
+<ul>
+<li>Motivation</li>
+<li>Analysts</li>
+<li>Malicious Code Definitions</li>
+<li>Licensing Systems</li>
+<li>Wintel Commodity Systems</li>
+<li>Protection Systems</li>
+<li>Security Through Obscurity</li>
+<li>Life Cycle Development</li>
+<li>Legality of Reverse Engineering
+<ul>
+<li>Sega Enterprises Ltd v. Accolade</li>
+<li>Atari v. Nintendo</li>
+<li>Autodesk Inc v. Dyason</li>
+<li>Anacon Corp Ltd v. Environmental Research Technology</li>
+</ul></li>
+<li>Reverse Engineering Tools
+<ul>
+<li>Microsoft Windows</li>
+<li>Unix and Linux</li>
+</ul></li>
+<li>Data Hiding Techniques
+<ul>
+<li>NTFS Streams</li>
+<li>Extra Sectors</li>
+<li>Bad Sectors</li>
+<li>Last Sector</li>
+<li>Hidden Partitions</li>
+</ul></li>
+<li>Signaling
+<ul>
+<li>Semaphores and Mutexes</li>
+<li>Message Passing</li>
+</ul></li>
+<li>Protection System Techniques
+<ul>
+<li>Stealth</li>
+<li>Non Standard API Calls</li>
+<li>Boot Time</li>
+<li>Robin Hood and Friar Tuck</li>
+<li>Layered</li>
+<li>Side By Side</li>
+<li>Just In Time (JIT)</li>
+<li>No API String Usage</li>
+<li>Coprocessor (FPU) Instructions</li>
+<li>MMX Instructions</li>
+<li>Undocumented CPU Instructions</li>
+<li>Structured Exception Handling</li>
+<li>Execution Trap</li>
+<li>CreateThread() API Use for Transfer Control</li>
+<li>Mutlithreaded Viruses</li>
+<li>Brute Force Decryptors</li>
+</ul></li>
+<li>System Implementations</li>
+<li>Open Questions</li>
+</ul>
+<p>In addition to Szor's prolific work, this article will also take from <a href="http://www.amazon.com/Disassembling-Code-IDA-Pro-SoftICE/dp/1931769516"><em>Disassembling Code with IDA Pro and SoftICE</em></a> [38], <a href="http://books.google.com/books?id=0qw_AQAACAAJ&amp;dq=Reversing:+Secrets+of+Reverse+Engineering"><em>Reversing: Secrets of Reverse Engineering</em></a> [3], <a href="http://books.google.com/books?id=--kDAAAACAAJ&amp;dq=Hacker+Debugging+Uncovered"><em>Hacker Debugging Uncovered</em></a> [4], and <a href="http://www.exploitingsoftware.com/"><em>Exploiting Software - How to Break Code</em></a> [5].</p>
+<p>For those who feel print is dead and desire a more animate opportunity to inspect virus code which has been referenced, he or she should visit <a href="http://vx.netlux.org/">VX Heaven</a> [63]. VX Heaven made their virus collection available via <a href="http://www.bittorrent.com/">BitTorrent</a> in September, 2007 [33].</p>
+<p>Finally, for those interested in protecting hardware, the reader is invited to <a href="http://www.quicklogic.com/images/security_WP.pdf"><em>Security in QuickLogic Devices</em></a>
+[83]. The paper discusses both Anti-Reverse Engineering and Anti-Cloning techniques. This paper should provide a useful reference for hardening against chip stripping, voltage contrast microscopy, and electron microscopy (a technique for examining Smart Cards).</p>
+<h2><a name="c2"></a>Motivation</h2>
+<p>Motivation for this article is due in part to the past neglect of the applied protection mechanisms of an executable. As Jan H.P. Eloff and Mariki Eloff state in <a class="medium-text" href="http://portal.acm.org/citation.cfm?id=954028&amp;coll=GUIDE&amp;dl=GUIDE&amp;CFID=39663384&amp;CFTOKEN=63487660" target="_self"><em>Information Security Management: A New Paradigm</em></a>:</p>
+<blockquote>Information security management needs a paradigm shift in order to successfully protect information assets... An ISMS [Information Security Management System] addresses all aspects in an organisation that deals with creating and maintaining a secure information environment. [79]</blockquote>
+<p>Academia has provided much background for both theoretical and applied systems. The work on protection systems appears to have stemmed from security (for example, bytecode verification of Java class files). In some cases the system required special hardware or a customized Operating Systems. Hardware based solutions, such as smart cards, removable media, and dongles have had very little practical study. As C. Collberg and C. Thomborson observe in <a href="http://www.cs.auckland.ac.nz/%7Ecthombor/Pubs/01027797a.pdf"><em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em></a>, "[hardware assisted protection] has received little attention in the academic literature" [50].</p>
+<p>In the early years of applied Protection Schemes for the commodity systems (such as the x86 PC), most concerted direction for systems was provided by a group of Reverse Engineers known as Crackers. It is presumed the crackers provided ideas for protection schemes as an academic exercise and to provide themselves with more reverse engineering targets. For example, in 1997 Fravia introduced a <a href="http://71.6.196.237/fravia/couninte.htm">Counter-Counter Intelligence</a> page where protection schemes could be discussed [39]. In 1999 "Mark" offered 14 rules of protection in <a href="http://71.6.196.237/fravia/protec.htm"><em>Software Protection, An Impossible Dream?</em></a> [75], followed by an additional collection of 22 rules under <a href="http://71.6.196.237/fravia/protec.htm"><em>Tidbit's 'Common Sense' Rules</em></a> [41].</p>
+<p>In the realm of Black Box development, many third parties were competing for a company's business by offering off the shelf solutions (<a href="http://en.wikipedia.org/wiki/Commercial_off-the-shelf">COTS</a>). For example, hardware dongle keys and software solutions were common offerings. The problem with these systems was there were too few and they were too commercial. Too few schemes meant the crackers were able to collectively overwhelm a scheme which ensured a complete neutralization of the implemented anti-theft measures. Too commercial implies that once a company provided a solution, it was locked - hence it lacked variants which might aide in the hardening of the system. This is a side effect of <a href="http://en.wikipedia.org/wiki/Economies_of_scale">economies of scale</a> (an increase in output of the product causes a decrease in the average cost of each unit) [69].</p>
+<h2><a name="c3"></a>Analysts</h2>
+<p>For the purposes of this article, it is presumed the <a href="http://en.wikipedia.org/wiki/Machine_code">machine code</a> will be examined by an analyst. No distinctions will made with respect to the motivation of the analyst. Noteworthy is the fact that many possess this knowledge. The analyst could be a virus researcher studying malicious code, a system programmer analyzing a crash dump, or a cracker attempting to neutralize anti-theft measures.</p>
+<p>The first analysts on the scene appears to stem from intelligence agencies. Their purpose was the reverse engineering of hardware interfaces and protocols for intelligence reasons. Around 1960, this was extended to software interfaces. Depending on citizenship or affiliation, this could be considered patriotism or espionage. In the United States, credit would lie with the <a href="http://en.wikipedia.org/wiki/Office_of_Strategic_Services">OSS</a> (the precursor to the <a href="http://www.cia.gov/">CIA</a>) and later the <a href="http://www.nsa.gov/">NSA</a>. An example the author is aware is <a href="http://www.specialoperations.com/Operations/ivybells.html">Operation Ivy Bells</a>. Ivy Bells encompassed the tapping of underwater cables off the Russian coast in the Sea of Okhotsk. The author's former college instructor, <a href="http://userpages.umbc.edu/%7Ekatz/">Dr. Henry Katz</a>, headed the operation during his tenure at the <a href="http://www.nsa.gov/">NSA</a> [43]. A more recent example is the Pentagon's September 2007 hack by the Chinese Military [90].</p>
+<p>A close relative to the political espionage is the motivation in business arena - analyzing to reveal the intellectual property. For an example of revealing intellectual property, one should refer to the disclosure of the <a href="http://en.wikipedia.org/wiki/Substitution_box">S-Box</a> structure of <a href="http://en.wikipedia.org/wiki/Data_Encryption_Standard">DES</a> to the Usenet group sci.crypt. Another example is the 'misappropriations of RIM trade secrets' by Good Technology. <a href="http://www.codeproject.com/KB/cpp/Research%20In%20Motion%20Files%20Fourth%20Complaint%20Against%20Good%20Technology">Research in Motion brought suit against Good Technologies</a> in September 2002 [59].</p>
+<p>According to <a href="http://en.wikipedia.org/wiki/Timeline_of_notable_computer_viruses_and_worms">Wikipedia</a> [86], the first computer virus was introduced in 1982 named Elk Cloner on the Apple IIe platform. Elk Cloner was written by Rich Skrenta (a ninth grade student from Pennsylvania at the time). In 1986, the first IBM PC compatible virus was encountered - the now extinct <a href="http://www.f-secure.com/v-descs/brain.shtml">Brain</a> boot sector virus [86]. Shortly thereafter, products appeared in response to the threats. These Anti-Virus products appear to stem from companies or individuals with System Program offerings or experience. For example, John McAfee, Alan Solomon, and Peter Norton. Taking again from <a href="http://en.wikipedia.org/wiki/Anti-virus_software">Wikipedia</a> [23]:</p>
+<blockquote>There are competing claims for the innovator of the first antivirus product. Perhaps the first publicly known neutralization of a wild PC virus was performed by European Bernt Fix in early 1987. Fix neutralized an infection of the Vienna virus.</blockquote>
+<p>+ORC first introduced the world to cracking for profit in his prodigious essays dated circa 1995 [85]. Later Fravia and other contributors continued +ORC's work. Though Fravia's site has long disappeared from the web, archives of Fravia's site and +ORC's essays may be easily obtained. In some literature, the cracker is simply referred to as a pirate, and the act of illegally using software is referred to a pirating [15, 52], though this is not accurate. For example, from Reverse Engineering on the <a href="http://www.jenkins-ip.com/serv/serv_6.htm">R.G.C. Jenkins &amp; Company</a> website [15]:</p>
+<blockquote>... pirates may occasionally use reverse engineering techniques. Pirates do not usually need to understand how a product works merely to copy it, but occasionally a product may include security features which the pirate needs to defeat.</blockquote>
+<p>Most recent to this family appears to be the Security Engineer - those who examine software in an attempt to flush out security vulnerabilities. For examples, one is directed to <a href="http://www.exploitingsoftware.com/"><em>Exploiting Software: How to Break Code</em></a> by Greg Hoglund and Gary McGraw or <a href="http://www.sabre-security.com/">SABRE Security</a>.</p>
+<h2><a name="c4"></a>Malicious Code Definitions</h2>
+<p>Academia provides much in the area of computer virus research. One researcher is <a href="http://all.net/resume/bio.html">Dr. Frederick Cohen</a>, a former student of <a href="http://www.usc.edu/dept/molecular-science/fm-adleman.htm">Dr. Leonard Adleman</a> (a coinventor of RSA). Dr. Cohen is generally considered the father of Computer Viruses. In 1984, Dr. Cohen informally defined a computer virus as follows: "a computer 'virus' is a program that can 'infect' other programs by modifying them to include a possibly evolved copy of itself" [64]. In 1985 his formal definition appeared in print (based on Turing's model of computation), which was later approved as his dissertation at the University of Southern California [8].</p>
+<p>One of the first academic references to a computer worm was by J. Shoch and J. Hupp of the Xerox Corporation in <em><a href="/lib/ajm01.html">The "Worm" Programs: Early Experience with a Distributed Computation</a></em> [9]. Shoch and Hupp did not formally define a computer worm in their 1982 paper. A widely accepted informal definition of a worm was, "programs that automatically replicate and initialize interpretation of their replicas" [10]. Dr. Cohen then published a formal definition of a computer worm in 1992 [11].</p>
+<p>With regard to propagation, Dr. Brooke Stephens offers based on hosting: "a virus is regarded as a 'hitchhiker' and needs code to attach to. A worm can be self propagating with little or no help from the user... Many people consider the internet as a 'scale free' network. So from epidemiological point of view it is modeled by spread of epidemic on scale-free networks." [70].</p>
+<p>Peter Szor offers a refinement on the semantics, with two informal definitions which are generally accepted: "A computer virus is code that recursively replicates a possibly evolved copy of itself" [12] and "Worms are network viruses, primarily replicating on the network" [62]. Szor also details other classifications of malicious code [14], including:</p>
+<ul>
+<li>Octopus - a sophisticated worm which spreads programs across computers on a network (akin to 'distributed' viruses)</li>
+<li>Rabbits - a worm which exists as a single copy, leaving one networked computer in favor of another host (rabbits jump around)</li>
+<li>Trojan Horse - a malicious program which usually requires user interaction to activate</li>
+<li>Germs - first generation virus which are in a form which cannot perform its infection process (see Dropper below)</li>
+<li>Downloader - a malicious program which downloads and installs other programs</li>
+<li>Dropper - the installer for the first generation virus code (see Germ above)</li>
+<li>Injector - a special dropper which installs virus code directly into memory</li>
+<li>Keyloggers - captures keystrokes on a compromised host</li>
+<li>Rootkits - special hacker tools installed on a host after the host has been broken into and super user access has been gained</li>
+</ul>
+<p>The CACI also provides a list of lesser known terms at <a href="http://www.caci.com/business/ia/threats.html">http://www.caci.com/business/ia/threats.html</a>.</p>
+<p>In addition to the formal and informal definitions offered by academia and Szor, Symantec presents a layman's view in <a href="http://service1.symantec.com/SUPPORT/nav.nsf/f70575ac37738e6a88256689006d4438/024c927836400f528825675100593eb2"><em>What is the Difference Between Viruses, Worms, and Trojans?</em></a> [42].</p>
+<h2><a name="c5"></a>Licensing Systems</h2>
+<p>Licensing systems are required in software due to the fact that there are many illegal users of software. According to the <a href="http://www.bsa.org/">Business Software Alliance</a>, in 2006 35% of installed software was pirated, creating a financial loss of US $40 billion in licensing fees [52].</p>
+<p>The licensing system is customarily comprised of two components: Product Keys - used to keep the honest user honest - and Product Activation systems. Product Activation is used for Product Key validation and developing end user demographics. Nearly all commercial software employs a Product Key system. The observable trend indicates that an automatic Product Activation systems using the internet is becoming the defacto standard (except for cases such as Site and Volume licensing).</p>
+<p>Product Keys and Product Activation are considered <a href="http://en.wikipedia.org/wiki/Software_token">Software Tokens</a> by Anckaert, De Sutter, De Bosschere in <a href="http://www.cse.uconn.edu/%7Edrm2004/talks/anckaert.pdf"><em>Software Piracy Prevention through Diversity</em></a> [13]. For an in depth discussion of Product Key generation and Product Activation see <a href="http://www.codeproject.com/cpp/AESProductKey.asp"><em>Product Keys Based on the Advanced Encryption Standard (AES)</em></a> [27], <a href="http://www.codeproject.com/cpp/ECIESProductKey.asp"><em>Product Keys Based on Elliptic Curve Cryptography</em></a> [28], and <a href="http://www.codeproject.com/cpp/ProductActivation.asp"><em>Product Activation Based on RSA Signatures</em></a> [84].</p>
+<h2><a name="c6"></a>Wintel Commodity Systems</h2>
+<p>This article is placing focus on the Windows Operating System and Intel x86 compatible hardware. This is due to market share. According to X-bit Laboratories, "Microsoft's Windows dominates the operating system market with a global usage share of 96.97 percent" [77]. The breakout of non-Microsoft Operating Systems is as follows: Macintosh - 2.32% and Linux - 0.36%. Electronics Weekly reports Intel and AMD posses 91.3 percent of market share for desktop markets [81].</p>
+<p>Common x86 systems such as the IBM compatible PC running an operating system such as Windows present significant challenges to hardening an executable. One cannot fully protect an executable from reverse engineering on the x86 architecture. This stems from two reasons: limitations in the x86 architecture; and lack of support from the Operating System. These two short comings are known as the 'Untrusted Hardware' and the 'Untrusted Operating System' [78].</p>
+<p>Describing the problem in the context of tamper detection, Giffin, Christodorescu, and Kruger state the following in <a href="http://www.cs.wisc.edu/wisa/papers/acsac05/GCK05.pdf"><em>Strengthening Software Self-Checksumming via Self-Modifying Code</em></a>:</p>
+<blockquote>... self-checksumming remains an incomplete solution to software tamper resistance. Self-checksumming programs execute atop an untrusted operating system and untrusted hardware. [37]</blockquote>
+<p>Microsoft's <a href="http://www.microsoft.com/resources/ngscb/default.mspx">Next Generation Secure Computing Base</a> [76] will address the untrusted Operating System issues using techniques such as <a href="http://en.wikipedia.org/wiki/Trusted_computing">Curtained Memory</a> [40].</p>
+<h2><a name="c7"></a>Protection Systems</h2>
+<p>According to C. Collberg and C. Thomborson in <a href="http://www.cs.auckland.ac.nz/%7Ecthombor/Pubs/01027797a.pdf"><em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em></a>, "... there do not exist any techniques for preventing attacks by reverse engineering stronger than by what is afforded by obscuring the purpose of the code" [30]. With respect to Obfuscation, <a href="http://www.eecs.harvard.edu/%7Esalil/papers/obfuscate.ps"><em>On the (Im)possibility of Obfuscating Programs</em></a> states: "even under very weak formalizations [sic: the formal mathematical construction of obfuscation], obfuscation is impossible" [58]. Microsoft further acknowledges the fact with, "[stopping software piracy] ... is probably an unattainable goal" [94].</p>
+<p>Protection Systems are a logical module of an executable. They are typically implemented in conjunction with a Licensing Scheme. Protection schemes are usually used as a means hinder the ability to reverse engineer portions of the executable (for example, the licensing system). Most often overlooked is the goal to protect all executable code, rather than simply the licensing scheme. This appears to be a result of awareness - the crackers can be a very vocal group, and on the surface pose the largest threat to a company's interest. However, as IBM witnessed with DES and the sci.crypt posting, at times it is desirable to protect the intellectual property. Note the author's choice of the word hinder.</p>
+<p>Protection techniques proposed in academia at times suffer from the fact that theoretical assumptions which apply to the problem domain are, in practice, only a minor obstacle to the analyst when applied. For example, in <a href="http://www.scs.carleton.ca/%7Egwurster/publications/Thesis-2005.pdf"><em>A Generic Attack on Hashing-Based Software Tamper Resistance</em></a>, Glen Wurster presents three assumption. One assumption is, "the attacker cannot identify all relevant checksum computation code or verification code within the protected program" [71].</p>
+<p>The underlying premise for the assumption is that decidability (<a href="http://en.wikipedia.org/wiki/Decision_problem">The Decision Problem</a>) is <a href="http://en.wikipedia.org/wiki/NP-complete">NP-Complete</a>. If the tools used by the analyst were not interactive, the previous statement would most likely hold true. However, tools such as IDA are aided by an analyst. Tools assisted by a versed adversary will most likely enable the analyst to correctly identify nearly all relevant portions of code. The authors of <a href="http://www.cs.wisc.edu/wisa/papers/acsac05/GCK05.pdf"><em>Strengthening Software Self-Checksumming via Self-Modifying Code</em></a> concur: "Although we question the legitimacy of this assumption - if an attacker has the ability to find and remove undesired code like a license check, they are likely able to find and remove checksum code" [72].</p>
+<p>One should presume any one technique can be easily neutralized after analysis. To that end, each of the presented techniques should be thought of as a "primitive" or "building block" of a larger system incorporated by the software author. By combining multiple systems, it is hoped that most junior analysts will concede due to an incomplete mastery of necessary skills.</p>
+<p>In the case of a senior analyst, it is simply hoped he or she will grow weary from the plethora of code analysis. Szor notes a similar situation with respect to the virus researcher, "On many occasions, incorrect information is published by teams of incompetent virus analysts... The only reliable way to analyze virus code is with comprehensive care. Anything else is unprofessional and must be avoided" [53].</p>
+<p>For the software author, it should be evident there is no Silver Bullet. Each technique applied to the software will only add a layer of complexity to the analysis and evasion of a particular system. However, the software author can make analysis arbitrarily complex by including multiple techniques.</p>
+<h2><a name="c8"></a>Security Through Obscurity</h2>
+<p>Due to the nature of the protection mechanisms, they are a demonstration of <a href="http://en.wikipedia.org/wiki/Security_through_obscurity">Security through Obscurity</a>. Taking from <a href="http://www.cs.auckland.ac.nz/%7Ecthombor/Pubs/01027797a.pdf"><em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em></a>, "Security through obscurity has long been viewed with disdain in the security and cryptography communities" [60]. This is a disappointing affair, since little goes on in the way of collaboration outside of academia. Collaborative efforts foster an environment of creativity and problem solving. The reason is counterintuitive upon inspection - due to the analyst's ability to view the machine code, there exists no secrets. However, the author of the system feels by not soliciting comments, they are ensuring the security of the system. But a protection system which is not openly discussed is probably less secure than a system which has been discussed.</p>
+<p>Adding to the woes is the fact that some programmers are filled with their own bravado. So when a obvious flaw or deficiency is brought to light, it is dismissed based on pride. The author has consulted with companies where one programmer was responsible for the protection scheme, and the programmer refused to take advice because he felt the executable was adequately protected. This same programmer did not understand basic principals of computer security, or even how a system such as the RSA Cryptosystem worked.</p>
+<p>This is in contrast to the cracking community, where collaborative efforts to subvert security measures are common place. The implications are obvious - the cracking analyst has many more resources at his or her disposal, with senior members of the community mentoring junior members.</p>
+<h2><a name="c9"></a>Life Cycle Development</h2>
+<p><a href="http://en.wikipedia.org/wiki/Systems_Development_Life_Cycle">Life Cycle Development</a> is a formal process which governs the creation of an information system. It is a disciplined approach to software development. Generally, the process is applied at larger corporations to guide their development efforts.</p>
+<p>Whether being developed by a corporation or an individual, the trend is executable production followed by the addition of a licensing and protection scheme. The business logic of the executable generally receives most company resources. In contrast, a virus author goes to great lengths to harden an executable. The business logic of a virus is brief. It usually includes an infection component, replication component; and if applicable a module to steal passwords, bank account numbers, etc (the malicious payload), and then phone home.</p>
+<p>In <a href="http://www.microsoft.com/MSPress/books/5822.aspx"><em>Debugging Applications for Windows</em></a>, John Robbins wrote that one should begin developing a setup program early in the product development life cycle [21]. As with setup programs, one should begin incorporating elements of the Protection Scheme early in the implementation phase of the software life cycle - and not simply add it after the development of the product. Noteworthy is that Operating Systems (especially Microsoft Windows) took this approach in the Windows family development, which caused a major split in source code base (Windows 9x and Windows NT) when Security considerations were added. Placed in a different light, Microsoft realized the Windows 9x framework could not adequately support security (which also had other short comings such as full 32 bit support), so a separate product line was launched.</p>
+<h2><a name="ca"></a>Legality of Reverse Engineering</h2>
+<p>While there are many competing opinions on the legality of reverse engineering, those which one should observe are provided by the courts. A central theme to allowing reverse engineering of copyrighted material appears to be interoperability. The author was not able to find a reference for post compilation bug remediation (for example, removing a perceived bug of a time limitation). According to Jason Schultz, Senior Staff Attorney at the Electronic Frontier Foundation:</p>
+<blockquote>...the courts are willing to allow a limited amount of reverse engineering of copyrighted materials for the purpose of <em>achieving</em> interoperability between computer products as long as the final product does not contain any infringing code. When it does contain such code, it may at times also be excused under the <a href="http://www.ivanhoffman.com/scenes.html">doctrines of merger</a> and <a href="http://www.ivanhoffman.com/scenes.html">scenes a faire</a> if it is necessary to achieve interoperability or functions as a lockout code. [93]</blockquote>
+<p>In spirit with the interoperability and fair use scenarios, Peter Szor writes, "Microsoft file formats had to be reversed-engineered by AV companies to be able to detect viruses in them. Although Microsoft offered information to AV developers about certain file formats under <a href="http://en.wikipedia.org/wiki/Non-disclosure_agreement">NDA</a>, the information received often contained major bugs or was incomplete" [24].</p>
+<p>In addition to Jason Schultz opinion, a high level overview of reverse engineering in both the software and hardware arena was presented to the <a href="http://www.ibc.org/">IBC Conferences</a> in 1998 by David Musker [16]. The paper is entitled <a href="http://www.jenkins-ip.com/serv/serv_6.htm"><em>Protecting &amp; Exploiting Intellectual Property in Electronics</em></a>. In the paper, Musker presents the following case law with respect to US, Australian, and UK interpretations of Patent and Copyright law. For additional case reviews in the pervue of Reverse Engineering and "Fair Use", one is invited to visit the archive of the paper on <a href="http://www.jenkins-ip.com/serv/serv_6.htm">R.G.C. Jenkins &amp; Company</a> website [25].</p>
+<h3><a name="ca1"></a>Sega Enterprises Ltd v. Accolade </h3>
+<p>This US software copyright case concerned Sega's video game console and cartridges. The cartridges had a 20 to 25 byte code segment which was interrogated by the console as a security measure. Accolade disassembled the code which was common to three different Sega games cartridges, to find the security segment, and included it in competing games cartridges.</p>
+<p>The Ninth Circuit held this disassembly to be a permitted "fair use" of the copyright in the games programs. [17]</p>
+<h3><a name="ca2"></a>Atari v. Nintendo </h3>
+<p>This US software copyright case concerned Nintendo's NES video game console and cartridges. The cartridges contained a microprocessor, and program code, and was interrogated by the console microprocessor, as a security measure, like the Sega system. The security was potentially a two-way process, with the console checking for a valid cartridge and the potential for the cartridge to check for a valid console (which Nintendo did not actually do).</p>
+<p>Atari disassembled the program code which performed the security signaling exchange (the interface code). However, they also had access to a copy of the source code from the <a href="http://www.copyright.gov/">US Copyright Registry</a>, to obtain which they stated (untruthfully) that it was for the purposes of litigation.</p>
+<p>They implemented the signaling exchange to validate the cartridge, thus achieving compatibility of their cartridges with Nintendo consoles. However, they went further and implemented the rest of the interface, to validate the consoles, apparently in case Nintendo changed their product in future. In each case, they copied some actual code, allegedly only to the extent necessary.</p>
+<p>The Court held that the intermediate copying during reverse engineering was legitimate, as "fair use". However, Atari infringed copyright nonetheless, in going too far in copying beyond what was strictly necessary. The programmer apparently also had sight of the source code from the <a href="http://www.copyright.gov/">US Copyright Registry</a>, casting some doubt on whether the copying was solely due to the reverse engineering operation.</p>
+<p>Finally, Nintendo had a patent on the interface, and Atari were found to infringe that too. [18]</p>
+<h3><a name="ca3"></a>Autodesk Inc v. Dyason</h3>
+<p>This Australian software copyright case concerned a CAD package, which was supplied with a hardware device containing an EPROM, called the AutoCAD lock, which operated with part of the package called the "Widget-C" program. The program sent a challenge signal to the lock, which replied with a return signal. The program checked the return signal against a lookup table. The lookup table comprised 16 bytes of a 30 KB program. An encrypted form of the lookup table was held in the lock EPROM.</p>
+<p>The Defendant studied the signals with an oscilloscope, and read them. Apparently, the correct contents of the EPROM were deduced from this functional analysis, without reading of the EPROM. They then produced an alternative lock device. The Plaintiff alleged that the table was a substantial part of the program, and that the program had thus been copied.</p>
+<p>The Court held that the table was a substantial part of the program (an issue of importance rather than size) and that it had been copied, and that this was an infringement. [19]</p>
+<h3><a name="ca4"></a>Anacon Corp Ltd v. Environmental Research Technology</h3>
+<p>This UK copyright case concerned an electronic dust meter analyser, and involved a computer program, some engineering drawings, and some circuit diagrams for a PCB. The Defendant was in liquidation, and the Judge found clear infringement of the first two items, so the Report concerns only the PCB circuit diagrams.</p>
+<p>Apparently, the Defendants reverse engineered the Plaintiffs PCB and extracted from it a net list specifying the components and their interconnection, which they then used to make further PCBs. The Judge understood that the net list could be interpreted by computer to produce either a circuit diagram or instructions to make a PCB (i.e. higher or lower level descriptions).</p>
+<p>The judge held that the Plaintiff's circuit diagrams contained not only an artistic work (the drawing) but also a literary work (the identities represented by the component symbols, and their interconnections, making up a table or a compilation). This literary work was reproduced in the Plaintiff's PCBs, and hence was copied by the Defendants in their net list derived from the PCBs and containing the same information. [20]</p>
+<h2><a name="cb"></a>Reverse Engineering Tools</h2>
+<h3><a name="cb1"></a>Microsoft Windows</h3>
+<p>Three tools pervade the warchest of the contemporary analyst on the Windows platform: <a href="http://www.datarescue.com/">IDA</a>, SoftICE, and <a href="http://freewareapp.com/pe-tools_download/">PE Tools</a>. IDA is the Interactive Disassembler from Data Rescue. IDA is used to examine the executable on-disk. IDA provides useful features such as <a href="http://www.datarescue.com/idabase/5preview/index.htm">call graphs</a> for analyzing program flow and automatic library detection (<a href="http://www.datarescue.com/idabase/idaflirt.htm">FLIRT</a>).</p>
+<p>SoftICE is a <a href="http://en.wikipedia.org/wiki/Ring_%28computer_security%29">Ring 0</a> debugger from <a href="http://www.compuware.com/">Compuware</a>. Though SoftICE is no longer an offering from <a href="http://www.compuware.com/">Compuware</a>, it's use is still very common. While the author now uses <a href="http://www.microsoft.com/whdc/devtools/debugging/default.mspx">WinDbg</a> in place of SoftICE, some analysts have turned to <a href="http://www.ollydbg.de/">OllyDbg</a>. It is presumed that once Compuware decides to sell SoftICE [36], the debugger will regain it's previous popularity.</p>
+<p>PE Tools is used to dump either a partial (region) or full in-memory image of an executable. It also includes the ability to automatically remove "Anti Dump Protection", and find the original OEP (<a href="http://www.csn.ul.ie/%7Ecaolan/publink/winresdump/winresdump/doc/pefile.html">AddressOfEntryPoint</a> value of the <code>IMAGE_OPTIONAL_HEADER</code> structure). This tool would be used with a packed or encrypted executable. After the decompression or decryption occurs, PE Tools would be used to copy the image from memory for further analysis.</p>
+<p>IDA is used to perform a static analysis on-disk, while a debugger is used to interrogate the executing program while in-memory. Based on the tools, this leads to the observation that a Protection Scheme must be functional in two environments - on-disk and in-memory. In the virus research community, challenging disassembly occurs in the anti-disassembly layer [49], while the implementation deterring dynamic analysis is known as a anti-debug layer [66].</p>
+<h3><a name="cb2"></a>Unix and Linux</h3>
+<p>For Unix and Linux, <a href="http://www.gnu.org/software/binutils/manual/html_chapter/binutils_4.html">objdump</a> (with it's PERL based wrapper <a href="http://packetstormsecurity.org/linux/reverse-engineering/dasm">dasm</a>) and <a href="http://sources.redhat.com/gdb/">gdb</a> are two available tools. gdb supports debugging of C, C++, Java, Fortran and Assembly among other languages. In addition, gdb is designed to work closely with the GNU Compiler Collection (GCC). objdump and dasm collectively act as full disassembler. Alternately, one can run Windows applications such as IDA on Linux using <a href="http://www.winehq.org/">Wine</a>, which acts as a compatibility layer for running Windows programs on Linux. Kris Kaspersky introduces additional tools and details procedures specific to the ELF file format in <em>Hacker Disassembling Uncovered</em> [82].</p>
+<h2><a name="cc"></a>Data Hiding Techniques</h2>
+<p>Data Hiding has been included because virus authors have been creative with respect to how and where they hide information. These techniques should be considered for inclusion as an element of a protection scheme. The locations gives the author additional areas to supplement the standard file system and registry. Not only can one hide duplicate data, previously compiled code can be placed for later use (after appropriate fixups). The later is not as exotic as it appears - Apple's multiple fork file system was designed around such a concept.</p>
+<p>For techniques to read and write raw sectors on a hard disk, see Shalom Keller's <a href="http://www.codeproject.com/system/MakingOS.asp"><em>Building Your Own Operating System</em></a> [89]; or Sreejith <a href="http://www.codeguru.com/Cpp/W-P/system/misc/article.php/c5765"><em>Reading/Writing Disk Sectors (Absolute Disk Read/Write)</em></a> [88]. The latter article presents a more complete examination of the read and write operations. In addition, Sreejith's article demonstrates the technique using DOS, the Windows 9x family, and the Windows NT family.</p>
+<h3><a name="cc1"></a>NTFS Streams</h3>
+<p>HFS was introduced by Apple in September, 1985. NTFS File Streams (or <a href="http://en.wikipedia.org/wiki/Fork_%28filesystem%29">Alternate Data Streams</a>) are intended to support the multiple fork concept of Apple Computer's <a href="http://en.wikipedia.org/wiki/Hierarchical_File_System">Hierarchical File System</a> (UNIX usually realizes file forks through the use of hidden directories). HFS files can have multiple forks usually comprised of data and <a title="Resource fork" href="http://en.wikipedia.org/wiki/Resource_fork">resource forks</a>. This allows program code to be stored separately from resources such as the definitions of menus and menu bars which may require localization.</p>
+<p>Windows NT includes support for multiple fork files because a Windows File Server could be configured to service Macintosh computers. Just as with HFS, an NTFS file can contain multiple streams on the disk. The "main stream" is the actual file itself. For instance, calc.exe's code can be found in the unnamed (main) stream of the file.</p>
+<p>Taking from Section 3.5.2, NTFS Stream Viruses:</p>
+<blockquote>
+<p>... Someone could store additional named streams in the same file; for instance, the notepad.exe:test stream name can be used to create a stream name called test. When the WNT/Stream virus infects a file, it will overwrite the file's main stream with its own code, but first it stores the original code of the host in a named stream called STR...</p>
+<p>Malicious hackers often leave their tools behind in NTFS streams on the disk. Alternate streams are not visible from the command line or the graphical file manager, Explorer. They generally do not increment the file size in the directory entries, although disk space lost to them might be noticed. Furthermore, the content of the alternate streams can be executed directly without storing the file content in a main stream. This allows the potential for sophisticated NTFS worms in the future. [31]</p>
+</blockquote>
+<p>Microsoft does not guarantee the existence of the alternate data stream in future products. Taking from Knowledge Base Article <a href="http://support.microsoft.com/kb/105763">105763</a>, How To Use NTFS Alternate Data Streams: "Alternate data streams are strictly a feature of the NTFS file system and may not be supported in future file systems. However, NTFS will be supported in future versions of Windows NT" [35].</p>
+<p>Finally, for those developing in .NET, Alternate Data Streams are not available. According to <a href="http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=95186">Classes in System.IO do not Support Alternate Data Streams on NTFS Volumes</a>, attempting to use them causes a <code>NotSupportedException</code> to be throw with the message "The given path's format is not supported" [45].</p>
+<h3><a name="cc2"></a>Extra Sectors</h3>
+<p>Using a normally inaccessible area of a floppy disk provides storage to hide data for a protection scheme. The obvious downside to this technique is that the diskette has lost popularity due to removable media such as memory sticks. Taking from 4.1.2.2, Boot Viruses That Format Extra Sectors with respect to the Indonesian virus, Denzuko:</p>
+<blockquote>
+<p>Copy-protection software often takes advantage of specially formatted "extra" diskette sectors placed outside of normal ranges. As a result, normal diskette copying tools, such as DISKCOPY, fail to make an identical copy of such diskettes.</p>
+<p>Some viruses specially format a set of extra diskette sectors to make it more difficult for the antivirus program to access the original copy during repair. However, the typical use of extra sectors is to make more space for a larger virus body. [22]</p>
+</blockquote>
+<h3><a name="cc3"></a>Bad Sectors</h3>
+<p>The original application of this technique saves the original boot sector of a disk to an alternate location, and then marks the sector (the archived boot sector) as BAD. From Section 4.1.2.3, Boot Viruses That Mark Sectors as BAD of Szor's work:</p>
+<blockquote>... save the original sector, or additional parts of the virus body, in an unused cluster marked as BAD in the DOS FAT. An example of this kind of virus is the rather dangerous Disk Killer, written in April 1989. [22]</blockquote>
+<h3><a name="cc4"></a>Last Sector</h3>
+<p>Taking a probabilistic approach, one can save data to the last sector of the disk while leaving it marked as unused. From Szor: 4.1.2.5, Boot Viruses That Store at the End of Disks:</p>
+<blockquote>... replaces the original boot sector by overwriting it and saving it at the end of the hard disk, like MBR viruses, which also do this occasionally. The infamous Form virus uses this method. It saves the original boot sector at the very end of the disk. Form hopes that this sector will be used infrequently, or not at all, and thus the stored boot sector will stay on the disk without too much risk of being modified. Thus the virus does not mark this sector in any way; neither does it reduce the size of the partition that contains the saved sector. [22]</blockquote>
+<h3><a name="cc5"></a>Hidden Partition</h3>
+<p>Modern Enterprise servers allow the administrator to bootstrap the installation of an Operating System using utilities. These utilities are provided by companies such as HP, Compaq and Dell. For Compaq, the program is a bootable CD named the System Configuration Utility (SCU). The configuration utility creates a hidden partition named the System Partition. The System Partition is a special area of the fixed disk which can contain items such as configuration information, diagnostics and other utilities.</p>
+<p>The utility partitions create another area where one may hide data. Taking from 3.22, Multipartite Viruses, "Junkie can infect COM files on the hidden partitions that some computer manufacturers use to hide data and extra code...".</p>
+<h2><a name="cd"></a>Signaling</h2>
+<p>Breaking the synchronous nature of procedural block programming through the use of Operating System objects such as Threads, Mutexes, Semaphores, and Messages offer an element of complexity which add to runtime analysis complexity.</p>
+<h3><a name="cd1"></a>Semaphores and Mutexes</h3>
+<p>Szor discusses viruses use of signaling mechanism in 5.2.4.1, Self-Detection Techniques in Memory. Though the discussion is aimed at loading a single instance of a virus, it's presence begs the implementation of more advanced mechanisms:</p>
+<blockquote>...viruses often use ram semaphores, such as a global mutex, that they set during the first time the virus is loaded. This way, the newly loaded copies can simply quit when they are executed. [56]</blockquote>
+<p>Other worms, such as Blaster, also use Mutexes to successfully throttle their operation.</p>
+<h3><a name="cd2"></a>Message Passing</h3>
+<p>Though the example below uses Callbacks in the context of Office document macros, the same technique can be used with a protection scheme. Taking from Section 3.7.1.4, Platform Dependency of Macro Viruses:</p>
+<blockquote>For example, the {W32, W97M}/Heathen.12888 virus uses the CallBack12(), CallBack24(), and CreateThread() APIs of KERNEL32.DLL to achieve infection and dropping mechanism of both documents and 32-bit executables.</blockquote>
+<h2><a name="ce"></a>Protection System Techniques</h2>
+<p>A viruses' protection mechanisms provide up to five services to deter analysis. Each service is designed to defend against a particular class of attacks that will be presented by anti-virus software in the wild. The defense techniques which are of interest for an executable's protection are:</p>
+<ul>
+<li>Anti-disassembly Layer</li>
+<li>Anti-debugging Layer</li>
+<li>Anti-emulation Layer</li>
+</ul>
+<p>The following will detail the more interesting techniques employed by viral computer code.</p>
+<h3><a name="ce1"></a>Stealth</h3>
+<p>Stealth Protection is not so much a protection, as it is an attribute of a protection. While many viruses employ stealth techniques, it is the author's opinion that a protection scheme should not employ such techniques. Stealthness is usually achieved by manipulating data returned by the Operating System through software interfaces such as <a href="http://msdn2.microsoft.com/en-us/library/ms684280.aspx">NtQueryInformationProcess()</a> [48], or manipulating Operating System owned data structures in linked lists.</p>
+<p>The reason is that the protection system has crossed an ethical line and is operating as a rootkit. For the backlash of such techniques, the reader is invited to read CNet's <a href="http://www.news.com/2100-7355_3-5926657.html">Sony CD Protection Sparks Security Concerns</a> [46]. This particular rootkit was discovered by Dr. Mark Russinovich (cofounder of <a href="http://en.wikipedia.org/wiki/Winternals">SysInternals</a>) in 2005. In November 2005, Sony proposed a settlement for the <a href="http://www.businessweek.com/technology/content/dec2005/tc20051230_658336.htm">Class Action Lawsuit</a> stemming from the incident [47].</p>
+<p>In addition, Microsoft does not guarantee the future existence of the interface stating, "NtQueryInformationProcess may be altered or unavailable in future versions of Windows." [48].</p>
+<h3><a name="ce2"></a>Non Standard API Calls</h3>
+<p>Another service which virus provide is to aide in the documenting of the Windows native API. Most of the native API has been left undocumented by Microsoft. <a href="http://www.microsoft.com/technet/sysinternals/information/NativeApplications.mspx">Native applications</a> do not rely on the various subsystem DLLs, such as KERNEL32.DLL. Native applications such as autochk.exe use NTDLL.DLL (the native API) [80], where hundreds of undocumented APIs are stored. One would use the <a href="http://www.microsoft.com/whdc/DevTools/ddk/default.mspx">Windows NT DDK</a> to build a native application. Taking from Szor:</p>
+<blockquote>... 32-bit Windows virus is on the rise: native infectors. The first such virus, W32/Chiton, was created by the virus writer, <a href="http://en.wikipedia.org/wiki/Roy_G._Biv">roy g biv</a>, in late 2001. Unlike most Win32 viruses, which depend on calling into the Win32 subsystem to access API functions to replicate, W32/Chiton can also replicate outside of the Win32 subsystem. [61]</blockquote>
+<p>If using the native API one would use <code>RtlAllocateHeap()</code> and <code>RtlFreeHeap()</code> for Memory Management; and <code>RtlSetCurrentDirectory()</code>, <code>RtlDosPathNameToNtPathName()</code>, and <code>NtQueryDirectoryFile()</code> for Directory Operations. Finally, <code>NtOpenFile()</code>, <code>NtClose()</code>, <code>NtMapViewOfSection()</code>, <code>NtUnmapViewOfSection()</code>, <code>NtSetInformationFile()</code>, and <code>NtCreateSection()</code> would be used for File Management. These are the functions which W32/Chiton used in the wild [61].</p>
+<p>Note that RtlSetCurrentDirectory() is nearly undocumented: only four distinct hits are returned during a <a href="http://www.google.com/search?hl=en&amp;q=RtlSetCurrentDirectory&amp;btnG=Search">Google search</a> [67] (not including a presumed indexing of this article). The results are from interoperability layers such as Wine for Linux. This includes a lack of coverage from Gary Nebbett in <a href="http://www.amazon.com/Windows-2000-Native-API-Reference/dp/1578701996"><em>Windows NT/2000 Native API Reference</em></a> [68].</p>
+<h3><a name="ce3"></a>Boot Time</h3>
+<p>Should the software author desire a boot time protection system (which would most likely acts as an external protection system), one of the first virus to examine would be W32/Chiton. W32/Chiton was chosen as a representative since it is a native application. Being a native application, it can start very early in the boot process. Taking from Szor in Section 3.6.5.2 discussing Native Viruses:</p>
+<blockquote>
+<p>... Unlike most Win32 viruses, which depend on calling into the Win32 subsystem to access API functions to replicate, W32/Chiton can also replicate outside of the Win32 subsystem.</p>
+<p>A PE file can be loaded as a device driver, a GUI Windows application, a console application, or a native application. Native applications load during boot time. Because they load before subsystems are available, they are responsible for their own memory management. [61]</p>
+</blockquote>
+<p>Great care must be demonstrated when using a boot time system since a driver enjoys full system access. Microsoft released Security Advisory 944653 on November 5, 2007 entitled, <em>Vulnerability in Macrovision SECDRV.SYS Driver on Windows Could Allow Elevation of Privilege</em> [91]. Macrovision creates software compliance systems used by companies such as Adobe.</p>
+<h3><a name="ce4"></a>Robin Hood and Friar Tuck</h3>
+<p>In this system, at least two separate processes (or possibly threads) actively participate in monitoring for tampering. This protection is interesting to the author in that he prototyped a similar system consisting of 1) native application monitor and 2) business logic executable. The business executable also employed a monitor component. Each process monitored itself and the other for runtime tampering.</p>
+<p>The strength of the system lies in the fact that modern Operating Systems are multitasking and programs are sequential. A typical attack vector would be as follows: a cracker attempts to apply an in memory patch by disabling the monitoring systems and then writing to the in-memory (executing) binary. Two separate functions must be performed atomically by the patch program: disabling the monitors and patching the executable. In practice, a cracker program will probably be preempted. During preemption, it is the responsibility of the surviving monitor to restart the disabled monitor thread or process. At any point, should a monitor observe that the executable has been tampered, the monitor would initiate a repair operation. For techniques to detect and repair an in memory executable, see <a href="http://www.codeproject.com/cpp/SelfHealing.asp"><em>Tamper Aware and Self Healing Code</em></a> [74].</p>
+<p>Taking again from Szor in Section 12.8, Possible Attacks Against Memory Scanning:</p>
+<blockquote>A worm can run multiple copies of itself, each one keeping an eye on the other(s). Alternatively, a single thread is injected into another process that keeps an eye on the worm process. An example of the first attack is a variant of W32/Chiton. An example of the second attack is <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="92c5a1a0bddefde4f7f5f3e6f7d2ffffbc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> The first variation of this attack is based on the self protection mechanism of the "<a href="http://www.csd.uwo.ca/%7Emagi/personal/humour/Computer_Folklore/Robin%20Hood%20And%20Friar%20Tuck.html">Robin Hood and Friar Tuck</a>" programs that, according to anecdotes, were developed at Motorola in the mid-1970's.</blockquote>
+<h3><a name="ce5"></a>Layered</h3>
+<p>Layered Protect simply wraps a previous method of hardening. One of the most common methods for layering protection is UPX. UPX only supports compression. According to L�szl� Moln�r there are no plans to support encryption. If one desires to encrypt an executable, products such as <a href="http://www.aspack.com/asprotect.html">ASProtect</a> from ASPack would be of interest. Should the software author desire both encryption and compression, the software should first be compressed to develop entropy.</p>
+<h3><a name="ce6"></a>Side by Side</h3>
+<p>Unlike Layered Protection, Side by Side Protection places multiple protection routines inside an executable. Each instance of protection exists as a peer to the other protection routines. Though each system is functionally equivalent, each is coded separately. This ensures there are no routines common to multiple schemes.</p>
+<p>A similar situation which avails itself to this measure is documented in Section 3.7, Interpreted Environment Dependency. Taking again from <a href="http://books.google.com/books?id=YkkPAAAACAAJ&amp;dq=0321304543&amp;ei=Ixr_RrvjE4iS7gLwydmJCA">The Art Of Computer Virus Research And Defense</a>:</p>
+<blockquote>
+<p>Starting with VBA5 (Office 97), documents contain the compressed source of the macros, as well as their precompiled code, called p-code (pseudocode), and execode. Execode is a further optimization of p-code that simply runs without any further checks because its state is self-contained. A problem appears because under the right circumstances, any of these three forms can run.</p>
+<p>... the [antivirus] products removed any [one] of the three forms, without removing at least one of the other two. For example, some antivirus programs might remove the p-code, but they leave the source behind. Normally the p-code would run first. The VBA Editor also displays decompiled p-code as "a source" for macros, instead of using the actual source code of macros which are saved in the documents. Given the right circumstances, however, when the p-code is removed but the source is not, the virus might be revived...</p>
+</blockquote>
+<p>An additional viral technique is documented in Section 3.22, Multipartite Viruses. These viruses perform multiple infections, such as the <a href="http://en.wikipedia.org/wiki/Master_boot_record">Master Boot Record</a> (MBR) and user files:</p>
+<blockquote>
+<p>The first virus that infected COM files and boot sectors, Ghostball, was discovered by Fridrik Skulason in October 1989. Another early example of a multipartite virus was Tequila. Tequila could infect DOS EXE files as well as the MBR (master boot sector) of hard disks.</p>
+<p>Multipartite viruses are often tricky and hard to remove. For instance, the Junkie virus infects COM files and is also a boot virus. Junkie can infect COM files on the hidden partitions that some computer manufacturers use to hide data and extra code by marking the partition entries specifically.</p>
+</blockquote>
+<h3><a name="ce7"></a>Just In Time (JIT)</h3>
+<p>Just in Time Compilation is used in some runtime environments such as JAVA and .Net. For this discussion, only .Net will be detailed. In .Net, platform independent pseudo code (MSIL) is compiled to the local architecture and executed when needed. The CLR (common language runtime) of the .Net Framework performs this at the module level when a particular method of a module is first used.</p>
+<p>Whereas UPX packs (deflates) and unpacks (inflates) the entire executable, JIT Protection would unpack or decrypt only the function or method required when needed. This is also functionally different from the .Net runtime, which compiles a module when a method in the module is used. When the function is no longer required, the function is discarded by the JIT Protection mechanism and the memory is zeroed.</p>
+<p>Though this adds approximately 15% overhead to processing, the benefit is a layer of difficulty in tracing or dumping a packed program. The downside to this system is the difficulty in its implementation. Aside from the added logic of the call tree built upon functional dependencies, standard compilers and linkers are simply not designed for the situation. The problem was less with compiler, and more in the linker. This forced the author to revert to nasty hacks to prototype a system.</p>
+<p>The viral reference from Section 3.10 of <a href="http://books.google.com/books?id=YkkPAAAACAAJ&amp;dq=0321304543&amp;ei=Ixr_RrvjE4iS7gLwydmJCA"><em>The Art Of Computer Virus Research And Defense</em></a>:</p>
+<blockquote>The first viruses that targeted .NET executables were not JIT-dependent. For example, Donut was created by Benny in February of 2002. This virus attacked .NET executables at their native entry point, replacing <code>_CorExeMain()</code> import (which currently runs the JIT initialization) with its own code and appending itself to the end of the file. A few months later, JIT-dependent viruses appeared that could infect other MSIL executables. The first such virus was written by Gigabyte.</blockquote>
+<h3><a name="ce8"></a>No API String Usage</h3>
+<p>According to Szor, "[No API string usage is] a very effective ... antidisassembly trick" [26]. Win32/Dungue does not use strings to specify particular APIs. Instead of the string name, a checksum is calculated of the API name. Later the virus dynamically determines which API to call from the checksum. For example, the export table of kernel32.dll would be scanned, computing the checksum of each function. When a match is found, the virus calls the function.</p>
+<h3><a name="ce9"></a>Coprocessor (FPU) Instructions</h3>
+<p>In an effort to subvert emulators, virus authors began incorporating FPU instructions in their decryptors since early hueristic methods skipped coprocessor intructions. Many visruses used this technique, since viral engines such as the Prizzy Polymorphic Engine (PPE) was able to generate instruction sequences based on the FPU. According to Szor, PPE was capable of generating 43 different coprocessor intructions [26].</p>
+<h3><a name="cea"></a>MMX Instructions</h3>
+<p>As with FPU instructions, MMX instructions were used in an effort to prolong survivability. W95/Prizzy was the first virus used to employ the technique. According to Szor, W32/Legacy and W32/Thorin were considerably more successful than Prizzy. The PPE engine was able to generate 46 MMX instructions [26].</p>
+<h3><a name="ceb"></a>Undocumented CPU Instructions</h3>
+<p>Using undocumented CPU instructions is another anti-emulating technique employed by virus authors. According to Szor:</p>
+<blockquote>W95/Vulcano uses the undocumented SALC instruction in its polymorphic decryptor as garbage to stop the processor emulators of certain antivirus engines that cannot handle it. Intel claims that SALC can be emulated as a NOP (a no-operation instruction). [26]</blockquote>
+<h3><a name="cec"></a>Structured Exception Handling</h3>
+<p>Structured Exception Handling has long been known to be an effective anti-debugging and anti-emulation technique. According to Szor, "Viruses often set up an exception handler to create a trap for the emulators used in antivirus products. Such a trick was introduced in the W95/Champ.5447.B virus".</p>
+<h3><a name="ced"></a>Execution Trap</h3>
+<p>Building on Structured Exception Handling, some virus will use the trap to transfer control to the true OEP (or the virus body) based on Operating Systems by inspecting the value at FS:[0xC]. Under Windows 9x, FS:[0xC] will store a value for W16TDB, which is part of the Thread Information Block (TIB). Under Windows NT, the value is 0. So the virus would activate only when running under Windows 9x systems. Pszor refers to this as Random Execution Logic: "One of the first viruses to use random execution logic was W95/Invir". The method dates back to DOS viruses.</p>
+<p>Extending this concept, effective OEP obscuring could be achieved by executing an illegal instruction or divide by 0, and then have the handler transfer control to the true OEP.</p>
+<h3><a name="cee"></a>CreateThread() API Use for Transfer Control</h3>
+<p>Viruses such as W95/Kala would use CreateThread() to transfer control to viral code [44]. When scanned using an emulator, early AV products did not correctly identify virus code because it did not implement the API. This technique would lend itself as another anti-emulation technique.</p>
+<h3><a name="cef"></a>Mutlithreaded Viruses</h3>
+<p>Building on CreateThread() API Use to Transfer Control, multithreaded viruses use multiple threads and advanced synchronization to thwart emulation. Taking from Szor:</p>
+<blockquote>Emulators were first used to emulate DOS applications. DOS only supported single-threaded execution, a much simpler model for emulators than the multithreaded model. Emulation of multithreaded Windows applications is challenging because the synchronization of various threads is crucial but rather difficult. [44]</blockquote>
+<p>In this scenario, not only would an emulator author have to implement the requisite API calls, he or she would also have to properly incorporate the synchronization objects.</p>
+<h3><a name="ceg"></a>Brute Force Decryptors</h3>
+<p>Random Decryption Algorithms (RDA) uses a brute force method (trial and error) to determine the decryption key of the virus to decrypt the virus body. Though the author feels this method less appropriate for use in a protection mechanism. However, Szor point out, "This logic is relatively fast in the case of real-time execution, but it generates very long loops causing zillions of emulation iterations, ensuring that the actual virus body will not be reached easily." [29]. Based on Szor's comment, the author presumes the encryption algorithm is not of commercial quality. That is, an XOR scheme is favored over more complex ciphers.</p>
+<h2><a name="cf"></a>System Implementations</h2>
+<p>Side by Side Protection must be implemented due to the requirements of quality <a href="http://en.wikipedia.org/wiki/User_interface_design">User Interface Design</a>. The side by side variant can (and probably will) be enveloped by layered protection. User-centered design demands that if a user enters an incorrect Product Key or the grace period has expired, the user must be clearly informed. However, this allows an analyst a foothold into one aspect of the protection scheme. The software author should then assume the analyst will find and disable the routines responsible for informing the user. However, a junior analyst may miss one or more of the other peer routines.</p>
+<p>With one protection routine dedicated to user information, there are at least two other routines that should be supported. The first is an exit routine. The exit routine would - independently - determine that the program should exit and do so. This is also low hanging fruit for those interested in subverting security measures, so one should presume the routine will be located and eventually removed.</p>
+<p>The final protection routine or routines would produce incorrect program execution, without informing the user or exiting. This is required so that illegal user will presume the protection scheme has been removed, and the program is laden with programming errors and not worth pursuing further. Where the illegal user perceives the fault lies is of no consequence. He or she could presume tangential damage during the removal of the protection routines; or that the executable was placed into production with programming errors.</p>
+<p>Noteworthy of use is that each routine should use its own copy of data to determine the validity of the installation. It becomes a trivial exercise to locate all protection schemes in a Side by Side system if they share access to common data.</p>
+<p>In addition to the minimum three side by side routines, three other techniques should be employed - a system to complicate a static analysis (anti-disassembling), anti-emulation factors, and a corresponding anti-debugging layer. Resisting disassembling can be realized through packing or encryption. Inspiration for emulation hardening can be found in <em><a href="http://www.cs.wisc.edu/wisa/papers/acsac05/GCK05.pdf">Strengthening Software Self-Checksumming via Self-Modifying Code</a></em> [27]. Finally, exception handling should be used (at minimum) for anti-debugging.</p>
+<h2><a name="cg"></a>Open Questions</h2>
+<p>One of the most probable candidates for use in a perfect protection system (if it exists for commodity hardware) would be based on <a href="http://en.wikipedia.org/wiki/Digital_signature">Digital Signatures</a>. Another possible candidate is <a href="http://en.wikipedia.org/wiki/Hash_function">Hashing</a>. Hashing is also a component of electronic signatures. In the author's opinion, two outstanding questions exist in the area of executable hardening:</p>
+<ol>
+<li>Does a perfect system exist?</li>
+<li>What components make up the perfect system (if it does exist)?</li>
+</ol>
+<p>In the authors opinion, a perfect system does not exist for a commodity hardware such as the Intel x86 PC. If one were to model the threat analysis in the cryptographic arena, the scenario would be presented as follows: two parties wish to securely communicate: storage (either disk or memory) and the processor, with the adversary being the analyst (attempting a quasi-man in the middle attack). It is trivial to encrypt the executable to thwart the adversary. The encrypted executable would then be fed to the processor. A component of the processor would then decrypt the encrypted executable, and execute the program. However, this leads to quite a few problems, of which three are detailed below (the technical and political feasibility).</p>
+<p>The first problem relates to processor architecture. Intel x86 processors are not designed to meet the requirement of moving an encrypted executable from in-memory to the processor die, decrypting the program and storing the decrypted program on die for execution. There is no Security Coprocessor or 'Decryptor' Controller available on the x86 architecture, such as XOM or AEGIS. Shashank Khanvilkar proposes a solution in <a href="http://mia.ece.uic.edu/%7Epapers/publications/Reportv1a.pdf"><em>Guaranteeing Memory Integrity in Secure Processors with Dynamic Trees</em></a>:</p>
+<blockquote>Data-flow between processes is strictly controlled across well-defined interfaces, and no process (not even the Operating System) is allowed to access the data belonging to other principals. Special instructions allow the OS to store/restore process state (without actually reading the state) during interrupts in an internal private cache. [55]</blockquote>
+<p>In David Lie's abstract machine of <a href="http://citeseer.ist.psu.edu/lie00architectural.html">XOM</a> (eXecute Only Memory) from <a href="http://www-vlsi.stanford.edu/papers/djl_asplos_2000_xom.pdf"><em>Architectural Support for Copy and Tamper-Resistant Software</em></a>, instructions are added to move encrypted data to and from the processor since the abstract machine presumes the Operating System is not trusted (i.e., it will allow another process access to the program's data). Taking from 'Supporting an Operating System':</p>
+<blockquote>...XOM does not trust the operating system. This is because there are many methods with which an adversary could compromise the operating system and gain control of it... When a XOM program is interrupted, the contents of the registers are still tagged with the XOM ID of the interrupted program. As a result, the operating system is unable to read those values to store them to memory. We need to add two more instructions to the ISA - the save register and restore register instructions. [7]</blockquote>
+<p>Noteworthy is the fact that an XOM implementation was constructed by Lie:</p>
+<blockquote>An operating system, XOMOS, was constructed run on the XOM architecture. Because the applications do not trust the operating system with their data, this presents an interesting challenge for operating system design. This work shows that an untrusted operating system can be implemented on top of trusted hardware, such that the operating system has sufficient rights to manage resources, but does not have the rights to read or modify user application code or data. This is demonstrated by a port of the IRIX 6.5 operating system to the XOM processor, to create XOMOS. We were able to run ... applications on XOMOS in our simulator and found overheads to be less than 5%. [33]</blockquote>
+<p>The second problem is that of PKI and key management/distribution. How is the author of a setup program able to encrypt for a particular processor with no <a href="http://en.wikipedia.org/wiki/A_priori">a priori</a> knowledge? Consider the negative perception of the processor serial number introduced in the Pentium III's. How would the public embrace not only a serial number, but a public and private key pair on the processor die as well? The authors of <a href="http://citeseer.ist.psu.edu/745212.html"><em>Architecture for Protecting Critical Secrets in Microprocessors</em></a> propose a solution:</p>
+<blockquote>We propose "secret-protected (SP)" architecture to enable secure and convenient protection of critical secrets... Keys are examples of critical secrets, and key protection and management is a fundamental problem - often assumed but not solved - underlying the use of cryptographic protection of sensitive files, messages, data and programs. [87]</blockquote>
+<p>The author believes David Lie mistakenly trivializes this task in the Software Distribution Model of <a href="http://www-vlsi.stanford.edu/papers/djl_asplos_2000_xom.pdf"><em>Architectural Support for Copy and Tamper-Resistant Software</em></a> of the XOM abstract machine:</p>
+<blockquote>...the software producer simply encrypts the program image with the compartment key, and then encrypts the compartment key with the public key of the target processor. Since this private key is used to protect all compartment on a machine, it is referred to as the master secret. If every XOM machine is initialized with a different public/private key pair, then this provides a way for a program to authenticate the processor it is executing on, as it will only be possible for the processor with the correct private key to decrypt and access the compartment key. [65]</blockquote>
+<p>The next problem is that of the role of the debugger. While corporations have the resources for hardware <a href="http://en.wikipedia.org/wiki/In-circuit_emulator">In Circuit Emulator</a> (ICE as in SoftICE) or On Circuit Debugger, most developers do not. For those interested in the finer details of ICE or OCD versus Software Debugging, see Robert R. Collins articles, <em><a href="http://www.rcollins.org/ddj/Sep97/Sep97.html">In-Circuit Emulation: How the Microprocessor Evolved Over Time</a></em> [73] and <a href="http://www.rcollins.org/ddj/Nov97/Nov97.html"><em>ICE Mode and the Pentium Processor</em></a> [72] in Dr. Dobbs Journal. The author would be offended - to say the least - if he were not allowed to debug an executable (even if encrypted) on his own machine. Some of the issues are addressed by the authors of <a href="http://www.thekkath.org/papers/xomos.pdf"><em>Implementing an Untrusted Operating System on Trusted Hardware</em></a>:</p>
+<blockquote>Recently, there has been considerable interest in providing "trusted computing platforms" using hardware - TCPA and Palladium being the most publicly visible examples. In this paper we discuss our experience with building such a platform using a traditional time sharing operating system executing on XOM - a processor architecture that provides copy protection and tamper-resistance functions. [57]</blockquote>
+<p><a href="http://www-vlsi.stanford.edu/papers/djl_asplos_2000_xom.pdf"><em>Architectural Support for Copy and Tamper-Resistant Software</em></a> acknowledges the Operating System short comings with respect to Debuggers:</p>
+<blockquote>... because the execution of the program is not protected, an attacker may examine the dynamic state of a program using a debugger or other such tool, and surmise the instructions that are being executed. [65]</blockquote>
+<p>If a perfect system does not exist, how close can one come to a near perfect system? Though not ideal, this situation may lend itself to a formidable system. For example, debuggers are generally thought of as transparent. However, a debugger should be actually considered "opaque". The act of setting a breakpoint inserts a software interrupt or uses a hardware register in the debuggee context. This fact would beg the question: how can one exploit the fact that a debugger is not transparent?</p>
+<h2><a name="ch"></a>References</h2>
+<ol>
+<li>K. Kendall and C. McMillan, <em>Practical Malware Analysis: Fundamental Techniques and a New Method for Malware Discovery</em>, http://www.blackhat.com/presentations/bh-dc-07/Kendall_McMillan/Paper/bh-dc-07-Kendall_McMillan-WP.pdf, Black Hat DC Conference, 2007.</li>
+<li>J. von Neumann, <em>First Draft of a Report on the EDVAC</em>, University of Pennsylvania, June 1945.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, Symantec Press, 2005, ISBN 0-3213-0454-3.</li>
+<li>K. Kaspersky, <em>Hacker Debugging Uncovered</em>, A-List Publishing, 2005, ISBN 1-1927-6357-4.</li>
+<li>G. Hoglund and G. McGraw, <em>Exploiting Software - How to Break Code</em>, Addison-Wesley Publishing, 2004, ISBN 0-201-78695-8.</li>
+<li>E. Eilam, <em>Reversing: Secrets of Reverse Engineering</em>, Wiley Publishing, 2005, ISBN 0-7645-7481-7.</li>
+<li>D. Lie, <em>Architectural Support for Copy and Tamper-Resistant Software</em>, p. 17, 2003.</li>
+<li>F. Cohen, <em>Computer Viruses</em>, ASP Press, 1985, ISBN 1-8781-0902-2.</li>
+<li>J. Shoch and J. Hupp, <em><a href="/lib/ajm01.html">The "Worm" Programs: Early Expcrience with a Distributed Computation</a></em>, Communications of the ACM (CACM), 1982.</li>
+<li>F. Cohen, <a href="/lib/afc01.html"><em>Computer Viruses - Theory and Experiments</em></a>, 1984.</li>
+<li>F. Cohen, <em><a href="/lib/afc11.html">A Formal Definition of Computer Worms and Some Related Results</a></em>, 1992.</li>
+<li>P. Szor, <em><a href="/lib/aps00.html">The Art Of Computer Virus Research And Defense</a></em>, p. 28, Symantec Press, 2005.</li>
+<li>B. Anckaert, B. De Sutter, K. De Bosschere, <em>Software Piracy Prevention through Diversity</em>, p. 5, ACM, 2004.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 29-36, Symantec Press, 2005.</li>
+<li>R.G.C. Jenkins &amp; Company Website, http://www.jenkins-ip.com/serv/serv_6.htm, September 2007.</li>
+<li>D. Musker, <em>Protecting &amp; Exploiting Intellectual Property in Electronics</em>, IBC Conferences, June 1998.</li>
+<li>SEGA ENTERPRISES LTD v. ACCOLADE INC 977 F.2D 1510 (9TH CIR. 1992).</li>
+<li>ATARI v. NINTENDO 975 F.2D 872 (FED. CIR. 1992).</li>
+<li>AUTODESK INC v. DYASON [1992] RPC 575 &amp; (NO. 2) 12 RPC 259, 1993.</li>
+<li>ANACON CORP LTD v. ENVIRONMENTAL RESEARCH TECHNOLOGY LTD [1994] FSR 659.</li>
+<li>J. Robbins, <em>Debugging Applications for Microsft Windows</em>, 2d.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 122-132, Symantec Press, 2005.</li>
+<li>Wikipedia, <em>Antivirus Software</em>, http://en.wikipedia.org/wiki/Anti-virus_software, September 2007.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, p. 76, Symantec Press, 2005.</li>
+<li>R.G.C. Jenkins &amp; Company Website, http://www.jenkins-ip.com, October 2007.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 242-244, Symantec Press, 2005.</li>
+<li>J. Walton, <em>Product Keys Based on the Advanced Encryption Standard (AES)</em>, http://www.codeproject.com/cpp/AESProductKey.asp, November 2006.</li>
+<li>J. Walton, <em>Product Keys Based on Elliptic Curve Cryptography</em>, http://www.codeproject.com/cpp/ECIESProductKey.asp, November 2006.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 245-246, Symantec Press, 2005.</li>
+<li>C. Collberg and C. Thomborson, <em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em>, p. 5, IEEE Transactions On Software Engineering, Volume 28, No. 8, August 2002.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 56-59, Symantec Press, 2005.</li>
+<li>D. Lie, <em>Architectural Support for Copy and Tamper-Resistant Software</em>, p. V, 2003.</li>
+<li>VX Heavens Website, Virus Collection, <a href="http://vx.netlux.org/vl.php">http://vx.netlux.org/vl.php</a>, October 2007.</li>
+<li>Microsoft Website, <em>File Management Functions</em>, http://msdn2.microsoft.com/en-us/library/aa364232.aspx, October 2007.</li>
+<li>Microsoft Website, <em>How To Use NTFS Alternate Data Streams</em>, http://support.microsoft.com/kb/105763, October 2007.</li>
+<li>Personal Communication between the author and John Robbins, June 2007.</li>
+<li>J. Giffin, M. Christodorescu, and L. Kruger, <em>Strengthening Software Self-Checksumming via Self-Modifying Code</em>, pp. 23-32, Proceedings of the 21st Annual Computer Security Applications Conference (ACSAC), 2005, ISBN 0-7695-2461-3.</li>
+<li>V. Pirogov, <em>Disassembling Code with IDA Pro and SoftICE</em>, A-List Publishing, 2006, ISBN 1-9317-6951-6.</li>
+<li>Archive of Fravia Website, http://fravia.com/couninte.htm, October 2007.</li>
+<li>Microsoft Corporation, <em>Security Model for the Next-Generation Secure Computing Base</em>, http://www.microsoft.com/resources/ngscb/documents/NGSCB_Security_Model.doc, Downloaded October, 2007.</li>
+<li>Archive of Fravia Website, http://fravia.com/protec.htm, September 2007.</li>
+<li>Symantec Website, <em><a href="http://service1.symantec.com/SUPPORT/nav.nsf/f70575ac37738e6a88256689006d4438/024c927836400f528825675100593eb2">What is the Difference Between Viruses, Worms, and Trojans?</a></em>, October 2007.</li>
+<li>Personal Communication between the author and Dr. Henry Katz, 2001.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, p. 246, Symantec Press, 2005.</li>
+<li>Microsoft Website, <em>Classes in System.IO do not support Alternate Data Streams on NTFS volumes</em>, http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=95186, October 2007.</li>
+<li>CNet Website, <em>Sony CD Protection Sparks Security Concerns</em>, http://www.news.com/2100-7355_3-5926657.html, September 2007.</li>
+<li>Business Week Website, <em>Sony BMG Ends a Legal Nightmare</em>, http://www.businessweek.com/technology/content/dec2005/tc20051230_658336.htm, October 2007.</li>
+<li>Microsoft Website, <em>NtQueryInformationProcess Function</em>, http://msdn2.microsoft.com/en-us/library/ms684280.aspx, October 2007.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, p. 220, Symantec Press, 2005.</li>
+<li>C. Collberg and C. Thomborson, <em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em>, p. 3, IEEE Transactions On Software Engineering, Volume 28, No. 8, August 2002.</li>
+<li>Wikipedia, <em>Anti-Patterns</em>, http://en.wikipedia.org/wiki/Anti-pattern, October 2007.</li>
+<li>Business Software Alliance Website, <em>2006 Global Piracy Study</em>, http://w3.bsa.org/globalstudy, October 2007.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, p. 222, Symantec Press, 2005.</li>
+<li>B. Barak, et. al., <em>On the (Im)possibility of Obfuscating Programs</em>, p. 6, August 15, 2001.</li>
+<li>Shashank Khanvilkar, <em>Guaranteeing Memory Integrity in Secure Processors with Dynamic Trees</em>, p. 4, 2004.</li>
+<li>P. Szor, <em>The Art Of Computer Virus Research And Defense</em>, pp. 186-209, Symantec Press, 2005.</li>
+<li>D. Lie, C. Thekkath, M. Horowitz, <em>Implementing an Untrusted Operating System on Trusted Hardware</em>, Symposium on Operating Systems Principles (SOSP), p. 1, October 2003.</li>
+<li>B. Barak, et. al., <em>On the (Im)possibility of Obfuscating Programs</em>, http://www.eecs.harvard.edu/~salil/papers/obfuscate.ps, August 15, 2001.</li>
+<li>Research In Motion Website, <em>Research In Motion Files Fourth Complaint Against Good Technology</em>, http://www.rim.net/news/press/2002/pr-19_09_2002.shtml, October 2007.</li>
+<li>C. Collberg and C. Thomborson, <em>Watermarking, Tamper-Proofing, and Obfuscation - Tools for Software Protection</em>, p. 5, IEEE Transactions On Software Engineering, Volume 28, No. 8, August 2002.</li>
+<li>P. Szor, <em><a href="/lib/aps00.html">The Art Of Computer Virus Research And Defense</a></em>, pp. 59-66, Symantec Press, 2005.</li>
+<li>P. Szor, <em><a href="/lib/aps00.html">The Art Of Computer Virus Research And Defense</a></em>, p. 29, Symantec Press, 2005.</li>
+<li>VX Heavens Website, <a href="http://vx.netlux.org">http://vx.netlux.org</a>, October 2007.</li>
+<li>F. Cohen, <a href="/lib/afc01.html"><em>Computer Viruses - Theory and Experiments</em></a>, 1984.</li>
+<li>D. Lie, <em>Architectural Support for Copy and Tamper-Resistant Software</em>, 2003.</li>
+<li>P. Szor, <em><a href="/lib/aps00.html">The Art Of Computer Virus Research And Defense</a></em>, p. 220, Symantec Press, 2005.</li>
+<li>Google Website, http://www.google.com/search?hl=en&amp;q=RtlSetCurrentDirectory&amp;btnG=Search, Accessed October 2007.</li>
+<li>G. Nebbett, Windows NT/2000 Native API Reference, Macmillan Technical Publishing, 2000, ISBN 1-5787-0199-6.</li>
+<li>Wikipedia Website, <em>Economies of Scale</em>, http://en.wikipedia.org/wiki/Economies_of_scale, October 2007.</li>
+<li>Personal Communication between the author and Dr. Brooke Stephens, October 2007.</li>
+<li>G. Wurster, <em>A Generic Attack on Hashing-Based Software Tamper Resistance</em>, p. 9. 2004.</li>
+<li>J. Giffin, M. Christodorescu, and L. Kruger, <em>Strengthening Software Self-Checksumming via Self-Modifying Code</em>, pp. 27, Proceedings of the 21st Annual Computer Security Applications Conference (ACSAC), 2005.</li>
+<li>R. Collins, <em>ICE Mode and the Pentium Processor</em>, http://www.rcollins.org/ddj/Nov97/Nov97.html, October 2007.</li>
+<li>R. Collins, <em>In-Circuit Emulation: How the Microprocessor Evolved Over Time</em>, http://www.rcollins.org/ddj/Sep97/Sept97.htm, October 2007.</li>
+<li>J. Walton, <em>Tamper Aware and Self Healing Code</em>, http://www.codeproject.com/cpp/SelfHealing.asp, October 2007.</li>
+<li>Archive of Fravia Website, http://fravia.com/protec.htm, September 2007.</li>
+<li>Microsoft Website, <em>Next-Generation Secure Computing Base</em>, http://www.microsoft.com/resources/ngscb/default.mspx, October 2007.</li>
+<li>Market Share Website, <em>Top Operating System Market Share Trend for October, 2006 to September, 2007</em><span>, http://marketshare.hitslink.com/report.aspx?qprid=5, Accessed September 2007.</span></li>
+<li>J. Giffin, M. Christodorescu, and L. Kruger, <em>Strengthening Software Self-Checksumming via Self-Modifying Code</em>, p. 23, Proceedings of the 21st Annual Computer Security Applications Conference (ACSAC), 2005, ISBN 0-7695-2461-3.</li>
+<li>Jan H. P. Eloff and Mariki Eloff, <em>Information Security Management: A New Paradigm</em>, Proceedings of the 2003 Annual Research Conference of the South African Institute of Computer Scientists and Information Technologists (SAICSIT), September 2003.</li>
+<li>Microsoft Website, <em>Inside Native Applications</em>, http://www.microsoft.com/technet/sysinternals/information/NativeApplications.mspx, October 2007.</li>
+<li>Electronics Weekly Website, <em><a href="http://www.electronicsweekly.com/Articles/2007/04/20/41218/intel+grabs+processor+market+share+back+from+amd.htm">Intel Grabs Processor Market Share Back from AMD</a></em>, Accessed October 2007.</li>
+<li>K. Kaspersky, <em>Hacker Disassembly</em> Uncovered, 2ed, A-List Publishing, 2007, ISBN 1-9317-6964-8.</li>
+<li>QuickLogic Website, <em>Security in QuickLogic Devices</em>, http://www.quicklogic.com/images/security_WP.pdf, October 2007.</li>
+<li>J. Walton, <em>Product Activation Based on RSA Signatures</em>, http://www.codeproject.com/cpp/ProductActivation.asp, June 2007.</li>
+<li>Archive of Fravia Website, http://fravia.com/essays.htm, October 2007.</li>
+<li>Wikipedia, <em>Timeline of Notable Computer Viruses and Worms</em>, http://en.wikipedia.org/wiki/Timeline_of_notable_computer_viruses_and_worms, September 2007.</li>
+<li>Ruby B. Lee, et.al., <em>Architecture for Protecting Critical Secrets in Microprocessors</em>, Department of Electrical Engineering, Princeton University, NJ 08544, p. 1.</li>
+<li>S. Sreejith, <em>Reading/Writing Disk Sectors (Absolute Disk Read/Write)</em>, http://www.codeguru.com/Cpp/W-P/system/misc/article.php/c5765, November 2002.</li>
+<li>S. Keller, <em>Building Your Own Operating System</em>, http://www.codeproject.com/system/MakingOS.asp, October 2006.</li>
+<li>Financial Times Website, <em>Chinese Military Hacked into Pentagon</em>, http://www.ft.com/cms/s/0/9dba9ba2-5a3b-11dc-9bcd-0000779fd2ac.html, September 2007.</li>
+<li>Microsoft Security Advisory 944653, <em>Vulnerability in Macrovision SECDRV.SYS Driver on Windows Could Allow Elevation of Privilege</em>, http://www.microsoft.com/technet/security/advisory/944653.mspx, November 7, 2007.</li>
+<li>Windows Security Website, <em>Endpoint Security</em>, <a href="http://searchwindowssecurity.techtarget.com/generic/0,295582,sid45_gci1199135,00.html">http://searchwindowssecurity.techtarget.com/generic/0,295582,sid45_gci1199135,00.html</a>, July 16, 2006, accessed Novemebr 2007.</li>
+<li>Personal Communication between the author and Jason Schultz, November, 2007.</li>
+<li>eWeek Website, <em>Key Generator Beats Windows Product Activation</em>, <a href="http://www.eweek.com/article2/0,1759,33474,00.asp">http://www.eweek.com/article2/0,1759,33474,00.asp</a>, February 2002, accessed November 2007.</li>
+</ol>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#mjw00">Back to index</a>] [<a href="/lib/mjw00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=mjw00">de</a><a href="/lib/index.php?lang=en&amp;id=mjw00">en</a><a href="/lib/index.php?lang=es&amp;id=mjw00">es</a><a href="/lib/index.php?lang=it&amp;id=mjw00">it</a><a href="/lib/index.php?lang=fr&amp;id=mjw00">fr</a><a href="/lib/index.php?lang=pl&amp;id=mjw00">pl</a><a href="/lib/index.php?lang=ru&amp;id=mjw00">ru</a><a href="/lib/index.php?lang=ua&amp;id=mjw00">ua</a></div>
+</body>
+</html>

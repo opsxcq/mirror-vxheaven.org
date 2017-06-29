@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Mircea Ciubotariu 'Virus Cryptoanalysis' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Mircea Ciubotariu"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Ciubotariu, Mircea,Virus Cryptoanalysis, encrypted, keys, signature, modifier, viruses, units, required, hash, data, virus, time, hashes, functions, implementation, block"/>
+<meta name="Description" content="As technology has evolved, more opportunities have become available for virus writers to express their imagination in malicious code. The introduction of cryptography into virus writing has become a necessity in order for virus writers to protect their code against external factors that might reveal its malicious intentions - such as anti-virus programs."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"4b0b85cb7b9f0880a51ab1b75391c66fb4f1cddb-1498757451-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/amc00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Virus Cryptoanalysis</h1><p><a href="/lib/?lang=en&amp;author=Ciubotariu%2C%20Mircea">Mircea Ciubotariu</a><br/> <em>Virus Bulletin</em><br/> <em>November 2003</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/amc00.html';</script><div class="ci"><a href="/lib/?ci=amc00">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=CR#amc00">Back to index</a>] [<a href="/lib/amc00.html#disqus_thread">Comments</a>]<br/> 
+ 
+<div align="right">
+<em>'A soul on his journey to the Afterlife comes to a fork in
+his path. One way leads to Heaven and is guarded by an angel who
+always tells the truth; the other way leads to Hell and is guarded
+by an angel who always lies. The soul is permitted to ask only
+one question before he must continue his journey. 'If I were to
+ask your buddy here which is the way to Heaven what would he reply?'
+he asked one of them. Given the answer he knew for sure which path
+to follow...'</em>
+<p>Riddle from a recreational math book</p>
+</div>
+<h2>Introduction</h2>
+<p>As technology has evolved, more opportunities have become available for virus writers to express their imagination in malicious code.</p>
+<p>The introduction of cryptography into virus writing has become a necessity in order for virus writers to protect their code against external factors that might reveal its malicious intentions -- such as anti-virus programs.</p>
+<p>In general, matters concerning cryptography reside in the time required to encrypt/decrypt the information compared to the strength of the algorithm used. Any functional encrypted virus has to decrypt its code in order run it, whether it decrypts instruction by instruction, as DarkParanoid did (see VB, January 1998, p.8), or even if it attempts brute force on its encrypted part, like DarkMillennium (W32/Darkmil).</p>
+<p>Encryption is performed by applying a function to the original viral code and transforming it into a chunk of data which becomes meaningless without the decryption function and encryption key(s).</p>
+<p>Decryption of the encrypted chunk of data is achieved by applying the inverse of the function used to encrypt it, but with the same key(s).</p>
+<p>Keys are the initial parameters used by encryption functions. Generally the keys are a byte or a word in size for 16-bit viruses, while the keys for 32-bit viruses are a double word.</p>
+<p>A clear distinction must be made between the decryption code and the encrypted virus body. Decryption code in its essence is not harmful and acts as a tool attached to the virus, but in many cases it may be considered to be a signature of a specific virus due to the information contained within, such as the encrypted block length, relative addresses, etc.</p>
+<p>That is why in some cases it would be relatively safe to extract a signature for a virus from its decryption code, but not foolproof.</p>
+<p>Many existing encrypted viruses use very simple encryption functions and hence can be caught using a CPU emulator which goes beyond the encrypted layer(s) within a relatively short amount of time by emulating a given, specific, number of instructions.</p>
+<p>Problems arise when the length of time spent emulating in order to catch an encrypted virus is too long, or when by natural means the virus damages its decryption code -- or simply when the information contained in the decryption code is useless.</p>
+<h2>The concept</h2>
+<p>Because many encrypted viruses use simple encryption functions such as ADD or XOR, we shall consider a different approach to virus recognition and try to adapt the notion of the virus signature in the light of the concept explained below.</p>
+<p>Let us suppose we are dealing with a file infector virus which uses a simple function to encrypt itself. Each time it infects a file it encrypts its main body in a buffer with a random key, then attaches the decryption code, set up with the encryption key, to the victim file and finally it appends the encrypted data.</p>
+<p>Now let us drop all the information contained in the decryption code and remain only with the encrypted data. This means we know nothing about the function or the key that was used to encrypt it.</p>
+<p>Next, we select one of the more commonly used functions (let's say ^ and its inverse ~). Even if the function has been guessed correctly we still need a key in order to get any valid information from our chunk of data.</p>
+<p>Labelling the units (bytes, words or double words, according to key size) in data chunks as A<sub>0</sub>, A<sub>1</sub>, A<sub>2</sub>, ... in order (e.g. A<sub>0</sub> is the first unit, A<sub>1</sub> the second etc.), we assume that they were obtained by performing the function ^ on the original units a<sub>0</sub>, a<sub>1</sub>, a<sub>2</sub>, ... with the key K.</p>
+<p>For the sake of simplicity we assume for this example that the key was kept constant during encryption. We have:</p>
+<div class="source">
+A<sub>0</sub> = a<sub>0</sub> ^ K, a<sub>0</sub> = A<sub>0</sub> ~ K<br/>
+A<sub>1</sub> = a<sub>1</sub> ^ K, a<sub>1</sub> = A<sub>1</sub> ~ K<br/>
+A<sub>2</sub> = a<sub>2</sub> ^ K, a<sub>2</sub> = A<sub>2</sub> ~ K<br/>
+...
+</div>
+<p>Assuming the function has the associative property let us consider:</p>
+<div class="source">
+A<sub>0</sub> ~ A<sub>1</sub> = (a<sub>0</sub> ^ K) ~ (a<sub>1</sub> ^ K) = a<sub>0</sub> ~ a<sub>1</sub> = s<sub>1</sub><br/>
+A<sub>1</sub> ~ A<sub>2</sub> = (a<sub>1</sub> ^ K) ~ (a<sub>2</sub> ^ K) = a<sub>1</sub> ~ a<sub>2</sub> = s<sub>2</sub><br/>
+...
+</div>
+<p>For easier understanding, imagine ^ is XOR function, so ~ is the same as ^.</p>
+<p>Thus, for any <em>n</em> given units of data where <em>n &lt; N</em> (<em>N</em> is the total number of units in chunk), we have (<em>n - 1</em>) units of s. This is a transformation of our initial block of data independent of encryption key at a cost of one unit.</p>
+<p>The resulting (<em>n - 1</em>) units block may be considered as a hash value which can be looked up in a table of such hashes. If the hash is found, further comparison is performed based on the same criteria.</p>
+<p>If the function we chose was wrong (i.e. the hash value was not found in the function hashes list), we try other functions until we have either a match or there are no more functions remaining to test.</p>
+<h2>Polynomial functions</h2>
+<p>This approach considers and is limited to ADD and SUB functions taking into consideration a key modifier K<sub>1</sub> for K<sub>0</sub>; that is at each step of encryption another function ADD or SUB is applied to the key K<sub>0</sub> with parameter K<sub>1</sub>.</p>
+<p>Let us refer to the encryption function as + (SUB is the same as ADD with negative argument) and we have:</p>
+<div class="source">
+A<sub>0</sub> = a<sub>0</sub> + K<sub>0</sub>, K<sub>0</sub>' = K<sub>0</sub> + K<sub>1</sub><br/>
+A<sub>1</sub> = a<sub>1</sub> + K<sub>0</sub>', K<sub>0</sub>'' = K<sub>0</sub>' + K<sub>1</sub> = K<sub>0</sub> + 2K<sub>1</sub><br/>
+A<sub>2</sub> = a<sub>2</sub> + K<sub>0</sub>'', K<sub>0</sub>''' = K<sub>0</sub>'' + K<sub>1</sub> = K<sub>0</sub> + 3K<sub>1</sub><br/>
+...
+</div>
+<p>The equivalent polynomial function is f(x) = K0 * x0 + K1 * x1, where x is the current step in encryption (or unit index). We shall consider:</p>
+<div class="source">
+A<sub>0</sub> - A<sub>1</sub> = (a<sub>0</sub> + K<sub>0</sub>) - (a<sub>1</sub> + (K<sub>0</sub> + K<sub>1</sub>)) = a<sub>0</sub> - a<sub>1</sub> - K<sub>1</sub> = s<sub>1</sub><br/>
+A<sub>1</sub> - A<sub>2</sub> = (a<sub>1</sub> + (K<sub>0</sub> + K<sub>1</sub>)) - (a<sub>2</sub> + (K<sub>0</sub> + 2K<sub>1</sub>) = a<sub>1</sub> - a<sub>2</sub> - K<sub>1</sub> = s<sub>2</sub><br/>
+...<br/>
+s<sub>1</sub> - s<sub>2</sub> = (a<sub>0</sub> - a<sub>1</sub> - K<sub>1</sub>) - (a<sub>1</sub> - a<sub>2</sub> - K<sub>1</sub>) = a<sub>0</sub> - 2a<sub>1</sub> + a<sub>2</sub> = S<sub>1</sub><br/>
+s<sub>2</sub> - s<sub>3</sub> = (a<sub>1</sub> - a<sub>2</sub> - K<sub>1</sub>) - (a<sub>2</sub> - a3 - K<sub>1</sub>) = a<sub>1</sub> - 2a<sub>2</sub> + a3 = S<sub>2</sub><br/>
+...
+</div>
+<p>We get (<em>n - 2</em>) units of S, which are an exact transformation of the original data block, independent of the key and key modifier.</p>
+<p>It is possible to have another modifier, K<sub>2</sub>, for the K<sub>1</sub> modifier, but in practice this situation is very rare and the solution would be to iterate the above once again. The general form of polynomial function of the nth degree is:</p>
+<div class="source">
+f(x) = K<sub>0</sub> * x<sub>0</sub> + K<sub>1</sub> * x<sub>1</sub> + ... + K<sub>n-1</sub> * x<sub>n-1</sub> + K<sub>n</sub> * <sub>n</sub>
+</div>
+<h2>Implementation</h2>
+<p>At implementation level this may be accomplished in two ways: we either use key-independent hashes in signatures or keep a long enough hash from the original signature bytes (decrypted) and with it generate key-independent hashes at run time.</p>
+<p>The first solution is limited in that it applies strictly to the data encrypted with the same function that was used to generate the signature -- so viruses that use a random function from a given set require as many signatures as encryption functions used. Another limitation of the first solution would be that, even if the signature is identified correctly, the decrypted data still won't be available, since the trick of this type of hash is to avoid keys.</p>
+<p>Therefore the second solution may be a more efficient implementation, especially because it gives the whole decrypted data and the key used, as:</p>
+<div class="source">
+K = A<sub>0</sub> ~ a<sub>0</sub> = A<sub>1</sub> ~ a<sub>1</sub> = A<sub>2</sub> ~ a<sub>2</sub> = ...<br/>
+x = X ~ K
+</div>
+<p>Where K is the key deduced from the hash, X is any unit of data outside the hash. Using K the whole chunk of data is decrypted and further classic methods may be applied for an exact match or for further analysis.</p>
+<h2>Conclusion</h2>
+<p>The cost of achieving cryptoanalysis as described here is a slight decrease in performance due to the run time generation of key-independent hashes and also a slight increase in the amount of storage space required for signature(s) and for each function implemented as many look-up tables are required.</p>
+<p>However, it should be mentioned that this approach comes as an extension of the classic hash signature type which may be regarded as encrypted with a function f(x) = x, where x is the original data.</p>
+<p>Finally, the ideas presented in this paper are just a starting point for what may become the basis for a powerful and more complex cryptoanalysis engine as other functions such as ROR or ROL may be easily implemented. Although mixed functions and multi-layer, multi-function encryption methods push the complexity beyond practical implementation, these are subject to a different approach.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=CR#amc00">Back to index</a>] [<a href="/lib/amc00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=amc00">de</a><a href="/lib/index.php?lang=en&amp;id=amc00">en</a><a href="/lib/index.php?lang=es&amp;id=amc00">es</a><a href="/lib/index.php?lang=it&amp;id=amc00">it</a><a href="/lib/index.php?lang=fr&amp;id=amc00">fr</a><a href="/lib/index.php?lang=pl&amp;id=amc00">pl</a><a href="/lib/index.php?lang=ru&amp;id=amc00">ru</a><a href="/lib/index.php?lang=ua&amp;id=amc00">ua</a></div>
+</body>
+</html>

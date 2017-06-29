@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Dmitry Gryaznov 'Scanners of The Year 2000: Heuristics' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Dmitry Gryaznov"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Gryaznov, Dmitry,Scanners of The Year 2000: Heuristics, false, code, integrity, alarms, behaviour, rate, system, number, heuristics, heuristic, mode, detection, positive, scanner, scanners"/>
+<meta name="Description" content="Working at the Virus lab, S&amp;S International PLC, the author is also carrying out a research project on heuristic analysis. The article explains what heuristics are. Positive and negative heuristics are introduced. Some practical heuristics are represented. Different approaches to a heuristic program analysis are discussed. False alarms problem pointed and discussed. Several well-known scanners employing heuristics are compared (without naming the scanners) in both the virus detection rate and false alarms rate."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"be0604bd2d1bf33ced059d12001e40d5b495b603-1498757096-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/adg00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Scanners of The Year 2000: Heuristics</h1><p><a href="/lib/?lang=en&amp;author=Gryaznov%2C%20Dmitry">Dmitry Gryaznov</a><br/> <em>Proceedings of the Fifth International Virus Bulletin Conference, pp.225-234</em><br/> <em> 1999</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/adg00.html';</script><div class="ci"><a href="/lib/?ci=adg00">4</a></div>[<a style="" href="/lib/?lang=EN&amp;index=AT#adg00">Back to index</a>] [<a href="/lib/adg00.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p0">Introduction</a></li>
+<li><a href="#p1">1. Why scanners</a>
+<ul>
+<li><a href="#p11">1.1. Scanners</a></li>
+<li><a href="#p12">1.2. Behaviour blockers</a></li>
+<li><a href="#p13">1.3. Integrity checkers</a></li>
+<li><a href="#p14">1.4. That's why scanners!</a></li>
+</ul></li>
+<li><a href="#p2">2. Why heuristics</a>
+<ul>
+<li><a href="#p20">2.1. Glut problem.</a></li>
+<li><a href="#p21">2.1. What are heuristics?</a></li>
+<li><a href="#p22">2.2. Simple heuristics</a></li>
+<li><a href="#p23">2.3. False alarms problem</a></li>
+<li><a href="#p24">2.4. Virus detection vs. false alarms trade-off.</a></li>
+<li><a href="#p25">2.5. How it all works in practice - different scanners compared.</a></li>
+</ul></li>
+<li><a href="#p3">3. Why "of the year 2000"?</a></li>
+<li><a href="#p4">References</a></li>
+</ul>
+ 
+<h2><a name="p0"></a>Introduction</h2>
+<p>At the beginning of 1994 the number of known MS-DOS viruses was estimated at around 3,000. One year later, in January 1995, the number of viruses was estimated at about 6,000. By the time this paper is being written (July 1995), the number of the known viruses has exceeded 7,000. Several anti-virus experts expect the number of viruses to reach 10,000 by the end of the year 1995. This big number of viruses, which keeps growing fast, is known as glut problem and it does cause problems to anti-virus software, especially to scanners.Today scanners are the most often used kind of anti-virus software. Fast growing number of viruses means that scanners should be updated frequently enough to cover new viruses. Also, as the number of viruses grows, so does the size of scanner or its database. And in some implementations the scanning speed suffers.</p>
+<p>It was always very tempting to find an ultimate solution to the problem, to create a generic scanner, which can detect new viruses automatically, without need to update its code and/or database. Unfortunately, as it was proved by Fred Cohen, the problem of distinguishing a virus from a non-virus program is algorithmically unsolvable in general case.</p>
+<p>Nevertheless, some generic detection is still possible. It is based on analysing a program for features typical or not typical for viruses. The set of features, possibly together with a set of rules, is known as heuristics. Today more and more anti-virus software developers are looking towards heuristic analysis as at least a partial solution to the glut problem.</p>
+<p>Working at the Virus lab, S&amp;S International PLC, the author is also carrying out a research project on heuristic analysis. The article explains what heuristics are. Positive and negative heuristics are introduced. Some practical heuristics are represented. Different approaches to a heuristic program analysis are discussed. False alarms problem pointed and discussed. Several well-known scanners employing heuristics are compared (without naming the scanners) in both the virus detection rate and false alarms rate. </p>
+<h2><a name="p1"></a>1. Why scanners</h2>
+<p>If you are following computer virus related publications, such as proceedings of anti-virus conferences, magazines' reviews, anti-virus software manufacturers press releases, you read and hear mainly "scanners, scanners, scanners". An average user might even get an impression there is no anti-virus software other than scanners. This is not true. There are other methods of fighting computer viruses. But they are not that much popular and well known as scanners are. And anti-virus packages based on non-scanners technology do not sell well. So that sometimes people, who are trying to promote non-scanner based anti-virus software even come to conclusion there must be some kind of an international plot of popular anti-virus scanners producers. Why is it so? Let us briefly discuss existing types of anti-virus software. Those interested in more detailed discussion and comparison of different types of anti-virus software can find it in [Bontchev1], for example.</p>
+<h3><a name="p11"></a>1.1. Scanners</h3>
+<p>So, what is a scanner? Simplifying, a scanner is a program which searches files and disk sectors for byte sequences specific to this or that known virus. Those byte sequences are often called virus signatures. There are many different ways to implement a scanning technique: from so called dumb or grunt scanning of the whole file to sophisticated virus-specific methods of deciding which particular part of the file should be compared to a virus signature. </p>
+<p>Nevertheless, one thing is common to all the scanners: they can detect only known viruses. That is, viruses which were disassembled or analysed this or that way and from which virus signatures unique to a specific virus were selected. In most cases a scanner cannot detect a brand new virus until the virus is passed to the scanner developer who then extracts an appropriate virus signature and updates the scanner. This all takes time. And new viruses appear virtually every day. This means, scanners have to be updated frequently to provide an adequate anti-virus protection. A version of a scanner which was very good half a year ago might have become no good today if you got hit by just one of the several thousands new viruses appeared since the version was released. </p>
+<p>So, are there any other ways to detect viruses? Are there any other anti-virus programs which do not depend so heavily on certain virus signatures and thus might be able to detect even new viruses? The answer is - yes, there are: integrity checkers and behaviour blockers (monitors). These types of anti-virus software are almost as old as scanners and are known to specialists for ages. Why are they not used so widely the scanners are then?</p>
+<h3><a name="p12"></a>1.2. Behaviour blockers</h3>
+<p>A behaviour blocker (or a monitor) is a memory-resident (TSR) program which monitors system activity and looks for virus-like behaviour. In order to replicate a virus needs to create a copy of itself at this or that point. Most often viruses modify existing executable files to achieve this. So, in most cases behaviour blockers try to intercept system requests which lead to modifying executable files. When such or another suspicious request is intercepted, a behaviour blocker typically alerts a user and, based on the user's decision, can prohibit such a request from being executed. This way a behaviour blocker does not depend on detailed analysis of a particular virus. Unlike a scanner, a behaviour blocker does not need to know what a new virus looks like to catch it.</p>
+<p>Unfortunately, it is not that easy to block all the virus activity. Some viruses use quite effective and sophisticated techniques, such as tunnelling, to bypass possibly present behaviour blockers. Even worse, some legitimate programs use virus-like methods which could trigger a behaviour blocker. For example, an install or setup utility is often modifying executable files. So, when a behaviour blocker is triggered by such a utility, it's up to the user to decide whether it is a virus or not. And this is often a tough choice - you would not assume all the users are anti-virus experts, would you?</p>
+<p>But even an ideal behaviour blocker (there is no such thing in our real world, mind you!), which never triggers on a legitimate program and never misses a real virus, still has a major flaw. To enable a behaviour blocker to detect a virus, the virus must be run on a computer. Not to mention virtually any user would reject the very idea of running a virus on his/her computer, by the time a behaviour blocker catches the virus attempting to modify executable files, the virus could have triggered and destroy some of your valuable data files, for example.</p>
+<h3><a name="p13"></a>1.3. Integrity checkers</h3>
+<p>An integrity checker is a program which should be run periodically (say, once a day) to detect all the changes made to your files and disks. This means, when an integrity checker is first installed to your system, you need to run it to create a database of all files on your system. Then during subsequent runs the integrity checker compares files on your system to the data stored in the database and detects any changes made to the files. Since all the viruses modify either files or system areas of disks in order to replicate, a good integrity checker should be able to spot such changes and to alert the user. Unlike a behaviour blocker, it is much more difficult for a virus to bypass an integrity checker, provided you run your integrity checker in a virus clean environment - e.g. having booted your PC from a known virus free system diskette.</p>
+<p>But again, as in the case of behaviour blockers, there are many possible situations when the user's expertise is necessary to decide whether changes detected are results of a virus activity. Again, if you run an install or setup utility, this normally results in some modifications made to your files which can trigger an integrity checker. That is, every time you are installing some new software to your system, you have to tell your integrity checker to register these new files in its database.</p>
+<p>Also, there is a special type of viruses, aimed at integrity checkers specifically - so called slow infectors. A slow infector only infects objects which are about to be modified anyway - e.g. as a new file being created by a compiler. Then an integrity checker will add this new file to its database to watch its further changes. But in the case of a slow infector the file added to the database is infected already!</p>
+<p>But even if integrity checkers were free of the above drawbacks, there still would be a major flaw. That is, an integrity checker can alert you only after a virus has run and modified your files. As in the example given while discussing behaviour blockers, this might be well too late...</p>
+<h3><a name="p14"></a>1.4. That's why scanners!</h3>
+<p>So, the main drawbacks of both behaviour blockers and integrity checkers, which prevent them from being widely used by an average user, are:</p>
+<ol>
+<li> Both behaviour blockers and integrity checkers, by their very nature, can detect a virus only after you have run an infected program on your computer and the virus started its replication routine. By this time it might be too late - many viruses can trigger and switch to destructive mode before they make any attempts to replicate. It's somewhat like you decide to find out whether these beautiful yet unknown berries are poisonous by eating them and watching the results. Gosh! You would be lucky to get away with just a dyspepsia!</li>
+<li> Often enough the burden to decide whether it is a virus or not is transferred to the user. It's like your doctor leaves you to decide whether your dyspepsia is simply because the berries were not ripe enough or it is the first sign of a deadly poisoning and you'll be dead in few hours if you don't take an antidote immediately. Tough choice!</li>
+</ol>
+<p>On the contrary, a scanner can and should be used to detect viruses before an infected program gets a chance to be executed. That is, by scanning the incoming software prior to installing it to your system, a scanner tells you whether it is safe to proceed with the installation. Continuing our berries analogy, it's like having a portable automated poisonous plants detector, which quickly checks the berries against its database of known plants and tells you whether it is safe to eat the berries.</p>
+<p>But what if the berries are not in the database of your portable detector? What if it is a brand new species? What if a software package you are about to install is infected with a new very dangerous virus unknown to your scanner? Relying on your scanner only, you might find yourself in a big trouble. This is where behaviour blockers and integrity checkers might come helpful. It's still better to detect the virus while it's trying to infect your system or even after it has infected it but yet before it destroys your valuable data. So, the best antivirus strategy would include all the three types of anti-virus software:</p>
+<ul>
+<li> a scanner to ensure the new software is free of at least known viruses before you run the software;</li>
+<li> a behaviour blocker to catch the virus while it is trying to infect your system;</li>
+<li> an integrity checker to detect infected files after the virus propagated to your system but has not triggered yet.</li>
+</ul>
+<p>As you can see, the scanners are the first and the most simply implemented line of the anti-virus defence. Moreover, most people have scanners as the only line of the defence.</p>
+<h2><a name="p2"></a>2. Why heuristics</h2>
+<h3><a name="p20"></a>2.1. Glut problem.</h3>
+<p>As was mentioned above, the main drawback of scanners is that they can detect only known computer viruses. Six-seven years ago this was not a big deal. New viruses appeared rarely. Anti-virus researches were literally hunting for new viruses, spending weeks and months tracking down rumours and random reports about a new virus to include its detection to their scanners. Probably at those times a most nasty computer virus related myth was born that anti-virus people are developing viruses themselves to force users to buy their products and to make profit this way. Some people believe this myth even today. Whenever I hear it, I can't help hysterical laughter. Our days with two to three hundreds new viruses arriving monthly, it would be total waste of time and money for anti-virus manufacturers to develop viruses. Why should they bother if new viruses arrive in dozens virtually daily completely free of charge? There were about 3,000 known DOS viruses at the beginning of 1994. A year later, in January 1995, the number of viruses was estimated at at least 5,000. Another six months later, in July 1995, the number exceeded 7,000. Many anti-virus experts expect the number of known DOS viruses to reach 10,000 mark by the end of 1995. With this tremendous and still fast growing number of viruses to fight, traditional virus signature scanning software is pushed to its limits [Skulason, Bontchev2]. While several years ago quite often a scanner was developed, updated and supported by a single person, today a team of a dozen skilled employers is merely enough. With increasing number of viruses, R&amp;D and Quality Control time and resources requirements grow. Even monthly scanners updates are often late by... one month at least. Many former successful anti-virus vendors are giving up and leaving the anti-virus battleground and market. The fast growing number of viruses heavily affects scanners themselves. They become bigger and sometimes slower. Just few years ago a 360Kb floppy diskette would be enough to hold half a dozen of popular scanners, still leaving plenty of room for system files to make the diskette bootable. Today an average good signature-based scanner alone would occupy at least 720Kb floppy, leaving virtually no room for anything else. </p>
+<p>So, are we losing the war? I would say, not yet. But if we get stuck with just virus signature scanning, we would lose it sooner or later. Having realised this some time ago, anti-virus researches started to look for more generic scanning techniques, known as heuristics.</p>
+<h3><a name="p21"></a>2.1. What are heuristics?</h3>
+<p>In the anti-virus area, heuristics are a set of rules which should be applied to a program to decide whether the program is likely to contain a virus or not. From the very beginning of the history of computer viruses different people started looking for an ultimate generic solution to the problem. Really, how does an anti-virus expert know the program is a virus? This usually involves some kind of reverse engineering - most often disassembly - and reconstructing and understanding the virus' algorithm: what it does and how it does this. Having analysed hundreds and hundreds of computer viruses, it takes just few seconds for an experienced anti-virus researcher to recognise a virus, although the virus is a new one and was never seen before. It is kind of an almost subconscious automated process. Automated? Wait a minute! If it is an automated process, let's make a program to do this! </p>
+<p>Unfortunately (or rather - fortunately!) the analytic capabilities of human brains are far beyond those of a computer. As was proved by Fred Cohen [Cohen], it is impossible to construct an algorithm (e.g. a program) to distinguish a virus from a non-virus with 100 per cent reliability. Fortunately, this does not rule out a possibility of 90 or even 99 per cent reliability. And with the remaining one per cent cases we hopefully shall be able to deal with using our traditional virus signatures scanning technique. Anyway, it's worth trying at least.</p>
+<h3><a name="p22"></a>2.2. Simple heuristics</h3>
+<p>So, how do they do it? How an anti-virus expert recognises a virus? Let us consider the simplest case: a parasitic non-resident appending .COM file infector. Something like Vienna but even more primitive. Such a virus appends its code to the end of an infected program, stores few (usually just three) first bytes of the victim file in the virus body and replaces those bytes with a code to pass control to itself. When the infected program is executed, the virus gets control. First it restores the original victim's bytes in its memory image. It then starts looking for other .COM files around. When found, the file is opened in Read_and_Write mode, the virus reads first few bytes of the file and writes itself to the end of the file. So, the primitive set of heuristic rules for a virus of this kind would be: </p>
+<ol>
+<li> The program immediately passes control close to the end of itself;</li>
+<li> it modifies some bytes at the beginning of its copy in memory;</li>
+<li> then it starts looking for executable files on a disk;</li>
+<li> when found, a file is opened;</li>
+<li> some data are read from the file;</li>
+<li> some data are written to the end of the file.</li>
+</ol>
+<p>Each of the above rules has corresponding sequence in binary machine code or assembler language. In general, if you look at such a virus under DEBUG program, the favourite tool of anti-virus researches, this is usually represented in a code similar to this:</p>
+<pre class="source">
+START:              ; Start of the infected program
+     JMP  VIRUSCODE ; Rule 1: the control is passed 
+		    ;         to the virus body
+		    ;
+	 
+   <em>&lt;victim's code></em>
+	     
+VIRUS:              ; Virus body starts here
+
+SAVED:              ; Saved original bytes of the victim's code
+		    
+MASK: DB `*.COM',0  ; Search mask
+		    
+VIRUSCODE:          ; Start of the virus code
+      MOV  DI,OFFSET START  ; Rule 2: the virus restores
+      MOV  SI,OFFSET SAVED  ; victim's code
+      MOVSW                 ; in memory
+      MOVSB                 ;
+			
+      MOV  DX,OFFSET MASK   ; Rule 3: the virus
+      MOV  AH,4EH           ; looks for other
+      INT  21H              ; programs to infect
+
+      MOV  AX,3D02H         ; Rule 4: the virus opens a file
+      INT  21H              ;
+
+      MOV  DX,OFFSET SAVED  ; Rule 5: first bytes of a file 
+      MOV  AH,3FH           ; are read to the virus
+      INT  21H              ; body
+
+      MOV  DX,OFFSET VIRUS  ; Rule 6: the virus writes itself
+      MOV  AH,40H           ; to the file
+      INT  21H              ;
+</pre>
+<p><strong>Figure 1. A sample virus code.</strong></p>
+<p>When an anti-virus expert sees such a code, it is immediately obvious to him/her that this must be a virus. So, our heuristic program should be able to disassemble a binary machine-language code a similar way DEBUG does and to analyse it looking for particular code patterns a similar way an anti-virus expert does. In the simplest cases as the one above a set of simple wildcard signature string matching would do for the analysis. In the case the analysis itself is simply checking whether the program in question satisfies rules 1 through 6. In other words, whether the program contains pieces of code corresponding to each of the rules.</p>
+<p>In more general case, there are many very different ways to represent one and the same algorithm in machine code. Polymorphic viruses, for example, do this all the time. So, a heuristic scanner must use much clever methods rather than simple pattern-matching technique. Those methods may involve some statistical code analysis, partial code interpretation and even CPU emulation, especially to decrypt self-encrypted viruses. But you would be surprised to know how many real life viruses would be detected by the above six simple heuristics alone! Unfortunately, some non-virus programs would be "detected" too.</p>
+<h3><a name="p23"></a>2.3. False alarms problem</h3>
+<p>Strictly speaking, heuristics are not detecting viruses. Similar to behaviour blockers, heuristics are looking for virus-like behaviour. Moreover, unlike the behaviour blockers, heuristics are able to detect not the behaviour itself, but just the potential ability to perform this or that action. Indeed, the fact a program contains certain piece of code does not necessarily mean this piece of code is ever executed. And the problem to find out whether this or that code in a program ever gets control is known in theory of algorithms as the Halting Problem and is unsolvable in general case. By the way, this was the basis of Fred Cohen's proof of impossibility to write an absolute virus detector. For example, some scanners contain pieces of virus code as the signatures to scan for. Those pieces might correspond to each and every of the above six rules. But they are never executed - the scanner uses them just as its static data. Since in general case there is no way for heuristics to decide whether these code pieces are ever executed or not, this can (and sometimes does) cause false alarms.</p>
+<p>A false alarm is when an anti-virus software reports a virus in a program, which in fact does not contain any viruses at all. Different types of false alarms as well as most widespread causes of false alarms are described in [Solomon] for example. A false alarm might be even more costly than an actual virus infection. We all keep saying to users: "The main thing to remember when you think you've got a virus - do not panic!". Unfortunately, this does not work well. An average user does panic. And the user panics even more if the anti-virus software is unsure itself whether it is a virus or not. In the case, say, a scanner definitely detects a virus, the scanner is usually able to detect all infected programs and to remove the virus from them. And at this point the panic is usually over. But if it is a false alarm, the scanner will not be able to remove the virus and most likely will report something like "This file seems to have a virus", naming just s single file as infected. This is when the user really starts to panic. "It must be a new virus!" - the user thinks. "What do I do?!" As the result, the user well might format his/her hard disk, causing himself far worse disaster than a virus could cause. An unnecessary and not justified act, by the way. More as there are many viruses which would survive the formatting, unlike the legitimate software and data stored on the disk.</p>
+<p>Another problem a false alarm can (and did) cause is a negative impact on a software manufacturing company. If an anti-virus software falsely detects a virus in a new software package, the users will stop buying the package. And the software developer will suffer not only profit losses but also a loss of reputation. Even if later it will be made known it was a false alarm, too many people would think "There is no smoke without a fire" and would treat the software with a suspicion. This affects the anti-virus vendor as well. There was already a case when an anti-virus vendor was sued by a software company in product of which the anti-virus mistakenly reported a virus.</p>
+<p>In a corporate environment when a virus is reported by an antivirus software, whether it is a false alarm or not, the normal flow of operation is interrupted. It takes at best several hours to contact the antivirus technical support and to make sure it was a false alarm before the normal operation is resumed. And, as we all know, time is money. And in the case of a big company, time is big money. So, it is not surprising at all that when asked what level of false alarms is acceptable (10 per cent? 1 per cent? 0.1 per cent?), corporate customers answer: "Zero per cent! We do not want any false alarms!".</p>
+<p>As was explained before, by its very nature heuristic analysis is more prone to false alarms than traditional scanning methods. Indeed, not only viruses but many scanners as well would satisfy the six rules we used as an example: a scanner does look for executable files, opens them, reads some data and even writes something back when removing a virus from a file. Can anything be done to avoid triggering on a scanner? Let's again turn to the experience of a human anti-virus expert. How does one know that this is a scanner, not a virus? Well, this is more complicated then the above example of a primitive virus. Still, there are some general rules too. For example, if a program heavily relies on its parameters or involves an extensive dialogue with a user, it is highly unlikely the program is a virus. This way we come to the idea of negative heuristics, that is - a set of rules which are true for a non-virus program. Then while analysing a program, our heuristics should estimate the probability of the program to be a virus using both positive heuristics, such as the above six rules, and negative heuristics, typical for non-virus programs and very rarely used by real viruses. So that if a program satisfies all of our six positive rules, but also expects some command line parameters and uses an extensive user dialogue as well, we would not call it a virus. </p>
+<p>So far so good. Looks like we found a solution to the virus glut problem, right? Not really! Unfortunately, not all virus writers are stupid. Some of them are also well aware of heuristic analysis. And some of their viruses are written in a way to avoid the most obvious positive heuristics. On the other hand, these viruses include otherwise useless pieces of code with the only aim to trigger the most obvious negative heuristics, so that such a virus does not draw the attention of a heuristic analyser.</p>
+<h3><a name="p24"></a>2.4. Virus detection vs. false alarms trade-off.</h3>
+<p>Each heuristic scanners developer sooner or later comes to the point when it is necessary to make a decision: "Do I detect more viruses or do I cause less false alarms?". The best way to decide would be to ask users what do they prefer. Unfortunately, the users' answer is: "I want it all! 100 per cent detection rate and no false alarms!". As was mentioned above, this is not achievable. So, a virus detection versus false alarms trade-off problem is up to the developer to decide. It is very tempting to make your heuristic analyser to detect almost all viruses, despite the false alarms. Afterall, reviewers and evaluators, who publish their tests results in magazines which are read by thousands of users world-wide, are testing just the detection rate. It is much more difficult to run a good false alarms test: there are gigabytes and gigabytes of non-virus software in the world, far much more than there are viruses. And it is more difficult to get hold of all this software and to keep it for your tests. "Not enough disk space" is only one of the problems. So, let's forget false alarms and negative heuristics and call a virus each and every program which happens to satisfy just few of our positive heuristics. This way we shall score top most points in the reviews. But what about the users? They normally run scanners not on a virus collection but on a clean disks. Thus, they won't notice our almost perfect detection rate but are very likely to notice our not that perfect false alarms rate. Tough choice. That's why some developers have at least two modes of operation of their heuristic scanners .The default is so called "normal" or "low sensitivity" mode, when both positive and negative heuristics are used and a program needs to trigger many enough positive heuristics to be reported as a virus. In this mode a scanner is less prone to false alarms, but its detection rate might be far below from what is claimed in its documentation or advertisement. The often used in advertising figures of "more than 90 per cent" virus detection rate by heuristic analyser refer to the second mode of operation, which is often called "high sensitivity" or "paranoid" mode. It is really a paranoid mode: in this mode negative heuristics are usually discarded and the scanner reports as a possible virus any program which happens to trigger just one or two positive heuristics. In this mode a scanner indeed can detect 90 per cent of viruses, but it also produces hundreds and hundreds of false alarms, making the "paranoid" mode useless and even harmful for a real life everyday usage, but still very helpful when it comes to a comparative virus detection test. Some scanners have special command line option to switch the paranoid mode on, some other switch to it automatically whenever they detect a virus in the normal low sensitivity mode. Although the latter approach seems to be a smart one, it takes just a single false alarm out of several dozens of thousands of programs on a network file server to produce an avalanche of false virus reports.</p>
+<h3><a name="p25"></a>2.5. How it all works in practice - different scanners compared.</h3>
+<p>Being himself an anti-virus researcher and working for a leading anti-virus manufacturer, the author has developed a heuristic analyser of his own. And of course, the author could not resist comparing it to other existing heuristic scanners. We believe the results are interesting to other people. And they underscore what was said about both virus detection and false alarms rates. As the products testes are our competitors, we decided not to publish their names in the test results. So, only FindVirus of Dr.Solomon's AntiVirus Toolkit is called by its real name. All the other scanners are just Scanner_A, Scanner_B, Scanner_C and Scanner_D. The latest versions of the scanners available at the time of the test were used. For FindVirus it was version 7.50 - the first one to employ a heuristic analyser.</p>
+<p>Each scanner tested was run in heuristics-only mode, with their normal virus signature scanning disabled. This was achieved by either using a special command line option, where available, or by using a special empty virus signatures database in other cases. </p>
+<p>The test consisted of two parts: virus detection rate and false alarms rate. For the virus detection rate S&amp;S International PLC ONEOFEACH virus collection was used, which contained more than 7,000 samples of about 6,500 different known DOS viruses. For the false alarms test the shareware and freeware software collection of SIMTEL20 CD-ROM (fully unpacked), all utilities from different versions of MS-DOS, IBM DOS, PC-DOS and other known not infected files were used (current basic S&amp;S false alarms test set). When measuring false alarms and virus detection rate, all files reported were counted - either reported as "Infected" or "Suspicious". Separate figures for the two categories are given where applicable.</p>
+<p>In both parts of the test the products were run in two heuristic sensitivity modes, where applicable: normal or low sensitivity mode and paranoid or high sensitivity mode. The automatic heuristic sensitivity adjustment was prohibited, where applicable.</p>
+<p>The results of the tests are given below.</p>
+<pre class="source"><strong>Virus detection test.</strong>
+	   Files         Files triggered (infected+suspicious)
+	   scanned          Normal                    Paranoid
+
+FindVirus   7375         5902 (N/A)      80.02%           N/A
+Scanner_D   7375         5743 (0+5743)   77.87%      6182 (0+6182)    83.54%
+Scanner_C   7375         5692 (0+5692)   77.18%           N/A
+Scanner_A   7375         4250 (N/A)      57.63%      6491 (N/A)       87.74%
+Scanner_B   7392(*)      3863 (2995+868) 52.38%      6124 (2992+3132) 82.68%
+
+<em>(*)  Scanner_B was tested couple of days later, when 17 more infected files 
+were added to the collection.</em>
+</pre>
+<p><strong>Table 1. Virus detection test results.</strong></p>
+<pre class="source"><strong>False alarms test.</strong>
+	  Files         Files triggered (infected+suspicious)
+	  scanned(*)       Normal                   Paranoid
+
+FindVirus 13603         0  (N/A)  0.000%            N/A
+Scanner_A 13428         11 (N/A)  0.082%            371 (N/A)   2.746%
+Scanner_B 13471         17 (0+17) 0.126%            382 (0+382) 2.836%
+Scanner_D 13840         24 (0+24) 0.173%            254 (0+254) 1.824%
+Scanner_C 13603         28 (0+28) 0.206%            N/A
+
+<em>(*) Different number of files reported as scanned is due to the fact 
+different products treat somewhat different sets of file extensions as 
+executables.</em>
+</pre>
+<p><strong>Table 2. False alarms test results.</strong></p>
+<h2><a name="p3"></a>3. Why "of the year 2000"?</h2>
+<p>Well, first of all simply because the author could not resist the temptation of splitting the name of the paper into three questions and using them as the titles of the main sections of his presentation. The author believed it was funny. Maybe he has a weird sense of humour. Who knows...</p>
+<p>On the other hand, the year 2000 is very attractive by itself. Most people consider it a distinctive milestone in all aspects of human civilisation. This usually happens to the years ending with double zero, still more - to the end of a millennium with its triple zero at the end. The anti-virus area is not an exclusion. For example, during the EICAR'94 conference there were two panel sessions discussing "Viruses of the year 2000" and "Scanners of the year 2000" respectively. The general conclusion made by a panel of well-known anti-virus researches was that at the current pace of new virus creating by the year 2000 we well might face dozens if not hundreds of thousands of known DOS viruses. As the author tried to explain in the second section of this paper (and other authors explained elsewhere [Skulason, Bontchev2]), this might be far too much for a current standard scanners' technique, based on known virus signatures scanning. More generic anti-virus tools, such as behaviour blockers and integrity checkers, while being less vulnerable to the growing number of viruses and the rate at which the new viruses appear, can detect a virus only when it is already running on a computer or even only after the virus has run and infected other programs. In many cases the risk of allowing a virus to run on your computer is just not affordable. Using a heuristic scanner, on the other hand, allows to detect most of new viruses with in a regular scanner safe manner: before an infected program is copied to your system and executed. And very much like behaviour blockers and integrity checkers, a heuristic scanner is much more generic than a signature scanner, requires much rare updates and provides an instant response to a new virus. Those 15-20 per cent of viruses a heuristic scanner cannot detect could be dealt with using current well-developed signature scanning techniques. This will effectively decrease the virus glut problem fivefold at least.</p>
+<p>Yet another reason for choosing the year 2000 and not, say, 2005 is that the author has his very strong doubts whether the current computer virus situation will survive the year 2000 by more than a couple of years. With the new operating systems and environments appearing (Windows NT, Windows'95, etc.) the author believes DOS is doomed. So are DOS viruses. So is modern anti-virus industry. This does not mean viruses are not possible for the new operating systems and platforms. They are possible in virtually any operating environment. We are aware of viruses for Windows, OS/2, Mac OS and even UNIX. But to create viruses for these operating systems, as well as for Windows NT and Windows'95, it requires much more skills, knowledge, efforts and time than for the virus-friendly DOS. Moreover, it will be much more difficult for a virus to replicate under these operating systems. They are far more secure than DOS, if it is possible to talk about DOS security at all. Thus, there will be much less virus writers and they will be capable of writing much less viruses. The viruses will not propagate fast and far enough to represent a major problem. Subsequently, there will be no virus glut problem. Regrettably, there will be no such a vast anti-virus market and most of today's anti-virus experts will have to find another occupation...</p>
+<p>But until then, DOS lives and anti-virus developers still have a lot of work to be done!</p>
+<h2><a name="p4"></a>References</h2>
+<ul>
+<li>[Bontchev1] Vesselin Bontchev, "<a href="/lib/avb04.html">Possible Virus Attacks Against Integrity Programs And How To Prevent Them</a>", Proc. 2nd Int. Virus Bulletin Conf., September 1992, pp. 131-141.</li>
+<li>[Skulason] Fridrik Skulason, "The Virus Glut. The Impact of the Virus Flood", Proc. 4th EICAR Conf., November 1994, pp. 143-147.</li>
+<li>[Bontchev2] Vesselin Bontchev, "<a href="/lib/avb03.html">Future Trends in Virus Writing</a>", Proc. 4th Int. Virus Bulletin Conf., September 1994, pp. 65-81.</li>
+<li>[Cohen] Fred Cohen, "<a href="/lib/afc01.html">Computer Viruses - Theory and Experiments</a>", Computer Security: A Global Challenge, Elsevier Science Publishers B. V. (North-Holland), 1984, pp. 143-158.</li>
+<li>[Solomon] Alan Solomon, "False Alarms", Virus News International, February 1993, pp. 50-52.</li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=AT#adg00">Back to index</a>] [<a href="/lib/adg00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=adg00">de</a><a href="/lib/index.php?lang=en&amp;id=adg00">en</a><a href="/lib/index.php?lang=es&amp;id=adg00">es</a><a href="/lib/index.php?lang=it&amp;id=adg00">it</a><a href="/lib/index.php?lang=fr&amp;id=adg00">fr</a><a href="/lib/index.php?lang=pl&amp;id=adg00">pl</a><a href="/lib/index.php?lang=ru&amp;id=adg00">ru</a><a href="/lib/index.php?lang=ua&amp;id=adg00">ua</a></div>
+</body>
+</html>

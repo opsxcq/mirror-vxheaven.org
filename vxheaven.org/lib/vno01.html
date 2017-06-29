@@ -1,0 +1,361 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Nomenumbra 'Ars loricatus novus or A small introduction to retro-armoring' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Nomenumbra"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Nomenumbra,Ars loricatus novus or A small introduction to retro-armoring, anti, debugging, filename, method, handle, aggressive, cbneeded, process, tricks, unsigned, hmods, sizeof, bool, push, library"/>
+<meta name="Description" content="There are many ways of hiding and protecting your virus from AV analysis, ranging from metamorphism to casual anti-debugging to aggressive attacks on AV products (process termination). With time however, anything can be reversed. But this doesn't mean we can't delay them critically. By using a thick armor of anti-debugging, aggressive and passive anti-AV tricks and general stealth, we can delay analysis. Combine this with a quickly morphing virus, this would mean the virus changes it's appereance and (if it's a virus that would re-write itself on source level) it's armor. This paper will show you some techniques that can be used to Armor your virus."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1ed7328a2ca19b1dcf99d0057e57e99014ab95b9-1498755581-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vno01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Ars loricatus novus or A small introduction to retro-armoring</h1><p><a href="/lib/?lang=en&amp;author=Nomenumbra"> Nomenumbra</a><br/> <em><a href="/vx.php?fid=1512#f1512">Ready Rangers Liberation Front [7]</a></em><br/> <em>July 2006</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vno01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#vno01">Back to index</a>] [<a href="/lib/vno01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">0x00) Foreword</a></li>
+<li><a href="#c1">0x01) Casual Anti-Debugging</a></li>
+<li><a href="#c2">0x02) Aggresive Anti-Debugging/Anti-AV</a></li>
+<li><a href="#c3">0x03) Passive Anti-Debugging/Anti-AV</a></li>
+<li><a href="#c4">0x04) Panzuriel Library</a></li>
+<li><a href="#c5">0x05) Outro</a></li>
+</ul>
+<h2><a name="c0"></a>0x00) Foreword</h2>
+<p>There are many ways of hiding and protecting your virus from AV analysis, ranging from metamorphism to casual anti-debugging to aggressive attacks on AV products (process termination). With time however, anything can be reversed. But this doesn't mean we can't delay them critically. By using a thick armor of anti-debugging, aggressive and passive anti-AV tricks and general stealth, we can delay analysis. Combine this with a quickly morphing virus, this would mean the virus changes it's appereance and (if it's a virus that would re-write itself on source level) it's armor. This paper will show you some techniques that can be used to Armor your virus.</p>
+<h2><a name="c1"></a>0x01) Casual Anti-Debugging</h2>
+<p>Anti-Debugging tricks have been around a while, ever since they were made popular with whale. Heavy armoring however, is very rare, most likely because it adds a lot of extra code to your virus, I however, think this is worth it.</p>
+<p>Here is a summage of several well-known ant-debugging tricks:</p>
+<ul>
+<li>Probably the best known anti-debugging trick is a call to the IsDebuggerPresent(), which returns either true or false. This call is virtually useless though, since it can be easily nop'ed out, hooked, patched or god knows what.</li>
+<li>Casual detection of softice is also common knowledge. It is done by a call to the CreateFileA api, with softice's drivername as the filename parameter //./SICE, etc.</li>
+<li>OllyDbg detection is easy with the following function
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">__inline bool IsODBGLoaded<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>caption<span style="color: #339933;">=</span><span style="color: #ff0000;">&quot;DAEMON&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _asm <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push <span style="color: #208080;">0x00</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push caption<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov eax<span style="color: #339933;">,</span> fs<span style="color: #339933;">:</span><span style="color: black;">&#91;</span>30h<span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">// pointer to PEB</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; movzx eax<span style="color: #339933;">,</span> byte ptr<span style="color: black;">&#91;</span>eax<span style="color: #339933;">+</span><span style="color: #208080;">0x2</span><span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">// width conversion</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; or al<span style="color: #339933;">,</span>al<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jz normal_<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp out_<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; normal_<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xor eax<span style="color: #339933;">,</span> eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; leave<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; out_<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov eax<span style="color: #339933;">,</span> <span style="color: #208080;">0x1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; leave<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>Detecting wether we are being traced with Int1 would be done like this:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; decrease stack pointer (WORD decreased, thus making bx = ax)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; bx = ax now</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; if we are being traced, there is something in between</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; NotInt1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NotInt1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div></li>
+<li>When a reverser sets breakpoints, animates into the code or uses single-stepping, the execution is always slower than normal, we can exploit this by putting an int 3 (breakpoint) in the code, pausing a program when being debugged, but not when executed normally:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; GetTickCount&nbsp; &nbsp; <span style="color: black; font-style: italic;">; milliseconds</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; breakpoint, so the debugger pauses</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; GetTickCount<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">28h</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; difference between last and first GetTickCount</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jg</span>&nbsp; &nbsp; &nbsp; TooSlow<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; TooSlow<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div></li>
+<li>Procdump is a nice tool for getting PE details, it can however be fooled quite nicely:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">FoolProcDump<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; fools procdump with increasing size</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">fs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0Ch</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0Ch</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">20h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div></li>
+<li>OllyDbg V1.10 (unpatched versions) are vulnerable to a format string attack. This means we can either exploit it in a casual way or just be thugs and crash the fucker. This is easily done by using a lot of %s's, eventually reading from invalid memory, segfaulting the app.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">OutputDebugStringA<span style="color: black;">&#40;</span>“<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s<span style="color: #339933;">%</span>s”<span style="color: black;">&#41;</span></div>
+will do the trick :)</li>
+</ul>
+<p>Now we know some basic anti-debugging tricks it's time to move on to Aggressive techniques.</p>
+<h2><a name="c2"></a>0x02) Aggresive Anti-Debugging/Anti-AV</h2>
+<p>Aggressive tricks involve the active detection of debuggers or AV products and taking 'appropriate measures'. There are several methods to do this:</p>
+<ol type="A">
+<li>Process and module enumeration and comparing
+<p>This ought to be common knowledge for everyone, a simple call to CreateToolhelp32Snapshot, using that handle for Process32First and the consecutive calls to process32next to detect all running processes and matching their names to a (regular expression based) blacklist would be easy.</p>
+<p>Fetching module info is trivial as well:</p>
+<ol>
+<li><div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">getProc<span style="color: black;">&#40;</span>process<span style="color: #ff0000;">'s ID (PID),hProc) // hProc is a HANDLE</span></div></li>
+<li><div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">ProcessModules<span style="color: black;">&#40;</span>hProc<span style="color: #339933;">,</span> hMods<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>hMods<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>cbNeeded<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// hMods being an array of HMODULES, cbNeeded being an unsigned long</span></div></li>
+<li><div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">modulecount <span style="color: #339933;">=</span> cbNeeded<span style="color: #339933;">/</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>HMODULE<span style="color: black;">&#41;</span></div></li>
+<li><div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span><span style="color: #993333;">int</span> i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;</span> modulecount<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GetModuleFileNameEx<span style="color: black;">&#40;</span>hProc<span style="color: #339933;">,</span> hMods<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> filename<span style="color: #339933;">,</span> MAX_PATH<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// filename being char filename[MAX_PATH]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// compare filename to a blacklist</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+</ol>
+<p>The blacklists could be retrieved by reversing AV software and debuggers.</p>
+</li>
+<li>Driver detection and comparing
+<p>Some products used to analyse viruses use drivers for doing their thing. We already saw how we could detect some drivers like softice's with a call to CreateFileA, but this will not work for every driver. The following function enumerate all drivers and gets some details about it (filename and basename) which can be matched against a 'blacklist' of AV/Debugger/whatever drivernames:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;windows.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;psapi.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> cbNeeded<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> EnumAllDeviceDrivers<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; LPVOID drivers<span style="color: black;">&#91;</span><span style="color: #0000dd;">1024</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// can enum max of 1024 drivers, else we'll have a b0f</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> name<span style="color: black;">&#91;</span>MAX_PATH<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">int</span> drivercount <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>EnumDeviceDrivers<span style="color: black;">&#40;</span>drivers<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>drivers<span style="color: black;">&#41;</span><span style="color: #339933;">,&amp;</span>cbNeeded<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> FALSE <span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; drivercount <span style="color: #339933;">=</span> cbNeeded<span style="color: #339933;">/</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>LPVOID<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// number of drivers found</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span><span style="color: #993333;">int</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>drivercount<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>GetDeviceDriverBaseName<span style="color: black;">&#40;</span>drivers<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>name<span style="color: #339933;">,</span>MAX_PATH<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// compare the driver's basename to a 'blacklist' and take action &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>GetDeviceDriverFileName<span style="color: black;">&#40;</span>drivers<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>name<span style="color: #339933;">,</span>MAX_PATH<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// compare filename to a 'blacklist' and take action</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>Virtual machine detection
+<p>Virtual machines, a hacker's joy, a reverser's paradise and a VXers nightmare. These virtual platforms allow you to run whatever the fuck you want, potentially fucking up the machine big time, only to be reset with the press of a button. Avers, when reversing your virus would be too difficult would simply run it in a Virtual environment, and seeing what it does (with the help of (for example) sysinternals' filemon and stuff). Well, as z0mbie already documented once, there are ways to detect whether we are running inside a virtual environment or not. VMWare's prescence, one of these virtual machine products, can be detected either by it's registry keys, file location or in the following fashion (This code comes from z0mbies article '<a href="/lib/vzo11.html">VMWare has you</a>'):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0Ah</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; CX=function# (0Ah=get_version)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'VMXh'</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EAX=magic</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'VX'</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; DX=magic</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">dx</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; specially processed io cmd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; output: EAX/EBX/ECX = data</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'VMXh'</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; also eax/ecx modified (maybe vmw/os ver?)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; under_VMware<br/>
+&nbsp;</div>
+<p>Another Virtual Machine product is Microsoft's Virtual PC, which can be detect with the following code:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// IsInsideVPC's exception filter</span><br/>
+DWORD __forceinline IsInsideVPC_exceptionFilter<span style="color: black;">&#40;</span>LPEXCEPTION_POINTERS ep<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; PCONTEXT ctx <span style="color: #339933;">=</span> ep<span style="color: #339933;">-&gt;</span>ContextRecord<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; ctx<span style="color: #339933;">-&gt;</span>Ebx <span style="color: #339933;">=</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// Not running VPC</span><br/>
+&nbsp; ctx<span style="color: #339933;">-&gt;</span>Eip <span style="color: #339933;">+=</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">// skip past the &quot;call VPC&quot; opcodes</span><br/>
+&nbsp; <span style="color: #b1b100;">return</span> EXCEPTION_CONTINUE_EXECUTION<span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: black; font-style: italic;">// we can safely resume execution since we skipped faulty instruction</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">// High level language friendly version of IsInsideVPC()</span><br/>
+bool IsInsideVPC<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; bool rc <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">false</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; __try<br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; _asm push ebx<br/>
+&nbsp; &nbsp; _asm mov &nbsp;ebx<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span> <span style="color: black; font-style: italic;">// It will stay ZERO if VPC is running</span><br/>
+&nbsp; &nbsp; _asm mov &nbsp;eax<span style="color: #339933;">,</span> <span style="color: #0000dd;">1</span> <span style="color: black; font-style: italic;">// VPC function number</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">// call VPC </span><br/>
+&nbsp; &nbsp; _asm __emit 0Fh &nbsp;<span style="color: black; font-style: italic;">// invalid opcodes that should trigger and exception</span><br/>
+&nbsp; &nbsp; _asm __emit 3Fh<br/>
+&nbsp; &nbsp; _asm __emit 07h<br/>
+&nbsp; &nbsp; _asm __emit 0Bh<br/>
+<br/>
+&nbsp; &nbsp; _asm test ebx<span style="color: #339933;">,</span> ebx<br/>
+&nbsp; &nbsp; _asm setz <span style="color: black;">&#91;</span>rc<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; _asm pop ebx<br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; <span style="color: black; font-style: italic;">// The except block shouldn't get triggered if VPC is running!!</span><br/>
+&nbsp; __except<span style="color: black;">&#40;</span>IsInsideVPC_exceptionFilter<span style="color: black;">&#40;</span>GetExceptionInformation<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; <span style="color: #b1b100;">return</span> rc<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Another great and innovative method to detect a virtual machine is Joanna Rutkowska is the “redpill method”. This method relies on the SIDT instruction which copies the contents of the descriptor table register to the six bytes of memory indicated by the operand, although it is used only by the OS it is executable in ring3. To quote Joanna:</p>
+<blockquote>“Because there is only one IDTR register, but there are at least two OS running concurrently (i.e. the host and the guest OS), VMM needs to relocate the guest's IDTR in a safe place, so that it will not conflict with a host's one. Unfortunately, VMM cannot know if (and when) the process running in guest OS executes SIDT instruction, since it is not privileged (and it doesn't generate exception). Thus the process gets the relocated address of IDT table. It was observed that on VMWare, the relocated address of IDT is at address 0xffXXXXXX, whereas on Virtual PC it is 0xe8XXXXXX. This was tested on VMWare Workstation 4 and Virtual PC 2004, both running on Windows XP host OS”. The redpill code looks as follows:
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> swallow_redpill <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> m<span style="color: black;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: #339933;">+</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> rpill<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #ff0000;">&quot;<span style="color: #660099; font-weight: bold;">\x0f</span><span style="color: #660099; font-weight: bold;">\x01</span><span style="color: #660099; font-weight: bold;">\x0d</span><span style="color: #660099; font-weight: bold;">\x00</span><span style="color: #660099; font-weight: bold;">\x00</span><span style="color: #660099; font-weight: bold;">\x00</span><span style="color: #660099; font-weight: bold;">\x00</span><span style="color: #660099; font-weight: bold;">\xc3</span>&quot;</span><span style="color: #339933;">;</span> <span style="color: black; font-style: italic;">//SIDT core</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>rpill<span style="color: black;">&#91;</span><span style="color: #0000dd;">3</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: black;">&#41;</span>m<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>rpill<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #b1b100;">return</span> <span style="color: black;">&#40;</span>m<span style="color: black;">&#91;</span><span style="color: #0000dd;">5</span><span style="color: black;">&#93;</span><span style="color: #339933;">&gt;</span><span style="color: #208080;">0xd0</span><span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> <span style="color: #0000dd;">1</span> <span style="color: #339933;">:</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black;">&#125;</span><br/>
+For a full description and documentation of this method<span style="color: #339933;">,</span> you should look here<span style="color: #339933;">:</span><br/>
+http<span style="color: #339933;">:</span><span style="color: black; font-style: italic;">//invisiblethings.org/papers/redpill.html</span><br/>
+&nbsp;</div></blockquote></li>
+<li>API hooking
+<p>Well API hooking is a nice technique that can be used in a multitude of situations. In this case we should use it to hook each running process' API's that would be used by debuggers like: OpenProcess, OpenThread, GetProcessId, GetThreadId, ZwQueryInformationProcess, ReadProcessMemory, SetThreadContext, OutputDebugString, ContinueDebugEvent, DebugActiveProcess, DebugActiveProcessStop, DebugBreak, DebugBreakProcess, DebugSetProcessKillOnExit. These API's and their defenitions can be looked up in the MSDN library (http://msdn.microsoft.com) nicely. The Panzuriel code and library included with this article implements this idea.</p></li>
+<li>ZwSetInformationThread
+<p>ZwSetInformationThread (located as a native api in ntdll.dll) can be used to hide your app from user-mode debuggers. Here is the MSDN description of zwsetInformationThread:</p>
+<blockquote>
+<p>The ZwSetInformationThread routine can be called to set the priority of a thread for which the caller has a handle.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">NTSTATUS ZwSetInformationThread<span style="color: black;">&#40;</span> <br/>
+IN HANDLE ThreadHandle<span style="color: #339933;">,</span> <br/>
+IN THREADINFOCLASS ThreadInformationClass<span style="color: #339933;">,</span> <br/>
+IN PVOID ThreadInformation<span style="color: #339933;">,</span> <br/>
+IN ULONG ThreadInformationLength <br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div></blockquote>
+<p>And here are the possible values for ThreadInfoClass:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">typedef</span> <span style="color: #000000; font-weight: bold;">enum</span> _THREADINFOCLASS <span style="color: black;">&#123;</span> <br/>
+ThreadBasicInformation<span style="color: #339933;">,</span> <br/>
+ThreadTimes<span style="color: #339933;">,</span> <br/>
+ThreadPriority<span style="color: #339933;">,</span> <br/>
+ThreadBasePriority<span style="color: #339933;">,</span> <br/>
+ThreadAffinityMask<span style="color: #339933;">,</span> <br/>
+ThreadImpersonationToken<span style="color: #339933;">,</span> <br/>
+ThreadDescriptorTableEntry<span style="color: #339933;">,</span> <br/>
+ThreadEnableAlignmentFaultFixup<span style="color: #339933;">,</span> <br/>
+ThreadEventPair_Reusable<span style="color: #339933;">,</span> <br/>
+ThreadQuerySetWin32StartAddress<span style="color: #339933;">,</span> <br/>
+ThreadZeroTlsCell<span style="color: #339933;">,</span> <br/>
+ThreadPerformanceCount<span style="color: #339933;">,</span> <br/>
+ThreadAmILastThread<span style="color: #339933;">,</span> <br/>
+ThreadIdealProcessor<span style="color: #339933;">,</span> <br/>
+ThreadPriorityBoost<span style="color: #339933;">,</span> <br/>
+ThreadSetTlsArrayAddress<span style="color: #339933;">,</span> <br/>
+ThreadIsIoPending<span style="color: #339933;">,</span> <br/>
+ThreadHideFromDebugger<span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">&lt;------------</span> SEE THAT<span style="color: #339933;">?!</span><br/>
+ThreadBreakOnTermination<span style="color: #339933;">,</span> <br/>
+MaxThreadInfoClass <br/>
+<span style="color: black;">&#125;</span> THREADINFOCLASS<span style="color: #339933;">;</span> <br/>
+&nbsp;</div>
+<p>So we would simply do:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; ThreadHideFromDebugger&nbsp; <span style="color: black; font-style: italic;">; 0x11 (17)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; threadid<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; ZwSetInformationThread<br/>
+&nbsp;</div>
+<p>isn't that nice?</p></li>
+<li>CheckRemoteDebuggerPresent
+<p>Another API that can be deliciously abused. Located in kernel32.dll, CheckRemoteDebuggerPresent is defined as follows:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">BOOL CheckRemoteDebuggerPresent<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE&nbsp; hProcess<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PBOOL &nbsp; pbDebuggerPresent<br/>
+<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Very simple, hProcess is a HANDLE to an opened process and pbDebuggerPresent is a pointer to a boolean to hold TRUE if we are being debugged. The return value of the function (eax) is TRUE if it succeeds.</p></li>
+</ol>
+<h2><a name="c3"></a>0x03) Passive Anti-Debugging/Anti-AV</h2>
+<p>Passive tricks don't involve the detection of Debuggers or AV products, but handling them without action or detection.It's basically Aggresive tricks who don't take action.</p>
+<p>This would involve (for example) interweaving string/code decryption (or the entire program flow) and the results of armor checks. See the following pseudo-code:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">function</span> MoreAnnoyingKeyStuv<span style="color: black;">&#40;</span>SomeByte<span style="color: #339933;">,</span>LKey<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp;<span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>DetectDebugger<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp;SpawnBogusThreadWithMoreJunk<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> ... <span style="color: black; font-style: italic;">// lots of useless conditional branches</span><br/>
+&nbsp; &nbsp;<span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp;<span style="color: #b1b100;">else</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: #339933;">!</span>AreBeingTracedOrEmulated<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp;<span style="color: #b1b100;">return</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>Lkey <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;&amp;</span>lt<span style="color: #339933;">;</span> IsAVPresent<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> xor <span style="color: black;">&#40;</span>SomeByte <span style="color: #339933;">&amp;</span>gt<span style="color: #339933;">;&amp;</span>gt<span style="color: #339933;">;</span> DetectAnotherDebugger<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> xor IsVmWare<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+procedure Decryptor<span style="color: black;">&#40;</span>BeginEncrypted<span style="color: #339933;">,</span>XLen<span style="color: #339933;">,</span>XKey<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; Key <span style="color: #339933;">=</span> Xkey<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;</span> <span style="color: black;">&#40;</span>Xlen<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Key <span style="color: #339933;">+=</span> DetectSomeDebuggertrick<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;SomeNormalKeyAdjustingOperationsHere<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Key <span style="color: #339933;">=</span> Key xor MoreAnnoyingKeyStuv<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DecryptByte<span style="color: black;">&#40;</span>BeginEncrypted<span style="color: #339933;">+</span>i<span style="color: #339933;">,</span>Key<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>This kind of code, when obfuscated properly, would be a <em>real</em> pain in the ass for analists. Because they would have to look into each seperate Debugging detection trick (which could all use different Casual or even aggressive anti-debugging tricks), extract the correct result, go trough the potentially enormous bogus threads and conditional branches and in the end, write a decryptor by hand, which would delay them for quite some time.</p>
+<p>As described in this example, multithreading can be used to confuse the analist. Imagine an app that would dynamicall generate a routine containing a lot of (bogus) anti-debugging checks, resulting in lots of conditional branches, which lead nowhere. If this routine was initiated as a thread multiple times, all based on anti-debugging conditional branches (which actually don't matter) this would make the analist go trough each one of them, being different on each run, potentially ruining a lot of his time only to realize it's bogus and useless.</p>
+<p>Checksumming has been a method used for quite some time (mostly using cyclic redudancy checks) because it's a nice and effective method. It would involve checksumming important code sections that could be breakpointed or nop'ed out. But most of the time, the virus writer would just compare the result to a hardcoded value, which can be changed. Well, it would be more effective to write a checksumming algorithm yourself (combining several casual ones for example) ,for this is more obscure, and use the result as part of the decryption key.</p>
+<p>A nice trick to confuse emulators is the rep jmp trick. This trick could be written in pseudo-code as follows:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; SomeAntiDebuggingCheck&nbsp; <span style="color: black; font-style: italic;">; result in eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">rep</span> <span style="color: #00007f; font-weight: bold;">jmp</span> DoomOnYou<br/>
+<span style="color: black; font-style: italic;">; continue exection flow</span><br/>
+DoomOnYou<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; do nasty stuff here</span><br/>
+&nbsp;</div>
+<p>As you can see the result of the antidebugging check is used to do a repeated jump to DoomOnYou. Now the trick is that this repeated jump is of course bollocks. Because once it jumps it jumps and nothing else. So if someAntiDebuggingCheck returns 0 (no debuggers found) it doesn't jump.</p>
+<p>This is a nice substitution of conditional jumps, making analysis by some lame emulator a lot harder, also if we would give SomeAntiDebuggingCheck a multitude of possible results (all for the different debuggers found,etc), thus making the emulator loop through this for a looong time trying out all results, only to go to DoomOnYou each time.</p>
+<h2><a name="c4"></a>0x04) Panzuriel Library</h2>
+<p>Well, I assume you are familiar with DLL-Injection, if not, I suggest you read my article “The basics of backdooring” (found here: http://0x4f4c.awardspace.com/Basics%20of%20backdooring.pdf). The Panzuriel Library can be injected in a single process, but also in all actively running processes, it's your choice. The code comes attached to this article. (Comment by DiA: Panzuriel can be found under "Sources")</p>
+<h2><a name="c5"></a>0x05) Outro</h2>
+<p>Well people, I hope you enjoyed this article and learned something from it. Remember, keep the Vxing scene alive! Shouts go to RRLF, 29A, the HackThisSite community, .aware group, ASO group and <a href="http://vxheaven.org/">VXHeaven.org</a> peeps in general.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#vno01">Back to index</a>] [<a href="/lib/vno01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vno01">de</a><a href="/lib/index.php?lang=en&amp;id=vno01">en</a><a href="/lib/index.php?lang=es&amp;id=vno01">es</a><a href="/lib/index.php?lang=it&amp;id=vno01">it</a><a href="/lib/index.php?lang=fr&amp;id=vno01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vno01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vno01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vno01">ua</a></div>
+</body>
+</html>

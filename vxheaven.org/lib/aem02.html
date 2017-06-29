@@ -1,0 +1,1296 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Mark Eichin, Jon Rochlis 'With Microscope and Tweezers: An Analysis of the Internet Virus of November 1988' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Mark Eichin, Jon Rochlis"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Eichin, Mark; Rochlis, Jon,With Microscope and Tweezers: An Analysis of the Internet Virus of November 1988, phase, host, athena, sipb, virus, addresses, object, listener, routine, routines, mail, university, passwords, worm, user"/>
+<meta name="Description" content="In early November 1988 the Internet, a collection of networks consisting of 60,000 host computers implementing the TCP/IP protocol suite, was attacked by a virus, a programwhich broke intocomputers on the network and which spread from one machine to another. This paper is a detailed analysis of the virus programitself, as well as the reactions of the besieged Internet community. We discuss the structure of the actual program, as well as the strategies the virus used to reproduce itself. We present the chronology of events as seen by our team at MIT, one of a handful of groups around the country working to take apart the virus, in an attempt to discover its secrets and to learn the network’s vulnerabilities. We describe the lessons that this incident has taught the Internet community and topics for future consideration and resolution. A detailed routine by routine description of the virus program including the contents of its built in dictionary is provided."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"e2c9a966f726bce0c231de3ef13c67613a6b8ffb-1498757601-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/aem02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>With Microscope and Tweezers: An Analysis of the Internet Virus of November 1988</h1><p><a href="/lib/?lang=en&amp;author=Eichin%2C%20Mark">Mark Eichin</a>, <a href="/lib/?lang=en&amp;author=Rochlis%2C%20Jon">Jon Rochlis</a><br/> <em>Massachusetts Institute of Technology</em><br/> <em>February 1989</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/aem02.html';</script><div class="ci"><a href="/lib/?ci=aem02">20</a></div><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/With%20Microscope%20and%20Tweezers%3A%20An%20Analysis%20of%20the%20Internet%20Virus%20of%20November%201988.pdf">Download</a> PDF (193.05Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=WO#aem02">Back to index</a>] [<a href="/lib/aem02.html#disqus_thread">Comments</a>]<br/> 
+<address> 
+Mark W. Eichin and Jon A. Rochlis<br/>
+Massachusetts Institute of Technology<br/>
+77 Massachusetts Avenue, E40-311<br/>
+Cambridge, MA 02139
+</address>
+<ul>
+<li><a href="#c0">Abstract</a></li>
+<li><a href="#c1">1 Introduction</a>
+<ul>
+<li><a href="#c11">1.1 Organization</a></li>
+<li><a href="#c12">1.2 A Rose by Any Other Name</a></li>
+<li><a href="#c13">1.3 Goals and Targets</a></li>
+<li><a href="#c14">1.4 Major Points</a>
+<ul>
+<li><a href="#c141">1.4.1 How it entered</a></li>
+<li><a href="#c142">1.4.2 Who it attacked</a></li>
+<li><a href="#c143">1.4.3 What it attacked</a></li>
+<li><a href="#c144">1.4.4 What it did NOT do</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#c2">2 Strategies</a>
+<ul>
+<li><a href="#c21">2.1 Attacks</a>
+<ul>
+<li><a href="#c211">2.1.1 Sendmail Debug Mode</a></li>
+<li><a href="#c212">2.1.2 Finger Daemon Bug</a></li>
+<li><a href="#c213">2.1.3 Rexec and Passwords</a></li>
+<li><a href="#c214">2.1.4 Rsh and Trust</a></li>
+<li><a href="#c215">2.1.5 Information Flow</a></li>
+</ul></li>
+<li><a href="#c22">2.2 Self Protection</a>
+<ul>
+<li><a href="#c221">2.2.1 Covering Tracks</a></li>
+<li><a href="#c222">2.2.2 Camouﬂage</a></li>
+</ul></li>
+<li><a href="#c23">2.3 Flaws</a>
+<ul>
+<li><a href="#c231">2.3.1 Reinfection prevention</a></li>
+<li><a href="#c232">2.3.2 Heuristics</a></li>
+<li><a href="#c233">2.3.3 Vulnerabilities not used</a></li>
+</ul></li>
+<li><a href="#c24">2.4 Defenses</a></li>
+</ul></li>
+<li><a href="#c3">3 Chronology</a>
+<ul>
+<li><a href="#c31">3.1 Wednesday: Genesis</a></li>
+<li><a href="#c32">3.2 Thursday Morning: “This isn’t April First”</a>
+<ul>
+<li><a href="#c321">3.2.1 More People Notice the Virus</a></li>
+<li><a href="#c322">3.2.2 False Alarms or Testing?</a></li>
+<li><a href="#c323">3.2.3 E-mail warnings</a></li>
+<li><a href="#c324">3.2.4 Yet More People Notice the Virus</a></li>
+</ul></li>
+<li><a href="#c33">3.3 Thursday Afternoon: “This is Bad News”</a>
+<ul>
+<li><a href="#c331">3.3.1 Word Spreads</a></li>
+<li><a href="#c332">3.3.2 It uses ﬁnger</a></li>
+</ul></li>
+<li><a href="#c34">3.4 Thursday Evening: “With Microscope and Tweezers”</a>
+<ul>
+<li><a href="#c341">3.4.1 Getting Down To Work</a></li>
+<li><a href="#c342">3.4.2 The Media Descends</a></li>
+</ul></li>
+<li><a href="#c35">3.5 Friday: “Where’s Sigourney Weaver?”</a>
+<ul>
+<li><a href="#c351">3.5.1 Decompiling in Earnest</a></li>
+<li><a href="#c352">3.5.2 Observations from Running the Virus</a></li>
+<li><a href="#c353">3.5.3 The Media Really Arrives</a></li>
+</ul></li>
+<li><a href="#c36">3.6 Saturday: Source Code Policy</a></li>
+<li><a href="#c37">3.7 Tuesday: The NCSC Meeting</a></li>
+<li><a href="#c38">3.8 Wednesday-Friday: The Purdue Incident</a></li>
+</ul></li>
+<li><a href="#c4">4 Lessons and Open Issues</a>
+<ul>
+<li><a href="#c41">4.1 Lessons from the Community’s Reactions</a></li>
+<li><a href="#c42">4.2 General Points for the Future</a></li>
+</ul></li>
+<li><a href="#c5">5 Acknowledgments</a>
+<ul>
+<li><a href="#c51">5.1 The MIT team</a></li>
+<li><a href="#c52">5.2 The Berkeley Team</a></li>
+<li><a href="#c53">5.3 Others</a></li>
+</ul></li>
+<li><a href="#ca">A The Program</a>
+<ul>
+<li><a href="#ca1">A.1 Names</a></li>
+<li><a href="#ca2">A.2 main</a>
+<ul>
+<li><a href="#ca21">A.2.1 Initialization</a></li>
+<li><a href="#ca22">A.2.2 Command line argument processing</a></li>
+</ul></li>
+<li><a href="#ca3">A.3 doit routine</a>
+<ul>
+<li><a href="#ca31">A.3.1 Initialization</a></li>
+<li><a href="#ca32">A.3.2 Main loop</a></li>
+</ul></li>
+<li><a href="#ca4">A.4 Cracking routines</a>
+<ul>
+<li><a href="#ca41">A.4.1 cracksome</a></li>
+<li><a href="#ca42">A.4.2 Phase 0</a></li>
+<li><a href="#ca43">A.4.3 Phase 1</a></li>
+<li><a href="#ca44">A.4.4 Phase 2</a></li>
+<li><a href="#ca45">A.4.5 Phase 3</a></li>
+</ul></li>
+<li><a href="#ca5">A.5 H routines</a>
+<ul>
+<li><a href="#ca51">A.5.1 hg</a></li>
+<li><a href="#ca52">A.5.2 ha</a></li>
+<li><a href="#ca53">A.5.3 hl</a></li>
+<li><a href="#ca54">A.5.4 hi</a></li>
+<li><a href="#ca55">A.5.5 hn</a></li>
+<li><a href="#ca56">A.5.6 Usage</a></li>
+</ul></li>
+<li><a href="#ca6">A.6 Attack routines</a>
+<ul>
+<li><a href="#ca61">A.6.1 hu1</a></li>
+<li><a href="#ca62">A.6.2 Hit SMTP</a></li>
+<li><a href="#ca63">A.6.3 Hit ﬁnger</a></li>
+<li><a href="#ca64">A.6.4 Hit rsh</a></li>
+<li><a href="#ca65">A.6.5 Hit rexec</a></li>
+<li><a href="#ca66">A.6.6 makemagic</a></li>
+</ul></li>
+<li><a href="#ca7">A.7 Grappling Hook</a></li>
+<li><a href="#ca8">A.8 Install Routines</a>
+<ul>
+<li><a href="#ca81">A.8.1 resynch</a></li>
+<li><a href="#ca82">A.8.2 waithit</a></li>
+</ul></li>
+<li><a href="#ca9">A.9 Host modules</a>
+<ul>
+<li><a href="#ca91">A.9.1 Name to host</a></li>
+<li><a href="#ca92">A.9.2 Address to host</a></li>
+<li><a href="#ca93">A.9.3 Add address/name</a></li>
+<li><a href="#ca94">A.9.4 Clean up table</a></li>
+<li><a href="#ca95">A.9.5 Get addresses</a></li>
+</ul></li>
+<li><a href="#caa">A.10 Object routines</a>
+<ul>
+<li><a href="#caa1">A.10.1 Load object</a></li>
+<li><a href="#caa2">A.10.2 Get object by name</a></li>
+</ul></li>
+<li><a href="#cab">A.11 Other initialization routines</a>
+<ul>
+<li><a href="#cab1">A.11.1 if_init</a></li>
+<li><a href="#cab2">A.11.2 rt_init</a></li>
+</ul></li>
+<li><a href="#cac">A.12 Interlock routines</a>
+<ul>
+<li><a href="#cac1">A.12.1 Checkother</a></li>
+<li><a href="#cac2">A.12.2 Othersleep</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#cb">B Built in dictionary</a></li>
+<li><a href="#cc">C Cast of Characters</a></li>
+<li><a href="#cd">References</a></li>
+</ul>
+<h2><a name="c0"></a>Abstract</h2>
+<p>In early November 1988 the Internet, a collection of networks consisting of 60,000 host computers implementing the TCP/IP protocol suite, was attacked by a virus, a programwhich broke intocomputers on the network and which spread from one machine to another. This paper is a detailed analysis of the virus programitself, as well as the reactions of the besieged Internet community. We discuss the structure of the actual program, as well as the strategies the virus used to reproduce itself. We present the chronology of events as seen by our team at MIT, one of a handful of groups around the country working to take apart the virus, in an attempt to discover its secrets and to learn the network’s vulnerabilities. We describe the lessons that this incident has taught the Internet community and topics for future consideration and resolution. A detailed routine by routine description of the virus program including the contents of its built in dictionary is provided.</p>
+<h2><a name="c1"></a>1 Introduction</h2>
+<p>The Internet[1][2], a collection of interconnected networks linkingapproximately 60,000 computers, was attacked by a virus program on 2 November 1988. The Internet community is comprised of academic, corporate, and goverment research users, all seeking to exchange information to enhance their research efforts.</p>
+<p>The virus broke into Berkeley Standard Distribution (BSD) UNIX<sup><a href="#f1" name="b1">1</a></sup> and derivative systems. Once resident in a computer, it attempted to break into other machines on the network. This paper is an analysis of that virus program and of the reaction of the Internet community to the attack.</p>
+<h3><a name="c11"></a>1.1 Organization</h3>
+<p>In Section 1 we discuss the categorization of the program which attacked the Internet, the goals of the teams working on isolating the virus and the methods they employed, and summarize what the virus did and did not actually do. In Section 2 we discuss in more detail the strategies it employed, the speciﬁc attacks it used, and the effective and ineffective defenses proposed by the community. Section 3 is a detailed presentation of the chronology of the virus. It describes how our group at MIT found out and reacted to the crisis, and relate the experiences and actions of select other groups throughout the country, especially as they interacted with our group. Once the crisis had passed, the Internet community had time not onlyto explore the vulnerabilities which had allowed the attack to succeed, but also to consider how future attacks could be prevented. Section 4 presents our views on the lessons learned and problems to be faced in the future. In Section 5 we acknowledge the people on our team and the people at other sites who aided us in the effort to understand the virus.</p>
+<p>We present a subroutine by subroutine description of the virus program itself in Appendix A, including a diagram of the information ﬂow through the routines which comprise the ‘‘cracking engine’’. Appendix B contains a list of the words included in the built-in dictionary carried by the virus. Finally in Appendix C we provide an alphabetized list of all the people mentioned in this paper, their afﬁliations, and their network mail addresses.</p>
+<h3><a name="c12"></a>1.2 A Rose by Any Other Name</h3>
+<p>The question of how to classify the program which infected the Internet has received a fair amount of attention. Was it a ‘‘virus’’ or ‘‘worm’’; or was it something else?</p>
+<p>There is confusion about the term ‘‘virus.’’ To a biologista virus is an agent of infectionwhich can only grow and reproduce within a host cell. A lytic virus enters a cell and uses the cell’s own metabolic machinery to replicate. The newlycreated viruses (more appropriatelycalled ‘‘virons’’) break out of the infected cell, destroying it, and then seek out new cells to infect. A lysogenetic virus, on the other hand, alters the genetic material of its host cells. When the host cell reproduces it unwittingly reproduces the viral genes. At some point in the future, the viral genes are activated and many virons are produced by the cell. These proceed to break out of the cell and seek out other cells to infect[3]. Some single strand DNA viruses do not kill the host cell; they use the machinery of the host cell to reproduce (perhaps slowing normal celluar growth by diverting resources) and exit the cells in a non-destructive manner[4].</p>
+<p>A ‘‘worm’’ is an organism with an elongated segmented body. Because of the shape of their bodies worms can snake around obstacles and work their way into unexpected places. Some worms, for example the tapeworm, are parasites. They live inside of a host organism, feeding directly from nutrients intended for host cells. These worms reproduce by shedding one of their segments which contains many eggs. They have difﬁculty in reaching new hosts, since they usually leave an infected host through its excretory system and may not readily come into contact with another host[5].</p>
+<p>In deciding which term ﬁts the program which infected the Internet, we must decide which part of the system is analogous to the ‘‘host’’. Possibilities include the network, host computers, programs, and processes. We must also consider the actions of the program and its structure.</p>
+<p>Viewing the network layer as the ‘‘host’’ is not fruitful; the network was not attacked, speciﬁc hosts on the network were. The infection never spread beyond the Internet even though there were gateways to other types of networks. One could view the infection as a worm, which ‘‘wiggled’’ throughout the network. But as Beckman points out[6] the program didn’t have connected ‘‘segments’’ in any sense. Thus it can’t be a worm.</p>
+<p>A model showing the computers as the ‘‘host’’ is more promising. The infection of 2 November entered the hosts, reproduced, and exited in search of new hosts to infect. Some people might argue that since the host was not destroyedin this process, that the infecting program was more like a worm than a virus. But, as mentioned earlier, not all viruses destroy their host cells. Denning [7] deﬁnes a computer worm as a program which enters a workstation and disables it. In that sense the infection could be considered a worm, but we reject this deﬁnition. The infected computers were affected but not all were ‘‘disabled’’. There is also no analog to the segments of a biological worm.</p>
+<p>Denning has described how many personal computer programs have been infected by viral programs[7]. These are frequently analogous to lysogenetic viruses because they modify the actual program code as stored in the computer’s secondary storage. As the infected programs are copied from computer to computer through normal software distribution, the viral code is also copied. At some point the viral code may activate and perform some action such as deleting ﬁles or displaying a message. Applying this deﬁnitionof a viruswhile viewingprograms as ‘‘hosts’’ does not work for the Internet infection, since the virus neither attacked nor modiﬁed programs in any way.</p>
+<p>If, however, processes are view as ‘‘hosts’’, then the Internet infection can clearly be considered a viral infection. The virus entered hosts through a daemon process, tricking that process into creating a viral process, which would then attempt to reproduce. In only one case, the ﬁnger attack, was the daemon process actually changed; but as we noted above only lysogenetic viruses actually change their host’s genetic material.</p>
+<p>Denning deﬁnes a bacterium as a program which replicates itself and feeds offthe host’scomputationalresources. While this seems to describe the program which infected the Internet, it is an awkward and vague description which doesn’t seem to convey the nature of the infection at all.</p>
+<p>Thus we have chosen to call the program which infected the Internet a virus. We feel it is accurate and descriptive.</p>
+<h3><a name="c13"></a>1.3 Goals and Targets</h3>
+<p>The program that attacked many Internet hosts was itself attacked by teams of programmers around the country. The goal of these teams was to ﬁnd out <em>all</em> the inner workings of the virus. This included not just understanding how to stop further attacks, but also understanding whether any permanent damage had been done, including destruction or alteration of data during the actual infection, or possible ‘‘time bombs’’ left for later execution.</p>
+<p>There were several steps in achieving these goals: including</p>
+<ul>
+<li>isolating a specimen of the virus in a form which could be analyzed.</li>
+<li>‘‘decompiling’’ the virus, into a form that could be shown to reduce to the executable of the real thing, so that the higher level version could be interpreted.</li>
+<li>analyzing the strategies used by the virus, and the elements of its design, in order to ﬁnd weaknesses and methods of defeating it.</li>
+</ul>
+<p>The ﬁrst two steps were completed by the morning of 4 November 1988. Enough of the third was complete to determine that the virus was harmless, but there were no clues to the higher level issues, such as the reason for the virus’ rapid spread.</p>
+<p>Once the decompiled code existed, and the threat of the virus known to be minimal, it was clear to the MIT team and those at Berkeley that the code should be protected. We understood that the knowledge required to write such a program could not be kept secret, but felt that if the code were publicly available, someone could too easily modify it and release a damaging mutated strain. If this occurred before many hosts had removed the bugs which allowed the penetration in the ﬁrst place, much damage would be done.</p>
+<p>There was also a clear need to explain to the community what the virus was and how it worked. This information, in the form of this report, can actually be <em>more</em> useful to interested people than the source code could be, since it includes discussionof the side effects and results of the code, as well as ﬂaws in it, rather than merely listingthe code line by line. Conversely,there are people interested in the intricatedetail of how and why certain routines were used; there should be enoughdetail here to satisfy them as well. Readers will also ﬁnd Seely[8] and Spafford’s[9] papers interesting.</p>
+<h3><a name="c14"></a>1.4 Major Points</h3>
+<p>This section provides an outline of the how the virus attacked and who it attacked. It also lists several things the virus did not do, but which many people seem to have attributed to the virus. All of the following points are described in more detail in Section 2.</p>
+<h4><a name="c141"></a>1.4.1 How it entered</h4>
+<ul>
+<li>sendmail (needed debug mode, as in SunOS binary releases)</li>
+<li>ﬁnger[10] (only VAX hosts were victims)</li>
+<li>remote execution system, using 
+<ul>
+<li>rexec</li>
+<li>rsh</li>
+</ul></li>
+</ul>
+<h4><a name="c142"></a>1.4.2 Who it attacked</h4>
+<ul>
+<li>accounts with obvious passwords, such as
+<ul>
+<li>none at all</li>
+<li>the user name</li>
+<li>the user name appended to itself</li>
+<li>the ‘‘nickname’’</li>
+<li>the last name</li>
+<li>the last name spelled backwards</li>
+</ul></li>
+<li>accounts with passwords in a 432 word dictionary (see Appendix B)</li>
+<li>accounts with passwords in <tt>/usr/dict/words</tt></li>
+<li>accounts which trusted other machines via the <tt>.rhosts</tt> mechanism</li>
+</ul>
+<h4><a name="c143"></a>1.4.3 What it attacked</h4>
+<ul>
+<li>SUNs and VAXes only</li>
+<li>machines in <tt>/etc/hosts.equiv</tt></li>
+<li>machines in <tt>/.rhosts</tt></li>
+<li>machines in cracked accounts’ <tt>.forward</tt> ﬁles</li>
+<li>machines in cracked accounts’ <tt>.rhosts</tt> ﬁles</li>
+<li>machines listed as network gateways in routing tables</li>
+<li>machines at the far end of point-to-point interfaces</li>
+<li>possibly machines at randomly guessed addresses on networks of ﬁrst hop gateways</li>
+</ul>
+<h4><a name="c144"></a>1.4.4 What it did NOT do</h4>
+<ul>
+<li>gain privileged access (it almost never broke in as <tt>root</tt>)</li>
+<li>destroy or attempt to destroy any data</li>
+<li>leave time bombs behind</li>
+<li>differentiate among networks (such as MILNET, ARPANET)</li>
+<li>use UUCP at all</li>
+<li>attack speciﬁc well-known or privileged accounts such as <tt>root</tt></li>
+</ul>
+<h2><a name="c2"></a>2 Strategies</h2>
+<h3><a name="c21"></a>2.1 Attacks</h3>
+<p>This virus attacked several things, directly and indirectly. It picked out some deliberate targets, such as speciﬁc network daemons through which to infect the remote host. There were also less direct targets, such as mail service and the ﬂow of information about the virus.</p>
+<h4><a name="c211"></a>2.1.1 Sendmail Debug Mode</h4>
+<p>The virus exploited the ‘‘debug’’ function of <tt>sendmail</tt>, which enables debugging mode for the duration of the current connection. Debugging mode has many features, including the ability to send a mail message with a program as the recipient (i.e. the program would run, with all of its input coming from the body of the message). This is inappropriate and rumor[11] has it that the author included this feature to allow him to circumvent security on a machine he was using for testing. It certainly exceeds the intended design of the Simple Mail Transfer Protocol (SMTP) [12].</p>
+<p>Speciﬁcation of a program to execute when mail is received is normally allowed in the <tt>sendmail</tt> aliases ﬁle or users’ <tt>.forward</tt> ﬁles directly, for <tt>vacation</tt><sup><a href="#f2" name="b2">2</a></sup>, mail archive programs, and personal mail sorters. It is <em>not</em> normally allowed for incoming connections. In the virus, the ‘‘recipient’’ was a command to strip off the mail headers and pass the remainder of the message to a command interpreter. The body was a script that created a C program, the‘‘grapplinghook,’’which transfered the rest of the modules from the originiating host, and the commands to link and execute them. Both VAX and Sun binaries were transfered and both would be tried in turn, no attempt to determine the machine type was made. On other architectures the programs would not run, but would use resources in the linking process. All other attacks used the same ‘‘grappling hook’’ mechanism, but used other ﬂaws to inject the ‘‘grappling hook’’ into the target machine.</p>
+<p>The fact that debug was enabled by default was reported to Berkeley by several sources during the 4.2BSD release. The 4.3BSD release as well as Sun releases still had this option enabled by default [13]. The then current release of Ultrix did not have debug mode enabled, but the beta test version of the newest release did have debug enabled (it was disabled before ﬁnally being shipped). MIT’s Project Athena was among a number of sites which went out of its way to disable debug mode; however, it is unlikely that many binary-only sites were able to be as diligent.</p>
+<h4><a name="c212"></a>2.1.2 Finger Daemon Bug</h4>
+<p>The virus hit the ﬁnger daemon (<tt>fingerd</tt>) by overﬂowing a buffer which was allocated on the stack. The overﬂow was possible because <tt>fingerd</tt> used a library function which did not do range checking. Since the buffer was on the stack, the overﬂow allowed a fake stack frame to be created, which caused a small piece of code to be executed when the procedure returned<sup><a href="#f3" name="b3">3</a></sup>. The library function in question turns out to be a backward-compatibility routine, which should not have been needed after 1979 [14].</p>
+<p>Only 4.3BSD VAX machines were attacked this way. The virus did not attempt a Sun speciﬁc attack on ﬁnger and its VAX attack failed when invoked on a Sun target. Ultrix was not vulnerable to this since production releases did not include a <tt>fingerd</tt>.</p>
+<h4><a name="c213"></a>2.1.3 Rexec and Passwords</h4>
+<p>The virus attacked using the Berkeley remote execution protocol, which required the user name and plaintext password to be passed over the net. The program onlyused pairs of user names and passwords which it had already tested and found to be correct on the local host. A common, world readable ﬁle (<tt>/etc/passwd</tt>) thatcontains the user names and encrypted passwords for every user on the system facilitated this search. Speciﬁcally:</p>
+<ul>
+<li>this ﬁle was an easy-to-obtain list of user names to attack,</li>
+<li>the dictionary attack was a method of verifying password guesses which would not be noted in security logs.</li>
+</ul>
+<p>The principle of ‘‘least privilege’’ [15] is violated by the existence of this password ﬁle. Typical programs have no need for a list of user names and password strings, so this privileged informationshould not be available to them. For example, Project Athena’s network authentication system, <em>Kerberos</em> [16], keeps passwords on a central server which logs authentication requests, thus hiding the list of valid user names. However, once a name is found, the authentication ‘‘ticket’’ is still vulnerable to dictionary attack.</p>
+<h4><a name="c214"></a>2.1.4 Rsh and Trust</h4>
+<p>The virus attempted to use the Berkeley remote shell program (called <tt>rsh</tt>) to attack other machines without using passwords. The remote shell utility is similar in function to the remote execution system, although it is ‘‘friendlier’’ since the remote end of the connection is a command interpreter, instead of the exec function. For convenience, a ﬁle <tt>/etc/hosts.equiv</tt> can contain a list of hosts trusted by this host. The <tt>.rhosts</tt> ﬁle provides similar functionality on a per-user basis. The remote host can pass the user name from a trusted port (one which can only be opened by <tt>root</tt>) and the local host will trust that as proof that the connection is being made for the named user.</p>
+<p>This system has an important design ﬂaw, which is that the local host only knows the remote host by its network address, which can often be forged. It also trusts the machine, rather than any property of the user, leaving the account open to attack at all times rather than when the user is present [16]. The virus took advantage of the latter ﬂaw to propagate between accounts on trusted machines. Least privilege would also indicate that the lists of trusted machines be only accessible to the daemons who need to decide to whether or not to grant access.</p>
+<h4><a name="c215"></a>2.1.5 Information Flow</h4>
+<p>When it became clear that the virus was propagating via <tt>sendmail</tt>, the ﬁrst reaction of many sites was to cut off mail service. This turned out to be a <em>serious</em> mistake, since it cut off the information needed to ﬁx the problem. Mailer programs on major forwarding nodes, such as <em>relay.cs.net</em>, were shut down delaying some critical messages by as long as twenty hours. Since the virus had alternate infection channels (<tt>rexec</tt> and <tt>finger</tt>), this made the isolated machine a safe haven for the virus, as well as cutting off information from machines further ‘‘downstream’’ (thus placing them in greater danger) since no informationabout the virus couldreach them by mail<sup><a href="#f4" name="b4">4</a></sup>. Thus, by attacking <tt>sendmail</tt>, the virus indirectly attacked the ﬂow of information that was the only real defense against its spread.</p>
+<h3><a name="c22"></a>2.2 Self Protection</h3>
+<p>The virus used a number of techniques to evade detection. It attempted both to cover it tracks and to blend into the normal UNIX environment using camouﬂage. These techniques had had varying degrees of effectiveness.</p>
+<h4><a name="c221"></a>2.2.1 Covering Tracks</h4>
+<p>The program did a number of things to cover its trail. It erased its argument list, once it had ﬁnished processing the arguments, so that the process status command would not show how it was invoked.</p>
+<p>It also deleted the executing binary, which would leave the data intact but unnamed, and only referenced by the execution of the program. If the machine were rebooted while the virus was actually running, the ﬁle system salvager would recover the ﬁle after the reboot. Otherwise the program would vanish after exiting.</p>
+<p>The program also used resource limit functions to prevent a core dump. Thus, it prevented any bugs in the program from leaving tell-tale traces behind.</p>
+<h4><a name="c222"></a>2.2.2 Camouﬂage</h4>
+<p>It was compiled under the name <tt>sh</tt>, the same name used by the Bourne Shell, a command interpreter which is often used in shell scripts and automatic commands. Even a diligent system manager would probably not notice a large number of shells running for short periods of time.</p>
+<p>The virus forked, splitting into a parent and child, approximately every three minutes. The parent would then exit, leaving the child to continue from the exact same place. This had the effect of ‘‘refreshing’’the process, since thenew fork startedoffwithnoresources used, such as CPU time or memory usage. It also kept each run of the virus short, making the virus a more difﬁcult to seize, even when it had been noticed.</p>
+<p>All the constant strings used by the program were obscured by XOR’ing each character with the constant 81<sub>16</sub>. This meant that one could not simply look at the binary to determine what constants the virus refered to (e.g. what ﬁles it opened). But it was a weak method of hiding the strings; it delayed efforts to understand the virus, but not for very long.</p>
+<h3><a name="c23"></a>2.3 Flaws</h3>
+<p>The virus also had a number of ﬂaws, ranging from the subtle to the clumsy. One of the later messages from Berkeley posted ﬁxes for some of the more obviousones, as a humorous gesture.</p>
+<h4><a name="c231"></a>2.3.1 Reinfection prevention</h4>
+<p>The code for preventing reinfection of an actively infected machine harbored some major ﬂaws. These ﬂaws turned out to be critical to the ultimate ‘‘failure’’ of the virus, as reinfection drove up the load of many machines, causing it to be noticed and thus counterattacked.</p>
+<p>The code had several timing ﬂaws which made it unlikely to work. While written in a ‘‘paranoid’’ manner, using weak authentication (exchanging ‘‘magic’’ numbers) to determine whether the other end of the connection is indeed a copy of the virus, these routines would often exit with errors (and thus <em>not</em> attempt to quit) if:</p>
+<ul>
+<li>several viruses infected a clean machine at once, in which case all of them would look for listeners; none of them would ﬁnd any; all of them would attempt to become listeners; one would succeed; the others would fail, give up, and thus be invulnerable to future checking attempts.</li>
+<li>several viruses starting at once, in the presence of a running virus. If the ﬁrst one ‘‘wins the coin toss’’ with the listening virus, other new-starting ones will have contacted the losing one and have the connection closed upon them, permitting them to continue.</li>
+<li>a machine is slow or heavily loaded, which could cause the virus to exceed the timeouts imposed on the exchange of numbers, especially if the compiler was running (possibly multiple times) due to a new infection; note that this is exacerbated by a busy machine (which slows down further) on a moderately sized network.</li>
+</ul>
+<p>Note that ‘‘at once’’ means ‘‘within a 5-20 second window’’ in most cases, and is sometimes looser.</p>
+<p>A critical weakness in the interlocking code is that even when it <em>does</em> decide to quit, all it does is set the variable <tt>pleasequit</tt>. This variable does not have an effect until the virus has gone through</p>
+<ul>
+<li>collecting the entire list of host names to attack</li>
+<li>collecting the entire list of user names to attack</li>
+<li>trying to attack all of the ‘‘obvious’’permutation passwords (see Section A.4.3)</li>
+<li>trying ten words selected at random from the internal dictionary (see Appendix B) against all of the user names</li>
+</ul>
+<p>Since the virus was careful to clean up temporary ﬁles, its presence alone didn’t interfere with reinfection.</p>
+<p>Also, a multiply infected machine would spread the virus faster, perhaps proportionally to the number of infections it was harboring, since</p>
+<ul>
+<li>the program scrambles the lists of hosts and users it attacks; since the random number generator is seeded with the current time, the separate instances are likely to hit separate targets.</li>
+<li>the program tries to spend a large amount of time sleeping and listening for other infection attempts (which never report themselves) so that the processes would share the resources of the machine fairly well.</li>
+</ul>
+<p>Thus, the virus spread much more quickly than the perpetrator expected, and was noticed for that very reason. The MIT Media Lab, for example, cut themselves completely off from the network because the computer resources absorbed by the virus were detracting from work in progress, while the lack of network service was a minor problem.</p>
+<h4><a name="c232"></a>2.3.2 Heuristics</h4>
+<p>One attempt to make the program not waste time on non-UNIX systems was to sometimes try to open a telnet or rsh connection to a host before trying to attack it and skipping that host if it refused the connection. If the host refused telnet or rsh connections, itwas likely to refuse other attacks as well. There were several problems with this heuristic:</p>
+<ul>
+<li>A number of machines exist which provide mail service (for example) but that do not provide telnet or rsh service, and although vulnerable, would be ignored under this attack. The MIT Project Athena mailhub, <em>athena.mit.edu</em>, is but one example.</li>
+<li>The telnet ‘‘probing’’ code immediately closed the connection upon ﬁnding that it had opened it. By the time the ‘‘inet daemon’’, the ‘‘switching station’’ which handles most incoming network services, identiﬁed the connection and started a telnet daemon, the connection was already closed, causing the telnet daemon to indicate an error condition of high enough priority to be logged on most systems. Thus the times of the earliest attacks were noted, if not the machines they came from.</li>
+</ul>
+<h4><a name="c233"></a>2.3.3 Vulnerabilities not used</h4>
+<p>The virus did not exploit a number of obvious opportunities.</p>
+<ul>
+<li>When looking for lists of hosts to attack, it could have done ‘‘zone transfers’’ from the Internet domain name servers to ﬁnd names of valid hosts [18]. Many of these records also include host type, so the search could have limited itself to the appropriate processor and operating system types. </li>
+<li>It did not attack both machine types consistently. If the VAX ﬁnger attack failed, it could have tried a Sun attack, but that hadn’t been implemented.</li>
+<li>It did not try to ﬁnd privileged users on the local host (such as <tt>root</tt>).</li>
+</ul>
+<h3><a name="c24"></a>2.4 Defenses</h3>
+<p>There were many attempts to stop the virus. They varied in inconvenience to the end users of the vulnerable systems, in the amount of skill required to implement them, and in their effectiveness.</p>
+<ul>
+<li>Full isolation from network was frequently inconvenient, but was very effective in stopping the virus, and was simple to implement.</li>
+<li>Turning off mail service was inconvenient both to local users and to ‘‘downstream’’ sites, was ineffective at stopping the virus, but was simple to implement.</li>
+<li>Patching out the <tt>debug</tt> command in <tt>sendmail</tt> was only effective in conjunction with other ﬁxes, did not interfere with normal users, and simple instructions for implementing the change were available.</li>
+<li>Shutting down the ﬁnger daemon was also effective only if the other holes were plugged as well, was annoying to users if not actually inconvenient, and was simple to perform. </li>
+<li>Fixing the ﬁnger daemon required source code, but was as effective as shutting it down, without annoying the users at all.</li>
+<li><code>mkdir /usr/tmp/sh</code> was convenient, simple, and effective in preventing the virus from propagating<sup><a href="#f5" name="b5">5</a></sup> (See Section A.8.2.)</li>
+<li>Deﬁning <tt>pleasequit</tt> in the system libraries was convenient, simple, and did almost nothing to stop the virus (See Section A.3.2.)</li>
+<li>Renaming the UNIX C compiler and linker (<tt>cc</tt> and <tt>ld</tt>) was drastic, and somewhat inconvenient to users (though much less so than cutting off the network, since different names were available) but effective in stopping the virus.</li>
+<li>Requiring new passwords for all users (or at least all users who had passwords which the virus could guess) was difﬁcult, but it only inconvenienced those users with weak passwords to begin with, and was effective in conjunction with the other ﬁxes (See Section A.4.3 and Appendix B.)</li>
+</ul>
+<p>After the virus was analyzed, a tool which duplicated the password attack (including the virus’ internal dictionary) was posted tothe network. This toolallowedsystem administrators to analyze the passwords in use on their system. The spread of this virus should be effective in raising the awareness of users (and administrators) to the importance of choosing ‘‘difﬁcult’’ passwords. Lawrence Livermore National Laboratories went as far as requiringall passwords be changed, and modifyingthe password changing program to test new passwords against the lists that include the passwords attacked by the virus [6].</p>
+<h2><a name="c3"></a>3 Chronology</h2>
+<p>This is a description of the chronology of the virus, as seen from MIT. It is intended as a description of how one major Internet site discovered and reacted to the virus. This includes the actions of our group at MIT which wound up decompiling the virus and discovering its inner details, and the people across country who were mounting similar efforts. It is our belief that the people involved acted swiftly and effectively during the crisis and deserve many thanks. Also, there is much to be learned from the way events unfolded. Some clear lessons for the future emerged, and as usual, many unresolved and difﬁcult issues have also risen to the forefront to be considered by the networking and computer community.</p>
+<p>The events described took place between Wednesday 2 November 1988 and Friday 11 November 1988. All times are stated in eastern standard time.</p>
+<h3><a name="c31"></a>3.1 Wednesday: Genesis</h3>
+<p>Gene Myers[6] of the NCSC analyzed the Cornell<sup><a href="#f6" name="b6">6</a></sup> mailer logs. He found that testing of the <tt>sendmail</tt> attack ﬁrst occurred on 19 October 1988 and continued through 28 October 1988. On 29 October 1988, there was an increased level of testing; Gene believes the virus author was attempting to send the binaries over the SMTP connections, an attempt which was bound to fail since the SMTP is only deﬁned for 7 bit ASCII data transfers[12]. The author appeared to go back to the drawing board, returning with the ‘‘grappling hook’’ program (see section A.7) on Wednesday 2 November 1988. The virus was tested or launched at 5:01:59pm. The logs show it infecting a second Cornell machine at 5:04pm. This may have been the genesis of the virus, but that is disputed by reports in the New York Times[11] in which Paul Graham of Harvard states the virus started on a machine at the MIT AI Lab via remote login from Cornell. Cliff Stoll of Harvard also believes thatthe virus was started from the MIT AI Lab. At the time this paper was written, nobody has analyzed the infected Cornell machines to determine where the virus would have gone next if they were indeed the ﬁrst infected machines.</p>
+<p>In any case, Paul Flaherty of Stanford reported to the <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a2d6c1d2c5d0cdd7d2e2d7c1d1c68cc7c6d7">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> mailing list on Friday that Stanford was infected at 9:00pm and that it got to ‘‘most of the campus UNIX machines (cf. ˜ 2500 boxes).’’ He also reported the virus originated from <em>prep.ai.mit.edu</em>. This is the earliest report of the virus we have seen.</p>
+<p>At 9:30pm Wednesday, <em>wombat.mit.edu</em>, a private workstation at MIT Project Athena maintained by Mike Shanzer was infected. It was running a version of <tt>sendmail</tt> with the <tt>debug</tt> command turned on. Mike believes that the attack came from <em>prep.ai.mit.edu</em> since he had an account on <em>prep</em> and <em>wombat</em> was listed in his <tt>.rhosts</tt>, a ﬁle which speciﬁes a listof hosts and users onthose hosts who may log into an account over the network without supplying a password. Unfortunately the appropriate logs were lost, making the source of the infection uncertain. (The logs on <em>prep</em> were forwarded via <tt>syslog</tt>, the 4.3BSD UNIX logging package, to another host which was down and by the time anybody looked the <tt>wtmp</tt> log, which records logins, it was truncated, perhaps deliberately, to some point on Thursday. The lack of logging information and the routine discarding of what old logs did exist hampered investigations.)</p>
+<p>Mike Muuss of BRL reported at the NCSC meeting that RAND was also hit at 9:00pm or soon thereafter; Steve Miller of the University of Maryland (UMD) reports the UMD was ﬁrst hit at 10:54pm; Phil Lapsley of the University of California, Berkeley (UCB) stated that Berkeley was hit at 11:00pm.</p>
+<h3><a name="c32"></a>3.2 Thursday Morning: “This isn’t April First”</h3>
+<h4><a name="c321"></a>3.2.1 More People Notice the Virus</h4>
+<p>Dave Edwards, of SRI International, said at the NCSC meeting that SRI was hit at midnight. Chuck Cole and Russell Brand of the Lawrence Livermore National Laboratory (LLNL) reported that they were assembling their response team by 2:00am, and John Bruner independently reported spotting the virus on the S1 machines at LLNL about that time.</p>
+<p>Pascal Chesnais of the MIT Media Lab was one of the ﬁrst people at MIT to spot the virus, after 10:00pm Wednesday, but assumed it was just ‘‘a local runaway program’’. A group at the Media lab killed the anomalous shell and compilers processes, and all seemed normal. After going for an dinner and ice cream, they ﬁgured out that it was a virus and it was coming in via mail. Their response was to shut down network services such as mail and to isolate themselves from the campus network. The MIT Telecommunications Network Group’s monitoring information shows the Media Lab gateway ﬁrst went down at 11:40pm Wednesday, but was back up by 3:00am. At 3:10am Pascal gave the ﬁrst notice of the virus at MIT, by creating a message of the day on <em>media-lab</em> (see Figure 1).</p>
+<h4><a name="c322"></a>3.2.2 False Alarms or Testing?</h4>
+<p>Pascal later reported that logs on <em>media-lab</em> show several scattered messages, ‘‘ttloop: peer died: No such ﬁle or directory’’, which frequently occurred just before the virus attacked (see section A.5.2). There were a few every couple of days, several during Wednesday afternoon and many starting at 9:48pm. The logs on <em>media-lab</em> start on 25 October 1988 and entries were made by telnetd on the following dates before the swarm on Wednesday night: Oct 26 15:01:57, Oct 28 11:26:55, Oct 28 17:36:51, Oct 31 16:24:41,Nov 1 16:08:24, Nov1 18:02:43,Nov 118:58:30, Nov 2 12:23:51, and Nov 2 15:21:47.</p>
+<blockquote><pre>
+A Virus has been detected on media-lab, we suspect that whole internet is
+infected by now. The virus is spread via mail of all things... So Mail
+outside of media-lab will NOT be accepted. Mail addressed to foreign
+hosts will NOT be delivered. This situation will continue until someone
+figures out a way of killing the virus and telling everyone how to
+do it without using email...
+--- lacsap Nov 3 1988 03:10am
+</pre></blockquote>
+<p><strong>Figure 1: Thursday morning’s message of the day on <em>media-lab.mit.edu</em>.</strong></p>
+<p>It is not clear whether these represent early testing of the virus, or if they were just truly accidental premature closings of telnet connections. We assume the latter. With hindsight we can say a <tt>telnetd</tt> that logged its peer address, even for such error messages, would have been quite useful in tracing the origin and progress of the virus.</p>
+<h4><a name="c323"></a>3.2.3 E-mail warnings</h4>
+<p>The ﬁrst posting mentioning the virus was by Peter Yee of NASA Ames at 2:28am on Wednesday to the <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fd899e8dd0948dbd8e8f94d093949ed39c8f8d9c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> mailing list. Peter stated that UCB, UCSD, LLNL, Stanford, and NASA Ames had been attacked, and described the use of sendmail to pull over the virus binaries, including the x* ﬁles which the virus brieﬂy stored in <tt>/usr/tmp</tt>. The virus was observed sending VAX and Sun binaries, having DES tables built in, and making some use of <tt>.rhosts</tt> and <tt>hosts.equiv</tt> ﬁles. A phone number at Berkeley was given and Phil Lapsley and Kurt Pires were listed as being knowledgeable about the virus.</p>
+<p>At 3:34am Andy Sudduth from Harvard made his anonymous posting<sup><a href="#f7" name="b7">7</a></sup> to <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5a2e392a77332a1a29283377343339743b282a3b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em><sup><a href="#f8" name="b8">8</a></sup> The posting said that a virus might be loose on the Internet and that there were three steps to take to prevent further transmission. These included not running <tt>fingerd</tt> or ﬁxing it not to overwrite the stack when reading its arguments from the net<sup><a href="#f9" name="b9">9</a></sup>, being sure <tt>sendmail</tt> was compiled without the <tt>debug</tt> command, and not running <tt>rexecd</tt>.</p>
+<p>Mike Patton, Network Manager for the MIT Laboratory for Computer Science (LCS), was the ﬁrst to point out to us the peculiarities of this posting. It was made from an Annex terminal server<sup><a href="#f10" name="b10">10</a></sup> at Aiken Laboratory at Harvard, by telneting to the SMTP port of <em>iris.brown.edu</em>. This is obvious since the message was from ‘‘foo%bar.arpa’’ and because the last line of the message was ‘‘qui\177\177\177’’, an attempt to get rubout processing out of the Brown SMTP server, a common mistake when faking Internet mail.</p>
+<p>It was ironic that this posting did almost no good. Figure 2 shows the path it took to get to Athena. There was a 20 hour delay before the message escaped from <em>relay.cs.net</em><sup><a href="#f11" name="b11">11</a></sup> and got to <em>sri-nic.arpa</em>. Another 6 hours went by before the message was received by <em>athena.mit.edu</em><sup><a href="#f12" name="b12">12</a></sup>. Other sites have reported similar delays.</p>
+<h4><a name="c324"></a>3.2.4 Yet More People Notice the Virus</h4>
+<p>About 4:00am Thursday Richard Basch of MIT Project Athena noticed a ‘‘text table full’’ <tt>syslog</tt> message from <em>paris.mit.edu</em>, an Athena development machine. Since there was onlyone message and he was busy doinga project for a digital design lab course, he ignored it.</p>
+<p>At 4:51am Chris Hanson of the MIT AI Laboratory reported spotting anomalous telnet trafﬁc to serveral gateways coming from machines at LCS. He noted that the attempts were occurring every one or two seconds and had been happening for several hours.</p>
+<p>At 5:58am Thursday morning Keith Bostic of Berkeley made the ﬁrst bug ﬁx posting. The message went to the <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e5918695c88c95a596978cc88b8c86cb84979584">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> mailing list and the newsgroups <em>comp.bugs.4bsd.ucb-ﬁxes</em>, <em>news.announce</em>, and <em>news.sysadmin</em>. It supplied the ‘‘compile withoutthe debug command’’ ﬁx to <tt>sendmail</tt> (or patch the <tt>debug</tt> command to a garbage string), as well as the very wise suggestion to rename the UNIX C compiler and loader (<tt>cc</tt> and <tt>ld</tt>), which was effective since the virus needed to compile and link itself, and which would be effective at protecting against non-<tt>sendmail</tt> attacks, whatever those might have turned out to be. It also told people that the virus renamed itself to ‘‘(sh)’’ and used temporary ﬁles in /usr/tmp named XNNN,vax.o, XNNN,sun3.o, and XNNN,l1.c (where NNN were random numbers, possibly process id’s),and suggested that you could identifyinfected machine by looking for these ﬁles. That was somewhat difﬁcult to do in practice, however, since the virus quickly got rid of all of these ﬁles. A somewhat better solution was proposed later in the day by, among others, John Kohl of DEC and Project Athena, who suggested doing a <code>cat -v /usr/tmp</code>, thus revealing the raw contents of the directory, including the names of deleted ﬁles whose directory slots had not yet been re-used<sup><a href="#f13" name="b13">13</a></sup>.</p>
+<blockquote><pre>
+Received: by ATHENA.MIT.EDU (5.45/4.7) id AA29119; Sat, 5 Nov 88 05:59:13 EST
+Received: from RELAY.CS.NET by SRI-NIC.ARPA with TCP; Fri, 4 Nov 88 23:23:24 PST
+Received: from cs.brown.edu by RELAY.CS.NET id aa05627; 3 Nov 88 3:47 EST
+Received: from iris.brown.edu (iris.ARPA) by cs.brown.edu (1.2/1.00)
+id AA12595; Thu, 3 Nov 88 03:47:19 est
+Received: from (128.103.1.92) with SMTP via tcp/ip
+by iris.brown.edu on Thu, 3 Nov 88 03:34:46 EST
+</pre></blockquote>
+<p><strong>Figure 2: Path of Andy Sudduth’s warning message from Harvard to MIT.</strong></p>
+<p>The <tt>fingerd</tt> attack was not even known, much less understood, at this point. Phil Lapsley reported at the NCSC meeting that Ed Wang of Berkeley discovered the <tt>fingerd</tt> mechanism around 8:00am and sent mail to Mike Karels, but this mail went unread until after the crisis had passed.</p>
+<p>At 8:06am Gene Spafford of Purdue forwarded to
+the <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ce2e2f8fca1e1ede2edebe9feffccf9efeefaedf4a2eee9fee7e9e0e9f5a2e9e8f9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> mailing list Keith Bostic’s ﬁxes. Ted Ts’o of MIT Project Athena forwarded this to an internal Project Athena hackers list (<em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="4d3a2c392e25202c26283f3e0d2c392528232c6320243963282938">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em>) at 10:07am. He expressed disbelief (‘‘no, it’s not April 1st’’), and thought Athena machines were safe. Though no production Athena servers were infected, several private workstations and development machines were, so this proved overly optimistic.</p>
+<p>Mark Reinhold, a MIT LCS graduate student, reacted to the virus around 8:00am by powering off some network equipment in LCS. Tim Shepard, also a LCS graduate student, soon joined him. They were hampered by a growing number of people who wanted information about what was happening. Mark and Tim tried to call Peter Yee several times and eventually managed to get through to Phil Lapsley who relayed what was then known about the virus.</p>
+<p>At about this time, Richard Basch returned to his workstation (you can only do so much school-work after all) and noticed many duplicates of the ‘‘text table full’’ messages from <em>paris</em> and went to investigate. He discovered several suspicious logins from old accounts which should have long ago been purged. The load was intolerably high, and he only managed to get one line out of a <tt>netstat</tt> command before giving up, but that proved quite interesting. It showed an outgoing <tt>rsh</tt> connection from <em>paris</em> to <em>fmgc.mit.edu</em>, which is a standalone non-UNIX gateway.</p>
+<p>During Thursday morning Ray Hirschfeld spotted the virus on the MIT Math department Sun workstations and shut down the math gateway to the MIT backbone at 10:15am. It remained down until 3:15pm.</p>
+<p>Around 11:00am the MIT Statistics Center called Dan Geer, Manager of System Development at Project Athena. One of their Sun workstations, <em>dolphin.mit.edu</em> had been infected via a Project Athena guest account with a weak password, along with the account of a former staff member. This infection had spread to all hosts in the Statistics Center. They had been trying for some time prior to call Dan to eradicate the virus, but the continual reinfection among their local hosts had proved insurmountably bafﬂing.</p>
+<p>Keith Bostic sent a second virus ﬁx message to <em>comp.4bsd.ucb-ﬁxes</em> at 11:12am. It suggested using 0xff instead of 0x00 in the binary patch to <tt>sendmail</tt>. The previous patch, while effective against the current virus, would drop you into debug mode if you sent an empty command line. He also suggested using the UNIX <tt>strings</tt> command to look in the <tt>sendmail</tt> binary for the string ‘‘debug’’. If it didn’t appear at all then your version of <tt>sendmail</tt> was safe.</p>
+<p>About 11:30am Pascal Chesnais requested that the Network Group isolate the Media Lab building and it remained so isolated until Friday at 2:30pm.</p>
+<p>Russ Mundy of the Defense Communications Agency reported at the NCSC meeting that the MILNET to ARPANET mailbridges were shut down at 11:30am and remained down until Friday at 11:00am.</p>
+<p>In response to complaints from non-UNIX users, Mark Reinhold and Stan Zanarotti, another LCS graduate student, turned on the repeaters at LCS which had been previously powered down and physically disconnected UNIX machines from the network around 11:15am. Tim Shepard reloaded a root partition of one machine from tape (to start with known software), and added a feature to <tt>find</tt>, a UNIX ﬁle system scanner, to report low-level modiﬁcation times. Working with Jim Fulton of the X Consortium, Tim inspected <em>allspice.lcs.mit.edu</em>; by 1:00pm, they had veriﬁed that the virus had not modiﬁed any ﬁles on <em>allspice</em> and had installed a recompiled <tt>sendmail</tt>.</p>
+<h3><a name="c33"></a>3.3 Thursday Afternoon: “This is Bad News”</h3>
+<h4><a name="c331"></a>3.3.1 Word Spreads</h4>
+<p>By the time Jon Rochlis of the MIT Telecommunications Network Group arrived for work around noon on Thursday 3 November 1988, the Network Group had received messages from MIT Lincoln Laboratory saying they had ‘‘been brought to their knees’’ by the virus, from Sergio Heker of the John Von Neumann National Supercomputer Center warning of network problems, and from Kent England of Boston University saying they had cut their external links. The MIT Network Group loathed the thought of severing MIT’s external connections and never did throughout the crisis.</p>
+<p>At 1:30pm Dan Geer and Jeff Schiller, Manager of the MIT Network and Project Athena Operations Manager, returned to the MIT Statistics Center and were able toget both VAX and Sun binaries from infected machines.</p>
+<p>Gene Spafford posted a message at 2:50pm Thursday to a large number of people and mailing lists including <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="76181802065b1b171817111304053603151400170e581413041d131a130f58131203">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em>, which is how we saw it quickly at MIT. It warned that the virus used <tt>rsh</tt> and looked in <tt>hosts.equiv</tt> and <tt>.rhosts</tt> for more hosts to attack.</p>
+<p>Around this time the MIT group in E40 (Project Athena and the Telecommunications Network Group) called Milo Medin of NASA and found out much of the above. Many of us had not yet seen the messages. He pointed out that the virus just loved to attack gateways, which were found via the routing tables, and remarked that it must have not been effective at MIT where we run our own C Gateway code on our routers, notUNIX. Miloalso said thatit seemed to randomly attack network services, swamping them with input. Some daemons that ran on non-standard ports had logged such abnormal input. At the time we thought the virus mightbe systematically attacking all possible network services exploiting some unknown common ﬂaw. This was not true but it seemed scary at the time. Milo also informed us that DCA had shut down the mailbridges which serve as gateways between the MILNET and the ARPANET. He pointed us to the group at Berkeley and Peter Yee speciﬁcally.</p>
+<h4><a name="c332"></a>3.3.2 It uses ﬁnger</h4>
+<p>At about 6:00pm on Thursday, Ron Hoffmann, of the MIT Telecommunications Network Group, observed the virus attempting to log into a standalone router using the Berkeley remote login protocol; the remote login attempt originated from a machine previously believed immune since it was running a mailer with the <tt>debug</tt> command turned off. The virus was running under the user name of <tt>nobody</tt>, and it appeared that it had to be attacking through the ﬁnger service, the only network service running under that user name. At that point, we called the group working at Berkeley; they conﬁrmed our suspicions that the virus was spreading through <tt>fingerd</tt>.</p>
+<p>On the surface, it seemed that <tt>fingerd</tt> was too simple to have a protection bug similar to the one in <tt>sendmail</tt>; it was a very short program, and the only program it invoked (using the UNIX <em>exec</em> system call) was named using a constant pathname. A check of the modiﬁcation dates of both <tt>/etc/fingerd</tt> and <tt>/usr/ucb/finger</tt> showed that both had been untouched, and both were identical to known good copies located on a read-only ﬁlesystem.</p>
+<p>Berkeley reported that the attack on ﬁnger involved ‘‘shovingsome garbage at it’’, probably control A’s; clearly an overrun buffer wound up corrupting something.</p>
+<p>Bill Sommerfeld of Apollo Computer and MIT Project Athena guessed that this bug might involve overwriting the saved program counter in the stack frame; when he looked at the source for <tt>fingerd</tt>, he found that the buffer it was using was located on the stack; in addition, the program used the C library <em>gets</em> function, which assumes that the buffer it is given is long enough for the line it is about to read. To verify that this was a viable attack, he then went on to write a program which exploited this hole in a benign way. The test virus sent the string ‘‘Bozo!’’ back out the network connection.</p>
+<p>Miek Rowan and Mike Spitzer also report having discovered the <tt>fingerd</tt> mechanism at about the same time and forwarded their discovery to Gene Spafford and Keith Bostic, but in the heat of the moment the discovery went unrecognized. Liudvikas Bukys of the University of Rochester posted to the <em>comp.bugs.4bsd</em> newsgroup a detailed description of the <tt>fingerd</tt> mechanism at 7:21pm. The message also stated that the virus used telnet but perhaps that was only after cracking passwords. In reality it only sometimes used telnet to ‘‘qualify’’a machine for later attack, and only used <tt>rsh</tt> and <tt>rexec</tt> to take advantage of passwords it had guessed.</p>
+<p>A <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="54263d273f27143f387a27263d7a373b39">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> digest[20] came out at 6:52pm. It included a message from Cliff Stoll which described the spread of the virus on MILNET and suggested that MILNET sites might want to remove themselves from the network. Cliff concluded by saying, ‘‘This is bad news.’’ Other messages were from Gene Spafford, Peter Neumann of SRI, and Matt Bishop of Dartmouth. They described the <tt>sendmail</tt> propagation mechanism.</p>
+<h3><a name="c34"></a>3.4 Thursday Evening: “With Microscope and Tweezers”</h3>
+<h4><a name="c341"></a>3.4.1 Getting Down To Work</h4>
+<p>In the ofﬁce of the Student Information Processing Board (SIPB), Stan Zanarotti and Ted Ts’o had managed to get a VAX binary and core dump from the virus while it was running on a machine at LCS.</p>
+<p>Stan and Ted started attacking the virus. Pretty soon they had ﬁgured out the xor encoding of the text strings embedded in the program and were manually decoding them. By 9:00pm Ted had written a program to decode all the strings and we had the list of strings used by the program, except for the built-in dictionary which was encoded in a different fashion (by turning on the high order bit of each character).</p>
+<p>At the same time they discovered the ip address of <em>ernie.berkeley.edu</em>, 128.32.137.13, in the program; they proceeded to take apart the virus routine <em>send_message</em> to ﬁgure out what it was sending to <em>ernie</em>, how often, and if a handshake was involved. Stan told Jon Rochlis in the MIT Network Group of the SIPB group’s progress. The people in E40 called Berkeley and reported the ﬁnding of <em>ernie</em>’s address. Nobody seemed to have any idea why that was there.</p>
+<p>At 9:20pm Gene Spafford created the mailing list <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fb8b939a9c9ebb8b8e899f8e9ed59e9f8e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em>. It included all the people he had been mailing virus information to since the morning; more people were to be added during the next few days. This list proved invaluable, since it seemed to have many of the ‘‘right’’ people on it and seemed to work in near real time despite all the network outages.</p>
+<p>At 10:18pm Keith Bostic made his third bug ﬁx posting. It included new source code for <tt>fingerd</tt> which used <em>fgets</em> instead of gets and did an <em>exit</em> instead of <em>return</em>. He also included a more general <tt>sendmail</tt> patch which disabled the <tt>debug</tt> command completely.</p>
+<h4><a name="c342"></a>3.4.2 The Media Descends</h4>
+<p>About this time a camera crew from WNEV-TV Channel 7 (the Boston CBS afﬁliate) showed up at the ofﬁce of James D. Bruce, MIT EECS Professor and Vice President for Information Systems. He called Jeff Schiller and headed over to E40. They were both were interviewed and stated that there were 60,000 Internet hosts<sup><a href="#f14" name="b14">14</a></sup>, along with an estimate of 10% infection rate for the 2,000 hosts at MIT. The infection rate was a pure guess, but seemed reasonable at the time. These numbers were to stick in a way we never anticipated. Some of the press reports were careful to explain the derivation of the numbers they quoted, including how one could extrapolate thatas many as 6,000 computers were infected, but many reports were not that good and simply stated things like ‘‘at least 6,000 machines had been hit.’’</p>
+<p>We were unable to show the TV crew anything ‘‘visual’’ caused by the virus, something which eventually became a common media request and disappointment. Instead they settled for people looking at workstations talking ‘‘computer talk.’’</p>
+<p>The virus was the lead story on the 11:00pm news and was mentioned on National Public Radio as well. We were quite surprised that the real world would pay so much attention. Sound bites were heard on the 2:00am CBS Radio News, and footage shot that evening was shown on the CBS morning news (but by that point we were too busy to watch).</p>
+<p>After watching the story on the 11:00pm news we realized it was time to get serious about ﬁguringout the detailed workings of the virus. We all agreed that decompiling was the route to take, though later we also mounted an effort to infect a specially instrumented machine to see the virus in operation. As Jerry Saltzer said in a later message to the Project Athena staff, we undertook a ‘‘wizard-level analysis’’ by going over the virus ‘‘with microscope and tweezers.’’</p>
+<h3><a name="c35"></a>3.5 Friday: “Where’s Sigourney Weaver?”</h3>
+<h4><a name="c351"></a>3.5.1 Decompiling in Earnest</h4>
+<p>Tim Shepard joined the group in E40, just before midnight on Thursday. We thought we saw packets going to <em>ernie</em> and replies coming back, though this later proved to be an illusion. Tim had hundreds of megabytes of packet headers gathered Thursday morning from a subnet at LCS which was known to have had infected machines on it. Unfortunately the data was sitting on a machine at LCS, which was still off the network, so Tim decided to go back and look through his data. Within an hour or two, Tim called back to say that he found no unusual trafﬁc to <em>ernie</em> at all. This was our ﬁrst good conﬁrmation that the <em>ernie</em> packets were a red-herring or at least that they didn’t actually wind up being sent.</p>
+<p>Serious decompiling began after midnight. Stan and Ted soon left the SIPB ofﬁce and joined the group working in E40, bringing with them the decoding of the strings and much of the decompiled main module for the virus. Mark Eichin, who had recently spent a lot of time disassembling-assembling some ROMs and thus had recent experience at reverse engineering binaries, took the lead in dividing the project up and assigning parts to people. He had also woke up in late afternoon and was the most prepared for the long night ahead.</p>
+<p>At 1:55am Mark discovered the ﬁrst of the bugs in the virus. A <em>bzero</em> call in <em>if_init</em> was botched. At 2:04am Stan had a version of the main module that compiled. We called Keith Bostic at Berkeley at 2:20am and arranged to do FTP exchanges of source code on an MIT machine (both Berkeley and MIT had never cut their outside network connections). Unfortunately, Keith was unable to get the hackers at Berkeley to take a break and batch up their work, so no exchange happened at that time.</p>
+<p>At 2:45am Mark started working on <em>checkother</em><sup><a href="#f15" name="b15">15</a></sup> since the Berkeley folks were puzzled by it. Jon Rochlis was working on the later <em>cracksome</em> routines. By 3:06am Ted had ﬁgured out that <em>ha</em> built a table of target hosts which had telnet listeners running. By 3:17am Ted and Hal Birkeland from the Media Lab had determined that the <em>crypt</em> routine was the same as one found in the C library. Nobody had yet offered a reason why it was included in the virus, rather than being picked up at link time<sup><a href="#f16" name="b16">16</a></sup>. Mark had ﬁnished <em>checkother</em> and Ted had ﬁnished <em>permute</em> at 3:28am. We worked on other routines throughout the morning.</p>
+<h4><a name="c352"></a>3.5.2 Observations from Running the Virus</h4>
+<p>The ﬁrst method of understanding the virus was the decompilation effort. A second method was towatch the virusas it ran, in an attempt to characterize what it was doing – this is akinto lookingat the symptoms of a biological virus, rather than analyzing the DNA of the virus.</p>
+<p>We wanted to do several things to prepare for observing the virus:</p>
+<ul>
+<li>Monitoring. We wanted to set up a machine with special logging, mostly including packet monitors.</li>
+<li>Pointers. We wanted to ‘‘prime’’ the machine with pointers to other machines so we could watch how the virus would attack its targets. By placing the names of the target machines in many different places on the ‘‘host’’ computer we could also see how the virus created its lists of targets.</li>
+<li>Isolation. We considered isolating the machines involved from the network totally (for paranoia’s sake) or by a link-layer bridge to cut down on the amount of extraneous trafﬁc monitored. True isolation proved more than we were willing to deal with at the time, since all of our UNIX workstations assume access to many network services such as nameservers and ﬁle servers. We didn’t want to take the time to build a functional standalone system, though that would have been feasible if we had judged the risk of infecting other machines too great.</li>
+</ul>
+<p>Mike Muuss reported that the BRL group focused on monitoring the virus in action. They prepared a special logging kernel, but even in coordination with Berkeley were unable to re-infect the machine in question until Saturday.</p>
+<p>By 1:00am Friday we had set up the monitoring equipment (an IBM PC runninga packet monitor) and two workstations (one acting as the target, the other running a packet monitoring program and saving the packet traces to disk), all separated from the network by a link-layer bridge and had dubbed the whole setup the ‘‘virus net’’. We, too, were unsuccessful in our attempt to get our target machine infected until we had enough of the virus decompiled to understand what arguments it wanted. By 3:40am John Kohl had the virus running on our ”virus net” and we learned a lot by watching what it did. The virus was soon observed trying telnet, SMTP, and ﬁnger connections to all gateways listed in the routing table. Later it was seen trying <tt>rsh</tt> and <tt>rexec</tt> into one of the gateways.</p>
+<p>At 4:22am, upon hearing of the virus going after yet another host in a ‘‘new’’ manner, Jon Rochlis remarked ‘‘This really feels like the movie <em>Aliens</em>. So where is Sigourney Weaver?’’ Seeing the virus reach out to infect other machines seemed quite scary and beyond our control.</p>
+<p>At 5:45am we called the folks at Berkeley and ﬁnally exchanged code. A number of people in Berkeley had punted to get some sleep, and we had a bit of difﬁculty convincing the person who answered Keith Bostic’s phone that we weren’t the bad guy trying to fool them. We gave him a number at MIT that showed up in the NIC’s whois database, but he never bothered to call back.</p>
+<p>At this point a bunch of us went out and brought back some breakfast.</p>
+<h4><a name="c353"></a>3.5.3 The Media Really Arrives</h4>
+<p>We had been very fortunate that the press did not distract us, and that we were thus able to put most of our time into our decompilation and analysis efforts. Jim Bruce and the MIT News Ofﬁce did a ﬁrst rate job of dealing with most of the press onslaught. By early morning Friday there was so much media interest that MIT News Ofﬁce scheduled a press conference for noon in the Project Athena Visitor Center in E40.</p>
+<p>Just before the press conference, we briefed Jim on our ﬁndings and what we thought was important: the virus didn’t destroy or even try to destroy any data; it did not appear to be an ‘‘accident;’’ we understood enough of the virus to speak with authority; many people (especially the people we had talked to at Berkeley) had helped to solve this.</p>
+<p>We were amazed at the size of the press conference – therewere approximatelyten TV camera crews and twentyﬁve reporters. Jeff Schiller spent a good amount of time talkingto reporters before the conference proper began, and many got shots of Jeff pointing at the letters ‘‘(sh)’’ on the output of a ps command. Jim and Jeff answered questions as the decompiling crew watched from a vantage point in theback of the room. At one pointa reporter asked Jeff how many people had enough knowledge to write such a virus and in particular, if Jeff could have written such a program. The answer was of course many people could have written it and yes, Jeff was one of them. The obvious question was then asked: ‘‘Where were you on Wednesday night, Jeff?’’ This was received with a great deal of laughter. But when a reporter stated that sources at the Pentagon had said that the instigator of the virus had come forward and was a BU or MIT graduate student, we all gasped and hoped it hadn’t really been one of our students.</p>
+<p>After the conference the press ﬁlmed many of us working (or pretending to work) in front of computers, as well as short interviews.</p>
+<p>The media was uniformly disappointed that the virus did nothing even remotely visual. Several also seemed pained that we weren’t moments away from World War III, or that there weren’t large numbers of companies and banks hooked up to ‘‘MIT’s network’’ who were going to be really upset when Monday rolled around. But the vast majority of the press seemed to be asking honest questions in an attempt to grapple with the unfamiliar concepts of computers and networks. At the NCSC meeting Mike Muuss said, ‘‘My greatest fear was that of seeing a <em>National Enquirer</em> headline: Computer Virus Escapes to Humans, 96 Killed.’’ We were lucky that didn’t happen.</p>
+<p>Perhaps the funniest thing done by the press was the picture of the virus code printed in Saturday’s edition of the <em>Boston Herald</em>[21]. Jon Kamens of MIT Project Athena had made a window dump of the assembly code for the start of the virus (along with corresponding decompiled C code), even including the window dump command itself. The truly amusing thing was that the <em>Herald</em> had gotten an artist to add tractor feed holes to the printout in an attempt to make it look like something that a computer might have generated. We’re sure they would have preferred a dot matrix printer to the laser printer we used.</p>
+<p>Keith Bostic called in the middle of the press zoo, but we were too busy dealing with the press, so we cut the conversation short. He called us back around 3:00pm and asked for our afﬁliations for his next posting<sup><a href="#f17" name="b17">17</a></sup>. Keith also asked if we liked the idea of posting bug ﬁxes to the virus itself, and we instantly agreed with glee. Keith made his fourth bug ﬁx posting at 5:04pm, this time with ﬁxes to the virus. Again he recommended renaming <em>ld</em>, the UNIX linker.</p>
+<p>Things began to wind down after that, though the press was still calling and we managed to put off the NBC <em>Today</em> show until Saturday afternoon. Most of us got a good amount of sleep for the ﬁrst time in several days.</p>
+<h3><a name="c36"></a>3.6 Saturday: Source Code Policy</h3>
+<p>Saturday afternoon, 5 November 1988, the <em>Today</em> show came to the SIPB Ofﬁce, which they referred to as the ‘‘computer support club’’ (<em>sic</em>), to ﬁnd a group of hackers. They interviewed Mark Eichin and Jon Rochlis and used Mark’s description of what hackers really try to do on Monday morning’s show.</p>
+<p>After the <em>Today</em> show crew left, many of us caught up on our mail. It was then that we ﬁrst saw Andy Sudduth’s Thursday morning posting to <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="631700134e0a132310110a4e0d0a004d02111302">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> and Mike Patton stopped by and pointed out how strange it was.</p>
+<p>Wesoon found ourselves in the middle of a heated discussion on <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e09088818785a0909592849585ce858495">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> regarding distribution of the decompiled virus source code. Since we had received several private requests for our work, we sat back and talked about what to do, and quicklyreached consensus. We agreed with most of the other groups around the country who had come to the decision not to release the source code they had reverse engineered. We felt strongly that the details of the inner workings of the virus should <em>not</em> be kept hidden, but that actual source code was a different matter. We (and others) intended to write about the algorithms used by the virus so that people would learn what the Internet community was up against. This meant that somebody could use those algorithms to write a new virus; but the knowledge required to do so is much greater than what is necessary to recompile the source code with a new, destructive line or two in it. The energy barrier for this is simply too low. The people on our team (not the MIT administration) decided to keep our source private untilthingscalmed down; then we would consider to whom to distribute the program. A public posting of the MIT code was not going to happen.</p>
+<p>Jerry Saltzer, among others, has argued forcefully that the code itself should be publicly released at some point in the future. After sites have had enough time to ﬁx the holes with vendor supplied bug ﬁxes, we might do so.</p>
+<h3><a name="c37"></a>3.7 Tuesday: The NCSC Meeting</h3>
+<p>On Tuesday 8 November 1988 Mark Eichin and Jon Rochlis attended the Baltimore post-mortem meeting hosted by the NCSC. We heard about the meeting indirectly at 2:00am and ﬂew to Baltimore at 7:00am. Figuring there was no time to waste with silly things like sleep, we worked on drafts of this document. The meeting will be described in more detail by the NCSC, but we will present a very brief summary here.</p>
+<p>Attending the meeting were representatives of the National Institute of Science and Technology (NIST), for merly the National Bureau of Standards, the Defense Communications Agency (DCA) , the Defense Advanced Research Projects Agency (DARPA), the Department of Energy (DOE), the Ballistics Research Laboratory (BRL), the Lawrence Livermore National Laboratory (LLNL), the Central Intelligence Agency (CIA), the University of California Berkeley (UCB), the Massachusetts Institute of Technology (MIT), Harvard University, SRI International, the Federal Bureau of Investigation (FBI), and of course the National Computer Security Center (NCSC). This is not a complete list. The lack of any vendor participation was notable.</p>
+<p>Three-quarters of the day was spent discussing what had happened from the different perspectives of those attending. This included chronologies, actions taken, and an analysis of the detailed workings of the virus; Meanwhile our very rough draft was duplicated and handed out.</p>
+<p>The remaining time was spent discussing what we learned from the attack and what should be done to prepare for future attacks. This was much harder and it is not clear that feasible solutions emerged, though there was much agreement on several motherhood and apple-pie suggestions. By this we mean the recommendations sound good and and by themselves are not objectionable, but we doubt they will be effective.</p>
+<h3><a name="c38"></a>3.8 Wednesday-Friday: The Purdue Incident</h3>
+<p>On Wednesday evening 9 November 1988, Rich Kulawiec of Purdue posted to <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f98991989e9cb9898c8b9d8c9cd79c9d8c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> that he was making available the <em>unas</em> disassembler that he (and others at Purdue) used to disassemble the virus. He also made available the output of running the virus through this program. Rumor spread and soon the NCSC called several people at Purdue, including Gene Spafford, in an attempt to get this copy of the virus removed. Eventually the President of Purdue was called and the ﬁle was deleted. The New York Times ran a heavily slanted story about the incident on Friday 11 November 1988[22].</p>
+<p>Several mistakes were made here. First the NCSC was concerned about the wrong thing. The disassembled virus was not important and was trivial for any infected site to generate. It simply was not anywhere near as important as the decompiled virus, which could have very easily have been compiled and run. When theMIT groupwas indirectly informed about this and discovered exactly what was publicly available, we wondered what the big deal was. Secondly, the NCSC acted in a strong-handed manner that upset the people at Purdue who got pushed around.</p>
+<p>Other similar incidents occurred around the same time. Jean Diaz of the MIT SIPB, fowarded a partially decompiled copy of the virus<sup><a href="#f18" name="b18">19</a></sup> to <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b4c4dcd5d3d1f4c4c1c6d0c1d19ad1d0c1">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> at some time on Friday 4 November 1988, but it spent several days in a mail queue on <em>hplabs.hp.com</em> before surfacing. Thus it had been posted before any of the discussion of source code release had occurred. It also was very incomplete and thus posed little danger since the effort required to turn it into a working virus was akin to the effort required to write the virus from scratch.</p>
+<p>These two incidents, however, caused the press to think that a second outbreak of the virus had once again brought the network to its knees. Robert French, of the MIT SIPB and Project Athena, took one such call on Thursday 10 November and informed the reporter that no such outbreak had occurred. Apparently rumors of source code availability (the Purdue incident and Jean’s posting) led to the erroneous conclusion that enough information of some sort had been let out and damage had been done. Rumor control was once again shown to be important.</p>
+<h2><a name="c4"></a>4 Lessons and Open Issues</h2>
+<p>The virus incident taught many important lessons. It also brought up many more difﬁcult issues which need to be addressed in the future.</p>
+<h3><a name="c41"></a>4.1 Lessons from the Community’s Reactions</h3>
+<p>The chronology of events is interesting. The manner in which the Internet community reacted to the virus attack points outareas of concern or at least issues for future study.</p>
+<ul>
+<li>Connectivity was important. Sites which disconnected from the network at the ﬁrst sign of trouble hurt themselves and the community. Not only could they not report their experiences and ﬁndings, but they couldn’t get timely bug ﬁxes. Furthermore, other sites using them as mail relays were crippled, thus delaying delivery of important mail, such as Andy Sudduth’s Thursday morning posting, until after the crisis had passed. Sites like MIT and Berkeley were able to collaborate in a meaningful manner because they never took themselves off the network.</li>
+<li>The ‘‘old boy network’’ worked. People called and sent electronic mail to the people they knew and trusted and much good communication happened. This can’t be formalized but it did function quite well in the face of the crisis.</li>
+<li>Late night authentication is an interesting problem. How did you know that it really is MIT on the phone? How did you know that Keith Bostic’s patch to <tt>sendmail</tt> is really a ﬁx and isn’t introducing a new problem? Did Keith really send the ﬁx or was it his evil twin, Skippy?</li>
+<li>Whom do you call? If you need to talk to the manager of the Ohio State University network at 3:00am whom do you call? How many people can ﬁnd that information, and is the information up to date?</li>
+<li>Speaker phones and conference calling proved very useful.</li>
+<li>How groups formed and who led them is a fascinating topic for future study. Don Alvarez of the MIT Center for Space Research presented his observations on this at the NCSC meeting.</li>
+<li>Misinformation and illusions ran rampant. Mike Muuss categorized several of these at the NCSC meeting. Our spotting of a handshake with <em>ernie</em> is but one example.</li>
+<li>Tools were not as important as one would have expected. Most of decompiling work was done manually with no more tools than a disassembler (<tt>adb</tt>) and an architecture manual. Based on its experience with PC viruses, the NCSC feels that more sophisticated tools must be developed. While this may be true for future attacks, it was not the case for this attack.</li>
+<li>Source availability was important. All of the sites which responded quickly and made progress in truly understanding the virus had UNIX source code.</li>
+<li>The academic sites performed best. Government and commercial sites lagged behind places like Berkeley and MIT in ﬁguring out what was going on and creating solutions.</li>
+<li>Managing the press was critical. We were not distracted by the press and were able to be quite productive. The MIT News ofﬁce did a ﬁne job keeping the press informed and out of the way. Batching the numerous requests into one press conference helped tremendously. The Berkeley group, among others, reported that it was difﬁcult to get work done with the press constantly hounding them.</li>
+</ul>
+<h3><a name="c42"></a>4.2 General Points for the Future</h3>
+<p>More general issues have popped to the surface because of the virus. These include the following:</p>
+<ul>
+<li>Least Privilege. This basic security principle is frequently ignored and this can result in disaster.</li>
+<li>‘‘We have met the enemy and he is us.’’ The alleged author of the virus has made contributions to the computer security ﬁeld and was by any deﬁnition an insider; the attack did not come from an outside source who obtained sensitive information, and restricting information such as source code would not have helped prevent this incident.</li>
+<li>Diversity is good. Though the virus picked on the most widespread operating system used on the Internet and on the two most popular machine types, most of the machines on the network were never in danger. A wider variety of implementations is probably good, not bad. There is a direct analogy with biological genetic diversity to be made.</li>
+<li>‘‘The cure shouldn’t be worse than the disease.’’ Chuck Cole made this point and Cliff Stoll also argued that it may be more expensive to prevent such attacks than it is to clean up after them. Backups are good. It may be cheaper to restore from backups than to try to ﬁgure out what damage an attacker has done[6].</li>
+<li>Defenses <em>must</em> be at the host level, not the network level. Mike Muuss and Cliff Stoll have made this point quite eloquently[6]. The network performed its function perfectly and should not be faulted; the tragic ﬂaws were in several application programs. Attempts to ﬁx the network are misguided. Jeff Schiller likes to use an analogy with the highway system: anybody can drive up to your house and probably break into your home, but that does not mean we should close down the roads or put armed guards on the exit ramps.</li>
+<li>Logging information is important. The <tt>inetd</tt> and <tt>telnetd</tt> interaction logging the source of virus attacks turned out to be a lucky break, but even so many sites did not have enough logging information available to identify the source or times of infection. This greatly hindered the responses, since people frequently had to install new programs which logged more information. On the other hand, logging information tends to accumulate quickly and is rarely referenced. Thus it is frequently automatically purged. If we log helpful information, but ﬁnd it is quickly purged, we have not improved the situtation much at all. Mike Muuss - points out that frequently one can retrieve such information from backups[6], but this is not always true.</li>
+<li>Denial of service attacks are easy. The Internet is amazingly vulnerable to such attacks. These attacks are quite difﬁcult to prevent, but we could be much better prepared to identify their sources than we are today. For example, currently itis not hard to imagine writing a program or set of programs which crash two-thirds of the existing Sun Workstations or other machines implementing Sun’s Network Filesystem (NFS). This is serious since such machines are the most common computers connected to the Internet. Also, the total lack of authentication and authorization for network level routing makes it possible for an ordinary user to disrupt communications for a large portion of the Internet. Bothtasks couldbe easily done in a manner which makes tracking down the initiator extremely difﬁcult, if not impossible.</li>
+<li>A central security ﬁx repository may be a good idea. Vendors <em>must</em> participate. End users, who likely only want to get their work done, must be educated about the importance of installing security ﬁxes.</li>
+<li>Knee-jerk reactions should be avoided. Openness and free ﬂow of informationis the whole point of networking, and funding agencies should not be encouraged to doanythingdamaging to this withoutvery careful consideration. Network connectivity proved its worth as an aid to collaborationby playing an invaluable role in the defense and analysis efforts during the crisis, despite the sites which isolated themselves.</li>
+</ul>
+<h2><a name="c5"></a>5 Acknowledgments</h2>
+<p>Many people contributed to our effort to take apart the virus. We would like to thank them all for their help and insights both during the immediate crisis and afterwards.</p>
+<h3><a name="c51"></a>5.1 The MIT team</h3>
+<p>The MIT group effort encompassed many organizations within the Institute. It included people from Project Athena, the Telecommunications Network Group, the Student Information Processing Board (SIPB), the Laboratory for Computer Science, and the Media Laboratory.</p>
+<p>The SIPB’s role is quite interesting. It is a volunteer student organization that represents students on issues of the MIT computing environment, does software development, provides consulting to the community, and other miscellaneous tasks. Almost all the members of the MIT team which took apart the virus were members of the SIPB, and the SIPB ofﬁce was the focus for early efforts at virus catching until people gathered in the Project Athena ofﬁces.</p>
+<p>Mark W. Eichin (Athena and SIPB) and Stanley R. Zanarotti(LCS and SIPB) led theteam disassembling thevirus code. The team included Bill Sommerfeld (Athena/Apollo Computer and SIPB), Ted Y. Ts’o (Athena and SIPB), Jon Rochlis (Telecommunications Network Group and SIPB), Ken Raeburn (Athena and SIPB), Hal Birkeland (Media Laboratory), and John T. Kohl (Athena/DEC and SIPB).</p>
+<p>Jeffrey I. Schiller (Campus Network Manager, Athena Operations Manager, and SIPB) did a lot of work in trapping the virus, setting up an isolated test suite, and dealing with the media. Pascal Chesnais (Media Laboratory) was one of the ﬁrst at MIT to spot the virus. Ron Hoffmann (Network Group) was one of the ﬁrst to notice an MIT machine attacked by ﬁnger.</p>
+<p>Tim Shepard (LCS) providedinformationabout the propagation of the virus, as well as large amounts of ‘‘netwatch’’ data and other technical help.</p>
+<p>James D. Bruce (EECS Professor and Vice President for Information Systems) and the MIT News Ofﬁce did an admirable job of keeping the media manageable and letting us get our work done.</p>
+<h3><a name="c52"></a>5.2 The Berkeley Team</h3>
+<p>We communicated and exchanged code with Berkeley extensively through out the morningof 4 November 1988. The team there included Keith Bostic (Computer Systems Research Group, University of California, Berkeley), Mike Karels (Computer Systems Research Group, University of California, Berkeley), Phil Lapsley (Experimental Computing Facility, University of California, Berkeley), Dave Pare (FX Development, Inc.), Donn Seeley (Universityof Utah), Chris Torek (University of Maryland), and Peter Yee (Experimental Computing Facility, University of California, Berkeley).</p>
+<h3><a name="c53"></a>5.3 Others</h3>
+<p>Numerous others across the country deserve thanks; many of them worked directly or indirectly on the virus, and helped coordinate the spread of information. Special thanks should go to Gene Spafford (Purdue) for serving as a central information point and providing key insight into the workings of the virus. Don Becker (Harris Corporation) has provided the most readable decompilation of the virus which we have seen to date. It was most helpful.</p>
+<p>An attempt was made to provide a review copy of this paper to all people mentioned by name. Most read a copy and many provided useful corrections.</p>
+<p>People who offered particularly valuable advice included Judith Provost, Jennifer Steiner, Mary Vogt, Stan Zanarotti, Jon Kamens, Marc Horowitz, Jenifer Tidwell, James Bruce, Jerry Saltzer, Steve Dyer, Ron Hoffmann and many unnamed people from the SIPB Ofﬁce. Any remaining ﬂaws in this paper are our fault, not theirs.</p>
+<p>Special thanks to Bill Sommerfeld for providing the description of the ﬁnger attack and its discovery.</p>
+<h2><a name="ca"></a>A The Program</h2>
+<p>This Appendix describes the virus program subroutine by subroutine. For reference, the ﬂow of information among the subroutines is shown in Figure 3.</p>
+<h3><a name="ca1"></a>A.1 Names</h3>
+<p>The core of the virus is a pair of binary modules, one for the VAX architecture and the other for the Sun architecture. These are linkable modules, and thus have name lists for their internal procedures. Many of the original names are included here with the descriptions of the functions the routines performed.</p>
+<p>It is surprising that the names are included, and astonishing that they are meaningful. Some simple techniques, such as randomizing the procedure names, would have removed a number of clues to the function of the virus.</p>
+<h3><a name="ca2"></a>A.2 main</h3>
+<p>The main module, the starting point of any C language program, does some initialization, processes its command line, and then goes off into the loop which organizes all of the real work.</p>
+<h4><a name="ca21"></a>A.2.1 Initialization</h4>
+<p>The program ﬁrst takes some steps to hide itself. It changes the ‘‘zeroth’’ argument, which is the process name, to <tt>sh</tt>. Thus, no matter how the program was invoked, it would show up in the process table with the same name as the Bourne Shell, a program which often runs legitimately.</p>
+<p>The program also sets the maximum core dump size to zero blocks. If the program crashed<sup><a href="#f19" name="b19">19</a></sup> it would not leave a core dump behind to help investigators. It also turns off handling of write errors on pipes, which normally cause the program to exit.</p>
+<p>The next step is to read the clock, store the current time in a local variable, and use that value to seed the random number generator.</p>
+<h4><a name="ca22"></a>A.2.2 Command line argument processing</h4>
+<p>The virus program itself takes an optional argument <tt>-p</tt> which must be followed by a decimal number, which seems to be a process id of the parent which spawned it. It uses this number later to kill that process, probably to ‘‘close the door’’ behind it.</p>
+<p>The rest of the command line arguments are ‘‘object names’’. These are names of ﬁles it tries to load into its address space. If it can’t load one of them, it quits. If the <tt>-p</tt> argument is given, it also deletes the object ﬁles, and later tries to remove the disk image of running virus, as well as the ﬁle <tt>/tmp/.dumb</tt>. (This ﬁle is not referenced anywhere else in the virus, so it is unclear why it is deleted.)</p>
+<p>The program then tried a few further steps, exiting (‘‘bailing out’’) if any of them failed:</p>
+<ul>
+<li>It checked that it had been given at least one object on the command line.</li>
+<li>It checked to see if it had successfully loaded in the object l1.c.</li>
+</ul>
+<p>If the ‘‘-p’’ argument was given, the program closes all ﬁle descriptors, in case there are any connections open to the parent.</p>
+<p>The program then erases the text of the argument array, to further obscure how it was started (perhaps to hide anything if one were to get a core image of the running virus.)</p>
+<p>It scans all of the network interfaces on the machine, gets the ﬂags and addresses of each interface. It tries to get the point-to-point address of the interface, skipping the loopback address. It also stores the netmask for that network [23].</p>
+<p>Finally, it kills off the process id given with the ‘‘-p’’ option. It also changes the current process group, so that it doesn’t die when the parent exits. Once this is cleaned up, it falls into the <em>doit</em> routine which performs the rest of the work.</p>
+<h3><a name="ca3"></a>A.3 doit routine</h3>
+<p>This routine is where the program spends most of its time.</p>
+<h4><a name="ca31"></a>A.3.1 Initialization</h4>
+<p>Like the main routine, itseeds therandom number generator with the clock, and stores the clock value to later measure how long the virus has been running on this system.</p>
+<p>It then tries <em>hg</em>. If that fails, it tries <em>hl</em>. If that fails, it tries <em>ha</em>.</p>
+<p>It then tries to check if there is already a copy of the virus running on this machine. Errors in this code contributed to the large amounts of computer time taken up by the virus. Speciﬁcally: </p>
+<ul>
+<li>On a one-in-seven chance, it won’t even try to test for another virus.</li>
+<li>The ﬁrst copy of the virus to run is the only one which listens for others; if multiple infections occur ‘‘simultaneously’’they willnot ‘‘hear’’each other, and all but one will fail to listen (see section A.12).</li>
+</ul>
+<p>The remainder of the initialization routine seems designed to send a single byte to address 128.32.137.13, which is <em>ernie.berkeley.edu</em>, on port 11357. This never happens, since the author used the <em>sendto</em> function on a TCP stream connection, instead of a UDP datagram socket<sup><a href="#f20" name="b20">20</a></sup>. We have no explanation for this; it only tries to send this packet with a one in ﬁfteen random chance.</p>
+<div align="center">
+<img src="img/aem02_fig3.gif" alt="Figure 3: The structure of attacking engine."/>
+<p><strong>Figure 3: The structure of attacking engine.</strong></p>
+</div>
+<h4><a name="ca32"></a>A.3.2 Main loop</h4>
+<p>An inﬁnite loop comprises the main active component of the virus. It calls the <em>cracksome</em> routine<sup><a href="#f21" name="b21">21</a></sup> which tries to ﬁnd some hosts that it can break in to. Then it waits 30 seconds, listening for other virus programs attempting to break in, and tries to break into another batch of machines.</p>
+<p>After this round of attacks, it forks, creating two copies of the virus; the original (parent) dies, leaving the fresh copy. The child copy has all of the information the parent had, while not having the accumulated CPU usage of the parent. It also has a new process id, making it hard to ﬁnd.</p>
+<p>Next, the <em>hg</em>, <em>hl</em>, and <em>ha</em> routines search for machines to infect (see Appendix A.5). The program sleeps for 2 minutes, and then checks to see if it has been running for more than 12 hours, cleaning up some of the entries in the host list if it has.</p>
+<p>Finally, before repeating, it checks the global variable <tt>pleasequit</tt>. If it is set, <em>and</em> if it has tried more than 10 words from its own dictionary against existing passwords, it quits. Thus forcing <tt>pleasequit</tt> to be set in the system libraries will do very little to stem the progress of this virus<sup><a href="#f22" name="b22">22</a></sup>.</p>
+<h3><a name="ca4"></a>A.4 Cracking routines</h3>
+<p>This collection of routines is the ‘‘brain’’ of the virus. <em>cracksome</em>, the main switch, chooses which of four strategies to execute. It is would be the central point for adding new strategies if the virus were to be further extended. The virus works each strategy through completely, then switches to the next one. Each pass through the cracking routines only performs a small amount of work, but enough state is remembered in each pass to continue the next time around.</p>
+<h4><a name="ca41"></a>A.4.1 cracksome</h4>
+<p>The <em>cracksome</em> routine is the central switching routine of the cracking code. It decides which of the cracking strategies is actually exercised next. Again, note that this routine was named in the global symbol table. It could have been given a confusing or random name, but it was actually clearly labelled, which lends some credence to the idea that the virus was released prematurely.</p>
+<h4><a name="ca42"></a>A.4.2 Phase 0</h4>
+<p>The ﬁrst phase of the <em>cracksome</em> routines reads through the <tt>/etc/hosts.equiv</tt> ﬁle to ﬁnd machine names that would be likely targets. While this ﬁle indicates what hosts the current machine trusts, it is fairly common to ﬁnd systems where all machines in a cluster trust each other, and at the very least it is likely that people with accounts on this machine willhave accounts on the other machines mentioned in <tt>/etc/hosts.equiv</tt>.</p>
+<p>It also reads the <tt>/.rhosts</tt> ﬁle, which lists the set of machines that this machine trusts root access from. Note that it does not take advantage of the trust itself [25] but merely uses the names as a list of additional machines to attack. Often, system managers willdeny read access to this ﬁle to any user other than root itself, to avoid providing any easy list of secondary targets that could be used to subvert the machine; this practice would have prevented the virus from discoveringthose names, although <tt>/.rhosts</tt> is very often a subset of <tt>/etc/hosts.equiv</tt>.</p>
+<p>The program then reads the entire local password ﬁle, <tt>/etc/passwd</tt>. It uses this to ﬁnd personal <tt>.forward</tt> ﬁles, and reads them in search of names of other machines it can attack. It also records the user name, encrypted password, and <em>GECOS</em> information string, all of which are stored in the <tt>/etc/passwd</tt> ﬁle. Once the program scanned the entire ﬁle, it advanced to Phase 1.</p>
+<h4><a name="ca43"></a>A.4.3 Phase 1</h4>
+<p>This phase of the cracking code attacked passwords on the local machine. It chose several likely passwords for each user, which were then encrypted and compared against the encryptions obtained in Phase 0 from <tt>/etc/passwd</tt>:</p>
+<ul>
+<li>No password at all.</li>
+<li>The user name itself.</li>
+<li>The user name appended to itself.</li>
+<li>The second of the comma separated <em>GECOS</em> information ﬁelds, which is commonly a nickname.</li>
+<li>The remainder of the full name after the ﬁrst name in the <em>GECOS</em> ﬁelds, i.e. probably the last name, with the ﬁrst letter converted to lower case.</li>
+<li>This ‘‘last name’’ reversed.</li>
+</ul>
+<p>All of these attacks are applied to ﬁfty passwords at a time from those collected in Phase 0. Once it had tried to guess the passwords for all local accounts, it advanced to Phase 2.</p>
+<h4><a name="ca44"></a>A.4.4 Phase 2</h4>
+<p>Phase 2 takes the internal word list distributed as part of the virus (see Appendix B) and shufﬂes it. Then it takes the words one at a time and decodes them (the high bit is set on all of the characters to obscure them) and tries them against all collected passwords. It maintains a global variable <tt>nextw</tt> as an index into this table. The main loop uses this to prevent <tt>pleasequit</tt> from causing the virus to exit until at least ten of the words have been checked against all of the encryptions in the collected list.</p>
+<p>Again, when the word list is exhausted the virus advances to Phase 3.</p>
+<h4><a name="ca45"></a>A.4.5 Phase 3</h4>
+<p>Phase 3 looks at the local <tt>/usr/dict/words</tt> ﬁle, a 24474 word list distributed with 4.3BSD (and other UNIX systems) as a spelling dictionary. The words are stored in this ﬁle one word per line. One word at a time is tried against all encrypted passwords. If the word begins with an upper case letter, the letter is converted to lower case and the word is tried again.</p>
+<p>When the dictionary runs out, the phase counter is again advanced to 4 (thus no more password cracking is attempted).</p>
+<h3><a name="ca5"></a>A.5 H routines</h3>
+<p>The ‘‘h routines’’ are a collection of routines with short names, such as <em>hg</em>, <em>ha</em>, <em>hi</em>, and <em>hl</em>, which search for other hosts to attack.</p>
+<h4><a name="ca51"></a>A.5.1 hg</h4>
+<p>The <em>hg</em> routine calls <em>rt_init</em> (if it has not already been called) to scan the routing table, and records all gateways except the loopback address in a special list. It then tries a generic attack routine to attack via <tt>rsh</tt>, <tt>finger</tt>, and SMTP. It returns after the ﬁrst successful attack.</p>
+<h4><a name="ca52"></a>A.5.2 ha</h4>
+<p>The <em>ha</em> routine goes through the gateway list and connects to TCP port 23, the telnet port, looking for gateways which are running telnet listeners. It randomizes the order of such gateways and calls <em>hn</em> (our name) with the network number of each gateway. The <em>ha</em> returns after <em>hn</em> reports that it has succeeded broken into a host.</p>
+<h4><a name="ca53"></a>A.5.3 hl</h4>
+<p>The <em>hl</em> routine iterates throughall the addresses for the local machine calling <em>hn</em> with the network number for each one. It returns if <em>hn</em> indicates success in breaking into a host.</p>
+<h4><a name="ca54"></a>A.5.4 hi</h4>
+<p>The <em>hi</em> routine goes through the internal host list (see section A.4.2) and tries to attack each host via <tt>rsh</tt>, <tt>finger</tt>, and SMTP. It returns if when one host is infected.</p>
+<h4><a name="ca55"></a>A.5.5 hn</h4>
+<p>The <em>hn</em> routine (our name) followed <em>hi</em> takes a network number as an argument. Surprisingly it returns if the network number supplied is the same as the network number of any of the interfaces on the local machine. For Class A addresses it uses the Arpanet IMP convention to create possible addresses to attack (net.[1-8].0.[1-255]). For all other networks it guesses hosts number one through 255 on that network. It randomizes the order of this list of possible hosts and tries to attack up to twenty of them using <tt>rsh</tt>, <tt>finger</tt>, and SMTP. If a host does not accept connections on TCP port 514, the <tt>rsh</tt> port, <em>hn</em> will not try to attack it. If a host is successfully attacked <em>hn</em> returns.</p>
+<h4><a name="ca56"></a>A.5.6 Usage</h4>
+<p>The ‘‘h routines’’ are called in groups in the main loop; if the ﬁrst routine succeedes in ﬁnding a vulnerable host the remaining routines are not called in the current pass. Each routine returns after it ﬁnds one vulnerable host. The <em>hg</em> routine is always called ﬁrst, which indicates the virus really wanted to infect gateway machines. Next comes <em>hi</em> which tried to infect normal hosts found via <em>cracksome</em>. If <em>hi</em> fails, <em>ha</em> is called, which seemed to try breaking into hosts with randomly guessed addresses on the far side of gateways. This assumes that all the addresses for gateways had been obtained (which is not trivial to verify from the convoluted code in <em>rt_init</em>), and implies that the virus would prefer to infect a gateway and from there reach out to the gateway’s connected networks, rather than tryingto hop the gateway directly. If <em>hg</em>, <em>hi</em>, and <em>ha</em> all failed to infect a host, then <em>hl</em> is called which is similar to <em>ha</em> but uses for local interfaces for a source of networks.</p>
+<p>It is not clear that <em>ha</em> and <em>hl</em> worked. Because <em>hn</em> returns if the address is local, <em>hl</em> appears to have no chance of succeeding. If alternate addresses for gateways are indeed obtained by other parts of the virus then <em>ha</em> could work. But if only the addresses in the routing table were used it could not work, since by deﬁnition these addresses must be on a directly connected network. Also, in our monitoring we never detected an attack on a randomly generated address. These routines do not seem to have been functional.</p>
+<h3><a name="ca6"></a>A.6 Attack routines</h3>
+<p>There are a collection of attack routines, all of which try to obtain a Bourne Shell runningon the targeted machine. See Appendix A.7 for a description of the <tt>l1.c</tt> program, used by all the attack routines.</p>
+<h4><a name="ca61"></a>A.6.1 hu1</h4>
+<p>The <em>hu1</em> routine is called by the Phase 1 and Phase 3 <em>cracksome</em> subroutines. Once a password for user name guessed correctly, this routine is called with a host name read from either the user’s <tt>.forward</tt> or <tt>.rhosts</tt> ﬁles. In order to assume the user’s id it then tries to connect to the local machine’s <tt>rexec</tt> server using the guessed name and password. If successful it runs an <tt>rsh</tt> to the target machine, trying to execute a Bourne Shell, which it uses to send over and compile the <tt>l1.c</tt> infection program.</p>
+<h4><a name="ca62"></a>A.6.2 Hit SMTP</h4>
+<p>This routine make a connection to TCP port 25, the SMTP port, of a remote machine and used it to take advantage of the sendmail bug. It attempts to use the debug option to make <tt>sendmail</tt> run a command (the ‘‘recipient’’ of the message), which transfers the <tt>l1.c</tt> program included in the body of the message.</p>
+<h4><a name="ca63"></a>A.6.3 Hit ﬁnger</h4>
+<p>The ‘‘hit ﬁnger’’ routine tries to make a connection to TCP port 79, the ﬁnger port, of the remote machine. Then it creates a ‘‘magic packet’’ which consists of</p>
+<ul>
+<li>A 400 byte ‘‘runway’’ of VAX ‘‘nop’’ instructions, which can be executed harmlessly.</li>
+<li>A small piece of code which executes a Bourne Shell.</li>
+<li>A stack frame, with a return address which would hopefully point into the code.</li>
+</ul>
+<p>Note that the piece of code is VAX code, and the stack frame is a VAX frame, in the wrong order for the Sun. Thus, although the Sun ﬁnger daemon has the same bug as the VAX one, this piece of code cannot exploit it.</p>
+<p>The attack on the ﬁnger daemon is clearly a lysogenetic ‘‘viral’’ attack (see Section 1.2), since although a worm doesn’t modify the host machine at all, the ﬁnger attack does modify the running ﬁnger daemon process. The ‘‘injected DNA’’ component of the virus contained the VAX instructions shown in Figure 4.</p>
+<p>The <em>execve</em> system call causes the current process to be replaced with an invocation of the named program; <tt>/bin/sh</tt> is the Bourne Shell, a UNIX command interpreter. In this case, the shell winds up running with its input coming from, and its output going to, the network connection. The virus then sends over the <tt>l1.c</tt> bootstrap program.</p>
+<h4><a name="ca64"></a>A.6.4 Hit rsh</h4>
+<p>This unlabeled routine tries <tt>rsh</tt> to the target host (assuming it can get in as the current user). It tries three different names for the <tt>rsh</tt> binary,</p>
+<ul>
+<li><tt>/usr/ucb/rsh</tt></li>
+<li><tt>/usr/bin/rsh</tt></li>
+<li><tt>/bin/rsh</tt></li>
+</ul>
+<p>If one of them succeeds, it tries to resynchronize (see Appendix A.8.1) the connection; if that doesn’t succeed within thirty seconds it kills off the child process. If successful the connection can then be used to launch the <tt>l1.c</tt> ‘‘grappling hook’’ program at the victim.</p>
+<p>Note that this infection method doesn’t specify a user name to attack; if it gets into the remote account, it is because the user that the virus is running as also has an account on the other machine which trusts the originating machine.</p>
+<h4><a name="ca65"></a>A.6.5 Hit rexec</h4>
+<p>The <em>hit_rexec</em> routine uses the remote execution system which is similar to <tt>rsh</tt>, but designed for use by programs. It connects and sends the user name, the password, and <tt>/bin/sh</tt> as the command to execute.</p>
+<h4><a name="ca66"></a>A.6.6 makemagic</h4>
+<p>This routine tries to make a telnet connection to each of the available addresses for the current victim. It broke the connections immediately, often producing error reports from the telnet daemon, which were recorded, and provide some of the earliest reports of attack attempts.<sup><a href="#f23" name="b23">23</a></sup></p>
+<p>If it succeedes in reaching the host, it creates a TCP listener on a random port number which the infected machine would eventually connect back to.</p>
+<h3><a name="ca7"></a>A.7 Grappling Hook</h3>
+<p>A short program, named <tt>l1.c</tt>, is the common grappling hook that all of the attack routines use to pull over the rest of the virus. It is robustly written, and fairly portable. It ran on a number of machines which were neither VAX or Sun, loading them down as well, but only making them peripheral victims of the virus.</p>
+<p>The ﬁrst thing it does is delete the binary it was running from. It checks that it has three arguments (exiting if there aren’t three of them). It closes all ﬁle descriptors and then forks, exiting if the fork fails. If it succeeds, the parent exits; this leaves no connection from the child to the infection route.</p>
+<p>Next, it creates a TCP connection back to the address given as the ﬁrst argument, and the port given as the second. Then it sends over the magic number given as the third. The text of each argument is erased immediately after it is used. The stream connection isthen reused as the program’s standard input and output.</p>
+<pre class="source">
+	pushl	$68732f			push ’/sh&lt;NUL>’
+	pushl	$6e69622f		push ’/bin’
+	movl	sp,r10			save address of start of string
+	pushl	$0			push 0 (arg 3 to execve)
+	pushl	$0			push 0 (arg 2 to execve)
+	pushl	r10			push string addr (arg 1 to execve)
+	pushl	$3			push argument count
+	movl	sp,ap			set argument pointer
+	chmk	$3b			do "execve" kernel call.
+</pre>
+<p><strong>Figure 4: VAX intructions for the finger attack.</strong></p>
+<p>A loop reads in a length (as a network byte order 32-bit integer) and then a ﬁlename. The ﬁle is unlinked and opened for write, and then the ﬁle itself is read in (using the number of bytes read in earlier.) On any error, all of the ﬁles are unlinked. If the length read in is -1, the loop exits, and a Bourne Shell is executed (replacing the <tt>l1</tt> program, and getting its input from the same source.)</p>
+<h3><a name="ca8"></a>A.8 Install Routines</h3>
+<p>There are a variety of routines used to actually move the virus from one machine to the other. They deal with the ‘‘virus protocol’’ connection made by the <tt>l1.c</tt> injected program or with the shell that it spawns.</p>
+<h4><a name="ca81"></a>A.8.1 resynch</h4>
+<p>The <em>resynch</em> routine sends commands to a remote shell, requesting that it echo back a speciﬁc randomly chosen number. It then waits a certain amount of time for a response. This routine is used to indicate when the various subprograms of the infection procedure have compiled or executed and a Bourne Shell prompt is available again.</p>
+<h4><a name="ca82"></a>A.8.2 waithit</h4>
+<p>This routine does much of the high level work. It waits (up to 2 minutes) for a return connection from a victim (which has had <tt>l1.c</tt> injected into it.) It then tries to read a magic number (which had been previously sent to that victim as a command line argument to the <tt>l1</tt> program) and gives up after ten seconds.</p>
+<p>After the connection is established, all of the current ‘‘objects’’ in storage in the virus are fed down the connection into the victim. Then it tries to resynchronize, and if it succeeds, sends down commands to</p>
+<ul>
+<li>set the <tt>PATH</tt> of the victim shell</li>
+<li>try to delete <tt>sh</tt> in the current directory (<tt>/usr/tmp</tt>)</li>
+<li>if the delete fails, pick a random name to use instead<sup><a href="#f24" name="b24">24</a></sup></li>
+<li>scan the list of objects, looking for names ending in <tt>.o </tt></li>
+<li>link and run each of these, with the command line arguments
+<ul>
+<li><tt>-p $$</tt>, where <tt>$$</tt> is the process id of the victim shell</li>
+<li>each object name</li>
+</ul></li>
+<li>resynchronize; if this fails, assume that the virus succeeded (since the <tt>-p</tt> option tells the virus to kill off the parent shell) and set ﬂag bit 1 of the host list entry (the host list is detailed in section A.9).</li>
+<li>delete the compiled program, and go on to the next object.</li>
+</ul>
+<p>Thus, to add another machine type, the virus merely needs to be started with a new object binary as a command line option, which will then be propagated to the next infected host and tried.</p>
+<p>Note that the path used here was <tt>PATH=bin:/usr/bin:/usr/ucb</tt> which is certainly reasonable on most systems. This protects systems with ‘‘unusual’’ ﬁlesystem layouts, and suggests that complete consistency among systems makes them more vulnerable.</p>
+<h3><a name="ca9"></a>A.9 Host modules</h3>
+<p>These are a set of routines designed to collect names and addresses of target hosts in a master list. Each entry contains up to six addresses, up to twelve names, and a ﬂags ﬁeld.</p>
+<h4><a name="ca91"></a>A.9.1 Name to host</h4>
+<p>This routine searches the host list for a given named host, returns the list entry describing it, and optionally adds it to the list if it isn’t there already.</p>
+<h4><a name="ca92"></a>A.9.2 Address to host</h4>
+<p>This routine searches the host list for a given host address, returns the list entry describing it, and optionally adds it to the list if it isn’t there already.</p>
+<h4><a name="ca93"></a>A.9.3 Add address/name</h4>
+<p>These two routines added an address or a name to a host list entry, checking to make sure that the address or name was not already known.</p>
+<h4><a name="ca94"></a>A.9.4 Clean up table</h4>
+<p>This routine cycles through the host list, and removes any hosts which only have ﬂag bits 1 and 2 set (and clears those bits.) Bit 1 is set when a resynchronize (in <em>waithit</em>) fails, probably indicating that this host ‘‘got lost’’. Bit 2 is set when a named host has no addresses, or when several different attack attempts fail. Bit 3 is set when Phase 0 of the crack routines successfully retrieves an address for the host.</p>
+<h4><a name="ca95"></a>A.9.5 Get addresses</h4>
+<p>This routine takes an entry in the host table and tries to ﬁll in the the gaps. It looks up an address for a name it has, or looks up a name for the addresses it has. It also includes any aliases it can ﬁnd.</p>
+<h3><a name="caa"></a>A.10 Object routines</h3>
+<p>These routines are what the system uses to pull all of its pieces into memory when it starts (after the host has been infected) and then to retrieve them to transmit to any host it infects.</p>
+<h4><a name="caa1"></a>A.10.1 Load object</h4>
+<p>This routine opens a ﬁle, determines its length, allocating the appropriate amount of memory, reads it in as one block, decodes the block of memory (with XOR). If the object name contains a comma, it moves past it and starts the name there.</p>
+<h4><a name="caa2"></a>A.10.2 Get object by name</h4>
+<p>This routine returns a pointer to the requested object. This is used to ﬁnd the pieces to download when infecting another host.</p>
+<h3><a name="cab"></a>A.11 Other initialization routines</h3>
+<h4><a name="cab1"></a>A.11.1 if_init</h4>
+<p>This routine scans the array of network interfaces. It gets the ﬂags for each interface, and makes sure the interface is UP and RUNNING (speciﬁc ﬁelds of the ﬂag structure). If the entry is a point to point type interface, the remote address is saved and added to the host table. It then tries to enter the router into the list of hosts to attack.</p>
+<h4><a name="cab2"></a>A.11.2 rt_init</h4>
+<p>This routine runs <code>netstat -r -n</code> as a subprocess. This shows the routing table, with the addresses listed numerically. It gives up after ﬁnding 500 gateways. It skips the default route, as well as the loopback entry. It checks for redundant entries, and checks to see if this address is already an interface address. If not, it adds it to the list of gateways.</p>
+<p>After the gateway list is collected, it shufﬂes it and enters the addresses in the host table.</p>
+<h3><a name="cac"></a>A.12 Interlock routines</h3>
+<p>The two routines <em>checkother</em> and <em>othersleep</em> are at the heart of the excessive propagation of the virus. It is clear that the author intended for the virus to detect that a machine was already infected, and if so to skip it. The code is actually fraught with timing ﬂaws and design errors which lead it to permit multiple infections, probably more often than the designer intended<sup><a href="#f25" name="b25">25</a></sup>.</p>
+<p>An active infection uses the <em>othersleep</em> routine for two purposes, ﬁrst to sleep so that it doesn’t use much processor time, and second to listen for requests from ‘‘incoming’’ viruses. The virus which is running <em>othersleep</em> is referred to as the ‘‘listener’’ and the virus which is running <em>checkother</em> is referred to as the ‘‘tester’’.</p>
+<h4><a name="cac1"></a>A.12.1 Checkother</h4>
+<p>The tester tries to connect to port 23357 on the local machine (using the loopback address, 127.0.0.1) to see if it can connect to a listener. If any errors occur during this check, the virus assumes that no listener is present, and tries to become a listener itself.</p>
+<p>If the connection is successful, the checker sends a magic number<sup><a href="#f26" name="b26">26</a></sup>, and listens (for up to 300 seconds) for a magic number from the listener<sup><a href="#f27" name="b27">27</a></sup>. If the magic number is wrong, the checker assumes it is being spoofed and continues to run.</p>
+<p>The checker then picks a random number, shifts it right by three (throwing away the lower three bits) and sends it to the listener. It expects a number back within ten seconds, which it adds to the one sent. If this sum is even, the sender increments <tt>pleasequit</tt>, which (as noted in section A.3.2) does very little.</p>
+<p>Once it has ﬁnished communicating (or failing to communicate) with the listener, the checker sleeps for ﬁve seconds and tries to become a listener. It creates a TCP stream socket, sets the socket options to indicate that it should allow multiple binds to that address (in case the listener <em>still</em> hasn’t exited, perhaps?) and then binds the socket to port 23357, and listens on it (permitting a backlog of up to ten pending connections.)</p>
+<h4><a name="cac2"></a>A.12.2 Othersleep</h4>
+<p>The <em>othersleep</em> routine is run when the main body of the virus wants to idle for a period of time. This was apparently intended to help the virus ‘‘hide’’ so that it wouldn’t use enough processor time to be noticed. While the main program sleeps, the listener code waits to see if any checkers have appeared and queried for the existence of a listener, as a simple ‘‘background task’’ of the main virus.</p>
+<p>The routine ﬁrst checks to see if it has been set up as a listener; if not, it calls the normal <em>sleep</em> function to sleep for the requested number of seconds, and returns.</p>
+<p>If it is set up as a listener, it listens on the checking port with a timeout. If it times out, it returns, otherwise it deals withthe connection and subtracts the elapsed real time from the time out value.</p>
+<p>The body of the listener ‘‘accepts’’ the connection, and sends a magic number to the checker. It then listens (for up to 10 seconds) for the checker’s magic number, and picks a random number. It shifts the random number right by three, discarding the lower bits, and sends it up to the checker; it then listens (for up to 10 seconds) for a random number from the checker. If any of these steps fail, the connection is closed and the checker is ignored.</p>
+<p>Once the exchanges have occurred, the address of the incoming connection is compared with the loopback address. If itis not from the loopback address, the attempt is ignored. If it is, then if the sum of the exchanged random numbers is odd, the listener increments <tt>pleasequit</tt> (with little effect, as noted in section A.3.2) and closes the listener connection.</p>
+<h2><a name="cb"></a>B Built in dictionary</h2>
+<p>432 words were included:</p>
+<ul>
+<li>aaa</li>
+<li>academia</li>
+<li>aerobics</li>
+<li>airplane</li>
+<li>albany</li>
+<li>albatross</li>
+<li>albert</li>
+<li>alex</li>
+<li>alexander</li>
+<li>algebra</li>
+<li>aliases</li>
+<li>alphabet</li>
+<li>ama</li>
+<li>amorphous</li>
+<li>analog</li>
+<li>anchor</li>
+<li>andromache</li>
+<li>animals</li>
+<li>answer</li>
+<li>anthropogenic</li>
+<li>anvils</li>
+<li>anything</li>
+<li>aria</li>
+<li>ariadne</li>
+<li>arrow</li>
+<li>arthur</li>
+<li>athena</li>
+<li>atmosphere</li>
+<li>aztecs</li>
+<li>azure</li>
+<li>bacchus</li>
+<li>bailey</li>
+<li>banana</li>
+<li>bananas</li>
+<li>bandit</li>
+<li>banks</li>
+<li>barber</li>
+<li>baritone</li>
+<li>bass</li>
+<li>bassoon</li>
+<li>batman</li>
+<li>beater</li>
+<li>beauty</li>
+<li>beethoven</li>
+<li>beloved</li>
+<li>benz</li>
+<li>beowulf</li>
+<li>berkeley</li>
+<li>berliner</li>
+<li>beryl</li>
+<li>beverly</li>
+<li>bicameral</li>
+<li>bob</li>
+<li>brenda</li>
+<li>brian</li>
+<li>bridget</li>
+<li>broadway</li>
+<li>bumbling</li>
+<li>burgess</li>
+<li>campanile</li>
+<li>cantor</li>
+<li>cardinal</li>
+<li>carmen</li>
+<li>carolina</li>
+<li>caroline</li>
+<li>cascades</li>
+<li>castle</li>
+<li>cat</li>
+<li>cayuga</li>
+<li>celtics</li>
+<li>cerulean</li>
+<li>change</li>
+<li>charles</li>
+<li>charming</li>
+<li>charon</li>
+<li>chester</li>
+<li>cigar</li>
+<li>classic</li>
+<li>clusters</li>
+<li>coffee</li>
+<li>coke</li>
+<li>collins</li>
+<li>commrades</li>
+<li>computer</li>
+<li>condo</li>
+<li>cookie</li>
+<li>cooper</li>
+<li>cornelius</li>
+<li>couscous</li>
+<li>creation</li>
+<li>creosote</li>
+<li>cretin</li>
+<li>daemon</li>
+<li>dancer</li>
+<li>daniel</li>
+<li>danny</li>
+<li>dave</li>
+<li>december</li>
+<li>defoe</li>
+<li>deluge</li>
+<li>desperate</li>
+<li>develop</li>
+<li>dieter</li>
+<li>digital</li>
+<li>discovery</li>
+<li>disney</li>
+<li>dog</li>
+<li>drought</li>
+<li>duncan</li>
+<li>eager</li>
+<li>easier</li>
+<li>edges</li>
+<li>edinburgh</li>
+<li>edwin</li>
+<li>edwina</li>
+<li>egghead</li>
+<li>eiderdown</li>
+<li>eileen</li>
+<li>einstein</li>
+<li>elephant</li>
+<li>elizabeth</li>
+<li>ellen</li>
+<li>emerald</li>
+<li>engine</li>
+<li>engineer</li>
+<li>enterprise</li>
+<li>enzyme</li>
+<li>ersatz</li>
+<li>establish</li>
+<li>estate</li>
+<li>euclid</li>
+<li>evelyn</li>
+<li>extension</li>
+<li>fairway</li>
+<li>felicia</li>
+<li>fender</li>
+<li>fermat</li>
+<li>ﬁdelity</li>
+<li>ﬁnite</li>
+<li>ﬁshers</li>
+<li>ﬂakes</li>
+<li>ﬂoat</li>
+<li>ﬂower</li>
+<li>ﬂowers</li>
+<li>foolproof</li>
+<li>football</li>
+<li>foresight</li>
+<li>format</li>
+<li>forsythe</li>
+<li>fourier</li>
+<li>fred</li>
+<li>friend</li>
+<li>frighten</li>
+<li>fun</li>
+<li>fungible</li>
+<li>gabriel</li>
+<li>gardner</li>
+<li>garﬁeld</li>
+<li>gauss</li>
+<li>george</li>
+<li>gertrude</li>
+<li>ginger</li>
+<li>glacier</li>
+<li>gnu</li>
+<li>golfer</li>
+<li>gorgeous</li>
+<li>gorges</li>
+<li>gosling</li>
+<li>gouge</li>
+<li>graham</li>
+<li>gryphon</li>
+<li>guest</li>
+<li>guitar</li>
+<li>gumption</li>
+<li>guntis</li>
+<li>hacker</li>
+<li>hamlet</li>
+<li>handily</li>
+<li>happening</li>
+<li>harmony</li>
+<li>harold</li>
+<li>harvey</li>
+<li>hebrides</li>
+<li>heinlein</li>
+<li>hello</li>
+<li>help</li>
+<li>herbert</li>
+<li>hiawatha</li>
+<li>hibernia</li>
+<li>honey</li>
+<li>horse</li>
+<li>horus</li>
+<li>hutchins</li>
+<li>imbroglio</li>
+<li>imperial</li>
+<li>include</li>
+<li>ingres</li>
+<li>inna</li>
+<li>innocuous</li>
+<li>irishman</li>
+<li>isis</li>
+<li>japan</li>
+<li>jessica</li>
+<li>jester</li>
+<li>jixian</li>
+<li>johnny</li>
+<li>joseph</li>
+<li>joshua</li>
+<li>judith</li>
+<li>juggle</li>
+<li>julia</li>
+<li>kathleen</li>
+<li>kermit</li>
+<li>kernel</li>
+<li>kirkland</li>
+<li>knight</li>
+<li>ladle</li>
+<li>lambda</li>
+<li>lamination</li>
+<li>larkin</li>
+<li>larry</li>
+<li>lazarus</li>
+<li>lebesgue</li>
+<li>lee</li>
+<li>leland</li>
+<li>leroy</li>
+<li>lewis</li>
+<li>light</li>
+<li>lisa</li>
+<li>louis</li>
+<li>lynne</li>
+<li>macintosh</li>
+<li>mack</li>
+<li>maggot</li>
+<li>magic</li>
+<li>malcolm</li>
+<li>mark</li>
+<li>markus</li>
+<li>marty</li>
+<li>marvin</li>
+<li>master</li>
+<li>maurice</li>
+<li>mellon</li>
+<li>merlin</li>
+<li>mets</li>
+<li>michael</li>
+<li>michelle</li>
+<li>mike</li>
+<li>minimum</li>
+<li>minsky</li>
+<li>moguls</li>
+<li>moose</li>
+<li>morley</li>
+<li>mozart</li>
+<li>nancy</li>
+<li>napoleon</li>
+<li>nepenthe</li>
+<li>ness</li>
+<li>network</li>
+<li>newton</li>
+<li>next</li>
+<li>noxious</li>
+<li>nutrition</li>
+<li>nyquist</li>
+<li>oceanography</li>
+<li>ocelot</li>
+<li>olivetti</li>
+<li>olivia</li>
+<li>oracle</li>
+<li>orca</li>
+<li>orwell</li>
+<li>osiris</li>
+<li>outlaw</li>
+<li>oxford</li>
+<li>paciﬁc</li>
+<li>painless</li>
+<li>pakistan</li>
+<li>pam</li>
+<li>papers</li>
+<li>password</li>
+<li>patricia</li>
+<li>penguin</li>
+<li>peoria</li>
+<li>percolate</li>
+<li>persimmon</li>
+<li>persona</li>
+<li>pete</li>
+<li>peter</li>
+<li>philip</li>
+<li>phoenix</li>
+<li>pierre</li>
+<li>pizza</li>
+<li>plover</li>
+<li>plymouth</li>
+<li>polynomial</li>
+<li>pondering</li>
+<li>pork</li>
+<li>poster</li>
+<li>praise</li>
+<li>precious</li>
+<li>prelude</li>
+<li>prince</li>
+<li>princeton</li>
+<li>protect</li>
+<li>protozoa</li>
+<li>pumpkin</li>
+<li>puneet</li>
+<li>puppet</li>
+<li>rabbit</li>
+<li>rachmaninoff</li>
+<li>rainbow</li>
+<li>raindrop</li>
+<li>raleigh</li>
+<li>random</li>
+<li>rascal</li>
+<li>really</li>
+<li>rebecca</li>
+<li>remote</li>
+<li>rick</li>
+<li>ripple</li>
+<li>robotics</li>
+<li>rochester</li>
+<li>rolex</li>
+<li>romano</li>
+<li>ronald</li>
+<li>rosebud</li>
+<li>rosemary</li>
+<li>roses</li>
+<li>ruben</li>
+<li>rules</li>
+<li>ruth</li>
+<li>sal</li>
+<li>saxon</li>
+<li>scamper</li>
+<li>scheme</li>
+<li>scott</li>
+<li>scotty</li>
+<li>secret</li>
+<li>sensor</li>
+<li>serenity</li>
+<li>sharks</li>
+<li>sharon</li>
+<li>shefﬁeld</li>
+<li>sheldon</li>
+<li>shiva</li>
+<li>shivers</li>
+<li>shuttle</li>
+<li>signature</li>
+<li>simon</li>
+<li>simple</li>
+<li>singer</li>
+<li>single</li>
+<li>smile</li>
+<li>smiles</li>
+<li>smooch</li>
+<li>smother</li>
+<li>snatch</li>
+<li>snoopy</li>
+<li>soap</li>
+<li>socrates</li>
+<li>sossina</li>
+<li>sparrows</li>
+<li>spit</li>
+<li>spring</li>
+<li>springer</li>
+<li>squires</li>
+<li>strangle</li>
+<li>stratford</li>
+<li>stuttgart</li>
+<li>subway</li>
+<li>success</li>
+<li>summer</li>
+<li>super</li>
+<li>superstage</li>
+<li>support</li>
+<li>supported</li>
+<li>surfer</li>
+<li>suzanne</li>
+<li>swearer</li>
+<li>symmetry</li>
+<li>tangerine</li>
+<li>tape</li>
+<li>target</li>
+<li>tarragon</li>
+<li>taylor</li>
+<li>telephone</li>
+<li>temptation</li>
+<li>thailand</li>
+<li>tiger</li>
+<li>toggle</li>
+<li>tomato</li>
+<li>topography</li>
+<li>tortoise</li>
+<li>toyota</li>
+<li>trails</li>
+<li>trivial</li>
+<li>trombone</li>
+<li>tubas</li>
+<li>tuttle</li>
+<li>umesh</li>
+<li>unhappy</li>
+<li>unicorn</li>
+<li>unknown</li>
+<li>urchin</li>
+<li>utility</li>
+<li>vasant</li>
+<li>vertigo</li>
+<li>vicky</li>
+<li>village</li>
+<li>virginia</li>
+<li>warren</li>
+<li>water</li>
+<li>weenie</li>
+<li>whatnot</li>
+<li>whiting</li>
+<li>whitney</li>
+<li>will</li>
+<li>william</li>
+<li>williamsburg</li>
+<li>willie</li>
+<li>winston</li>
+<li>wisconsin</li>
+<li>wizard</li>
+<li>wombat</li>
+<li>woodwind</li>
+<li>wormwood</li>
+<li>yacov</li>
+<li>yang</li>
+<li>yellowstone</li>
+<li>yosemite</li>
+<li>zap</li>
+<li>zimmerman</li>
+</ul>
+<h2><a name="cc"></a>C Cast of Characters</h2>
+<p>This is an alphabetical list of all the people mentioned in section 3, their network addresses, and afﬁliations.</p>
+<address>
+<p>Don Alvarez &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ae8e5e5e7eff8caf9faebe9efa4e7e3fea4efeeff">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Center for Space Research</p>
+<p>Richard Basch &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cfbfbda0adaa8faebba7aaa1aee1a2a6bbe1aaabba">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Athena and SIPB</p>
+<p>Don Becker &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="97f5f2f4fcf2e5d7e3e5f6f9e3f8e5b9fff6e5e5fee4baf6e3f3b9f4f8fa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Harris Corporation and MIT SIPB.</p>
+<p>Matt Bishop &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d2b0bba1babda292b0b7b3a0fcb6b3a0a6bfbda7a6bafcb7b6a7">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Dartmouth University</p>
+<p>Hal Birkeland &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5931323b302b323c19382d313c37387734302d773c3d2c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Media Laboratory</p>
+<p>Keith Bostic &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="4e2c213d3a272d0e21252b2b28282b602c2b3c252b222b37602b2a3b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of California, Berkeley</p>
+<p>Russell Brand &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="eb89998a858fab878787c688998cc587878587c58c849d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Lawrence Livermore National Laboratory</p>
+<p>James D. Bruce &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="670d03052703020b170f0e490a0e1349020312">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Information Systems</p>
+<p>John Bruner &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="7a101e183a1715081e150854094b541d150c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Lawrence Livermore National Laboratory</p>
+<p>Liudvikas Bukys &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="aac8dfc1d3d9eac9d984d8c5c9c2cfd9decfd884cfcedf">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of Rochester</p>
+<p>Chuck Cole &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="53303c3f36133f3f3f7e3021347d3f3f3d3f7d343c25">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Lawrence Livermore National Laboratory</p>
+<p>Pascal Chesnais &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cfa3aeacbcaebf8fa2aaaba6aee2a3aeade1a2aaaba6aee1a2a6bbe1aaabba">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Media Laboratory</p>
+<p>Jean Diaz &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d0b1bdb2b1a290b1a4b8b5beb1febdb9a4feb5b4a5">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Oracle Corporation and MIT SIPB</p>
+<p>Dave Edwards &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="345058517447465d1a575b59">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> SRI, International</p>
+<p>Mark Eichin &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cca9a5afa4a5a28cadb8a4a9a2ade2a1a5b8e2a9a8b9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Athena and SIPB</p>
+<p>Kent England &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="573c20321735227a342479352279323322">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Boston University</p>
+<p>Paul Flaherty &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="dfafbeaab3b99fb5baacacb6bcbef1acabbeb1b9b0adbbf1babbaa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Stanford University</p>
+<p>Jim Fulton &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d1bbb8bc91b4a9a1beffbdb2a2ffbcb8a5ffb4b5a4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT X Consortium</p>
+<p>Robert French &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f98b9f8b9c979a91b9988d919c9798d794908dd79c9d8c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT SIPB and Project Athena</p>
+<p>Dan Geer &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ddbab8b8af9dbca9b5b8b3bcf3b0b4a9f3b8b9a8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Project Athena</p>
+<p>Paul Graham &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2c5c4b6c444d5e5a4d5e4802494859">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Harvard University</p>
+<p>Chris Hanson &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="debdaeb69ea4abacb7bdb6f0bfb7f0b3b7aaf0bbbaab">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT AI Laboratory</p>
+<p>Sergio Heker &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="69010c020c1b29031f070a08470a1a0a47061b0e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> John Von Neumann National Supercomputer Center</p>
+<p>Ray Hirschfeld &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="790b18003914180d115714100d571c1d0c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Math Department/AI Laboratory</p>
+<p>Ron Hoffmann &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="553d3a333338343b3b15373c21262c7b383c217b303120">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Telecommunications Network Group</p>
+<p>Jon Kamens &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="bdd7d4d6fddcc9d5d8d3dc93d0d4c993d8d9c8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Project Athena and SIPB</p>
+<p>Mike Karels &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="751e140710190635001617140705145b1710071e1019100c5b101100">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of California, Berkeley</p>
+<p>John Kohl &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b8d2ccd3d7d0d4f8d9ccd0ddd6d996d5d1cc96dddccd">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Digital Equipment Corporation, MIT Athena and SIPB</p>
+<p>Rich Kulawiec &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9defeef6ddf0fcfef8b3fefeb3ede8eff9e8f8b3f8f9e8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Purdue</p>
+<p>Phil Lapsley &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6e1e0607022e0c0b1c050b020b17400b0a1b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of California, Berkeley</p>
+<p>Milo Medin &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6c01090805022c021f051c0342020d1f0d420b031a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> NASA Ames</p>
+<p>Steve Miller &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="27545342514267524a4e46445409524a4309424352">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of Maryland</p>
+<p>Russ Mundy &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3e534b505a477e5c5b5f4d4a105a5a5010535752">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Defense Communications Agency</p>
+<p>Mike Muuss &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="036e6a68664361716f2d6e6a6f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Ballistic Research Laboratory</p>
+<p>Eugene Myers &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fabfbeb7839f8889ba9e959991979b898e9f88d49b888a9b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> National Computer Security Center</p>
+<p>Peter Neumann &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="97f9f2e2faf6f9f9d7f4e4fbb9e4e5feb9f4f8fa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> SRI International</p>
+<p>Mike Patton &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="523f3322123e31217c3f3b267c373627">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT LCS</p>
+<p>Kurt Pires &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e58e8f958c978096a58780978e8089809ccb808190">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of California, Berkeley</p>
+<p>Mark Reinhold &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fe939c8cbe929d8dd093978ad09b9a8b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Laboratory of Computer Science</p>
+<p>Jon Rochlis &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cca6a3a28caea5b8bfb5e2a1a5b8e2a9a8b9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Telecommunications Network Group and SIPB</p>
+<p>Miek Rowan &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8fe2fbfdcfe2eeeceaa1ececa1fffafdebfaeaa1eaebfa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Purdue University</p>
+<p>Jerry Saltzer &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5102303d252b342311302539343f307f3c38257f343524">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Laboratory of Computer Science and Project Athena</p>
+<p>Jeff Schiller &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9bf1f2e8dbf9f2efe8e2b5f6f2efb5feffee">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Telecommunications Network Group, Athena, and SIPB</p>
+<p>Mike Shanzer &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5f2c373e31253a2d1f3e2b373a313e7132362b713a3b2a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Project Athena</p>
+<p>Tim Shepard &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="86f5eee3f6c6f6f2f2a8eae5f5a8ebeff2a8e3e2f3">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Laboratory of Computer Science</p>
+<p>Bill Sommerfeld &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="67100214080a0a02152706130f020906490a0e1349020312">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Apollo Computer, MIT Athena and SIPB</p>
+<p>Gene Spafford &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b6c5c6d7d0f6d5c598c6c3c4d2c3d398d3d2c3">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Purdue University</p>
+<p>Mike Spitzer &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="65080f162508000b110a174b06064b1510170110004b000110">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Purdue University</p>
+<p>Cliff Stoll &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="395a55505f5f795a5f580b09091751584b4f584b5d175c5d4c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Harvard University</p>
+<p>Andy Sudduth &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="afdcdacbcbdadbc7efc7ceddd9ceddcb81cacbda">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> Harvard University</p>
+<p>Ted Ts’o &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="42363b36312d0223362a272c236c2f2b366c272637">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Athena and SIPB</p>
+<p>Edward Wang &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="65000112041701250700170e0009001c4b000110">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> University of California, Berkeley</p>
+<p>Peter Yee &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ef7ebebceefe3ebfda0effceda0e0effdefa0e9e1f8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> NASA Ames</p>
+<p>Stan Zanarotti &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="abd8d9d1ebc7c8d885c6c2df85cecfde">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> MIT Laboratory of Computer Science and SIPB</p>
+</address>
+<h2><a name="cd"></a>References</h2>
+<ol>
+<li>R. Hinden, J. Haverty, and A. Sheltzer, ‘‘The DARPA Internet: Interconnecting Heterogeneous Computer Networks with Gateways,’’ <em>IEEE Computer Magazine</em>, vol. 16, num. 9, pp. 38–48, September 1983.</li>
+<li>J. S. Quarterman and J. C. Hoskins, ‘‘Notable Computer Networks,’’ in <em>Communications of the ACM</em>, vol. 29, num. 10, pp. 932–971, October 1986.</li>
+<li>S. E. Luria, S. J. Gould, and S. Singer, <em>A View of Life</em>. Menlo Park, California: Benjamin/Cummings Publishing Company, Inc., 1981.</li>
+<li>J. Watson <em>et al.</em>, <em>Molecular Biology of the Gene</em>. Menlo Park, California: Benjamin/Cummings Publishing Company, Inc., 1987.</li>
+<li>G. G. Simpson and W. S. Beck, <em>Life: An Introduction to Biology</em>. New York, New York: Harcourt, Brace and Ward, Inc., 1965.</li>
+<li>L. Castro <em>et al.</em>, ‘‘Post Mortem of 3 November ARPANET/MILNET Attack.’’ National Computer Security Center, Ft. Meade MD, 8 November 1988.</li>
+<li>P. J. Denning, ‘‘Computer Viruses,’’ <em>American Scientist</em>, vol. 766, pp. 236–238, May-June 1988.</li>
+<li>D. Seeley, ‘‘<a href="/lib/ase01.html">A Tour of the Worm</a>,’’ in <em>USENIX Association Winter Conference 1989 Proceedings</em>, pp. 287–304, January 1989.</li>
+<li>E. H. Spafford, ‘‘The Internet Worm Program: An Analysis,’’ <em>ACM SIGCOM</em>, vol. 19, January 1989.</li>
+<li>K. Harrenstien, ‘‘NAME/FINGER Protocol Protocol,’’ Request For Comments NIC/RFC742, Network Working Group, USC ISI, Novemeber 1977.</li>
+<li>J. Markoff, ‘‘Computer Snarl: A ‘Back Door’ Ajar,’’ <em>New York Times</em>, p. B10, 7 November 1988.</li>
+<li>J. B. Postel, ‘‘Simple Mail Transfer Protocol,’’ Request For Comments NIC/RFC 821, Network Working Group, USC ISI, August 1982.</li>
+<li>S. Bellovin, ‘‘The worm and the debug option,’’ in <em>Forum on Risks to the Public in Computers and Related Systems</em>, vol. 7, num. 74, ACM Committee on Computers and Public Policy, 10 November 1988.</li>
+<li>J. Collyer,‘‘Risks of unchecked input in C programs,’’ in <em>Forum on Risks to the Public in Computers and Related Systems</em>, vol. 7, num. 74, ACM Committee on Computers and Public Policy, 10 November 1988.</li>
+<li>J. Saltzer and M. Schroeder, ‘‘The Protection of Information in Computer Systems,’’ in <em>Proc. IEEE</em>, vol. 63, num. 9, pp. 1278–1308, IEEE, September 1975.</li>
+<li>J. Steiner, C. Neuman, and J. Schiller, ‘‘Kerberos: An Authentication Service for Open Network Systems,’’ in <em>USENIX Association Winter Conference 1988 Proceedings</em>, pp. 191–202, February 1988.</li>
+<li>M. R. Horton, ‘‘How to Read the Network News,’’ <em>UNIX User’s Supplementary Documents</em>, April 1986.</li>
+<li>P. Mockapetris, ‘‘Domain Names - Concepts And Facilities,’’ Request For Comments NIC/RFC 1034, Network Working Group, USC ISI, November 1987.</li>
+<li>J. Markoff, ‘‘Author of Computer ‘Virus’ Is Son of U.S. Electronic Security Expert,’’ <em>New York Times</em>, p. A1, 5 November 1988.</li>
+<li>P. G. Neumann, ed., <em>Forum on Risks to the Public in Computers and Related Systems</em>, vol. 7, num. 69, ACM Committee on Computers and Public Policy, 3 November 1988.</li>
+<li>???, ‘‘College Whiz ‘‘Put Virus in Computers’’,’’ <em>Boston Herald</em>, p. 1, 5 November 1988.</li>
+<li>J. Markoff, ‘‘U.S. Is Moving to Restrict Access To Facts About Computer Virus,’’ <em>New York Times</em>, p. A28, 11 November 1988.</li>
+<li>J. Mogul and J. B. Postel, ‘‘Internet Standard Subnetting Procedure,’’ Request For Comments NIC/RFC 950, NetworkWorkingGroup, USC ISI, August1985.</li>
+<li>G. Spafford, ‘‘A cure!!!!!,’’ in <em>Forum on Risks to the Public in Computers and Related Systems</em>, vol. 7, num. 70, ACM Committee on Computers and Public Policy, 3 November 1988.</li>
+<li>R. W. Baldwin, <em>Rule Based Analysis of Computer Security</em>. PhD thesis, MIT EE, June 1987.</li>
+<li>G. Spafford, ‘‘A worm ‘‘condom’’,’’ in <em>Forum on Risks to the Public in Computersand Related Systems</em>, vol. 7, num. 70, ACM Committee on Computers and Public Policy, 3 November 1988.</li>
+</ol>
+<hr size="1"/>
+<p>* Copyright &copy; 1988 Massachusetts Institute of Technology. A version of this paper will be presented at the 1989 IEEE Symposium on Research in Security and Privacy.</p>
+<p><a name="f1" href="#b1">1</a> UNIX is a trademark of AT&amp;T. DEC, VAX, and Ultrix are trademarks of Digitial Equipment Corporation. Sun, SunOS, and NFS are trademarks of Sun Microsystems, Inc. IBM is a trademark of International Business Machines, Inc.</p>
+<p><a name="f2" href="#b2">2</a> A program which accepts incoming mail and sends back mail to the original sender, usually saying something like ‘‘I am on vacation, and will not read your mail until I return.’’</p>
+<p><a name="f3" href="#b3">3</a> MIT’s Project Athena has a ‘‘write’’daemonwhich has a similar piece of code with the same ﬂaw but it explicitly exits rather than returning, and thus never uses the (damaged) return stack. A comment in the code notes that it is mostly copied from the ﬁnger daemon.</p>
+<p><a name="f4" href="#b4">4</a> USENET news [17] was an effective side-channel of information spread, although a number of sites disabled that as well.</p>
+<p><a name="f5" href="#b5">5</a> However, both sets of binaries were still compiled, consuming processor time on an attacked machine.</p>
+<p><a name="f6" href="#b6">6</a> Cornell systems personel had discovered unusual messages in their mailer logs and passed the logs to Berkeley which passed them to the NCSC. Later it was reported that the alleged author of the virus was a Cornell graduate student[19].</p>
+<p><a name="f7" href="#b7">7</a> In a message to the same mailing list on Saturday 5 November 1988, he acknowledged being the author of the Thursday morning message and stated he had posted the message anonymously because ‘‘at the time I didn’t want to answer questions about how I knew.’’</p>
+<p><a name="f8" href="#b8">8</a> An ‘‘obscure electronic bulletin board’’, according to the New York Times[11]. Nothing could be further from the truth.</p>
+<p><a name="f9" href="#b9">9</a> This was a level of detail that only the originator of the virus could have known at that time. To our knowledge nobody had yet identiﬁed the ﬁnger bug, since it only affected certain VAX hosts, and certainly nobody had discovered its mechanism.</p>
+<p><a name="f10" href="#b10">10</a> Perhaps ironically named <em>inﬂuenza.harvard.edu</em>.</p>
+<p><a name="f11" href="#b11">11</a> This is probably because <em>relay.cs.net</em> was off the air during most of the crisis.</p>
+<p><a name="f12" href="#b12">12</a> Phil Lapsley and Mike Karels of Berkeley reported that the only way to get mail to <em><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="deaabdaef3b7ae9eadacb7f3b0b7bdf0bfacaebf">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></em> to ﬂow quickly is to call up Mark Lottor at SRI and ask him to manually push the queue through.</p>
+<p><a name="f13" href="#b13">13</a> Jerry Saltzer, MIT EECS Professor and Technical Director of Project Athena, included similar detection advice in a message describing the virus to the Athena staff sent at 11:17am on Friday.</p>
+<p><a name="f14" href="#b14">14</a> This was based on Mark Lottor’s presentation to the October 1988 meeting of the Internet Engineering Task Force.</p>
+<p><a name="f15" href="#b15">15</a> This and all the other routines mentioned here are described in detail in Appendix A. The routines mentioned here are not intended to be an exhaustive list of the routines we worked on.</p>
+<p><a name="f16" href="#b16">16</a> It turned out that we were wrong and the version of <em>crypt</em> was <em>not</em> the same as library version[9]. Not everything you do at 3:00am turns out to be right.</p>
+<p><a name="f17" href="#b17">17</a> He almost got them right, except that he turned the Laboratory for Computer Science into the Laboratory for Computer Services.</p>
+<p><a name="f18" href="#b18">18</a> This was the work of Don Becker of Harris Corporation.</p>
+<p><a name="f19" href="#b19">19</a> For example, the virus was originally compiled using 4.3BSD declaration ﬁles. Under 4.2BSD, the alias name list did not exist, and code such as the virus which assumes aliases are there can crash and dump core.</p>
+<p><a name="f20" href="#b20">20</a> If the author had been as careful with error checking here as he tried to be elsewhere, he would have noted the error ‘‘socket not connected’’ every time this routine is invoked.</p>
+<p><a name="f21" href="#b21">21</a> This name was actually in the symbol table of the distributed binary!</p>
+<p><a name="f22" href="#b22">22</a> Although it was suggested very early [24].</p>
+<p><a name="f23" href="#b23">23</a> On fast machines, such as the DEC VAX 3200, there may be no record of these attacks, since the connection is handed off fast enough to satisfy the daemon.</p>
+<p><a name="f24" href="#b24">24</a> Since the delete command used (<code>rm -f</code>) did not remove directories, creating a directory <tt>/usr/tmp/sh</tt> stoped the virus[26]. However, the virus would still use CPU resources attempting to link the objects, even though it couldn’t write to the output ﬁle (since it was a directory).</p>
+<p><a name="f25" href="#b25">25</a> This behavior was noted by both looking at the code and by creat<sub>8</sub>ing a testbed setup, manually running a program that performs the checking and listening functions.</p>
+<p><a name="f26" href="#b26">26</a> 874697<sub>16</sub>, 8865431<sub>10</sub>, 041643227<sub>8</sub></p>
+<p><a name="f27" href="#b27">27</a> 148898<sub>16</sub>, 1345688<sub>10</sub>, 05104230<sub>8</sub></p>
+[<a style="" href="/lib/?lang=EN&amp;index=WO#aem02">Back to index</a>] [<a href="/lib/aem02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=aem02">de</a><a href="/lib/index.php?lang=en&amp;id=aem02">en</a><a href="/lib/index.php?lang=es&amp;id=aem02">es</a><a href="/lib/index.php?lang=it&amp;id=aem02">it</a><a href="/lib/index.php?lang=fr&amp;id=aem02">fr</a><a href="/lib/index.php?lang=pl&amp;id=aem02">pl</a><a href="/lib/index.php?lang=ru&amp;id=aem02">ru</a><a href="/lib/index.php?lang=ua&amp;id=aem02">ua</a></div>
+</body>
+</html>

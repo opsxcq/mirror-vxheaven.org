@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> pest 'Polymorphic file virus BEETLE' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="pest"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, pest,Polymorphic file virus BEETLE, uint, file, infected, call, trash, load, search, extended, decryptor, method, polymorphic, size, instructions, data, virus"/>
+<meta name="Description" content="Detailed description of Beetle virus."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"3de6241495aae311ae2ff00be5a30257c3a73f01-1498756976-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vpe01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Polymorphic file virus BEETLE</h1><p><a href="/lib/?lang=en&amp;author=pest"> pest</a><br/> <em><a href="/vx.php?fid=2013#f2013">Inception #1 (EN)</a></em><br/> <em> 2013</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vpe01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vpe01">Back to index</a>] [<a href="/lib/vpe01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">Features</a></li>
+<li><a href="#c1">Principle of operation</a></li>
+<li><a href="#c2">Extended EPO</a></li>
+<li><a href="#c3">Polymorphic generator</a></li>
+<li><a href="#c4">"Infernal" trash</a></li>
+<li><a href="#c5">Shell code</a></li>
+<li><a href="#c6">Conclusions:</a></li>
+</ul>
+<h2><a name="c0"></a>Features</h2>
+<ul>
+<li>infects PE files (DLL/EXE);</li>
+<li>does not change section attributes of the file infected;</li>
+<li>stores the first polymorphic decryptor in the first executed section;</li>
+<li>expands the last section and stores useful load there, as well as stolen data and additional information; all that is stored encrypted and with different keys;</li>
+<li>applies the <em>«Extended EPO»</em> method to transfer control to the first decryptor;</li>
+<li>the second decryptor is built by the <em>"Infernal trash"</em> method aimed at complicating the treatment;</li>
+<li>written in C with ASM inlines;</li>
+<li>every infected file will contain useful load.</li>
+</ul>
+<h2><a name="c1"></a>Principle of operation</h2>
+<p>Every infected file will play the role of a carrier of useful load. As an example, let's take an infected file winmine.exe that will calc.exe as its useful load. Here are the sections of the infected file:</p>
+<div align="center"><img src="img/vpe01/btl_1.png" alt="File Sections"/></div>
+<p>Encrypted data in the last section:</p>
+<div align="center"><img src="img/vpe01/btl_2.png" alt="Encrypted Data"/></div>
+<p>When the file is launched with the help of extended EPO, a transfer to first decryptor will occur:</p>
+<div align="center"><img src="img/vpe01/btl_3.png" alt="First Decryptor"/></div>
+<p>The first polymorphic decryptor is located in place of one grabbed function from the original file, so this decryptor has a limited size:</p>
+<div align="center"><img src="img/vpe01/btl_4.png" alt="SizeOfDecryptor 1"/></div>
+<div align="center"><img src="img/vpe01/btl_5.png" alt="SizeOfDecryptor 2"/></div>
+<p>The decryptor selects memory, copies data from the last section, decrypts the second "infernal" decryptor and passes control to it.</p>
+<p>The infernal decryptor represents a large number of nested polymorphic functions. The operations of the decryptor are spread among those functions.</p>
+<p>The beginning of the second decryptor:</p>
+<div align="center"><img src="img/vpe01/btl_6.png" alt="Second Decryptor"/></div>
+<p>Upon its execution, a shell code will be decrypted. That shell code will launch the useful load and restore all the information stolen from the infected file, while continuing to control it.</p>
+<div align="center"><img src="img/vpe01/btl_7.png" alt="ShellCode"/></div>
+<p>Two methods are used to infect files:</p>
+<ul>
+<li>extended EPO</li>
+<li>infernal trash </li>
+</ul>
+<h2><a name="c2"></a>Extended EPO</h2>
+<p>The CALL search is made by the entire section being executed rather than from the point of entry. No complex algorithms are used for the search. The algorithm looks like this:</p>
+<ol>
+<li>looks for byte 0xE8 and determines the transfer address;</li>
+<li>if the address is in the range of the section being executed, it goes to it, otherwise the algorithm returns to point 1;</li>
+<li>Upon the transfer, it reads the first bytes and compares them to the standard protocol push ebb / mov ebp,esp. If the condition is met, it considers the function found, otherwise returns to point 1.</li>
+</ol>
+<p>After these simple steps, the virus gets all the call requests in the program. Then it tries to determine the size of these functions. For that, the following algorithm is executed:</p>
+<ol>
+<li>It runs the call addresses found through the length disassembler.</li>
+<li>It checks opcodes ret/ret xx: if they match, this is the minimal length of the function.</li>
+</ol>
+<p>As a result, we get a list of functions and their lengths. Using this data, the infector randomly selects one function, "steals" it and embeds its first decryptor. However, let's not forget this function can be connected to relocks that will "mutilate" the code of the decryptor. To avoid this, you need to disable relocks for addresses transferred inside the function. </p>
+<p>Besides, the infector does not know the principle of the programs' execution, so there is a chance the stolen function will never be executed. To increase the chances of its execution, the infector will redirect a few randomly selected calls to the code, or, to be more exact, to the <em>polymorphic decryptor.</em></p>
+<h2><a name="c3"></a>Polymorphic generator</h2>
+<p>Any generator must be able to create arbitrary opcodes. In the infector, generation of basic opcodes is executed quite simply. To generate instructions, the following functions are introduced in the memory:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> BLOCK<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32</span>&nbsp; size<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint8</span><span style="color: #339933;">*</span>&nbsp; data<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+bool add_block<span style="color: black;">&#40;</span>BLOCK <span style="color: #339933;">*</span>b<span style="color: #339933;">,</span><span style="color: #993333;">uint8</span><span style="color: #339933;">*</span> data<span style="color: #339933;">,</span><span style="color: #993333;">int</span> size<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>b<span style="color: #339933;">-&gt;</span>size<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; b<span style="color: #339933;">-&gt;</span>data<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint8</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/malloc.html"><span style="color: #000066;">malloc</span></a><span style="color: black;">&#40;</span>size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>b<span style="color: #339933;">-&gt;</span>data<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #000000; font-weight: bold;">false</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #b1b100;">else</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; b<span style="color: #339933;">-&gt;</span>data<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint8</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/realloc.html"><span style="color: #000066;">realloc</span></a><span style="color: black;">&#40;</span>b<span style="color: #339933;">-&gt;</span>data<span style="color: #339933;">,</span>b<span style="color: #339933;">-&gt;</span>size<span style="color: #339933;">+</span>size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>b<span style="color: #339933;">-&gt;</span>data<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #000000; font-weight: bold;">false</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">-&gt;</span>data<span style="color: black;">&#91;</span>b<span style="color: #339933;">-&gt;</span>size<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>data<span style="color: #339933;">,</span>size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; b<span style="color: #339933;">-&gt;</span>size<span style="color: #339933;">+=</span>size<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #000000; font-weight: bold;">true</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Description of registers and main operations:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">enum</span> REG<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RAX<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RCX<span style="color: #339933;">=</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RDX<span style="color: #339933;">=</span><span style="color: #0000dd;">2</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RBX<span style="color: #339933;">=</span><span style="color: #0000dd;">3</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RSP<span style="color: #339933;">=</span><span style="color: #0000dd;">4</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RBP<span style="color: #339933;">=</span><span style="color: #0000dd;">5</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RSI<span style="color: #339933;">=</span><span style="color: #0000dd;">6</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _RDI<span style="color: #339933;">=</span><span style="color: #0000dd;">7</span><span style="color: #339933;">,</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">enum</span> OP2<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _XOR <span style="color: #339933;">=</span> <span style="color: #208080;">0x30</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _ADD <span style="color: #339933;">=</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _SUB <span style="color: #339933;">=</span> <span style="color: #208080;">0x28</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _AND <span style="color: #339933;">=</span> <span style="color: #208080;">0x20</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _OR <span style="color: #339933;">=</span> <span style="color: #208080;">0x08</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _MOV <span style="color: #339933;">=</span> <span style="color: #208080;">0x88</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _CMP <span style="color: #339933;">=</span> <span style="color: #208080;">0x38</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; _TEST <span style="color: #339933;">=</span><span style="color: #208080;">0x82</span><span style="color: #339933;">,</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>There are simple functions that can generate one opcode or an entire class of opcodes:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> OPCODE_2<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint8</span> o1<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint8</span> o2<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> _OP_RR<span style="color: black;">&#40;</span>BLOCK <span style="color: #339933;">*</span>b<span style="color: #339933;">,</span><span style="color: #993333;">uint32</span> o<span style="color: #339933;">,</span><span style="color: #993333;">uint8</span> r1<span style="color: #339933;">,</span><span style="color: #993333;">uint8</span> r2<span style="color: #339933;">,</span>bool x64<span style="color: #339933;">=</span><span style="color: #000000; font-weight: bold;">false</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>x64<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint8</span> pref<span style="color: #339933;">=</span><span style="color: #208080;">0x48</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; add_block<span style="color: black;">&#40;</span>b<span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint8</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>pref<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>pref<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; OPCODE_2 op<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; op.<span style="color: #202020;">o1</span><span style="color: #339933;">=</span><span style="color: #208080;">0x03</span><span style="color: #339933;">+</span>o<span style="color: #339933;">&amp;</span><span style="color: #208080;">0xFF</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; op.<span style="color: #202020;">o2</span><span style="color: #339933;">=</span><span style="color: #208080;">0xC0</span><span style="color: #339933;">+</span>r2<span style="color: #339933;">+</span><span style="color: #0000dd;">8</span><span style="color: #339933;">*</span>r1<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; add_block<span style="color: black;">&#40;</span>b<span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint8</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>op<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>OPCODE_2<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; i<span style="color: #339933;">+=</span><span style="color: #0000dd;">2</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> i<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> _PUSH_R<span style="color: black;">&#40;</span>BLOCK <span style="color: #339933;">*</span>b<span style="color: #339933;">,</span><span style="color: #993333;">uint8</span> reg<span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint8</span> op<span style="color: #339933;">=</span><span style="color: #208080;">0x50</span><span style="color: #339933;">|</span>reg<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; add_block<span style="color: black;">&#40;</span>b<span style="color: #339933;">,&amp;</span>op<span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> i<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>… There are many of them there …</p>
+<p>The number of opcodes can be expanded. Here is an example of a simple decryptor:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> key<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">data</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> size<span style="color: #339933;">/</span><span style="color: #ff0000;">4</span><br/>
+l1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span> l1<br/>
+&nbsp;</div>
+<p>This is what it will look like when a function is used:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">BLOCK b<span style="color: #339933;">;</span><br/>
+b.<span style="color: #202020;">size</span><span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">int</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>_OP_RC<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">,</span> _MOV<span style="color: #339933;">,</span> _RDX<span style="color: #339933;">,</span> key<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>_OP_RC<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">,</span> _MOV<span style="color: #339933;">,</span> _RAX<span style="color: #339933;">,</span> data<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>_OP_RC<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">,</span> _MOV<span style="color: #339933;">,</span> _RCX<span style="color: #339933;">,</span> size<span style="color: #339933;">/</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">int</span> l1<span style="color: #339933;">=</span>l<span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>_OP_ArR<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">,</span> _XOR<span style="color: #339933;">,</span> _RAX<span style="color: #339933;">,</span> _RDX<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>_OP_RC<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>b<span style="color: #339933;">,</span> _ADD<span style="color: #339933;">,</span> _RAX<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+l<span style="color: #339933;">+=</span>LOOP<span style="color: black;">&#40;</span>l1<span style="color: #339933;">-</span><span style="color: black;">&#40;</span>l<span style="color: #339933;">+</span><span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>This code can be easily made more complex, for example, by adding trash in between the instructions, changing registers, morphing main commands. All that was implemented when generating the first decryptor. The second decryptor will be much more sophisticated.</p>
+<h2><a name="c4"></a>"Infernal" trash</h2>
+<p>To complicate the decryptor, it was decided to generate a large number of nested functions and instructions of decryptor to smear on them.</p>
+<p>In this case, one instruction equals one useful command. I decided to put one useful instruction, say mov eax, 0x12345678, in the function. The following code should result: </p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> local_size<br/>
+<span style="color: black; font-style: italic;">; trash_1 — garbage instructions</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x12345678</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; — useful command</span><br/>
+<span style="color: black; font-style: italic;">; trash_2 — garbage instructions</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">leave</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>As a result of such simple actions, I can lose the eax value after the code is executed in trash_2, since trash can generate various instructions that will work with eax. So I introduced the "context" in which working registers are specified. If, when trash is generated, you work with a working register, it is recorded in a local variable for this function.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">struct</span> REG_ITEM<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32</span>&nbsp; value<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//register value</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32</span>&nbsp; local<span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//number of local variable</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; bool&nbsp; &nbsp; st<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//register inclusion flag</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; bool&nbsp; &nbsp; l_st<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">//flag indicating that the register has been moved to a local variable</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+REG_ITEM reg<span style="color: black;">&#91;</span><span style="color: #0000dd;">8</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>And here's an example of how it will work:</p>
+<ol>
+<li>instruction to be generated by mov eax, 12345678;</li>
+<li>a number of local variables is initialized: 8*8+&#8249;rnd&#8250;*8 (0x88);</li>
+<li>reg[_RAX].st=true; indicates that _RAX is a working register;</li>
+<li>variable number for storing register: reg[_RAX].local=&#8249;rnd&#8250;*8 (0x80); is initialized;</li>
+<li>when trash that will be using eax is generated, the register value will be moved to a local variable at 0x80 offset;</li>
+<li>when want to execute a command, the register will be unloaded from a variable and used in a useful instruction.</li>
+</ol>
+<p>This is what a function executing mov eax, 12345678 will look like:</p>
+<div align="center"><img src="img/vpe01/btl_8.png" alt="Function"/></div>
+<p>Let's call such a generator gen_call_op. Since now I can control the state of registers in the generated functions, I can build more complex structures. For example, I can generate multiple functions and combine them in func4:</p>
+<pre class="source">
+func1:
+	..
+func2:
+	..
+func3:
+	mov	eax,12345678
+…
+
+func4:
+	call	func1
+	trash1
+	call	func2
+	trash2
+	call	func3
+	trash3
+</pre>
+<p>That way, you can make multiple layers. Here is a graph of just one useful command being executed:</p>
+<div align="center"><img src="img/vpe01/btl_9.png" alt="Graph"/></div>
+<p>In this graph, the useful instruction can be in place of any function. For this graph, the function that contains the instruction is outlined in red. Let's such a generator <em>gen_tree_op.</em> I build a decryptor from such instructions (gen_tree_op). It looks pretty damn infernal to me.</p>
+<div align="center"><img src="img/vpe01/btl_10.png" alt="Graph 2"/></div>
+<p>It was easy to remake it for x64, most of the instructions differ by just the prefix.</p>
+<p>Advantages:</p>
+<ul>
+<li>This method allows generating instructions of almost any complexity.</li>
+<li>Search of useful instructions becomes an extremely difficult static analysis.</li>
+<li>The code generated is similar to that generated by compilers.</li>
+<li>This method does not build code by which one could take the signature.</li>
+</ul>
+<h2><a name="c5"></a>Shell code</h2>
+<p>The kind of code that executes useful load and restores stolen sections of the file. It's freely relocated and written in pure C. This code is usually written on an assembler, so you may need to use it for the x64 version, but you could do with C for the x86 version. The principle of writing a database-independent code was taken from the <em>0x02 pr0m1x virus</em>. As for the drastic changes, we could distinguish the search of the kernel32.dll database. In my code, the search is done through PEB, all names of the dll's loaded are listed and their hash is calculated. This method works on the entire XP line-up up to WIN8.</p>
+<h2><a name="c6"></a>Conclusions:</h2>
+<ul>
+<li>extended EPO makes it more difficult for the AV to detect the virus;</li>
+<li>the first and the second polymorphic decryptor make it more difficult to detect the virus;</li>
+<li>the second polymorphic decryptor makes static search for required values to decrypt the remaining segments more difficult, which complicates the treatment;</li>
+<li>the anomalies after the file is infected are minimal;</li>
+<li>the file is significantly rebuilt once infected, which should also make the treatment more difficult.</li>
+</ul>
+<p>All these features should become pain in the ass for AVs, and if this is true, then all my efforts haven't been for nothing.</p>
+<p><a href="/src.php?info=beetle.zip">Download source</a></p>
+<div align="right">
+pest<br/>
+2013<br/>
+Inception E-Zine
+</div>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#vpe01">Back to index</a>] [<a href="/lib/vpe01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vpe01">de</a><a href="/lib/index.php?lang=en&amp;id=vpe01">en</a><a href="/lib/index.php?lang=es&amp;id=vpe01">es</a><a href="/lib/index.php?lang=it&amp;id=vpe01">it</a><a href="/lib/index.php?lang=fr&amp;id=vpe01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vpe01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vpe01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vpe01">ua</a></div>
+</body>
+</html>

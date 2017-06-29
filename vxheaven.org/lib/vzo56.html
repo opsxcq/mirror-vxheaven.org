@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'О PE файлах и длинах секций' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,О PE файлах и длинах секций, последней, длину, этом, оффсет, длина, word, physsize, секций, значит, кодовой, виртуальной, object, virtsize, секции, физическая"/>
+<meta name="Description" content="VX Heaven site is dedicted to providing information about computer viruses (virii) and web space for virus authors and groups"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a8abe94cacc69c23d2c524f4d5f86d0a9d65e98d-1498757872-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo56.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>О PE файлах и длинах секций</h1><p><a href="/lib/?lang=ru&amp;author=Z0mbie"> Z0mbie</a><br/> <em> 2001</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo56.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=WI#vzo56">Вернуться к списку</a>] [<a href="/lib/vzo56.html#disqus_thread">Комментарии</a>]<br/> 
+<p>Здесь будет рассказано о трудностях, связанных с увеличением длины последней секции в PE файлах.</p>
+<p>Вроде бы ясная и простая вещь. Однако, практически КАЖДЫЙ задает на эту тему вопросы, причем - одни и те же. В связи с этим остается одно: или подробно и публично осветить эту проблему, или сдохнуть. Выберем трудный путь.</p>
+<p>Рассмотрим некий PE файл, лучше всего CALC.EXE.</p>
+<ol>
+<li>В PE хеадере хранится число секций в файле, это WORD, назовем его pe_numofobjects, оффсет в PE заголовке равен +06.
+<p>Примечание: обычно число секций не равно нулю, хотя маздаю (win9x) на это насрать, и даже если в файле нет ни одной секции, он все равно будет работать, особенно если после PE заголовка всунуть какой-нибудь код. Однако, если в файле совсем не будет импортов, то возникнут трудности с вызовом win32 api-шек. Но и это не проблема, если вместо апишек вызывать процедуру <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cda6a8bfa3a8a18da4a3b9fffc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> по адресу BFF712B9.</p>
+<p>Примечание: сразу после WORD pe_numofobjects идет DWORD pe_datetime (оффсет +08), то есть датавремя создания файла. Если работать с WORD'ом в падлу, то можно предварительно занулить pe_datetime и принять что pe_numofobjects это DWORD.</p>
+</li>
+<li>Сразу после PE заголовка идет таблица секций (==таблица объектов, object table), элементы (записи, object entry) которой описывают секции файла. Сколько записей, столько и секций, всего pe_numofobjects штук. Длина PE заголовка в абсолютном большинстве случаев равна 0F8h байт. Но, поскольку всякое бывает, то берут WORD по +14h, прибавляют 18h, и получают точную длину PE заголовка.
+<p>Формат object entry (одной записи таблицы секций):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">oe_struc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">struc</span><br/>
+oe_name &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">8</span> dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><span style="color: black; font-style: italic;">;00 01 02 03 04 05 06 07</span><br/>
+oe_virtsize &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 08 09 0a 0b</span><br/>
+oe_virtrva &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 0c 0d 0e 0f &nbsp;need objectalign</span><br/>
+oe_physsize &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 10 11 12 13</span><br/>
+oe_physoffs &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 14 15 16 17 &nbsp;need filealign</span><br/>
+oe_xxx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; for obj file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; --//--</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; --//--</span><br/>
+oe_flags &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;? &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 24 25 26 27</span><br/>
+<span style="color: black; font-style: italic;">; ---- total size == 0x28 ---------</span><br/>
+oe_struc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ends<br/>
+&nbsp;</div>
+<p>Теперь отметим <strong>самый важный момент</strong>: В таблице объектов хранятся <strong>не выровненные</strong> значения физической и виртуальной длин секций. Что это значит? Это значит, что чтобы получить настоящие длины секций надо взять эти значения из соответствующих записей в таблице секций и <strong>выровнять</strong>: физическую длину на pe_filealign, а виртуальную длину на pe_objectalign.</p>
+<p>Смещения же секций (физическое в файле и виртуальное (rva) в памяти) выровнены всегда.</p>
+<p>Примечание: из выравнивания смещений следует, что после всех заголовков но до начала первой секции может быть пустое неиспользуемое место. Например туда записывался CIH.</p>
+<p>Поля pe_filealign и pe_objectalign (DWORD'ы, смещения +3Ch и +39h) суть степени двойки, причем pe_filealign кратно 512 (сектор), а pe_objectalign кратно 4096 (страница в памяти).</p>
+<p>Поэтому процесс выравнивания для одной секции выглядит так: (на C)</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define ALIGN(x,y) &nbsp; &nbsp; &nbsp;(((x)+(y)-1)&amp;(~((y)-1)))</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// oe=таблица секций</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// i=номер секции</span><br/>
+&nbsp; &nbsp; &nbsp;oe<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">oe_physsize</span> <span style="color: #339933;">=</span> ALIGN<span style="color: black;">&#40;</span>oe<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">oe_physsize</span><span style="color: #339933;">,</span> pe<span style="color: #339933;">-&gt;</span>pe_filealign<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp;oe<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">oe_virtsize</span> <span style="color: #339933;">=</span> ALIGN<span style="color: black;">&#40;</span>oe<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">oe_virtsize</span><span style="color: #339933;">,</span> pe<span style="color: #339933;">-&gt;</span>pe_objectalign<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>или на asm'е:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi=PE-заголовк</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; edi=элемент таблицы секций</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 1. выровняем физическу длину</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>pe_filealign<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>oe_physsize<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>oe_physsize<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 2. выровняем виртуальную длину</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>pe_objectalign<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>oe_virtsize<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>oe_virtsize<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;</div>
+<p>Кроме того, бывает, что виртуальная длина у всех секций == 0. Такую дрянь производит watcom. И при этом, оно работает. Откуда брать виртуальную длину в этом случае? Я брал вместо нее физическую длину и выравнивал ее на objectalign.</p>
+<p>Я настоятельно рекомендую всем, кто открыл для себя много нового в этом тексте, перед началом заражения файла выровнять в таблице объектов все длины секций, с которым будете хоть как-то оперировать. Не следует делать этого по мере обращения к ним; необходимо сделать это один раз и в самом начале. Это сэкономит массу времени и сил, и иногда не только ваших.</p>
+<p>Важно: далее в этом тексте мы имеем в виду, что физическая и виртуальная длины секций уже выровнены; "выровненная" перед "длина" далее подразумевается само собой.</p>
+</li>
+<li>Для чего PE файл разбит на секции? Для того, чтобы в образе PE файла в памяти (который обычно не соответствует образу на диске) могли чередоваться инициализированные и неинициализированные данные. Кроме того, есть секции со специальным назначением, в них обычно хранятся таблицы импортов, экспортов, ресурсов, фиксапов, отладочной информации и некоторые другие.
+<p>Каждая секция файла имеет &lt;физическую длину> и &lt;виртуальную длину>. Физическая длина - это то, сколько секция занимает на диске. А виртуальная длина - это то, сколько секция занимает в памяти. Разница между этими длинами на ассемблере представляется как DB ?, то есть это и есть неинициализированные данные. Неинициализированные данные могут быть у любой секции. В результате получается такая ситуация:</p>
+<pre>
+  ФАЙЛ НА ДИСКЕ                 ПРОГРАММА В ПАМЯТИ
+
+   +--------+                       +--------+
+   |MZxxxxxx| &lt;---- заголовки ----> |MZxxxxxx|
+   +--------+                       |00000000|&lt;--alignment
+   |xxxxxxxx|                       +--------+
+   |xxxxxxxx| &lt;---- cекция#1 -----> |xxxxxxxx|\~~~~~~~\
+   |xxxxxxxx|                       |xxxxxxxx| }-физ.   \
+   +--------+                       |xxxxxxxx|/ длина    }-виртуальная длина
+   | ...    |             неиниц.  /|00000000|  секции  /   секции
+                          данные~~~\|00000000| _______/
+                                    +--------+
+                                    | ...    |
+</pre>
+<p>Несмотря на кажущуюся простоту, возможны такие варианты:</p>
+<ul>
+<li>Физическая длина секции равна виртуальной. Идеальный вариант, мечта поэта. Обычно встречается когда filealign == objectalign.</li>
+<li>Физическая длина меньше виртуальной. Это значит, что у секции есть неинициализированные данные.</li>
+<li>Физическая длина больше виртуальной. Это значит что у секции есть оверлей или alignment. Помните, что если виртуальная длина меньше физической, то некоторая (скорее всего состоящая из нулей) часть образа секции с диска не загрузится - это будет небольшой файловый алигнмент. Хотя никто не запрещает таким образом вставить не загружаемый в память "оверлей" не в конец файла, а между его секциями.</li>
+</ul>
+<p>Alignment - это разница между физической и виртуальной длинами. Можно понимать его по разному: для секции - (A) если длины выровнены, и (B) если длины НЕ выровнены; и для файла, если это (C) заполненный нулями оверлей длиной меньше pe_objectalign. Причем в случаях (A) и (B) разница длин у одной и той же секции может иметь разный знак. Например, если невыровенная physsize=512, невыровненная virtsize=100, выровненная physsize=512, выровненная virtsize=4096, то в случае (A) alignment=3584, а в случае (B) alignment=412. Причем один из них - в файле, а другой - в памяти. Так что решите для себя, о каком из алигнментов вы думаете и/или говорите.</p>
+<p>Замечу, что секции не всегда идут "впритык" друг к другу. Между ними возможны неиспользуемые странички памяти, хотя бывает такое редко. Например бывает, что оффсеты всех секций выровнены на 64k, а виртуальные их длины всего по несколько страниц.</p>
+</li>
+<li>Лирическое отступление в область теории
+<p>ImageBase - это адрес в памяти, куда должен быть загружен PE файл. По умолчанию большинство адресов в файле настроены на указанный в PE заголовке ImageBase (DWORD, смещение +34h). Обычно выровнен на 64k, и навряд ли линкер даст сделать меньше; однако маздайный загрузчик проглотит многие нестандартные значения с самым разным результатом.</p>
+<p>Если файл - это DLL, и загрузить его по указанному адресу нельзя, то происходит перенастройка на другой ImageBase, для этого используется таблица настроек (==фиксапов, релокаций). Если же в этом случае ее не окажется, то файл загружен не будет. Поните об этом, заражая PE DLL'ки, и при отдаче управления в файл вместо PUSH OFFSET/RETN делайте JMP.</p>
+<p>ImageSize (DWORD, оффсет +50h) - это виртуальная длина файла, то есть размер образа файла в памяти, вычисляется как виртуальный адрес (rva) последней секции + виртуальная длина последней секции. Обычно выровнен на pe_objectalign.</p>
+<p>BaseOfCode - это RVA первой кодовой секции, просто копируется сюда из object table при линковке.</p>
+<p>BaseOfData - та же фигня, для второй, обычно секции данных.</p>
+<p>SizeOfCode - длина кода, обычно выставлена корректно и равна вирт. длине первой секции</p>
+<p>SizeOfInitData &amp; SizeOfUninitData - полная херь, выставлено как попало и кое-где. Каким бы ни был метод заражения, менять их нет смысла.</p>
+<p>pe_subsystem (WORD по смещению +5Ch) - равно 2 для GUI приложений, и 3 для консольных аппликух. Иногда встречаются другие значения, и тогда файл заражать не следует.</p>
+</li>
+<li>Оверлеи
+<p>Оффсет оверлея вычисляется как физический оффсет последней секции плюс физическая длина последней секции.</p>
+<p>Длина оверлея вычисляется как длина файла минус оффсет оверлея.</p>
+<p>Оверлей в память вместе с PE файлом не грузится, но pe checksum по нему считается.</p>
+<p>Если длина оверлея меньше pe_objectalign, а длина файла на pe_objectalign выровнена, причем сам оверлей состоит из нулей, то это не орвелей, а алигнмент, и его можно поскипать.</p>
+<p>Если у оверлея первый DWORD=00000001h, а чуть дальше где-то идет '.dbg', то это дебаговая инфа. Есть и другие ее виды.</p>
+<p>В любом случае, при дописывании к последней секции, оверлей, если он есть, надо двигать, а если это дебаговая инфа, то можно попробовать ее похерить.</p>
+<p>Замечу, что в NT'ях и далее - большинство файлов с оверлеями, в основном с дебаговой инфой в них.</p>
+</li>
+<li>Собственно, что нужно чтобы дописаться к последней секции.
+<ul>
+<li>проверить файл на валидность: alredy-infected, subsystem=2/3, ...</li>
+<li>выровнять длины последней секции</li>
+<li>передвинуть overlay если он есть или поскипать дебаговую инфу</li>
+<li>записать вирус в конец последней секции</li>
+<li>увеличить длины последней секции на соответственно выровненные длины вируса</li>
+<li>увеличить imagesize на выровненную-на-objectalign длину вируса</li>
+<li>проапдейтить заголовки</li>
+</ul>
+<p>Пример добавления к последней секции: win9X.Examplo</p>
+</li>
+<li>Некоторые другие методы заражения PE файлов:
+<ul>
+<li>запись в алигнмент
+<ul>
+<li>хеадера</li>
+<li>секции</li>
+</ul></li>
+<li>добавление новой секции</li>
+<li>добавление нескольких секций, возможно фэйковых</li>
+<li>запись на место секции .reloc (с убиванием фиксапов)</li>
+<li>запись в ресурсы</li>
+<li>запись в начало/в конец какой-нибудь (обычно кодовой) секции, с ее увеличением (раздвигаем файл); необходима таблица фиксапов, придется перепатчить весь файл, но это не сложно</li>
+<li>запись в конец кодовой секции с предварительной ее упаковкой, длина файла не меняется</li>
+<li>нахождение в секции данных области нулей и запись в нее</li>
+<li>нахождение в кодовой секции неиспользуемых "пятен" и запись по кусочкам в них</li>
+<li>выдирание из кодовой секции целой процедуры и запись вместо нее</li>
+</ul>
+</li>
+</ol>
+[<a style="" href="/lib/?lang=RU&amp;index=WI#vzo56">Вернуться к списку</a>] [<a href="/lib/vzo56.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo56">de</a><a href="/lib/index.php?lang=en&amp;id=vzo56">en</a><a href="/lib/index.php?lang=es&amp;id=vzo56">es</a><a href="/lib/index.php?lang=it&amp;id=vzo56">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo56">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo56">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo56">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo56">ua</a></div>
+</body>
+</html>

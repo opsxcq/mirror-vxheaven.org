@@ -1,0 +1,562 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'Chomsky Hierarchy and the Word Problem in Code Mutation' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,Chomsky Hierarchy and the Word Problem in Code Mutation, type, mutation, grammar, push, formal, code, complexity, language, grammars, rules, algorithm, call, test, subset, word"/>
+<meta name="Description" content="In this article you will first read shourtly about the formal grammar and word problem including the reason why this is important for virus authors. (Chapter 2)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"2bfd1e24e6b8dfa27dfa5b2af157f0c5824136c7-1498755748-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp24.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Chomsky Hierarchy and the Word Problem in Code Mutation</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em>October 2008</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp24.html';</script><div class="ci"><a href="/lib/?ci=vsp24">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=TH#vsp24">Back to index</a>] [<a href="/lib/vsp24.html#disqus_thread">Comments</a>]<br/> 
+<ol>
+<li>Introduction</li>
+<li>Definitions
+<ol>
+<li>Formal Grammar and connection to code mutation</li>
+<li>Word Problem and connection to virus detection</li>
+</ol></li>
+<li>Chomsky Hierarchy</li>
+<li>Chomsky Hierarchy in code mutation
+<ol>
+<li>Type-3 Grammar in code mutation and MetaPHOR</li>
+<li>Type-2 Grammar as recursive mutation</li>
+<li>Type-1 Grammar as macro function mutation</li>
+<li>Type-0 Grammar as information annihilation</li>
+</ol></li>
+<li>Formal Grammar of MetaPHOR</li>
+<li>Conclusion</li>
+<li>References</li>
+</ol>
+<h2>1) Inroduction</h2>
+<p>Code Mutation (whether it is obfuscation of a decryption engine or full metamorphism) is a technique to prevent the detection of the computer virus using analytic scan algorithm. Formal grammar gives us the basis for a theoretical analysis of code mutation; therefore we must not neglect or ignore it.</p>
+<p>In 1999, Qozah has written an article called "<a href="/lib/vwm00.html">POLYMORPHISM AND GRAMMARS</a>" [1], analysing polymorphism (exaclty: a garbage generator) for the first time with this theoretical tool. Even his results for non-regular grammars are not correct, his article opened the door for a new way analysing virus technologies. In 2007, Eric Filiol wrote an article called "Metamorphism, Formal grammars and Undecidable Code Mutation" [2], dealing with the word problem and a description of a extended MetaPHOR mutation engine using a "Tzeitzin semi-Thue system" (a Type-0 Grammar).</p>
+<p>In this article you will first read shourtly about the formal grammar and word problem including the reason why this is important for virus authors. (Chapter 2)</p>
+<p>Then you will learn about the hierarchy of classes of formal grammars, the Chomsky Hierarchy and about its connection to code mutation including an analyse of the formal grammar of The Mental Driller's MetaPHOR mutation engine. Especially for type-1 grammars, you will see a surprising result. (Chapter 3-4)</p>
+<p>Later you will see the full formal grammar of MetaPHOR;a formalisation of all possible mutations rules. (Chapter 5)</p>
+<p>Before reading this article, you should read and understand the idea of formal language and grammar - for example read Qozah's article.</p>
+<h2>2) Definitions</h2>
+<h3>2.1) Formal Grammar and connection to code mutation</h3>
+<p><strong>Definition 1:</strong></p>
+<p>A formal Grammar G is a 4-tuple G = (N, T, S, R) where:</p>
+<ul>
+<li>N is a set of non-terminal symbols</li>
+<li>T is an alphabeth of terminal symbols</li>
+<li>S is an element of N; is the start symbol</li>
+<li>R is the rewriting system</li>
+</ul>
+<p><strong>Definition 2:</strong></p>
+<p>A word is a finite sequence of characters of an alphabeth T.</p>
+<p><strong>Definition 3.1:</strong></p>
+<p>A universal language UL over an alphabeth T is a subset T* of all words over that alphabeth.</p>
+<p><strong>Definition 3.2:</strong></p>
+<p>A formal language L is a subset of UL, contains all words generated by a formal grammar G := (N, T, S, R)</p>
+<dl>
+<dt>Formal language in code mutation:</dt><dd>Contains all functions of the computer virus.</dd>
+<dt>Word in code mutation:</dt><dd>A word is a finite sequence of characters of the x86 instruction set (any possible function generatable with the x86 instructions).
+<p>If the word is an element of L: It has a specific genotype (behaviour), but no specific phenotype (kernel code); it is a specific micro-function.</p></dd>
+<dt>Non-terminal Symbol in code mutation:</dt><dd>Function, which return (recursively) a specific terminal symbol depending on its behaviour information. Can not be replaced by rewriting system alone. ("a::= ..." does not exist; but "ab::=..." does)</dd>
+<dt>Alphabeth of terminal symbols</dt><dd>x86 instructions set</dd>
+<dt>Rewriting system R in code mutation:</dt><dd>The rules of mutation; how the mutation engine can change specific code or the decryption engine.</dd>
+</dl>
+<p>Standard Example:</p>
+<pre class="source">
+	G = (N, T, S, R)
+	N = {A, B}
+	T = {a, b}
+	R = {
+		S ::= bS | aA
+		A ::= bS | aB | a
+		B ::= bB | aB | a | b
+	}
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => bS => bbS => bbaA => bbaaB => bbaabB ==> bbaaba</pre>
+<p>Polymorphical Example:</p>
+<pre class="source">
+	G = (N, T, S, R)
+	N = {A, B}
+	T = {a, b, c, x, y}
+		a = "nop"
+		b = "sub edx, 0"
+		c = "push ebx"+"pop ebx"
+		x = "XOR [EDI], AL"
+		y = "INC AL"
+		e = ""
+	R = {
+		S::=aS | bS | cS | xA
+		A::=aA | bA | cA | yB
+		B::=aB | bB | cB | e
+	}
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => aS => acS => acxA => acxcA => acxcyB => acxcybB => acxcybe</pre>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">XOR</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EDI</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">AL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">INC</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;</div>
+<p>Metamorphical Example:</p>
+<pre class="source">
+	G = (N, T, S, R)
+	N = {A, B, C}
+	T = {a, b, c, d, e, f}
+		a = "mov reg, 0"
+		b = "pop reg"
+		c = "push 0"
+		d = "mov reg2, 0"+"push reg2"
+		e = "xor reg, reg"
+		f = "sub reg, reg"
+	R = {
+		S ::= A | Bb | C | D
+		A ::= a
+		B ::= c | d
+		C ::= e
+		D ::= f
+	}
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => Bb => db</pre>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; reg2<span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; reg2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; reg<br/>
+&nbsp;</div>
+<p>The polymorphical example have been already used in [1]. The metamorphic example is very trivial, but even very complex viruses as MetaPHOR use grammars like this (See Chapter 5).</p>
+<h3>2.2) Word Problem and connection to virus detection</h3>
+<p>The word problem can be formulate in mathematics with group theory, but we will use the formulation of computability theory.</p>
+<p>The problem (a decidion problem) is to construct an algorithm to decide for a given word if it belongs to a formal language or not.</p>
+<p>In connection with computer virus detection that means: An anti virus program scans a file, and has to decide whether a file is infected or not. Or: It has to decide wether a specific code of the file is part of a viruscode.</p>
+<p>OR: It has to decide wether a specific word from universal language UL belongs to a formal language L generated by a formal grammar G := (N, T, S, R), which represents a polymorphic or metamorphic engine.</p>
+<p>Example:</p>
+<pre class="source">
+	G = ({A, B}, {a, b, c}, S, T)
+	T = {
+		S ::= aA | bA | c
+		A ::= aA | B
+		B ::= bB | c
+	}
+</pre>
+<p>Is "aaabbbc" part of L? Yes, because:</p>
+<pre class="source">S => aA => aaA => aaaA => aaaB => aaabB => aaabbB => aaabbbB => aaabbbc</pre>
+<p>Is "aabbca" part of L? No, because:</p>
+<pre class="source">L={ (a|b)(a)*(b)*c, c }</pre>, and the given word has no "c" at the end.
+<h2>3) Chomsky Hierarchy</h2>
+<p>The Chomsky Hierarchy is a containment hierarchy of classes of formal grammars.[3] All possible formal grammars are divided in Type-0 ... Type-3 grammars, where Type-3 is subset of Type-2 (is subset of Type-1 (is subset of Type-0)).</p>
+<dl>
+<dt>Type 0: Recursively enumerable</dt><dd>
+<p>Restriction: no restrictions</p>
+<p>Example:</p>
+<pre class="source">
+	S ::= aBBA
+	AB ::= BA | Sc | C
+	cBc ::= aaa | ab | c
+	A ::= CBC
+	B ::= cBca | cb | aB
+	C ::= a | c
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => aBBA => acBcacbCBC => aabacbcBc => aabacbccbc</pre></dd>
+<dt>Type 1: Context-sensitive</dt><dd>
+<p>Restriction: For all (w1 => w2): |w1|&lt;=|w2|</p>
+<p>Example:</p>
+<pre class="source">
+	S ::= aBBA
+	AB ::= BA | Sc | C
+	cBc ::= aaa
+	A ::= CBC
+	B ::= cBca | cb | aB
+	C ::= a | c
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => aBBA => acBcacbCBC => aaaaacbccbc</pre></dd>
+<dt>Type 2: Context-free</dt><dd>
+<p>Restriction: For all (w1 => w2): w1 is an element of non-terminal symbols</p>
+<p>Example:</p>
+<pre class="source">
+	S ::= aBBA
+	A ::= CBC
+	B ::= cBca | cb | aB
+	C ::= a | c
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => aBBA => acbcbCBC => acbcbacba</pre></dd>
+<dt>Type 3: Regular</dt><dd>
+<p>Restriction: R = { A = aB, A = Ba, A = a }</p>
+<p>Example:</p>
+<pre class="source">
+	S ::= aS | aA
+	A ::= Bc
+	B ::= Bc | c
+</pre>
+<p>Derivation:</p>
+<pre class="source">S => aS => aaA => aaBc => aaBcc => aaccc</pre></dd>
+</dl>
+<h2>4) Chomsky Hierarchy in code mutation</h2>
+<p>For an anti virus programm it is important that scanning a file does not monopolize CPU-speed for long time. We can describe the time usage of an algorithm with Landau notation O(n), where n is the amount of data or number of mutation.</p>
+<p>A simple sort algorithm has a O(n) performance: For a list of 20 entries it needs t=c*20; for a list of 2.000 entries it needs t=c*2.000.</p>
+<p>A usual algorithm for multiplication of a N x N matrix with a N Vector needs N(N-1)=N^2-N operations. The performance is O(n^2)</p>
+<p>A usual algorithm for multiplication of a N x N matrix with a N x N matrix needs N(N(N-1) operations. The performance is O(n^3).</p>
+<p>About the complexity of an algorithm, which solves the word problem for Chomsky Hierarchy:</p>
+<ul>
+<li>Type-3: The complexity of an algorithm is linear: O(n)</li>
+<li>Type-2: The complexity of an algorithm is at least cubical: O(n^3).</li>
+<li>Type-1: The complexity of an algorithm is exponential: O(k^n)</li>
+<li>Type-0: For Type-0 grammars the word problem is undecidable.</li>
+</ul>
+<p><em>Caution:</em></p>
+<p>Here we use an asymtotically description of the given problem:</p>
+<p>lim n -> infinity</p>
+<p>It's obvious that in practise this is not possible. Nevertheless a virus can reach very high n, i. e. with deep (infinity) recursive mutation. Virus Scanners have to detect all variants of a virus, so that asymtotically description can be used.</p>
+<h3>4.1) Type-3 Grammar in code mutation and MetaPHOR</h3>
+<p>This is the lowest type of possible code mutation, but unfortunatly used in most polymorphic or metamorphic viruses. In Chapter 5 you can see that most parts of MetaPHOR's grammar is Type-3.</p>
+<p>For example:</p>
+<pre class="source">
+	N02 ::= t003 | t004
+	N32 ::= t078 | M21N32 => N32 ::= t078 | t079N32
+	M43 ::= t125 | t126
+</pre>
+<p>A big disadvanage is, that the shrinker of MetaPHOR is the inverse of expander (obfuscator). "The expander is the part that undoes what the shrinker did. It performs <em>exactly</em> the reverse operation." [4]. This result presents the determinism in the engine. Code mutation engines have to be created in a way, that linear time complexity will be prevented.</p>
+<h3>4.2) Type-2 Grammar as recursive mutation</h3>
+<p>When this type of grammar is used in a metamorphic virus, the operations for deciding the word problem increases at least cubically. As (rarly) done in MetaPHOR, creating a Type-2 grammar requires good planning. The rules have to be recursively defined.</p>
+<p>As example, the rewriting rule N24 has a recursion level > 5, maybe some rules have even higher recursive level. Because of that, Mental Driller has put a recursivity control for preventing the code to grow too much.</p>
+<p>Such infitive recursive rules are our goal, for increasing the complexity of the word problem.</p>
+<h3>4.3) Type-1 Grammar as macro function mutation</h3>
+<p>Using this formal grammar in a virus, you can mutate macro functions, not just the micro-functions aka. x86 instructions.</p>
+<p>For example:</p>
+<pre class="source">
+	ABCD ::= EFGHI
+	A ::= "PUSH [hWnd]" | ...
+	B ::= "PUSH lpString" | ...
+	C ::= "PUSH 0xFF" | ...
+	D ::= "CALL GetWindowText | ...
+
+	E ::= "PUSH [hWnd]" | ...
+	F ::= "PUSH WM_GETTEXT" | ...
+	G ::= "PUSH 0xFF" | ...
+	H ::= "PUSH lpString" | ...
+	I ::= "CALL SendMessage" | ...
+</pre>
+<p>Beside of the extremly increased complexity of the virus, the word problem will become not decideable in available time.</p>
+<p>Combining this macro-function mutation with code integration to the host file, the virus can use parts of the host code and parts or its own code for mutation.</p>
+<h3>4.4) Type-0 Grammar as information annihilation</h3>
+<p>When you use shrinking-rules, a Type-0 Grammar may be created. Using the inverse rules of the obfuscator, these rules have no effect. For a valueable usage of deletion rules, the existence of big words is a condition, otherwise the virus code may loose information.</p>
+<h2>5) Formal Grammar of MetaPHOR</h2>
+<pre class="source">
+	G = (N, T, S, R)
+
+	N = { N01, ..., N47, M01, ..., M49 }
+	T = { code of MetaPHOR }
+	R = {
+		S ::= [ T, such that the hardcoded X86 instructions t000-t135
+			are replaced by the behaviour functions N01..M49 ]
+
+		N01 ::= t001 | t002 | M24N36
+		N02 ::= t003 | t004
+		N03 ::= t000 | t005 | N10 | t007 | t008 | t009 | t010 | t011
+			t028 | M03M06 | M06M03 | t090 | t091 | M34M35
+		N04 ::= t012 | t013
+		N05 ::= t014 | t015
+		N06 ::= t016 | N09 | t018 | t019 | t020
+		N07 ::= t021 | t022 | t023
+		N08 ::= t024 | t025 | t026 | t027
+		N09 ::= t029 | t030 | M01M02
+		N10 ::= t031 | t032
+		N11 ::= t033 | t034
+		N12 ::= t035 | t036
+		N13 ::= t037 | t038
+		N14 ::= t041 | M01M03
+		N15 ::= t043 | t033 | M05M04 | N16M09
+		N16 ::= t046 | M05M03
+		N17 ::= t047 | M06M02
+		N18 ::= t049 | M07M03
+		N19 ::= t053 | N14N20 | N16M12N17 | N14M31N17
+		N20 ::= t054 | N18M15
+		N21 ::= t055 | N09N12 | N15N10
+		N22 ::= t056 | N15M10
+		N23 ::= t058 | N10N12 | N12N10
+		N24 ::= t059 | N19M11 | M12M13
+		N25 ::= t063 | N21M10
+		N26 ::= t065 | M14N12
+		N27 ::= t066 | N18M49
+		N28 ::= t069 | N18M16
+		N29 ::= t071 | N16M17
+		N30 ::= t073 | N16M18 | M05N38
+		N31 ::= t077 | N16N18
+		N32 ::= t078 | M21N32
+		N33 ::= t080 | M22M24 | M34M36
+		N34 ::= t083 | N01M24 | N10
+		N35 ::= t085 | N02M25
+		N36 ::= t087 | M24N01 | N10
+		N37 ::= t088 | M25M26
+		N38 ::= t092 | M03M18
+		N39 ::= t093 | N06M27 | M28M29
+		N40 ::= t097 | N16M30N17
+		N41 ::= t105 | t106 | N14M37 | N16M40
+		N42 ::= t109 | N16M38
+		N43 ::= t112 | N16M39
+		N44 ::= t121 | N18M42
+		N45 ::= t124 | N18M46
+		N46 ::= t134 | M46M47M48
+		N47 ::= t135 | M48M47M46 
+		M01 ::= t039 | N14M06
+		M02 ::= t040 | M03N17
+		M03 ::= t042 | M08N18
+		M04 ::= t044
+		M05 ::= t045 | N16M06
+		M06 ::= t048
+		M07 ::= t050
+		M08 ::= t051
+		M09 ::= t052
+		M10 ::= t057
+		M11 ::= t060
+		M12 ::= t061 | N18M33N18
+		M13 ::= t062
+		M14 ::= t067
+		M15 ::= t068
+		M16 ::= t070
+		M17 ::= t072 | N18M19 | N17N26
+		M18 ::= t074 | N18M20
+		M19 ::= t075
+		M20 ::= t076
+		M21 ::= t079
+		M22 ::= t081
+		M24 ::= t084 | N01N34
+		M25 ::= t086 | N02N35
+		M26 ::= t089 | M25N37
+		M27 ::= t094
+		M28 ::= t095
+		M29 ::= t096
+		M30 ::= t098
+		M31 ::= t099 | N18M32N18
+		M32 ::= t100
+		M33 ::= t101
+		M34 ::= t102
+		M35 ::= t103
+		M36 ::= t104
+		M37 ::= t107 | t108 | N18M41
+		M38 ::= t110 | t111
+		M39 ::= t113 | t114
+		M40 ::= t115 | t116 | t117 | t118 | N18M44 | N18M45
+		M41 ::= t119 | t120
+		M42 ::= t122 | t123
+		M43 ::= t125 | t126
+		M44 ::= t127 | t128
+		M45 ::= t129 | t130
+		M46 ::= t131
+		M47 ::= t132
+		M48 ::= t133
+		M49 ::= t064
+	}
+
+	t000="NOP"
+	t001="XOR Reg,-1"
+	t002="NOT Reg"
+	t003="XOR Mem,-1"
+	t004="NOT Mem"
+	t005="MOV Reg,Reg"
+	t007="ADD Mem,0"
+	t008="OR Reg,0"
+	t009="OR Mem,0"
+	t010="AND Reg,-1"
+	t011="AND Mem,-1"
+	t012="SUB Reg,Imm"
+	t013="ADD Reg,-Imm"
+	t014="SUB Mem,Imm
+	t015="ADD Mem,-Imm
+	t016="XOR Reg,0"
+	t018="AND Reg,0"
+	t019="XOR Reg,Reg"
+	t020="SUB Reg,Reg"
+	t021="XOR Mem,0"
+	t022="MOV Mem,0"
+	t023="AND Mem,0"
+	t024="CMP Reg,0"
+	t025="OR Reg,Reg"
+	t026="AND Reg,Reg"
+	t027="TEST Reg,Reg"
+	t028="MOV Mem,Mem"
+	t029="MOV Reg,Imm"
+	t030="LEA Reg,[Imm]"
+	t031="ADD Reg,Imm"
+	t032="LEA Reg,[Reg+Imm]"
+	t033="LEA Reg2,[Reg]"
+	t035="LEA Reg,[Reg+Reg2]"
+	t036="ADD Reg,Reg2"
+	t037="LEA Reg,[Reg2+Reg2+xxx]"
+	t038="LEA Reg,[2*Reg2+xxx]"
+	t039="PUSH Imm"
+	t040="POP Reg"
+	t041="MOV Mem,Imm"
+	t042="POP Mem"
+	t043="MOV Reg2,Reg"
+	t044="POP Reg2"
+	t045="PUSH Reg"
+	t046="MOV Mem,Reg"
+	t047="MOV Reg,Mem"
+	t048="PUSH Mem"
+	t049="MOV Mem2,Mem"
+	t050="PUSH Mem2"
+	t051="POP Mem2"
+	t052="MOV Reg2,Mem
+	t053="OP Reg,Imm"
+	t054="OP Reg,Mem"
+	t055="LEA Reg,[Reg2+Imm]"
+	t056="LEA Reg,[Reg2+Reg3]"
+	t057="ADD Reg,Reg3"
+	t058="LEA Reg,[Reg+Reg2+Imm]"
+	t059="OP Reg,(Imm OP Imm2)"
+	t060="OP Reg,Imm2"
+	t061="OP Mem,Imm"
+	t062="OP Mem,Imm2"
+	t063="LEA Reg,[Reg2+Reg3+Imm]"
+	t064="LEA Reg,[(RegX+)Reg2+Imm]"
+	t065="LEA Reg,[(RegX+)2*Reg2+Imm]"
+	t066="MOV Mem3,Mem"
+	t067="MOV Mem3,Mem2"
+	t068="OP Reg,Mem2"
+	t069="MOV Mem,xxx"
+	t070="MOV Mem2,xxx"
+	t071="CALL Reg"
+	t072="CALL Mem"
+	t073="JMP Reg"
+	t074="JMP Mem"
+	t075="CALL Mem2"
+	t076="JMP Mem2"
+	t077="MOV Mem2,Reg"
+	t078="MOV Reg,yyy"
+	t079="OP Reg,xxx"
+	t080="JMP @xxx"
+	t081="Jcc @xxx"
+	t083="ADD Reg,1"
+	t084="NEG Reg"
+	t085="ADD Mem,1"
+	t086="NEG Mem"
+	t087="ADD Reg,-1"
+	t088="ADD Mem,-1"
+	t089="NOT Mem"
+	t090="CMP X,Y " - without Jcc
+	t091="TEST X,Y" - without Jcc
+	t092="RET"
+	t093="MOVZX Reg,byte ptr [Mem]"
+	t094="MOV Reg8,[Mem]"
+	t095="MOV Reg,[Mem]"
+	t096="AND Reg,0FFh"
+	t097="OP Reg,Reg2"
+	t098="OP Mem,Reg2"
+	t099="OP Mem,Reg"
+	t100="OP Mem2,Reg"
+	t101="OP Mem2,Imm"
+	t102="CMP Reg,Reg"
+	t103="JO/JB/JNZ/JA/JS/JNP/JL/JG @xxx" - without Jcc
+	t104="JNO/JAE/JZ/JBE/JNS/JP/JGE/JLE @xxx" - without Jcc
+	t105="TEST Reg,Imm" + Jcc
+	t106="CMP Reg,Imm" + Jcc
+	t107="TEST Reg,Mem" + Jcc
+	t108="CMP Reg,Mem" + Jcc
+	t109="CMP Reg,Reg2" + Jcc
+	t110="CMP Mem,Reg2" + Jcc
+	t111="SUB Mem,Reg2" + Jcc
+	t112="TEST Reg,Reg2" + Jcc
+	t113="TEST Mem,Reg2" + Jcc
+	t114="AND Mem,Reg2" + Jcc
+	t115="CMP Mem,Imm" + Jcc
+	t116="SUB Mem,Imm" + Jcc
+	t117="TEST Mem,Imm" + Jcc
+	t118="AND Mem,Imm" + Jcc
+	t119="TEST Reg,Mem2" + Jcc
+	t120="CMP Reg,Mem2" + Jcc
+	t121="TEST Mem,Reg" + Jcc
+	t122="TEST Mem2,Reg" + Jcc
+	t123="AND Mem2,Reg" + Jcc
+	t124="CMP Mem,Reg" + Jcc
+	t125="CMP Mem2,Reg" + Jcc
+	t126="SUB Mem2,Reg" + Jcc
+	t127="TEST Mem2,Imm" + Jcc
+	t128="AND Mem2,Imm" + Jcc
+	t129="CMP Mem2,Imm" + Jcc
+	t130="SUB Mem2,Imm" + Jcc
+	t131="PUSH EAX"
+	t132="PUSH ECX"
+	t133="PUSH EDX"
+	t134="APICALL_BEGIN"
+	t135="APICALL_END"
+</pre>
+<h2>6) Conclusion</h2>
+<p>Efficient Code Mutation has always been a goal for virus writers. The analysis of these techniques on a mathematical background is an important venture to increase the complexity of mutation techniques.</p>
+<p>The word problem and its connection to the antiviral detection problem gives just the right basis for our work.</p>
+<p>Creating a metamorphic mutation engine needs very much time, and without using a type-2, type-1 or even type-0 grammar, the detection is still "trivial". Creating a concept for a valueable formal grammar of mutation engine does not need much time, but increases the complexity alot - the complexity may become cubical or even exponential.</p>
+<p>My final advice: Invest some hours for planning a efficient grammar, and as result your engine will be harder to detect by analytic scanning.</p>
+<div align="right"><pre>
+- - - - - - - - - - - - - -
+    Second Part To Hell
+      www.spth.de.vu
+
+  written in October 2008
+- - - - - - - - - - - - - -
+</pre></div>
+<h2>7) References</h2>
+<ol>
+<li>Qozah; "<a href="/lib/vwm00.html">Polymorphism and Grammars</a>"; 29A E-Zine issue 4; 1999.</li>
+<li>Filiol, Eric; "<a href="/lib/aef04.html">Metamorphism, Formal grammars and Undecidable Code Mutation</a>"; International Journal of Computer Science, vol. 2, number 1, 2007, pp. 70-75; 2007.</li>
+<li>Chomsky, Noam; "Three models for the description of language"; IRE Transactions on Information Theory (2): 113-124; 1956.</li>
+<li>The Mental Driller; "<a href="/lib/vmd01.html">Metamorphism in practice</a>"; 29A E-Zine issue 6; 2002.</li>
+</ol>
+[<a style="" href="/lib/?lang=EN&amp;index=TH#vsp24">Back to index</a>] [<a href="/lib/vsp24.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp24">de</a><a href="/lib/index.php?lang=en&amp;id=vsp24">en</a><a href="/lib/index.php?lang=es&amp;id=vsp24">es</a><a href="/lib/index.php?lang=it&amp;id=vsp24">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp24">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp24">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp24">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp24">ua</a></div>
+</body>
+</html>

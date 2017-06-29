@@ -1,0 +1,825 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Silvio Cesare 'Unix viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Silvio Cesare"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Cesare, Silvio,Unix viruses, segment, section, virus, increase, table, symbol, page, header, offset, code, files, word, relocation, parasite, data"/>
+<meta name="Description" content="This paper documents the algorithms and implementation of UNIX parasite and virus code using ELF objects. Brief introductions on UNIX virus detection and evading such detection are given. An implementation of various ELF parasite infectors for UNIX is provided, and an ELF virus for Linux on x86 architecture is also supplied."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1213c5ede60937f6b161fbcf68ffda7e62891251-1498757367-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsc02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Unix viruses</h1><p><a href="/lib/?lang=en&amp;author=Cesare%2C%20Silvio">Silvio Cesare</a><br/> <em> 1999</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsc02.html';</script><div class="ci"><a href="/lib/?ci=vsc02">3</a></div>[<a style="" href="/lib/?lang=EN&amp;index=UN#vsc02">Back to index</a>] [<a href="/lib/vsc02.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Improving this manual</a></li>
+<li><a href="#p2">The UNIX-VIRUS mailing list</a></li>
+<li><a href="#p3">Introduction</a></li>
+<li><a href="#p4">The non ELF infector file virus (file infection)</a></li>
+<li><a href="#p5">Memory layout of an ELF executable</a></li>
+<li><a href="#p6">ELF infection</a></li>
+<li><a href="#p7">The executable and linkage format</a></li>
+<li><a href="#p8">The text segment padding virus (padding infection)</a></li>
+<li><a href="#p9">Infecting infections</a></li>
+<li><a href="#pa">The data segment virus (data infection)</a></li>
+<li><a href="#pb">Virus detection</a></li>
+<li><a href="#pc">The text segment virus (text infection)</a></li>
+<li><a href="#pd">Ifection using object code parasites</a></li>
+<li><a href="#pe">Object code linking</a></li>
+<li><a href="#pf">The implemented infector</a></li>
+<li><a href="#pg">Non (not as) trivial parasite code</a></li>
+<li><a href="#ph">Beyond ELF parasites and enter virus in Unix</a></li>
+<li><a href="#pi">The Linux parasite virus</a></li>
+<li><a href="#pj">Development of the Linux virus</a></li>
+<li><a href="#pk">Improving the Linux virus</a></li>
+<li><a href="#pl">Virus detection</a></li>
+<li><a href="#pm">Evading virus detection in ELF infection</a></li>
+<li><a href="#pn">Conclusion</a></li>
+</ul>
+<h2><a name="p1">Improving this manual</a></h2>
+<p>For any comments or suggestions (even just to say hi) please contact the author Silvio Cesare. This paper already has future plans to include more parasite techniques and shared object infection. More to come.</p>
+<h2><a name="p2">The UNIX-VIRUS mailing list</a></h2>
+<p>This is the charter for the unix-virus mailing list. Unix-virus was created to discuss viruses in the unix environment from the point of view of the virus creator, and the security developer writing anti-virus software. Anything related to viruses in the unix environment is open for discussion. Low level programming is commonly seen on the list, including source code. The emphasis is on expanding the knowledge of virus technology and not on the distribution of viruses, so binaries are discouraged but not totally excluded. The list is archived at http://virus.beergrave.net and it is recommended that the new subscriber read the existing material before posting.</p>
+<p>To subscribe to the list send a message to <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fc919d96938e98939193bc8a958e898fd29e99998e9b8e9d8a99d2929988">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> with 'subscribe unix-virus' in the body of the message.</p>
+<h2><a name="p3">Introduction</a></h2>
+<p>This paper documents the algorithms and implementation of UNIX parasite and virus code using ELF objects. Brief introductions on UNIX virus detection and evading such detection are given. An implementation of various ELF parasite infectors for UNIX is provided, and an ELF virus for Linux on x86 architecture is also supplied.</p>
+<p>Elementary programming and UNIX knowledge is assumed, and an understanding of Linux x86 architecture is assumed for the Linux implementation. ELF understanding is not required but will help.</p>
+<p>This paper does not document any significant virus programming techniques except those that are only applicable to the UNIX environment. Nor does it try to replicate the ELF specifications. The interested reader is advised to read the ELF documentation if this paper is unclear in ELF specifics.</p>
+<h2><a name="p4">The non ELF infector file virus (file infection)</a></h2>
+<p>An interesting, yet simple idea for a virus takes note, that when you append one executable to another, the original executable executes, but the latter executable is still intact and retrievable and even executable if copied to a new file and executed.</p>
+<pre>
+# cat host >> parasite
+# mv parasite host
+# ./host
+PARASITE Executed
+</pre>
+<p>Now.. if the parasite keeps track of its own length, it can copy the original host to a new file, then execute it like normal, making a working parasite and virus. The algorithm is as follows:</p>
+<ul>
+<li>execute parasite work code</li>
+<li>lseek to the end of the parasite</li>
+<li>read the remaining portion of the file</li>
+<li>write to a new file</li>
+<li>execute the new file</li>
+</ul>
+<p>The downfall with this approach is that the remaining executable no longer remains strip safe. This will be explained further on when a greater understanding of the ELF format is obtained, but to summarize, the ELF headers no longer hold into account every portion of the file, and strip removes unaccounted portions. This is the premise of virus detection with this type of virus.</p>
+<p>This same method can be used to infect LKM's following similar procedures.</p>
+<h2><a name="p5">Memory layout of an ELF executable</a></h2>
+<p>A process image consists of a 'text segment' and a 'data segment'. The text segment is given the memory protection r-x (from this its obvious that self modifying code cannot be used in the text segment). The data segment is given the protection rw-.</p>
+<p>The segment as seen from the process image is typically not all in use as memory used by the process rarely lies on a page border (or we can say, not congruent to modulo the page size). Padding completes the segment, and in practice looks like this.</p>
+<pre>
+key:
+	[...]	A complete page
+	M	Memory used in this segment
+	P	Padding
+
+Page Nr
+#1	[PPPPMMMMMMMMMMMM]		\
+#2	[MMMMMMMMMMMMMMMM]		 |- A segment
+#3	[MMMMMMMMMMMMPPPP]		/
+</pre>
+<p>Segments are not bound to use multiple pages, so a single page segment is quite possible.</p>
+<pre>
+Page Nr
+#1	[PPPPMMMMMMMMPPPP]		&lt;- A segment
+</pre>
+<p>Typically, the data segment directly proceeds the text segment which always starts on a page, but the data segment may not. The memory layout for a process image is thus.</p>
+<pre>
+key:
+	[...]	A complete page
+	T	Text
+	D	Data
+	P	Padding
+
+Page Nr
+#1	[TTTTTTTTTTTTTTTT]		&lt;- Part of the text segment
+#2	[TTTTTTTTTTTTTTTT]		&lt;- Part of the text segment
+#3	[TTTTTTTTTTTTPPPP]		&lt;- Part of the text segment
+#4	[PPPPDDDDDDDDDDDD]		&lt;- Part of the data segment
+#5	[DDDDDDDDDDDDDDDD]		&lt;- Part of the data segment
+#6	[DDDDDDDDDDDDPPPP]		&lt;- Part of the data segment
+
+pages 1, 2, 3 constitute the text segment
+pages 4, 5, 6 constitute the data segment
+</pre>
+<p>From here on, the segment diagrams may use single pages for simplicity. eg</p>
+<pre>
+Page Nr
+#1	[TTTTTTTTTTTTPPPP]		&lt;- The text segment
+#2	[PPPPDDDDDDDDPPPP]		&lt;- The data segment
+</pre>
+<p>For completeness, on x86, the stack segment is located after the data segment giving the data segment enough room for growth. Thus the stack is located at the top of memory (remembering that it grows down).</p>
+<p>In an ELF file, loadable segments are present physically in the file, which completely describe the text and data segments for process image loading. A simplified ELF format for an executable object relevant in this instance is.</p>
+<pre>
+	ELF Header
+	.
+	.
+	Segment 1	&lt;- Text
+	Segment 2	&lt;- Data
+	.
+	.
+</pre>
+<p>Each segment has a virtual address associated with its starting location. Absolute code that references within each segment is permissible and very probable.</p>
+<h2><a name="p6">ELF infection</a></h2>
+<p>To insert parasite code means that the process image must load it so that the original code and data is still intact. This means, that inserting a parasite requires the memory used in the segments to be increased.</p>
+<p>The text segment compromises not only code, but also the ELF headers including such things as dynamic linking information. It may be possible to keep the text segment as is, and create another segment consisting of the parasite code, however introducing an extra segment is certainly questionable and easy to detect.</p>
+<p>Page padding at segment borders however provides a practical location for parasite code given that its size is able. This space will not interfere with the original segments, requiring no relocation. Following the guideline just given of preferencing the text segment, we can see that the padding at the end of the text segment is a viable solution.</p>
+<p>Extending the text segment backwards is a viable solution and is documented and implemented further in this article.</p>
+<p>Extending the text segment forward or extending the data segment backward will probably overlap the segments. Relocating a segment in memory will cause problems with any code that absolutely references memory.</p>
+<p>It is possible to extend the data segment, however this isn't preferred, as its not UNIX portable that properly implement execute memory protection. An ELF parasite however is implemented using this technique and is explained later in this article.</p>
+<h2><a name="p7">The executable and linkage format</a></h2>
+<p>A more complete ELF executable layout is (ignoring section content - see below).</p>
+<pre>
+	ELF Header
+	Program header table
+	Segment 1
+	Segment 2
+	Section header table optional	
+</pre>
+<p>In practice, this is what is normally seen.</p>
+<pre>
+	ELF Header
+	Program header table
+	Segment 1
+	Segment 2
+	Section header table
+	Section 1
+	.
+	.
+	Section n
+</pre>
+<p>Typically, the extra sections (those not associated with a segment) are such things as debugging information, symbol tables etc.</p>
+<p>From the ELF specifications:</p>
+<blockquote>
+<p>"An ELF header resides at the beginning and holds a ``road map'' describing the file's organization. Sections hold the bulk of object file information for the linking view: instructions, data, symbol table, relocation information, and so on.</p>
+<p>......</p>
+<p>A program header table, if present, tells the system how to create a process image. Files used to build a process image (execute a program) must have a program header table; relocatable files do not need one. A section header table contains information describing the file's sections. Every section has an entry in the table; each entry gives information such as the section name, the section size, etc. Files used during linking must have a section header table; other object files may or may not have one.</p>
+<p>......</p>
+<p>Executable and shared object files statically represent programs. To execute such programs, the system uses the files to create dynamic program representations, or process images. A process image has segments that hold its text, data, stack, and so on. The major sections in this part discuss the following.</p>
+<p>Program header. This section complements Part 1, describing object file structures that relate directly to program execution. The primary data structure, a program header table, locates segment images within the file and contains other information necessary to create the memory image for the program."</p>
+</blockquote>
+<p>An ELF object may also specify an entry point of the program, that is, the virtual memory location that assumes control of the program. Thus to activate parasite code, the program flow must include the new parasite. This can be done by patching the entry point in the ELF object to point (jump) directly to the parasite. It is then the parasite's responsibility that the host code be executed - typically, by transferring control back to the host once the parasite has completed its execution.</p>
+<p>From /usr/include/elf.h</p>
+<pre class="source">
+typedef struct
+{
+  unsigned char e_ident[EI_NIDENT];     /* Magic number and other info */
+  Elf32_Half    e_type;                 /* Object file type */
+  Elf32_Half    e_machine;              /* Architecture */
+  Elf32_Word    e_version;              /* Object file version */
+  Elf32_Addr    e_entry;                /* Entry point virtual address */
+  Elf32_Off     e_phoff;                /* Program header table file offset */
+  Elf32_Off     e_shoff;                /* Section header table file offset */
+  Elf32_Word    e_flags;                /* Processor-specific flags */
+  Elf32_Half    e_ehsize;               /* ELF header size in bytes */
+  Elf32_Half    e_phentsize;            /* Program header table entry size */
+  Elf32_Half    e_phnum;                /* Program header table entry count */
+  Elf32_Half    e_shentsize;            /* Section header table entry size */
+  Elf32_Half    e_shnum;                /* Section header table entry count */
+  Elf32_Half    e_shstrndx;             /* Section header string table index */
+} Elf32_Ehdr;
+</pre>
+<p>e_entry is the entry point of the program given as a virtual address. For knowledge of the memory layout of the process image and the segments that compromise it stored in the ELF object see the Program Header information below.</p>
+<p>e_phoff gives use the file offset for the start of the program header table. Thus to read the header table (and the associated loadable segments), you may lseek to that position and read e_phnum*sizeof(Elf32_Pdr) bytes associated with the program header table.</p>
+<p>It can also be seen, that the section header table file offset is also given. It was previously mentioned that the section table resides at the end of the file, so after inserting of data at the end of the segment on file, the offset must be updated to reflect the new position.</p>
+<pre class="source">
+/* Program segment header.  */
+
+typedef struct
+{
+  Elf32_Word    p_type;                 /* Segment type */
+  Elf32_Off     p_offset;               /* Segment file offset */
+  Elf32_Addr    p_vaddr;                /* Segment virtual address */
+  Elf32_Addr    p_paddr;                /* Segment physical address */
+  Elf32_Word    p_filesz;               /* Segment size in file */
+  Elf32_Word    p_memsz;                /* Segment size in memory */
+  Elf32_Word    p_flags;                /* Segment flags */
+  Elf32_Word    p_align;                /* Segment alignment */
+} Elf32_Phdr;
+</pre>
+<p>Loadable program segments (text/data) are identified in a program header by a p_type of PT_LOAD (1). Again as with the e_shoff in the ELF header, the file offset (p_offset) must be updated in later phdr's to reflect their new position in the file.</p>
+<p>p_vaddr identifies the virtual address of the start of the segment. As mentioned above regarding the entry point. It is now possible to identify where program flow begins, by using p_vaddr as the base index and calculating the offset to e_entry.</p>
+<p>p_filesz and p_memsz are the file sizes and memory sizes respectively that the segment occupies. The use of this scheme of using file and memory sizes, is that where its not necessary to load memory in the process from disk, you may still be able to say that you want the process image to occupy its memory.</p>
+<p>The .bss section (see below for section definitions), which is for uninitialized data in the data segment is one such case. It is not desirable that uninitialized data be stored in the file, but the process image must allocated enough memory. The .bss section resides at the end of the segment and any memory size past the end of the file size is assumed to be part of this section.</p>
+<pre class="source">
+/* Section header.  */
+
+typedef struct
+{
+  Elf32_Word    sh_name;                /* Section name (string tbl index) */
+  Elf32_Word    sh_type;                /* Section type */
+  Elf32_Word    sh_flags;               /* Section flags */
+  Elf32_Addr    sh_addr;                /* Section virtual addr at execution */
+  Elf32_Off     sh_offset;              /* Section file offset */
+  Elf32_Word    sh_size;                /* Section size in bytes */
+  Elf32_Word    sh_link;                /* Link to another section */
+  Elf32_Word    sh_info;                /* Additional section information */
+  Elf32_Word    sh_addralign;           /* Section alignment */
+  Elf32_Word    sh_entsize;             /* Entry size if section holds table */
+} Elf32_Shdr;
+</pre>
+<p>The sh_offset is the file offset that points to the actual section. The shdr should correlate to the segment its located it. It is highly suspicious if the vaddr of the section is different to what is in from the segments view.</p>
+<h2><a name="p8">The text segment padding virus (padding infection)</a></h2>
+<p>The resulting segments after parasite insertion into text segment padding looks like this.</p>
+<pre>
+key:
+	[...]	A complete page
+	V	Parasite code
+	T	Text
+	D	Data
+	P	Padding
+
+Page Nr
+#1	[TTTTTTTTTTTTVVPP]		&lt;- Text segment
+#2	[PPPPDDDDDDDDPPPP]		&lt;- Data segment
+
+...
+</pre>
+<p>After insertion of parasite code, the layout of the ELF file will look like this.</p>
+<pre>
+	ELF Header
+	Program header table
+	Segment 1	- The text segment of the host
+			- The parasite
+	Segment 2
+	Section header table
+	Section 1
+	.
+	.
+	Section n
+</pre>
+<p>Thus the parasite code must be physically inserted into the file, and the text segment extended to see the new code.</p>
+<p>To insert code at the end of the text segment thus leaves us with the following to do so far.</p>
+<ul>
+<li>Increase p_shoff to account for the new code in the ELF header</li>
+<li>Locate the text segment program header
+<ul>
+<li>Increase p_filesz to account for the new code</li>
+<li>Increase p_memsz to account for the new code</li>
+</ul></li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset to reflect the new position after insertion</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset to account for the new code</li>
+</ul></li>
+<li>Physically insert the new code into the file - text segment p_offset + p_filesz (original)</li>
+</ul>
+<p>There is one hitch however. Following the ELF specifications, p_vaddr and p_offset in the Phdr must be congruent together, to modulo the page size.</p>
+<pre>
+key:	~= is denoting congruency.
+
+	p_vaddr (mod PAGE_SIZE) ~= p_offset (mod PAGE_SIZE)
+</pre>
+<p>This means, that any insertion of data at the end of the text segment on the file must be congruent modulo the page size. This does not mean, the text segment must be increased by such a number, only that the physical file be increased so.</p>
+<p>This also has an interesting side effect in that often a complete page must be used as padding because the required vaddr isn't available. The following may thus happen.</p>
+<pre>
+key:
+	[...]	A complete page
+	T	Text
+	D	Data
+	P	Padding
+
+Page Nr
+#1	[TTTTTTTTTTTTPPPP]		&lt;- Text segment
+#2	[PPPPPPPPPPPPPPPP]		&lt;- Padding
+#3	[PPPPDDDDDDDDPPPP]		&lt;- Data segment
+</pre>
+<p>This can be taken advantage off in that it gives the parasite code more space, such a spare page cannot be guaranteed.</p>
+<p>To take into account of the congruency of p_vaddr and p_offset, our algorithm is modified to appear as this.</p>
+<ul>
+<li>Increase p_shoff by PAGE_SIZE in the ELF header</li>
+<li>Locate the text segment program header
+<ul>
+<li>Increase p_filesz by account for the new code</li>
+<li>Increase p_memsz to account for the new code</li>
+</ul></li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset by PAGE_SIZE</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset by PAGE_SIZE</li>
+</ul></li>
+<li>Physically insert the new code and pad to PAGE_SIZE, into the file - text segment p_offset + p_filesz (original)</li>
+</ul>
+<p>Now that the process image loads the new code into being, to run the new code before the host code is a simple matter of patching the ELF entry point and the virus jump to host code point.</p>
+<p>The new entry point is determined by the text segment v_addr + p_filesz (original) since all that is being done, is the new code is directly prepending the original host segment. For complete infection code then.</p>
+<ul>
+<li>Increase p_shoff by PAGE_SIZE in the ELF header</li>
+<li>Patch the insertion code (parasite) to jump to the entry point (original)</li>
+<li>Locate the text segment program header
+<ul>
+<li>Modify the entry point of the ELF header to point to the new code (p_vaddr + p_filesz)</li>
+<li>Increase p_filesz by account for the new code (parasite)</li>
+<li>Increase p_memsz to account for the new code (parasite)</li>
+</ul></li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset by PAGE_SIZE</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset by PAGE_SIZE</li>
+</ul></li>
+<li>Physically insert the new code (parasite) and pad to PAGE_SIZE, into the file - text segment p_offset + p_filesz (original)</li>
+</ul>
+<p>This, while perfectly functional, can arouse suspicion because the the new code at the end of the text segment isn't accounted for by any sections. Its an easy matter to associate the entry point with a section however by extending its size, but the last section in the text segment is going to look suspicious. Associating the new code to a section must be done however as programs such as 'strip' use the section header tables and not the program headers. The final algorithm is using this information is.</p>
+<ul>
+<li>Increase p_shoff by PAGE_SIZE in the ELF header</li>
+<li>Patch the insertion code (parasite) to jump to the entry point (original)</li>
+<li>Locate the text segment program header
+<ul>
+<li>Modify the entry point of the ELF header to point to the new code (p_vaddr + p_filesz)</li>
+<li>Increase p_filesz by account for the new code (parasite)</li>
+<li>Increase p_memsz to account for the new code (parasite)</li>
+</ul></li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset by PAGE_SIZE</li>
+</ul></li>
+<li>For the last shdr in the text segment
+<ul>
+<li>increase sh_len by the parasite length</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset by PAGE_SIZE</li>
+</ul></li>
+<li>Physically insert the new code (parasite) and pad to PAGE_SIZE, into the file - text segment p_offset + p_filesz (original)</li>
+</ul>
+<p>infect-elf-p is the supplied program (complete with source) that implements the elf infection using text segment padding as described.</p>
+<h2><a name="p9">Infecting infections</a></h2>
+<p>In the parasite described, infecting infections isn't a problem at all. By skipping executables that don't have enough padding for the parasite, this is solved implicitly. Multiple parasites may exist in the host, but their is a limit of how many depending on the size of the parasite code.</p>
+<h2><a name="pa">The data segment virus (data infection)</a></h2>
+<p>The new method of ELF infection as briefly described in the last section means that the data segment is extended and the parasite is located in the new extended space. In x86 architecture, at least, code that is in the data segment may be executed.</p>
+<p>To extend the data segment means we simply have to extend the program header in the ELF executable. Note must be taken though, that the .bss section ends the data segment normally. This section is used for uninitialized data and occupies no file space but does occupy memory space. If we extend the data segment we have to leave space for the .bss section. The memory layout is as follows.</p>
+<pre>
+original:
+
+	[text]
+	[data]
+
+parasite:
+
+	[text]
+	[data]
+	[parasite]
+</pre>
+<p>The algorithm for the data segment parasite is show below.</p>
+<ul>
+<li>Patch the insertion code (parasite) to jump to the entry point (original)</li>
+<li>Locate the data segment
+<ul>
+<li>Modify the entry point of the ELF header to point to the new code (p_vaddr + p_memsz)</li>
+<li>Increase p_filesz to account for the new code and .bss</li>
+<li>Increase p_memsz to account for the new code</li>
+<li>Find the length of the .bss section (p_memsz - p_filesz)</li>
+</ul></li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset to reflect the new position after insertion</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset to account for the new code</li>
+</ul></li>
+<li>Physically insert the new code into the file</li>
+</ul>
+<p>The algorithm shown works for an ELF executable but the parasite inserted into the host becomes strip unsafe because no section matches the parasite. A new section could be created for this purpose to become strip safe again. This however has not been implemented.</p>
+<p>This type of virus is easy to spot if you know what your looking for. For starters no section matches the entry point and more suspect is the fact that the entry point is in the data segment.</p>
+<h2><a name="pb">Virus detection</a></h2>
+<p>The detection of the data segment virus is extremely easy taking into account that the entry point of the ELF image is in the data segment not in the text segment.</p>
+<p>An implementation of a simple virus scanner is supplied.</p>
+<h2><a name="pc">The text segment virus (text infection)</a></h2>
+<p>The text segment virus works under the premise that the text segment can be extended backwards and new parasite code can run in the extension. The memory layout is as follows.</p>
+<pre>
+original:
+
+	[text]
+	[data]
+
+
+parasite:
+
+	[parasite] (new start of text)
+	[text]
+	[data]
+</pre>
+<p> algorithm is as follows:</p>
+<ul>
+<li>Patch the insertion code (parasite) to jump to the entry point (original)</li>
+<li>Locate the text segment</li>
+<li>For each phdr who's segment is after the insertion (text segment)
+<ul>
+<li>increase p_offset to reflect the new position after insertion</li>
+</ul></li>
+<li>For each shdr who's section resides after the insertion
+<ul>
+<li>Increase sh_offset to account for the new code</li>
+</ul></li>
+<li>Physically insert the new code into the file</li>
+</ul>
+<h2><a name="pd">Ifection using object code parasites</a></h2>
+<p>It is often desireable not to use assembler for parasite code but use direct C code instead. This can make writing a pure C virus possible avoiding the messy steps of converting code to asm which require extra time and skill.</p>
+<p>This can be acheived through the use of relocatable or object code. Because we cant just extract an executeable image as the parasite image because the image is fixed at a certain memory location we can use a relocatable image and link into the desired location.</p>
+<h2><a name="pe">Object code linking</a></h2>
+<p>ELF is the typical standard used to represent object code on Linux. The paper will thus only refer to linking using ELF objects.</p>
+<p>An object code file is referred to as relocatable code when using ELF because that summarizes what it is. It is not fixed to any memory position. It is the responsibility of linking that makes an executable image out of a relocatable object and binds symbols to addresses.</p>
+<p>Linking of code is done by relocating the code to a fixed positing. For the most part, the object code does not need to be changed heavily.</p>
+<p>Consider the following C code.</p>
+<pre class="source">
+#include &lt;linux/unistd.h>
+#include &lt;linux/types.h>
+
+static inline _syscall3(ssize_t, write, int, fd, const void *, buf, size_t, count);
+
+int main()
+{
+        write(1, "INFECTED Host\n", 14);
+}
+</pre>
+<p>The string 's' being part of the relocatable text section in the object has no known absolute position in memory at compile time. Likewise, printk, is an externally defined symbol and its address is also not known at compile time.</p>
+<p>Relocation sections in the ELF object are used for describing what needs to be modified (relocated) in the object. In the above case, relocation entries would be made for printk's reference and the string's reference.</p>
+<p>The format for an ELF relocatable object (object code) is as follows.</p>
+<pre>
+        ELF header
+        Program header table
+        Section 1
+        Section n
+        Section header table
+</pre>
+<p>From the ELF specifications.</p>
+<blockquote>
+<h2>String Table</h2>
+<p>String table sections hold null-terminated character sequences, commonly called strings. The object file uses these strings to represent symbol and section names. One references a string as an index into the string table section. The first byte, which is index zero, is defined to hold a null character. Likewise, a string tables last byte is defined to hold a null character, ensuring null termination for all strings. A string whose index is zero specifies either no name or a null name, depending on the context. An empty string table section is permitted; its section headers sh_size member would contain zero. Non-zero indexes are invalid for an empty string table."</p>
+<p>......</p>
+<h2>Symbol Table</h2>
+<p>An object file's symbol table holds information needed to locate and relocate a program's symbolic definitions and references. A symbol table index is a subscript into this array. Index 0 both designates the first entry in the table and serves as the undefined symbol index. The contents of the initial entry are specified later in this section."</p>
+</blockquote>
+<pre class="source">
+/* Symbol table entry.  */
+
+typedef struct
+{
+  Elf32_Word    st_name;                /* Symbol name (string tbl index) */
+  Elf32_Addr    st_value;               /* Symbol value */
+  Elf32_Word    st_size;                /* Symbol size */
+  unsigned char st_info;                /* Symbol type and binding */
+  unsigned char st_other;               /* No defined meaning, 0 */
+  Elf32_Section st_shndx;               /* Section index */
+} Elf32_Sym;
+
+#define SHN_UNDEF       0               /* No section, undefined symbol.  */
+
+/* How to extract and insert information held in the st_info field.  */
+
+#define ELF32_ST_TYPE(val)              ((val) &amp; 0xf)
+#define ELF32_ST_INFO(bind, type)       (((bind) &lt;&lt; 4) + ((type) &amp; 0xf))
+
+/* Legal values for ST_BIND subfield of st_info (symbol binding).  */
+
+#define STB_LOCAL       0               /* Local symbol */
+#define STB_GLOBAL      1               /* Global symbol */
+#define STB_WEAK        2               /* Weak symbol */
+#define STB_NUM         3               /* Number of defined types.  */
+#define STB_LOPROC      13              /* Start of processor-specific */
+#define STB_HIPROC      15              /* End of processor-specific */
+</pre>
+<p>From the ELF specifications.</p>
+<blockquote>
+<p>"A relocation section references two other sections: a symbol table and a section to modify. The section headers sh_info and sh_link members, described in ``Sections'' above, specify these relationships. Relocation entries for different object files have slightly different interpretations for the r_offset member.</p>
+<p>In relocatable files, r_offset holds a section offset. That is, the relocation section itself describes how to modify another section in the file; relocation offsets designate a storage unit within the second section."</p>
+</blockquote>
+<p>From /usr/include/elf.h</p>
+<pre class="source">
+/* Relocation table entry without addend (in section of type SHT_REL).  */
+
+typedef struct
+{
+  Elf32_Addr    r_offset;               /* Address */
+  Elf32_Word    r_info;                 /* Relocation type and symbol index */
+} Elf32_Rel;
+
+/* How to extract and insert information held in the r_info field.  */
+
+#define ELF32_R_SYM(val)                ((val) >> 8)
+#define ELF32_R_TYPE(val)               ((val) &amp; 0xff)
+#define ELF32_R_INFO(sym, type)         (((sym) &lt;&lt; 8) + ((type) &amp; 0xff))
+</pre>
+<p>These selected paragraphs and sections from the ELF specifications and header files give us a good high level concept of how a relocatable ELF file can be linked to produce an image capable of being executed.</p>
+<p>The process of linking the image is as follows.</p>
+<ul>
+<li>Identify the file as being in relocatable ELF format</li>
+<li>Load each relevant section into memory</li>
+<li>For each PROGBITS section set the section address in memory</li>
+<li>For each REL (relocation) section, carry out the relocation</li>
+<li>Assemble the executable image by copying the sections into their respective positions in memory</li>
+</ul>
+<p>The relocation step may be expanded into the following algorithm.</p>
+<ul>
+<li>Evaluate the target section of the relocation entry</li>
+<li>Evaluate the symbol table section of the relocation entry</li>
+<li>Evaluate the location in the section that the relocation is to apply</li>
+<li>Evaluate the address of the symbol that is used in the relocation</li>
+<li>Apply the relocation</li>
+</ul>
+<p>The actual relocation is best presented by looking at the source. For more information on the relocation types refer to the ELF specifications. Note that we ignore the global offset table completely and any relocation types of its nature.</p>
+<pre class="source">
+        switch (ELF32_R_TYPE(rel->r_info)) {
+        case R_386_NONE:
+                break;
+
+        case R_386_PLT32:
+        case R_386_PC32:
+                *loc -= dot;    /* *loc += addr - dot   */
+
+        case R_386_32:
+                *loc += addr;
+                break;
+</pre>
+<h2><a name="pf">The implemented infector</a></h2>
+<p>The implemented infector must use C parasite code that avoids libc and uses Linux syscalls exclusively. This means that plt/got problems are avoided. Likewise the parasite code must end in the following asm:</p>
+<pre class="source">
+loop1:
+                popl    %eax
+                cmpl    $0x22223333, %eax
+                jne     loop1
+
+                popl    %edx
+                popl    %ecx
+                popl    %ebx
+                popl    %eax
+                popl    %esi
+                popl    %edi
+                movl    $0x11112222, %ebp
+                jmp     *%ebp
+</pre>
+<p>This is so it can jump back to the host correctly. It uses a little trickery to do this properly. Why the popl loop? - well.. the jump back to host goes in <em>before</em> the end of main, so there are still some variables to be pop'd back before your back to where you start. you dont know how many variables have been pushed, so a unique magic number is used to mark the start/end of it - check the initcode in relocater.c. The movl $0x11112222,%ebp ? - well.. u dont know where abouts this jmp (back to host) is going to be in the code, so you substitute a unique magic number where you want the host entry point to go. Then you search the object code for the magic and replace.</p>
+<h2><a name="pg">Non (not as) trivial parasite code</a></h2>
+<p>Parasite code that requires memory access requires the stack to be used manually naturally. No bss section can be used from within the virus code in the padding and text infectors because it can only use part of the text segment. It is strongly suggested that rodata not be used, in-fact, it is strongly suggested that no location specific data be used at all that resides outside the parasite at infection time.</p>
+<p>Thus, if initialized data is to be used, it is best to place it in the text segment, ie at the end of the parasite code - see below on calculating address locations of initialized data that is not known at compile/infection time.</p>
+<p>If the heap is to be used, then it will be operating system dependent. In Linux, this is done via the 'brk' syscall.</p>
+<p>The use of any shared library calls from within the parasite should be removed, to avoid any linking problems and to maintain a portable parasite in files that use varying libraries. It is thus naturally recommended to avoid using libc.</p>
+<p>Most importantly, the parasite code must be relocatable. It is possible to patch the parasite code before inserting it, however the cleanest approach is to write code that doesn't need to be patched.</p>
+<p>In x86 Linux, some syscalls require the use of an absolute address pointing to initialized data. This can be made relocatable by using a common trick used in buffer overflow code.</p>
+<pre class="source">
+	jmp	A
+B:
+	pop %eax	; %eax now has the address of the string
+	.		; continue as usual
+	.
+	.
+
+A:
+	call B
+.string "hello"
+</pre>
+<p>By making a call directly proceeding the string of interest, the address of the string is pushed onto the stack as the return address.</p>
+<h2><a name="ph">Beyond ELF parasites and enter virus in Unix</a></h2>
+<p>In a UNIX environment the most probably method for a typical garden variety virus to spread is through infecting files that it has legal permission to do so.</p>
+<p>A simple method of locating new files possible to infect, is by scanning the current directory for writable files. This has the advantage of being relatively fast (in comparison to large tree walks) but finds only a small percentage of infect-able files.</p>
+<p>Directory searches are however very slow irrespectively, even without large tree walks. If parasite code does not fork, its very quickly noticed what is happening. In the sample virus supplied, only a small random set of files in the current directory are searched.</p>
+<p>Forking, as mentioned, easily solves the problem of slowing the startup to the host code, however new processes on the system can be spotted as abnormal if careful observation is used.</p>
+<p>The parasite code as mentioned, must be completely written in machine code, this does not however mean that development must be done like this. Development can easily be done in a high level language such as C and then compiled to asm to be used as parasite code.</p>
+<p>A bootstrap process can be used for initial infection of the virus into a host program that can then be distributed. That is, the ELF infector code is used, with the virus as the parasite code to be inserted.</p>
+<h2><a name="pi">The Linux parasite virus</a></h2>
+<p>This virus implements the ELF infection described by utilizing the padding at the end of the text segment. In this padding, the virus in its entirety is copied, and the appropriate entry points patched.</p>
+<p>At the end of the parasite code, are the instructions.</p>
+<pre class="source">
+	movl	%ebp, $XXXX
+	jmp	*%ebp
+</pre>
+<p>XXXX is patched when the virus replicates to the host entry point. This approach does have the side effect of trashing the ebp register which may or may not be destructive to programs who's entry points depend on ebp being set on entry. In practice, I have not seen this happen (the implemented Linux virus uses the ebp approach), but extensive replicating has not been performed.</p>
+<p>On execution of an infected host, the virus will copy the parasite (virus) code contained in itself (the file) into memory.</p>
+<p>The virus will then scan randomly (random enough for this instance) through the current directory, looking for ELF files of type ET_EXEC or ET_DYN to infect. It will infect up to Y_INFECT files, and scan up to N_INFECT files in total.</p>
+<p>If a file can be infected, ie, its of the correct ELF type, and the padding can sustain the virus, a a modified copy of the file incorporating the virus is made. It then renames the copy to the file its infecting, and thus it is infected.</p>
+<p>Due to the rather large size of the virus in comparison to the page size (approx 2.3k) not all files are able to be infected, in fact only near half on average.</p>
+<h2><a name="pj">Development of the Linux virus</a></h2>
+<p>The Linux virus was completely written in C, and strongly based around the ELF infector code. The C code is supplied as elf-p-virus.c The code requires the use of no libraries, and avoids libc by using a similar scheme to the _syscall declarations Linux employs modified not to use errno.</p>
+<p>Heap memory was used for dynamic allocation of the phdr and shdr tables using 'brk'.</p>
+<p>Linux has some syscalls which require the address of initialized strings to be passed to it, notably, open, rename, and unlink. This requires initialized data storage. As stated before, rodata cannot be used, so this data was placed at the end of the code. Making it relocatable required the use of the above mentioned algorithm of using call to push the address (return value) onto the stack. To assist in the asm conversion, extra variables were declared so to leave room on the stack to store the addresses as in some cases the address was used more than once.</p>
+<p>The C code form of the virus allowed for a debugging version which produces verbose output, and allows argv[0] to be given as argv[1]. This is advantageous because you can setup a pseudo infected host which is non replicating. Then run the virus making argv[0] the name of the pseudo infected host. It would replicate the parasite from that host. Thus it was possible to test without having a binary version of a replicating virus.</p>
+<p>The C code was converted to asm using the c compiler gcc, with the -S flag to produce assembler. Modifications were made so that use of rodata for initialized data (strings for open, unlink, and rename), was replaced with the relocatable data using the call address methodology.</p>
+<p>Most of the registers were saved on virus startup and restored on exit (transference of control to host).</p>
+<p>The asm version of the virus, can be improved tremendously in regards to efficiency, which will in turn improve the expected life time and replication of the virus (a smaller virus can infect more objects, where previously the padding would dictate the larger virus couldn't infect it). The asm virus was written with development time the primary concern and hence almost zero time was spent on hand optimization of the code gcc generated from the C version. In actual fact, less than 5 minutes were spent in asm editing - this is indicative that extensive asm specific skills are not required for a non optmised virus.</p>
+<p>The edited asm code was compiled (elf-p-virus-egg.c), and then using objdump with the -D flag, the addresses of the parasite start, the required offsets for patching were recorded. The asm was then edited again using the new information. The executable produced was then patched manually for any bytes needed. elf-text2egg was used to extract hex-codes for the complete length of the parasite code usable in a C program, ala the ELF infector code. The ELF infector was then recompiled using the virus parasite.</p>
+<pre>
+# objdump -D elf-p-virus-egg
+.
+.
+08048143 &lt;time>:
+ 8048143:       55              pushl  %ebp
+.
+.
+08048793 &lt;main0>:
+ 8048793:       55              pushl  %ebp
+.
+.
+ 80487f8:       6a 00           pushl  $0x0
+ 80487fa:       68 7e 00 00 00  pushl  $0x7e
+ 80487ff:       56              pushl  %esi
+ 8048800:       e8 2e fa ff ff  call   8048233 &lt;lseek>
+.
+.
+ 80489ef:       bd 00 00 00 00  movl   $0x0,%ebp
+ 80489f4:       ff e5           jmp    *%ebp
+
+080489f6 &lt;dot_jump>:
+ 80489f6:       e8 50 fe ff ff  call   804884b &lt;dot_call>
+ 80489fb:       2e 00 e8        addb   %ch,%al
+
+080489fd &lt;tmp_jump>:
+ 80489fd:       e8 52 f9 ff ff  call   8048354 &lt;tmp_call>
+ 8048a02:       2e 76 69        jbe    8048a6e &lt;init+0x4e>
+ 8048a05:       33 32           xorl   (%edx),%esi
+ 8048a07:       34 2e           xorb   $0x2e,%al
+ 8048a09:       74 6d           je     8048a78 &lt;init+0x58>
+ 8048a0b:       70 00           jo     8048a0d &lt;tmp_jump+0x10>
+
+0x8048143 specifies the start of the parasite (time).
+0x8048793 is the entry point (main0).
+0x80487fb is the lseek offset which is the offset in argv[0] to the parasite.
+0x80489f0 is the host entry point.
+0x8048a0d is the end of the parasite (not inclusive).
+
+0x8048a0d - 0x8048143 (2250)is the parasite length.
+0x8048793 - 0x8048143 (1616) is the entry point as a parasite offset.
+0x80487fb - 0x8048143 (1720) is the seek offset as a parasite offset.
+0x80489f0 - 0x8048143 (2221) is the host entry point as a parasite offset.
+
+# objdump --all-headers elf-p-virus-egg
+.
+.
+Program Header:
+    LOAD off    0x00000000 vaddr 0x08048000 paddr 0x08048000 align 2**12
+         filesz 0x00015960 memsz 0x00015960 flags r-x
+.
+.
+The seek offset as a file offset is 0x80487fb - 0x08048000 + 0x00000000 (2043)
+(&lt;seek address from above> - &lt;vaddr> + &lt;off>)
+</pre>
+<p>To patch the initial seek offset, an infection must be manually performed, and the offset recorded. The infected host is not functional in this form.</p>
+<pre>
+# infect-elf-p host
+Parasite length: 2251, Host entry point index: 2221, Entry point offset: 1616
+Host entry point: 0x8048074
+Padding length: 3970
+New entry point: 0x80486ce
+Parasite file offset: 126
+Infection Done
+# vpatch elf-p-virus-egg 2043 126
+</pre>
+<p>The supplied program elf-egg2text will convert the address range specified on the command line, and found using the ELF loadable segments in the file to a hex string for use in C.</p>
+<pre>
+usage: elf-egg2text filename start stop
+
+# elf-egg2text elf-p-virus-egg 0x08048143 0x8048a0d > parasite-v.c
+
+parasite-v.c was edited manually to declare the hex string as the variabled
+char parasite[], and likewise these variables were declared.
+
+long hentry = 2221;
+long entry = 1616;
+int plength = 2250;
+</pre>
+<p>The infector was recompiled and thus can infect the host it was compiled for making it a live virus. null-carrier is the supplied host program that the infector is compiled for.</p>
+<p>This completed the manual infection of the virus to a host. The newly infected host would then attempt replication on execution. A live virus has been included in the source package (live-virus-be-warned). A simplified carrier program (carrier.S) was used to host the virus (null-carrier is the uninfected host as stated).</p>
+<h2><a name="pk">Improving the Linux virus</a></h2>
+<p>The first major change that would increase the life time and replication rates of the virus is to optimise the code to be space efficient. Looking at a 50% size decrease is probably realistic when optimised.</p>
+<p>The replication is notable rather slow scanning only the current directory. The virus may be modified to do small tree walks increasing infection rates dramatically.</p>
+<p>The virus is easily detected - see below.</p>
+<h2><a name="pl">Virus detection</a></h2>
+<p>The virus described is relatively easy to detect. The blatant oddity is that the entry point of the program isn't in a normal section or not in a section at all.</p>
+<p>Typically the last section in the text segment is .rodata which obviously shouldn't be the entry point. Likewise, it is suspicious if a program does not have a corresponding section then this arouses any would be virus scanner. Also if no section table at all, which will disguise what section the entry point is in, is certainly an odd event (even though this is optional).</p>
+<p>Removal of the virus described here, is similar to infection, requiring deletion of the virus code, modification of the ELF headers to reflect segment relocation in the file and patching of the entry point to jump to the proper code.</p>
+<p>Location of the correct entry point can be easily seen by disassembling the executable using objdump, matching the entry point of the infected file to the disassembled code, and tracing through the code to find where the parasite code returns flow back to the host.</p>
+<pre>
+$ objdump --all-headers host		# a parasite infected host
+
+>host:     file format elf32-i386
+>host
+>architecture: i386, flags 0x00000112:
+>EXEC_P, HAS_SYMS, D_PAGED
+>start address 0x08048522
+
+.
+.
+</pre>
+<p>The entry point is thus seen as 0x08048522, the entry point of the suspected parasite code.</p>
+<pre>
+$ disassemble --disassemble-all host
+
+>host:     file format elf32-i386
+>
+>Disassembly of section .interp:
+>
+>080480d4 &lt;.interp>:
+> 80480d4:       2f              das
+> 80480d5:       6c              insb   (%dx),%es:(%edi)
+
+.
+.
+
+>Disassembly of section .text:
+>
+>08048400 &lt;_start>:
+> 8048400:       31 ed           xorl   %ebp,%ebp
+> 8048402:       85 d2           testl  %edx,%edx
+> 8048404:       74 07           je     804840d &lt;_start+0xd>
+
+.
+.
+
+>Disassembly of section .rodata:
+>
+>0804851c &lt;.rodata>:
+> 804851c:       48              decl   %eax
+> 804851d:       6f              outsl  %ds:(%esi),(%dx)
+> 804851e:       73 74           jae    8048594 &lt;_fini+0x94>
+> 8048520:       0a 00           orb    (%eax),%al
+> 8048522:       b8 00 84 04 08  movl   $0x8048400,%eax
+> 8048527:       ff e0           jmp    *%eax
+>        ...
+>Disassembly of section .data:
+
+.
+.
+</pre>
+<p>Looking at the entry point code, which looks obviously to be parasite code since its residing in the .rodata section, we have.</p>
+<pre class="source">
+	movl	$0x8048400,%eax
+	jmp	*%eax
+</pre>
+<p>This code is easily seen to be jumping to _start, the original host code.</p>
+<pre>
+# entry host 0x808400
+</pre>
+<p>The parasite code is thus easily removed from program flow by patching the entry point to skip the parasite code.</p>
+<p>On occasion no section matches the parasite code and hence the entry point. objdump will only disassemble sections so thus we cant see the parasite code as is. However, gdb can be used to disassemble manually, and the same method of manually finding the host entry point can be used as above.</p>
+<p>Automated virus detection of these variety of UNIX virus is practical by detecting missing section headers and/or entry points to non permissible sections or segments.</p>
+<p>Typically, the default entry point is _start, however this can be changed in linking. If a virus has been found in a file, and the host entry point is indeterminable for any reason, it may be beneficial to patch the entry point to _start. This however is still guesswork and not totally reliable.</p>
+<p>Typical general virus detection algorithms are directly applicable in UNIX, including signature strings, code flagging, file integrity checking etc.</p>
+<h2><a name="pm">Evading virus detection in ELF infection</a></h2>
+<p>The major problem in terms of evading detection with the parasite described, is that the entry point changes to a suspicious position.</p>
+<p>Ideally, the entry point of the program either wouldn't change or stay within expected sections.</p>
+<p>A possible method using the parasite described would be to find unused memory in normal entry point sections such as the .text section, and insert code to jump to the parasite code. This would require only a small number of bytes, and such empty space is common, as can be noted by looking through disassembly of executables.</p>
+<p>Alternatively, one of the original ideas of where to insert the parasite code, thrown away, by extending the text segment backwards may be possible. The parasite code and entry point would belong in the .text section and thus seemingly be quite normal.</p>
+<h2><a name="pn">Conclusion</a></h2>
+<p>The algorithms and implementation presented gives a clear example and proof of concept that UNIX while not popular for, is actually a viable breeding ground for parasites and virus.</p>
+<p><a href="files/vsc/unix-viruses-src.tgz">unix-viruses-src.tgz</a></p>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vsc02">Back to index</a>] [<a href="/lib/vsc02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsc02">de</a><a href="/lib/index.php?lang=en&amp;id=vsc02">en</a><a href="/lib/index.php?lang=es&amp;id=vsc02">es</a><a href="/lib/index.php?lang=it&amp;id=vsc02">it</a><a href="/lib/index.php?lang=fr&amp;id=vsc02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsc02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsc02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsc02">ua</a></div>
+</body>
+</html>

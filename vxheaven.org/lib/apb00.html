@@ -1,0 +1,522 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Piotr Bania 'Fighting EPO Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Piotr Bania"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Bania, Piotr,Fighting EPO Viruses, error, printf, virtualaddress, process, optionalheader, temp, section, figure, goto, pshc, phage, point, call, getprocaddress, imagebase"/>
+<meta name="Description" content="This short article describes the so-called Entry-Point Obscuring (EPO) virus coding technique, primarily through a direct analysis of the Win32.CTX.Phage virus. The reader should know the basics of IA-32 assembly and the main elements of the Portable Executable (PE) file structure to fully understand this article. The author also advises the reader to review the Win32.CTX.Phage description written by Peter Szor and Wason Han , since this article does not cover all the features of the virus."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c88e5e835e424edb7a5ddf0fbe76c71f31f631d6-1498756264-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/apb00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Fighting EPO Viruses</h1><p><a href="/lib/?lang=en&amp;author=Bania%2C%20Piotr">Piotr Bania</a><br/> <em>SecurityFocus</em><br/> <em>June 2005</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/apb00.html';</script><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Fighting%20EPO%20Viruses.pdf">Download</a> PDF (368.55Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=AT#apb00">Back to index</a>] [<a href="/lib/apb00.html#disqus_thread">Comments</a>]<br/> 
+<address>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="93f1f2fdfaf2bde3fafce7e1d3f4fef2faffbdf0fcfe">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</address>
+<ul>
+<li><a href="#c1">Why EPO and Win32.CTX.Phage</a></li>
+<li><a href="#c2">Understanding the Entry-Point Obscuring (EPO) technique</a></li>
+<li><a href="#c3">The EPO technique used in Win32.CTX.Phage</a></li>
+<li><a href="#c4">Finding the virus injection</a></li>
+<li><a href="#c5">Clearing the code, deleting the injection</a></li>
+<li><a href="#c6">Curtains down - last words</a></li>
+<li><a href="#c7">Further Reading</a></li>
+<li><a href="#c8">About the author</a></li>
+<li><a href="#c9">Code</a></li>
+</ul>
+<p>This short article describes the so-called Entry-Point Obscuring (EPO) virus coding technique, primarily through a direct analysis of the Win32.CTX.Phage virus. The reader should know the basics of IA-32 assembly and the main elements of the Portable Executable (PE) file structure to fully understand this article. The author also advises the reader to review the Win32.CTX.Phage description written by <a href="http://securityresponse.symantec.com/avcenter/venc/data/w32.ctx.and.w32.cholera.html">Peter Szor and Wason Han</a> , since this article does not cover all the features of the virus.</p>
+<h2><a name="c1"></a>Why EPO and Win32.CTX.Phage</h2>
+<p>Entry-point obscuring viruses are very interesting because of the very difficult nature of its detection, disinfection and removal. Nowadays the EPO technique is used in many different ways, however Win32.CTX.Phage has been chosen for this article because it was written by the same author of other such infamous viruses as Win9x.Margburg (one of the first Windows9x polymorphic virus, which first appeared in the wildlist) and Win9x.HPS. The author of these viruses is known for his difficult-to-detect and difficult-to-disinfect creations. CTX.Phage in particular involves many techniques that make the disinfection process highly difficult, even after the virus is fully understood.</p>
+<h2><a name="c2"></a>Understanding the Entry-Point Obscuring (EPO) technique</h2>
+<p>When a virus infects a file, it must find some way to attain control and be executed. Most of the PE file infectors use the most common way of doing this -- they simply change the entry-point of the infected application and make it point to the virus body. An example is shown below.</p>
+<table border="1" summary="">
+<tr><th>Original EXE</th><th>Infected EXE</th></tr>
+<tr><td>Entry-point: <strong>0x1000 (.code section)</strong></td><td>Entry-point: <strong>0x6000 (.reloc section)</strong></td></tr>
+</table>
+<p>Such virus activity is very easy to detect, as it usually results in files whose entry-point resides outside the code section, and are therefore marked as suspicious by a virus scanner. Here is some example code, which detects this type of infection:</p>
+<p>(checks if the 'entry-point section' is the last section):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: #202020;">sections</span> <span style="color: #339933;">=</span> pPE<span style="color: #339933;">-&gt;</span>FileHeader.<span style="color: #202020;">NumberOfSections</span><span style="color: #339933;">;</span><br/>
+pSH <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>PIMAGE_SECTION_HEADER<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>mymap<span style="color: #339933;">+</span>pMZ<span style="color: #339933;">-&gt;</span>e_lfanew <span style="color: #339933;">+</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>IMAGE_NT_HEADERS<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span>sections <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>IsBadReadPtr<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>pSH<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>PIMAGE_SECTION_HEADER<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> TRUE<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: Bad PE file<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_mode4<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>secname<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span><span style="color: black;">&#41;</span> pSH<span style="color: #339933;">-&gt;</span>Name<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>secname <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strcpy.html"><span style="color: #000066;">strcpy</span></a><span style="color: black;">&#40;</span>secname<span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;NONAME&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; startrange<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; endrange<span style="color: #339933;">=</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span> startrange <span style="color: #339933;">+</span> pSH<span style="color: #339933;">-&gt;</span>Misc.<span style="color: #202020;">VirtualSize</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* ...(snip)... */</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">&lt;=</span> pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">AddressOfEntryPoint</span> <span style="color: #339933;">&amp;&amp;</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">AddressOfEntryPoint</span> <span style="color: #339933;">&lt;</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pSH<span style="color: #339933;">-&gt;</span>Misc.<span style="color: #202020;">VirtualSize</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Checking call/jump requests from %s section (EP)<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; secname<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pSHC <span style="color: #339933;">=</span> pSH<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pSH<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sections<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; pSH<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>pSHC <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: invalid entrypoint<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_mode4<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Starting heuristics scan on %s section...<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>pSHC<span style="color: #339933;">-&gt;</span>Name<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>pSHC <span style="color: #339933;">==</span> pSH<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] Alert: Entrypoint points to last section (%s) -&gt; 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pSH<span style="color: #339933;">-&gt;</span>Name<span style="color: #339933;">,</span>pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">AddressOfEntryPoint</span> <span style="color: #339933;">+</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] Alert: The file may be infected!<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] No deep-scan action was performed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_mode4<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+&nbsp;</div>
+<p>The very reason why the EPO technique was developed was to avoid virus scanner detection. An entry-point obscuring virus is a virus that doesn't get control from the host program directly. Typically, the virus patches the host program with a jump/call routine, and receives control that way. While there are many variations of the EPO technique, in this article we will look at one of them in detail.</p>
+<h2><a name="c3"></a>The EPO technique used in Win32.CTX.Phage</h2>
+<p>The Phage virus doesn't modify the entry-point of an infected file, instead it scans all over the host code section and searches for API calls generated by Borland or the Microsoft linker. When such code is found, the virus checks that the destination address points somewhere inside the IMPORT section. If the call is really an import call, Phage gets a random number which tells the virus to patch the current processed instruction or to find next one. Figures 1, 2, 3, and 4 below show a few example schemas.</p>
+<div align="center">
+<img src="img/apb/fig1.gif" alt="Figure 1. Original application (ENTRYPOINT: 0x1000 - LINKER: BORLAND)."/>
+<p><strong>Figure 1. Original application (ENTRYPOINT: 0x1000 - LINKER: BORLAND).</strong></p>
+</div>
+<div align="center">
+<img src="img/apb/fig2.gif" alt="Figure 2. Infected application (ENTRYPOINT: 0x1000 - LINKER: BORLAND)."/>
+<p><strong>Figure 2. Infected application (ENTRYPOINT: 0x1000 - LINKER: BORLAND).</strong></p>
+</div>
+<div align="center">
+<img src="img/apb/fig3.gif" alt="Figure 3. Figure 3. Original application (ENTRYPOINT: 0x1039 - LINKER: MICROSOFT)."/>
+<p><strong>Figure 3. Original application (ENTRYPOINT: 0x1039 - LINKER: MICROSOFT).</strong></p>
+</div>
+<div align="center">
+<img src="img/apb/fig4.gif" alt="Figure 4. Infected application (ENTRYPOINT: 0x1039 - LINKER: MICROSOFT)."/>
+<p><strong>Figure 4. Infected application (ENTRYPOINT: 0x1039 - LINKER: MICROSOFT).</strong></p>
+</div>
+<p>The above schemas show how the CTX.Phage EPO virus works. As mentioned before, the virus injects the call instruction by overwriting it with a randomly found call. As the application size grows (and also the injected call range from the entry-point), it becomes increasingly difficult to find the injection of the virus. On the other hand, while using this EPO technique reduces the risk of virus execution, there are also some cases when the "call-to-virus" will not be executed at all.</p>
+<p>At this point, let's find a way to detect such injections such that it does not cause false alarms.</p>
+<h2><a name="c4"></a>Finding the virus injection</h2>
+<p>How difficult is it to find CTX.Phage injections? First of all, the virus inserts a call instruction as follows:</p>
+<table border="1" summary="call instruction">
+<tr><td><strong>E8 ?? ?? ?? ??</strong></td><td><strong>CALL XXXXXXXX</strong></td></tr>
+</table>
+<p>Where:</p>
+<ul>
+<li><strong>E8</strong> is the CALL instruction opcode</li>
+<li><strong>?? ?? ?? ??</strong> is the instruction operands (destination)</li>
+</ul>
+<p>Before we go any further, let's summarize all the information we know about the current EPO:</p>
+<ol>
+<li>The injection is always done somewhere behind the entry-point.</li>
+<li>The injected call executes the virus code which is stored always in last section (this bit of information is really helpful).</li>
+</ol>
+<p>As the reader probably knows, we could simply search for 0xE8 bytes (call opcodes) but there is large possibility that we might find some "suspicious" call that thands in non-call instruction, for example:</p>
+<table border="1" summary="push instruction">
+<tr><td><strong>68 332211E8</strong></td><td><strong>PUSH E8112233</strong></td></tr>
+</table>
+<p>As you can see, this is the push instruction, but the scanner finds the E8 byte and could consider it as a call. Unless we don't want to build up our disassembler engine (which is very long and hard work) we need to find another way. Yes, you guessed it: we need to add a condition for the E8 byte scanning routine, remembering that the call always executes code that resides in last section! Now that everything is clear, here are the conditions we require:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">temp_loc <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>pSHC<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>loc<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">5</span><span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>temp_loc <span style="color: #339933;">&gt;=</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">&amp;&amp;</span> temp_loc <span style="color: #339933;">&lt;=</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> pSH<span style="color: #339933;">-&gt;</span>Misc.<span style="color: #202020;">VirtualSize</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BAD_CALL <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Where:</p>
+<ul>
+<li><strong>temp_loc</strong> is the calculated destination of found call (E8 opcode)</li>
+<li><strong>pSH</strong> is the header of last section</li>
+<li><strong>+ 5</strong> is the size of call instruction (opcode + destination)</li>
+</ul>
+<p>A sample temp_loc calculation might look as follows:</p>
+<p>Scanned instruction:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #adadad; font-style: italic;">00401025</span> &nbsp;\<span style="color: #339933;">.</span> E8 <span style="color: #ff0000;">58270000</span> &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">CALL</span> &lt;<span style="color: #00007f; font-weight: bold;">jmp</span><span style="color: #339933;">.</span> &amp;kernel32<span style="color: #339933;">.</span>exitprocess=<span style="color: #7f007f;">&quot;&quot;</span>&gt; <br/>
+&nbsp;</div>
+<p>Calculation: temp_loc = 1025 (virtual address) + 00002758 (call destination) + 5 (size of call instruction)</p>
+<p>If the temp_loc address resides somewhere between last section's virtual address (start) and the last section's virtual address + its virtual size, the call is marked as suspicious. Here is the short snippet from the author's scanner:</p>
+<p>(searches for call and jump instructions and checks theirs destinations):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+&nbsp; &nbsp; <br/>
+<a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Starting from offset: 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span> <span style="color: #339933;">+</span> <br/>
+&nbsp; &nbsp; pSHC<span style="color: #339933;">-&gt;</span>VirtualAddress<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">!=</span> pSHC<span style="color: #339933;">-&gt;</span>SizeOfRawData<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; loc <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>mymap <span style="color: #339933;">+</span> pSHC<span style="color: #339933;">-&gt;</span>PointerToRawData<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>loc<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> O_CALL <span style="color: #339933;">||</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>BYTE<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>loc<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> O_JMP <span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; loc<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; temp_loc <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>pSHC<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>loc<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">5</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>temp_loc <span style="color: #339933;">&gt;=</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">&amp;&amp;</span> temp_loc <span style="color: #339933;">&lt;=</span> pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pSH<span style="color: #339933;">-&gt;</span>Misc.<span style="color: #202020;">VirtualSize</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] Alert: Detected request to %s(0x%.08x) section at: 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pSH<span style="color: #339933;">-&gt;</span>Name<span style="color: #339933;">,</span>pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span> <span style="color: #339933;">+</span> temp_loc<span style="color: #339933;">,</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pSHC<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span> <span style="color: #339933;">+</span> i<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>where_ctx <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; where_ctx <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span> <span style="color: #339933;">+</span> temp_loc<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; caller <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>pSHC<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span> <span style="color: #339933;">+</span> i<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; upa <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>pSH<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> pPE<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">ImageBase</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sv <span style="color: #339933;">=</span> loc <span style="color: #339933;">-</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; count<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; loc<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Scan finished, %d suspected instruction(s) found.<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>count<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+&nbsp;</div>
+<p>While scanning files with this code, I haven't seen any false alarms, so it is probably one of the best solutions or techniques one can use to find such virus injections.</p>
+<h2><a name="c5"></a>Clearing the code, deleting the injection</h2>
+<p>Since our scanner is able to find the injected call, we can move on. Now we need to reload the original call. On other words, we need to clear the injection. To do this we should first know more information about the virus.</p>
+<ol>
+<li>The injected call flows the execution to a polymorphic decryptor, which is generated in a way that several decryption phases can occur, from 4 to 7.</li>
+<li>The virus must reset the "hooked" call before returning the execution to the host. Otherwise the infected application may fault. The original instruction is saved somewhere inside the virus body.</li>
+</ol>
+<p>The main problem is that the virus is encrypted and the polymorphic decryptor will decrypt the full virus body several times. We need to obtain the clear virus body in order to reset the original instruction. We can't get to those bytes directly since the code is encrypted. There are a couple of solutions to clear/bypass the polymorphic decryption layers, such as using emulation and so on. Writing a full emulator is surely not a quick and easy job, however a different solution does exist. Most Windows viruses use the GetProcAddress API to obtain needed API addresses for their future execution. Lets try to set a breakpoint at GetProcAddress (of course to avoid false GetProcAddress requests. First we need to execute the virus injection, which is easy since we have located it before). This is shown below in Figure 5.</p>
+<div align="center">
+<img src="img/apb/fig5.gif" alt="Figure 5. GetProcAddress."/>
+<p><strong>Figure 5. GetProcAddress.</strong></p>
+</div>
+<p>The call came from 0x406AF3, which in fact points to the decrypted body. Indeed, the poly layers were bypassed! Here is the sample proof using the decrypted string, shown in Figure 6.</p>
+<div align="center">
+<img src="img/apb/fig6.gif" alt="Figure 6. Decrypted string."/>
+<p><strong>Figure 6. Decrypted string.</strong></p>
+</div>
+<p>To make the disinfector able to break on GetProcAddress, we need to build a small debugger (which is likely the fastest way to do it). This is easy since Windows platform already comes with Debug APIs.</p>
+<p>Basically, following the code debugs the virus process, modifies the original entry of GetProcAddress to 0x90 (nop), 0x90 (nop), 0xCC (int 3 - breakpoint) and takes over the EXCEPTION_BREAKPOINT only if it comes from the "hooked" range:</p>
+<p>(debugs process, executes virus call, hooks GetProcAddress and obtains caller (virus) address):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> patch<span style="color: black;">&#91;</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#123;</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0xCC</span> <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+_GetProcAddress <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span> GetProcAddress<span style="color: black;">&#40;</span>LoadLibrary<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;KERNEL32.DLL&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;GetProcAddress&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+GetStartupInfo<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>si<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>CreateProcess<span style="color: black;">&#40;</span>NULL<span style="color: #339933;">,</span>temp_name<span style="color: #339933;">,</span>NULL<span style="color: #339933;">,</span>NULL<span style="color: #339933;">,</span>FALSE<span style="color: #339933;">,</span>DEBUG_PROCESS <span style="color: #339933;">+</span> <br/>
+&nbsp; &nbsp; DEBUG_ONLY_THIS_PROCESS<span style="color: #339933;">,</span> NULL<span style="color: #339933;">,</span> NULL<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>si<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>pi<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+<span style="color: black;">&#123;</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: cannot create process, error: %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>GetLastError<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_di<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\n</span>[+] Process created, pid=0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>pi.<span style="color: #202020;">dwProcessId</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Starting emulation engine...<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <br/>
+<span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; WaitForDebugEvent<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>de<span style="color: #339933;">,</span>INFINITE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>de.<span style="color: #202020;">dwDebugEventCode</span> <span style="color: #339933;">==</span> EXIT_PROCESS_DEBUG_EVENT<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] Error: ups process exited...<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>de.<span style="color: #202020;">dwDebugEventCode</span> <span style="color: #339933;">==</span> EXCEPTION_DEBUG_EVENT<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionCode</span> <span style="color: #339933;">==</span> EXCEPTION_ACCESS_VIOLATION<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">dwFirstChance</span> <span style="color: #339933;">==</span> TRUE<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Exception occured at: 0x%.08x, passing to<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; program.<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionAddress</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ContinueDebugEvent<span style="color: black;">&#40;</span>de.<span style="color: #202020;">dwProcessId</span><span style="color: #339933;">,</span>de.<span style="color: #202020;">dwThreadId</span><span style="color: #339933;">,</span>\ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DBG_EXCEPTION_NOT_HANDLED<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Hard error occured, terminating the program<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionCode</span> <span style="color: #339933;">==</span> EXCEPTION_BREAKPOINT<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>fe <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fe <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Reached break point at 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionAddress</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Modifing 4 bytes at host stack<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tc.<span style="color: #202020;">ContextFlags</span> <span style="color: #339933;">=</span> CONTEXT_CONTROL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>GetThreadContext<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hThread</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>tc<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Failed to get thread context, error: %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GetLastError<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ReadProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>tc.<span style="color: #202020;">Esp</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>stack_v<span style="color: #339933;">,</span><span style="color: #0000dd;">4</span><span style="color: #339933;">,</span>NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>stack_v <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: reading from stack failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tc.<span style="color: #202020;">Esp</span> <span style="color: #339933;">=</span> tc.<span style="color: #202020;">Esp</span> <span style="color: #339933;">-</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; caller <span style="color: #339933;">+=</span> <span style="color: #0000dd;">5</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>WriteProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>tc.<span style="color: #202020;">Esp</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>caller<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: writing to stack failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Stack modified, 0x%.08x added caller -&gt; 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tc.<span style="color: #202020;">Esp</span><span style="color: #339933;">,</span> caller<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Redirecting EIP to 0x%.08x...<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>where_ctx<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tc.<span style="color: #202020;">Eip</span> <span style="color: #339933;">=</span> where_ctx<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>SetThreadContext<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hThread</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>tc<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Failed to set thread context, error: %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GetLastError<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; VirtualProtectEx<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span> _GetProcAddress<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>patch<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PAGE_READWRITE<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>oldp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span> _GetProcAddress<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>patch<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>patch<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; VirtualProtectEx<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span> _GetProcAddress<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>patch<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; oldp<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>oldp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Placed breaker at 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>_GetProcAddress<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ContinueDebugEvent<span style="color: black;">&#40;</span>de.<span style="color: #202020;">dwProcessId</span><span style="color: #339933;">,</span>de.<span style="color: #202020;">dwThreadId</span><span style="color: #339933;">,</span>DBG_CONTINUE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span> de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionAddress</span> <span style="color: #339933;">&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _GetProcAddress <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span> de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionAddress</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&lt;</span> _GetProcAddress <span style="color: #339933;">+</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>patch<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Virus reached the breaker at 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; de.<span style="color: #202020;">u</span>.<span style="color: #202020;">Exception</span>.<span style="color: #202020;">ExceptionRecord</span>.<span style="color: #202020;">ExceptionAddress</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; tc.<span style="color: #202020;">ContextFlags</span> <span style="color: #339933;">=</span> CONTEXT_CONTROL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>GetThreadContext<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hThread</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>tc<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Failed to get thread context, error: %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> \ <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;GetLastError<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ReadProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>tc.<span style="color: #202020;">Esp</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>stack_v<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Virus request captured from 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>stack_v<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<br/>
+<br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #202020;">ContinueDebugEvent</span><span style="color: black;">&#40;</span>de.<span style="color: #202020;">dwProcessId</span><span style="color: #339933;">,</span>de.<span style="color: #202020;">dwThreadId</span><span style="color: #339933;">,</span>DBG_EXCEPTION_NOT_HANDLED<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+&nbsp;</div>
+<p>Now when we have the clean virus body we can try to locate the original instructions. Since CTX.Phage doesn't modify the bits from the host code section, it has only one way to reset the original instruction - by using WriteProcessMemory API (well, it could use VirtualProtect API to get write access to host code section and then write the original bytes, but it doesn't). So here is the break on WriteProcessMemory, shown in Figure 7.</p>
+<div align="center">
+<img src="img/apb/fig7.gif" alt="Figure 7. Break on WriteProcessMemory."/>
+<p><strong>Figure 7. Break on WriteProcessMemory.</strong></p>
+</div>
+<p>As you can see, BytesToWrite is equal to 5 and Address is equal to the location found by the scanner. The only problem is that the call comes from allocated memory (the virus allocated it, copied itself and continued execution from there). But lets try to check the caller address below in Figure 8.</p>
+<div align="center">
+<img src="img/apb/fig8.gif" alt="Figure 8. Checking the caller address."/>
+<p><strong>Figure 8. Checking the caller address.</strong></p>
+</div>
+<p>The "const" bytes (for example those marked in the picture above) are:</p>
+<div align="center"><strong>6A 00 6A 05 E8 05 00 00 00 ?? ?? ?? ?? ?? 50</strong></div>
+<p>Where:</p>
+<ul>
+<li><strong>6A 00</strong> is push 0</li>
+<li><strong>6A 05</strong> is push 5</li>
+<li><strong>E8 05 00 00</strong> is call $+5</li>
+<li><strong>?? ?? ?? ?? ??</strong> is the original host bytes (wildcard)</li>
+<li><strong>50</strong> is push eax</li>
+</ul>
+<p>Here is the signature, useful to find original host bytes (there are the same in every generation), however these ones are located in the allocated memory. So the question is: does the same bytes exists somewhere inside the unencrypted body of virus, in other words, somewhere inside last section? Lets try to scan for it in Figure 9.</p>
+<div align="center">
+<img src="img/apb/fig9.gif" alt="Figure 9. Scanning the virus."/>
+<p><strong>Figure 9. Scanning the virus.</strong></p>
+</div>
+<p>Indeed, the same bytes were found in "native" virus location. The GetProcAddress was called by the virus from 0x406AF3, as you can see the original bytes that lay far before it. Here is the code example from the scanner which searches for the original bytes by using the signature. The same could be done by reducing 0x406AF3 by some const size, but regardless here it is:</p>
+<p>(searches the virus body for the original bytes by using a signature, it also repairs the call by reading original bytes directly to mapped file):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> ctx_sig<span style="color: black;">&#91;</span><span style="color: #0000dd;">15</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#123;</span> <span style="color: #208080;">0x6A</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x6A</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x05</span><span style="color: #339933;">,</span> <span style="color: #208080;">0xE8</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x05</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> <span style="color: #208080;">0x50</span> <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> ctx_fly<span style="color: black;">&#91;</span><span style="color: #0000dd;">15</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; ReadProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>tc.<span style="color: #202020;">Esp</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>stack_v<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Virus request captured from 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>stack_v<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Scanning backwards to 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>upa<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>ReadProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>stack_v<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>ctx_fly<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>ctx_sig<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>stack_v <span style="color: #339933;">&lt;=</span> upa<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; found <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #993333;">int</span> ii<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> ii <span style="color: #339933;">&lt;</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>ctx_sig<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> ii<span style="color: #339933;">++</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ctx_sig<span style="color: black;">&#91;</span>ii<span style="color: black;">&#93;</span> <span style="color: #339933;">!=</span> ctx_fly<span style="color: black;">&#91;</span>ii<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ctx_sig<span style="color: black;">&#91;</span>ii<span style="color: black;">&#93;</span> <span style="color: #339933;">!=</span> <span style="color: #208080;">0x90</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; found <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>found <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[+] Orginal bytes were found at 0x%.08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> stack_v <span style="color: #339933;">+</span> <span style="color: #0000dd;">9</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] Repairing the broken instruction.<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ReadProcessMemory<span style="color: black;">&#40;</span>pi.<span style="color: #202020;">hProcess</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>stack_v <span style="color: #339933;">+</span> <span style="color: #0000dd;">9</span><span style="color: black;">&#41;</span> <span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span> sv<span style="color: #339933;">,</span> <span style="color: #0000dd;">5</span><span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[!] The file was disinfected!<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/getch.html"><span style="color: #000066;">getch</span></a><span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stack_v<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>found <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Error: no signature was found.<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;[-] Disinfecting failed<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> error_term<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+...<span style="color: black;">&#40;</span>snip<span style="color: black;">&#41;</span>...<br/>
+<span style="color: black; font-style: italic;">// --- snip of scanner code ------------------------------------------------</span><br/>
+&nbsp;</div>
+<p>The full EPO heuristics scanner, together with Win32.CTX.Phage disinfector, is attached to the last section of the paper. Here is a screenshot from that application, as shown in Figure 10.</p>
+<div align="center">
+<img src="img/apb/fig10.gif" alt="Figure 10. Screenshot of the EPO scanner."/>
+<p><strong>Figure 10. Screenshot of the EPO scanner.</strong></p>
+</div>
+<h2><a name="c6"></a>Curtains down - last words</h2>
+<p>I hope you have enjoyed this short article on EPO techniques. The disinfector discussed in this article only cancels virus injections, of course - the virus still resides in last section but fortunately it will never be executed. However, this provides an opportunity for the reader to add some kind of virus "overwriter," it is really an easy job and a good task to undertake.</p>
+<p>If you have any comments don't hesitate to contact the author. The author would also like to thank Satish Ks for moral support.</p>
+<h2><a name="c7"></a>Further Reading</h2>
+<ol>
+<li>http://securityresponse.symantec.com/avcenter/venc/data/w32.ctx.and.w32.cholera.html by Peter Szor and Wason Han.</li>
+<li>http://vx.netlux.org/29a/29a-4/29a-4.223 <a href="/lib/vgy01.html">EPO</a> by GriYo / 29a.</li>
+<li><a href="/lib/aps00.html">"The Art of Computer Virus Research and Defense"</a> by Peter Szor</li>
+</ol>
+<h2><a name="c8"></a>About the author</h2>
+<p><a href="/cdn-cgi/l/email-protection#e587848b8c84cb958c8a9197a58288848c89cb868a88">Piotr Bania</a> is an independent IT Security/Anti-Virus Researcher from Poland with over five years of experience. He has discovered several highly critical security vulnerabilities in popular applications like RealPlayer. More information can be found on his <a href="http://pb.specialised.info/">website</a>.</p>
+<h2><a name="c9"></a>Code</h2>
+<p>Here is the <a href="files/apb/epos.c">full source code</a> of the scanner and disinfector. If you have problems with formatting the full source and precompiled binary is also available on <a href="files/apb/epos.exe">here</a> or through <a href="http://pb.specialised.info/">author's website</a>.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AT#apb00">Back to index</a>] [<a href="/lib/apb00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=apb00">de</a><a href="/lib/index.php?lang=en&amp;id=apb00">en</a><a href="/lib/index.php?lang=es&amp;id=apb00">es</a><a href="/lib/index.php?lang=it&amp;id=apb00">it</a><a href="/lib/index.php?lang=fr&amp;id=apb00">fr</a><a href="/lib/index.php?lang=pl&amp;id=apb00">pl</a><a href="/lib/index.php?lang=ru&amp;id=apb00">ru</a><a href="/lib/index.php?lang=ua&amp;id=apb00">ua</a></div>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

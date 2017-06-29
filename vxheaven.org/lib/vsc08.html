@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Silvio Cesare 'Kernel function hijacking' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Silvio Cesare"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Cesare, Silvio,Kernel function hijacking, process, original, function, kernel, accounting, jump, acct, replacement, code, replace, flags, bytes, "/>
+<meta name="Description" content="This paper describes a method of hijacking internal kernel functions, that is, kernel functions that are declared inside the kernel without a function pointer or vector for changing the kernel function it points too.  This can have practical uses, as given in example code which patches the process accounting code to not log specially marked processes (processes given signal 31)."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"496b02aace26c8ba05cc61f4bc8708023612c81a-1498756656-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsc08.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Kernel function hijacking</h1><p><a href="/lib/?lang=en&amp;author=Cesare%2C%20Silvio">Silvio Cesare</a><br/> <em>November 1999</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsc08.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=UN#vsc08">Back to index</a>] [<a href="/lib/vsc08.html#disqus_thread">Comments</a>]<br/> 
+<h2>Introduction</h2>
+<p>This article describes a method of hijacking internal kernel functions, that is, kernel functions that are declared inside the kernel without a function pointer or vector for changing the kernel function it points too. This can have practical uses, as given in example code which patches the process accounting code to not log specially marked processes (processes given signal 31).</p>
+<h2>Kernel function hijacking</h2>
+<p>The basic premise for this attack is to replace the first bytes of the original function with an asm jump to the replacement jump. The algorithm follows</p>
+<p>In init_module...</p>
+<ul>
+<li>save the first 7 bytes of the original function for later use</li>
+<li>set the new jump code to point to the replacement function</li>
+<li>replace the first 7 bytes of the original function with a jump</li>
+</ul>
+<p>In cleanup_module...</p>
+<ul>
+<li>restore the bytes of the original function with the saved copy</li>
+</ul>
+<p>In the replacement function...</p>
+<ul>
+<li>do the payload
+<p>for calling the old function...</p>
+<ul>
+<li>restore the bytes of the original function with the saved copy</li>
+<li>call the original function</li>
+<li>replace the first 7 bytes of the original function with a jump</li>
+</ul></li>
+</ul>
+<p>The asm jump used is an indirect jump... This means no messing around with calculating offsets.</p>
+<pre class="source">
+	movl $address_to_jump,%eax
+	jmp *%eax
+</pre>
+<h2>The implemented example</h2>
+<p>The example code patches acct_process in kernel/sys.c which accounts for process accounting. Normally, you cannot redirect acct_process, but this does all the logging for process accounting, so we hijack the function to control process logging.</p>
+<p>The code works by waiting for a kill -31 to a process, when this is recieved, the replacement kill syscall sets a bit in the process flags that marks the process as not to be logged by process accounting. This technique is ideal as when the process forks, the process flags are copied, so children remaing log free aswell. The heart of the code is in _acct_process which looks at the process flags and if marked not to be logged, returns without calling the original acct_process.</p>
+<p>The acct_process variable must be assigned the correct address of the function in the kernel. Typically, this is found in System.map but if no map is present then the techniques described in my paper <a href="/lib/vsc07.html">RUNTIME KERNEL KMEM PATCHING</a></p>
+<p><a href="files/vsc/acct_nolog.c">acct_nolog.c (Linux 2.0.35)</a></p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsc08">de</a><a href="/lib/index.php?lang=en&amp;id=vsc08">en</a><a href="/lib/index.php?lang=es&amp;id=vsc08">es</a><a href="/lib/index.php?lang=it&amp;id=vsc08">it</a><a href="/lib/index.php?lang=fr&amp;id=vsc08">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsc08">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsc08">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsc08">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Dark Angel 'Scan-strings, how they work and how to avoid them' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Dark Angel"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Dark Angel,Scan-strings, how they work and how to avoid them, decryption, engines, engine, technique, strings, scanner, codes, scanners, located, file, bytes, program, encryption, found, loop"/>
+<meta name="Description" content="The virus author must find encryption techniques which can successfully evade easy detection. This article will show you several such techniques."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"23a400692ff533f9adb67b1ec7b92b3c319505cb-1498757095-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vda13.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Scan-strings, how they work and how to avoid them</h1><p><a href="/lib/?lang=en&amp;author=Dark%20Angel"> Dark Angel</a><br/> <em><a href="/vx.php?fid=17#f17">40hex [6]</a></em><br/> <em>April 1992</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vda13.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#vda13">Back to index</a>] [<a href="/lib/vda13.html#disqus_thread">Comments</a>]<br/> 
+<p>Scan strings are the scourge of the virus author and the friend of anti-virus wanna-bes. The virus author must find encryption techniques which can successfully evade easy detection. This article will show you several such techniques.</p>
+<p>Scan strings, as you are well aware, are a collection of bytes which an anti-viral product uses to identify a virus. The important thing to keep in mind is that these scan strings represent actual code and can NEVER contain code which could occur in a "normal" program. The trick is to use this to your advantage.</p>
+<p>When a scanner checks a file for a virus, it searches for the scan string which could be located ANYWHERE IN THE FILE. The scanner doesn't care where it is. Thus, a file which consists solely of the scan string and nothing else would be detected as infected by a virus. A scanner is basically an overblown "hex searcher" looking for 1000 signatures. Interesting, but there's not much you can do to exploit this. The only thing you can do is to write code so generic that it could be located in any program (by chance). Try creating a file with the following debug script and scanning it. This demonstrates the fact that the scan string may be located at any position in the file.</p>
+<pre class="source">
+n marauder.com
+e 0100 E8 00 00 5E 81 EE 0E 01 E8 05 00 E9
+ 
+rcx
+000C
+w
+q
+</pre>
+<p>Although scanners normally search for decryption/encryption routines, in Marauder's case, SCAN looks for the "setup" portion of the code, i.e. setting up BP (to the "delta offset"), calling the decryption routine, and finally jumping to program code.</p>
+<p>What you CAN do is to either minimise the scannable code or to have the code constantly mutate into something different. The reasons are readily apparent.</p>
+<p>The simplest technique is having multiple encryption engines. A virus utilising this technique has a database of encryption/decryption engines and uses a random one each time it infects. For example, there could be various forms of XOR encryption or perhaps another form of mathematical encryption. The trick is to simply replace the code for the encryption routine each time with the new encryption routine.</p>
+<p>Mark Washburn used this in his V2PX series of virii. In it, he used six different encryption/decryption algorithms, and some mutations are impossible to detect with a mere scan string. More on those later.</p>
+<p>Recently, there has been talk of the so-called MTE, or mutating engine, from Bulgaria (where else?). It utilises the multiple encryption engine technique. Pogue Mahone used the MTE and it took McAfee several days to find a scan string. Vesselin Bontchev, the McAfee-wanna-be of Bulgaria, marvelled the engineering of this engine. It is distributed as an OBJ file designed to be able to be linked into any virus. Supposedly, SCANV89 will be able to detect any virus using the encryption engine, so it is worthless except for those who have an academic interest in such matters (such as virus authors).</p>
+<p>However, there is a serious limitation to the multiple encryption technique, namely that scan strings may still be found. However, scan strings must be isolated for each different encryption mechanism. An additional benefit is the possibility that the antivirus software developers will miss some of the encryption mechanisms so not all the strains of the virus will be caught by the scanner.</p>
+<p>Now we get to a much better (and sort of obvious) method: minimising scan code length. There are several viable techniques which may be used, but I shall discuss but three of them.</p>
+<p>The one mentioned before which Mark Washburn used in V2P6 was interesting. He first filled the space to be filled in with the encryption mechanism with dummy one byte op-codes such as CLC, STC, etc. As you can see, the flag manipulation op-codes were exploited. Next, he randomly placed the parts of his encryption mechanism in parts of this buffer, i.e. the gaps between the "real" instructions were filled in with random dummy op-codes. In this manner, no generic scan string could be located for this encryption mechanism of this virus. However, the disadvantage of this method is the sheer size of the code necessary to perform the encryption.</p>
+<p>A second method is much simpler than this and possibly just as effective. To minimise scan code length, all you have to do is change certain bytes at various intervals. The best way to do this can be explained with the following code fragment:</p>
+<pre class="source">
+	mov si, 1234h			; Starting location of encryption
+	mov cx, 1234h			; Virus size / 2 + variable number
+loop_thing:
+	xor word ptr cs:[si], 1234h	; Decrypt the value
+	add si, 2
+	loop loop_thing
+</pre>
+<p>In this code fragment, all the values which can be changed are set to 1234h for the sake of clarity. Upon infection, all you have to do is to set these variable values to whatever is appropriate for the file. For example, mov bx, 1234h would have to be changed to have the encryption start at the wherever the virus would be loaded into memory (huh?). Ponder this for a few moments and all shall become clear. To substitute new values into the code, all you have to do is something akin to:</p>
+<pre class="source">
+	mov [bp+scratch+1], cx
+</pre>
+<p>Where scratch is an instruction. The exact value to add to scratch depends on the coding of the op-code. Some op-codes take their argument as the second byte, others take the third. Regardless, it will take some tinkering before it is perfect. In the above case, the "permanent" code is limited to under five or six bytes. Additionally, these five or six bytes could theoretically occur in ANY PROGRAM WHATSOEVER, so it would not be prudent for scanners to search for these strings. However, scanners often use scan strings with wild-card-ish scan string characters, so it is still possible for a scan string to be found.</p>
+<p>The important thing to keep in mind when using this method is that it is best for the virus to use separate encryption and decryption engines. In this manner, shorter decryption routines may be found and thus shorter scan strings will be needed. In any case, using separate encryption and decryption engines increases the size of the code by at most 50 bytes.</p>
+<p>The last method detailed is theft of decryption engines. Several shareware products utilise decryption engines in their programs to prevent simple "cracks" of their products. This is, of course, not a deterrent to any programmer worth his salt, but it is useful for virus authors. If you combine the method above with this technique, the scan string would identify the product as being infected with the virus, which is a) bad PR for the company and b) unsuitable for use as a scan string. This technique requires virtually no effort, as the decryption engine is already written for you by some unsuspecting PD programmer.</p>
+<p>All the methods described are viable scan string avoidance techniques suitable for use in any virus. After a few practice tries, scan string avoidance should become second nature and will help tremendously in prolonging the effective life of your virus in the wild.</p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vda13">de</a><a href="/lib/index.php?lang=en&amp;id=vda13">en</a><a href="/lib/index.php?lang=es&amp;id=vda13">es</a><a href="/lib/index.php?lang=it&amp;id=vda13">it</a><a href="/lib/index.php?lang=fr&amp;id=vda13">fr</a><a href="/lib/index.php?lang=pl&amp;id=vda13">pl</a><a href="/lib/index.php?lang=ru&amp;id=vda13">ru</a><a href="/lib/index.php?lang=ua&amp;id=vda13">ua</a></div>
+</body>
+</html>

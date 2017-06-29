@@ -1,0 +1,531 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Silvio Cesare 'Runtime kernel kmem patching' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Silvio Cesare"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Cesare, Silvio,Runtime kernel kmem patching, kernel, module, object, page, relocation, task, code, memory, define, header, kmalloc, file, sections, pool, index"/>
+<meta name="Description" content="This paper documents runtime (on the fly) kernel patching on a running system under Linux using direct access to kernel memory.  The same algorithms may equally be applicable to other systems.  Examples of kernel patching for use by an attacker is provided showing patching of kernel structures to remove a lkm's visibility to lsmod and even the addition of kernel code ala loadable kernel modules (lkm) to a running system without native lkm support in the kernel.  Discussion of rebuilding the appropriate sections of the system symbol map (System.map) is provided implemented."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c780c2f7dfb2d3ebfb02542bae0c3a471fd9ebbd-1498757092-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsc07.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Runtime kernel kmem patching</h1><p><a href="/lib/?lang=en&amp;author=Cesare%2C%20Silvio">Silvio Cesare</a><br/> <em><a href="/vx.php?fid=290#f290">Matrix Zine [1]</a></em><br/> <em>November 1998</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsc07.html';</script><div class="ci"><a href="/lib/?ci=vsc07">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=UN#vsc07">Back to index</a>] [<a href="/lib/vsc07.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Introduction</a></li>
+<li><a href="#p2">The kernel symbol list</a></li>
+<li><a href="#p3">Direct kernel memory access in Linux</a></li>
+<li><a href="#p4">Building symbol information from kmem</a></li>
+<li><a href="#p5">Patching kernel structures</a></li>
+<li><a href="#p6">Patching the kernel to run inserted kernel code</a></li>
+<li><a href="#p7">Patching the kernel to insert new code</a></li>
+<li><a href="#p8">Patching new code into the Linux kernel</a></li>
+<li><a href="#p9">Object code (LKM) inserting of kernel code</a></li>
+<li><a href="#pa">Object code (LKM) linking to kernel</a></li>
+<li><a href="#pb">Bootstrap loading of object code (LKM)</a></li>
+<li><a href="#pc">The provided implementation</a></li>
+<li><a href="#pd">Conclusion</a></li>
+</ul>
+<h2><a name="p1">Introduction</a></h2>
+<p>This paper documents runtime (on the fly) kernel patching on a running system under Linux using direct access to kernel memory. The same algorithms may equally be applicable to other systems. Examples of kernel patching for use by an attacker is provided showing patching of kernel structures to remove a lkm's visibility to lsmod and even the addition of kernel code ala loadable kernel modules (lkm) to a running system without native lkm support in the kernel. Discussion of rebuilding the appropriate sections of the system symbol map (System.map) is provided and implemented.</p>
+<p>Linux kernel programming skills of a rudimentary level are required for the purposes of this paper. For the sections on object code linking use ELF, introductory knowledge of the ELF specs while is assumed has the appropriate parts used in this paper explained in further detail to those things directly applicable. It is strongly suggested that the interested reader look at the ELF specs. This is especially true if full understanding of the implementation is to be achieved.</p>
+<h2><a name="p2">The kernel symbol list</a></h2>
+<p>Linux provides a means to locate every symbol used in the kernel whether they are exported or not. This is available by System.map which is created at compile time by gathering the symbol information in the object files used to compile the kernel.</p>
+<pre>
+# cat /System.map
+
+00100000 T _stext
+00100000 T stext
+00100000 t startup_32
+001000bc t isnew
+00100118 t is486x
+00100183 t n6x86
+.
+.
+.
+</pre>
+<p>Thus we can see we can identify the symbol by its name. The address we can use to directly look at kernel memory via /dev/kmem.</p>
+<p>Kernel symbols that are exported, that is, those symbols that are globally visible and maintained in the kernel and available to user-land via /proc/ksysm and get_kernel_syms (1) do not require the use of System.map for the reasons just stated. This however is only available when lkm support is compiled in the kernel.</p>
+<h2><a name="p3">Direct kernel memory access in Linux</a></h2>
+<p>Direct access to memory in Linux is provided by two device files. /dev/mem is a file mapping of linear memory. /dev/kmem is a file mapping of all virtual memory available, that is, linear memory plus swap space.</p>
+<p>To use the device files as memory requires opening of the device and using it as normal. Random access requires seeking to the required position (memory address) in the file before reading or writing.</p>
+<h2><a name="p4">Building symbol information from kmem</a></h2>
+<p>System.map is not required to run Linux. Neither is /proc/ksyms when lkm's aren't supported natively in the kernel. However, symbol information is vital for patching the kernel using kmem. A variety of approaches are available however to rebuild symbol information from a running kernel using kmem.</p>
+<p>The simplest approach is to copy the first few bytes at a symbol's address and use this as a key to locate the symbol in kmem by string searching. This approach is ideal for locating symbols which represent code, ie functions. The machine code instructions used as the key however will possibly change between architectures and kernel versions. Thus a key lists for function symbols must be maintained for each arch and kernel version. Likewise, if the function uses compile time configurable code, this approach will fail unless we use a key for that specific configuration. In general however, this is highly successful, and a key list construction and searching may be easily automated to find a large number of symbols.</p>
+<p>This approach requires that symbol information be available on the machine where the key lists are being built. This information can use System.map or /proc/ksyms, the later being the preferred source as its common on many systems that System.map is not current as its often not copied in kernel compilations.</p>
+<p>The implementation of constructing the key lists is build-ksyms-keys.sh which uses a minimum of 15 bytes as the key length, but may increase if the symbol is not able to be identified uniquely with the current key length.</p>
+<p>A problem is present with this method however. Its common for a large number of functions to reference other symbols which are not known. A solution to this problem requires that we identify which part of the key is random so we can safely ignore it. To do this, we can build a key list initially which assumes the entire key is to be used, then we update the key list on a new kernel. By looking at what changed in between kernels, we can use this as what to ignore. Also, this gives us a reasonable guess at how useful a key is and if a key is not at all stable and should thus be discarded.</p>
+<p>Locating structures in memory may also be approached using a search key technique. For this we try to make known as much information in the structure as possible so we have a feasible key to work with. The key does not have to be a string however, ie, we can search for a structure knowing fields that are dispersed within it. A practical example that is implemented in the provided source code is locating a module's data structure.</p>
+<p>From /usr/include/linux/module.h</p>
+<pre class="source">
+struct module {
+        struct module *next;
+        struct module_ref *ref; /* the list of modules that refer to me */
+        struct symbol_table *symtab;
+        const char *name;
+        int size;                       /* size of module in pages */
+        void* addr;                     /* address of module */
+        int state;
+        void (*cleanup)(void);          /* cleanup routine */
+};
+</pre>
+<p>The module's name 'name' is a pointer to a string. Thus to locate the module structure we can make two passes in memory. In the first pass we search for all matches to a string, that is the name of the module. We then use the address of these strings in our second pass as the value of 'name' in the module structure.</p>
+<p>To make the searching practical, we try to fill in as much information that is known into the partially complete module struct which is out search key. The size of the module 'size' is available in a module listing and we can use this to make our key more useful.</p>
+<pre>
+# lsmod
+Module         Pages    Used by
+ppp                5            1 (autoclean)
+slhc               2    [ppp]   1 (autoclean)
+serial             8            1
+ipx                4            0
+rarp               1            0
+smbfs              7            0
+nfs               13            4
+#
+</pre>
+<p>The pages number indicates the size of the module in pages. Thus we can use this in our search for the module structure. The 'state' of the module may be assume to be MOD_RUNNING, that is, a module that is currently running (as opposed to one that needs deletion, or is being initialized). The 'ref' may be assumed NULL, that is, no modules refer to this one. Also 'cleanup' may be assumed not NULL.</p>
+<p>This information gives us a key that is practical and will uniquely identify module structures in memory most of the time (but not all the time).</p>
+<p>Another method of locating a symbol is that if it is a constant distance to a known symbol location, then the unknown symbol may be found as a function of the known symbol.</p>
+<p>From /usr/src/linux-2.0.35/kernel/sched.c</p>
+<pre class="source">
+.
+.
+.
+
+struct task_struct * task[NR_TASKS] = {&amp;init_task, };
+
+struct kernel_stat kstat = { 0 };
+
+.
+.
+.
+</pre>
+<p>'task' is the symbol we are trying to locate. This symbol is not in /proc/ksyms, however 'kstat' is. Thus we can see the following.</p>
+<p>ADDR(task) == ADDR(kstat) - NR_TASKS*sizeof(struct task_struct *)</p>
+<p>It is possible however, that we have no information to use directly as a key to identify the structure, that is, the structure has from our position random or unknown data, nor can we use known symbols as reference points. If this happens, we may be able to locate the structure indirectly by finding code that references the structure we are looking for.</p>
+<p>From /usr/src/linux-2.0.35/arch/i386/kernel/entry.S</p>
+<pre class="source">
+.
+.
+.
+
+ * Stack layout in 'ret_from_system_call':
+ *      ptrace needs to have all regs on the stack.
+ *      if the order here is changed, it needs to be
+ *      updated in fork.c:copy_process, signal.c:do_signal,
+ *      ptrace.c and ptrace.h
+ *
+ *       0(%esp) - %ebx
+ *       4(%esp) - %ecx
+ *       8(%esp) - %edx
+ *       C(%esp) - %esi
+ *      10(%esp) - %edi
+ *      14(%esp) - %ebp
+ *      18(%esp) - %eax
+ *      1C(%esp) - %ds
+ *      20(%esp) - %es
+ *      24(%esp) - %fs
+ *      28(%esp) - %gs
+ *      2C(%esp) - orig_eax
+ *      30(%esp) - %eip
+ *      34(%esp) - %cs
+ *      38(%esp) - %eflags
+ *      3C(%esp) - %oldesp
+ *      40(%esp) - %oldss
+ */
+
+.
+.
+.
+
+        ALIGN
+1:      call SYMBOL_NAME(syscall_trace)
+        movl ORIG_EAX(%esp),%eax
+        call *SYMBOL_NAME(sys_call_table)(,%eax,4)
+        movl %eax,EAX(%esp)             # save the return value
+#ifdef __SMP__
+        GET_PROCESSOR_OFFSET(%eax)
+        movl SYMBOL_NAME(current_set)(,%eax),%eax
+</pre>
+<p>It is seen that sys_call_table is referenced in the code. If we are able to locate this particular code, we can extract the address of the sys_call_table. It is preferable to use as many instructions as possible to increase the efficiency of the key. It is pointless searching with keys so small they identify many possible matches.</p>
+<p>By using the adjacent instructions to that which references the sys_call_table we give ourselves a good key to use. These instructions do not reference anything not known so they can be used. Likewise we don't use the __SMP__ dependent code.</p>
+<p>The final code we use then is as follows.</p>
+<pre class="source">
+        movl ORIG_EAX(%esp),%eax
+        call *SYMBOL_NAME(sys_call_table)(,%eax,4)
+        movl %eax,EAX(%esp)             # save the return value
+</pre>
+<p>By compiling this code in a dummy program and using objdump to view the machine code we can extract our search key. The search key can be thought of as a partially incomplete string.</p>
+<p>The entry.S code does not change often and is seen in many kernels. Thus we do not have to use different keys for each kernel version. Naturally this is only applicable to this specific architecture, however the same principle may be used for others.</p>
+<h2><a name="p5">Patching kernel structures</a></h2>
+<p>The kernel symbol information and direct access to kernel memory provides us with the ability to modify kernel structures. The mem devices provide us with direct memory access and the symbol information gives us addresses to use for location of kernel structures.</p>
+<p>The first example is a simple application of how to modify a kernel structure. kroot is the supplied program that changes the uid of a process to become superuser. This is not very practical in real life except when the permissions of the mem devices are insecure - which does happen and has even appeared as kernel bugs in the past. It does serve as a good example.</p>
+<p>The algorithm is as follows.</p>
+<ul>
+<li>open /dev/kmem</li>
+<li>seek to the 'task' symbol address.</li>
+<li>read the task table into memory</li>
+<li>locate the appropriate task we wish to modify</li>
+<li>modify the task to reflect a superuser uid</li>
+<li>seek to the specific task in the file</li>
+<li>write the modified task</li>
+</ul>
+<p>To locate the 'task' symbol address we use the methods given above.</p>
+<p>A more practical example is also given. Patching a module kernel structure to remove the lkm from module listing's.</p>
+<p>From /usr/src/linux-2.0.35/kernel/module.c</p>
+<pre class="source">
+.
+.
+.
+/*
+ * Called by the /proc file system to return a current list of modules.
+ */
+int get_module_list(char *buf)
+{
+.
+.
+.
+                q = mp->name;
+                if (*q == '\0' &amp;&amp; mp->size == 0 &amp;&amp; mp->ref == NULL)
+                        continue; /* don't list modules for kernel syms */
+.
+.
+.
+</pre>
+<p>It can be seen that a lkm is not listed of the name is empty, size is 0 and the ref is NULL.</p>
+<p>The implemtation of the lkm 'zapper' uses this information to patch the module struct's size and ref members and patches the name to be an empty string. The reverse can also be done provided the size and ref pointer is saved in the 'zapping' process.</p>
+<h2><a name="p6">Patching the kernel to run inserted kernel code</a></h2>
+<p>Linux provides a system call table represented by the symbol sys_call_table. The table is an array of fixed size and each element of the array is a pointer to the system call, number of which is the index in the array. If no system call is implemented for that syscall number, the element is a NULL pointer. Typically many tens of elements in the syscall table are NULL representing the syscall slot available for use.</p>
+<p>Provided we know the address of the new kernel code, we can patch the syscall table and fill an empty slot to point to our new code. To run the kernel code, we make a call to the new syscall from user-land using the int 0x80 mechanism that Linux employs and the new code is thus run.</p>
+<h2><a name="p7">Patching the kernel to insert new code</a></h2>
+<p>/dev/kmem gives us direct access to kernel memory, so to insert new code simply means we overwrite part of memory. Importantly to leave the kernel in a stable state we cannot overwrite internal kernel structures that are allocated or being used.</p>
+<p>Its possible to use the kmalloc pool in kernel space however we cant be certain if the memory is already being used by kmalloc. Likewise, even if we look at the allocation block headers to find free memory, the operations are not atomic so it leaves to possible racing with the kernel.</p>
+<p>The linear layout of kernel memory looks like this.</p>
+<pre>
+	[compile time kernel memory reserve]
+	[kmalloc pool]
+</pre>
+<p>The kmalloc pool limits are defined in the kernel by the symbols memory_start and memory_end.</p>
+<pre>
+	[compile time kernel memory reserve]
+memory_start
+	[kmalloc pool]
+memory_end
+</pre>
+<p>The kmalloc pool however is aligned to the next page border of memory_start, so in practice this is what happens.</p>
+<pre>
+Key:
+	[..]	a complete page
+	K	kmalloc pool
+	P	padding
+	R	reserve (compile time kernel text/data etc)
+	
+
+	[RRRRRRRRRRRR]
+	...
+	[RRRRRRRRRRRR]
+	[RRRR
+memory_start
+	     PPPPPPPP]
+	[KKKKKKKKKKKK]
+	...
+	[KKKKKKKKKKKK]
+memory_end
+</pre>
+<p>This padding can provide us with an ideal positing for new kernel code, as it is totally safe to use as the kernel is not allowed to use this memory.</p>
+<p>This is the ideal situation where we can use System.map or another technique to locate memory_start. It is preferable however if we can not to use a symbol who's address is not known at runtime without location.</p>
+<p>From /usr/src/linux-2.0.35/arch/i386/mm/init.c</p>
+<pre class="source">
+.
+.
+.
+
+/*
+ * BAD_PAGE is the page that is used for page faults when linux
+ * is out-of-memory. Older versions of linux just did a
+ * do_exit(), but using this instead means there is less risk
+ * for a process dying in kernel mode, possibly leaving a inode
+ * unused etc..
+ *
+ * BAD_PAGETABLE is the accompanying page-table: it is initialized
+ * to point to BAD_PAGE entries.
+
+.
+.
+.
+
+From /usr/src/linux-2.0.35/arc/i386/kernel/head.S
+
+.
+.
+.
+
+.org 0x3000
+ENTRY(empty_bad_page)
+
+.org 0x4000
+ENTRY(empty_bad_page_table)
+
+.org 0x5000
+ENTRY(empty_zero_page)
+
+.
+.
+.
+</pre>
+<p>This all starts at 0x100000 for a compressed kernel image. Thus empty_bad_page is at 0x100300 and is 4096 bytes in size. Running out of memory is not a common occurrence and we can use the empty_bad_page for our own code without too many fears.</p>
+<h2><a name="p8">Patching new code into the Linux kernel</a></h2>
+<p>Patching new code into the kernel requires two things. It requires that the code be in kernel space memory and it requires a method of calling that code. The above text has provided has with methods to fulfil both these requirements. The algorithm is thus.</p>
+<ul>
+<li>insert new code into memory employing the methods stated earlier</li>
+<li>patch the sys_call_table so a syscall points to the new code</li>
+<li>make a syscall to call our new code</li>
+</ul>
+<h2><a name="p9">Object code (LKM) inserting of kernel code</a></h2>
+<p>Inserting object code follows the same principles as inserting code directly, however as stated, kernel symbol references, require that the correct address be used by looking at the kernel symbol table. Binding symbol's to addresses is the process of linking, which so far we have been doing manually. For non trivial code manual linking isn't a viable solution, and linking must be added to the algorithms we are using.</p>
+<h2><a name="pa">Object code (LKM) linking to kernel</a></h2>
+<p>ELF is the typical standard used to represent object code on Linux. The paper will thus only refer to linking using ELF objects.</p>
+<p>An object code file is referred to as relocatable code when using ELF because that summarizes what it is. It is not fixed to any memory position. It is the responsibility of linking that makes an executable image out of a relocatable object and binds symbols to addresses.</p>
+<p>Linking of code is done by relocating the code to a fixed positing. For the most part, the object code does not need to be changed heavily.</p>
+<p>Consider the following C code.</p>
+<pre class="source">
+{
+	char s[] = "I wonder where I'm located...");
+
+	printk(KERN_INFO "%s\n", s);
+}
+</pre>
+<p>The string 's' being part of the relocatable text section in the object has no known absolute position in memory at compile time. Likewise, printk, is an externally defined symbol and its address is also not known at compile time.</p>
+<p>Relocation sections in the ELF object are used for describing what needs to be modified (relocated) in the object. In the above case, relocation entries would be made for printk's reference and the string's reference.</p>
+<p>The format for an ELF relocatable object (object code) is as follows.</p>
+<pre>
+	ELF header
+	Program header table
+	Section 1
+	Section n
+	Section header table
+</pre>
+<p>From /usr/include/elf.h</p>
+<pre class="source">
+/* The ELF file header.  This appears at the start of every ELF file.  */
+
+#define EI_NIDENT (16)
+
+typedef struct
+{
+  unsigned char e_ident[EI_NIDENT];     /* Magic number and other info */
+  Elf32_Half    e_type;                 /* Object file type */
+  Elf32_Half    e_machine;              /* Architecture */
+  Elf32_Word    e_version;              /* Object file version */
+  Elf32_Addr    e_entry;                /* Entry point virtual address */
+  Elf32_Off     e_phoff;                /* Program header table file offset */
+  Elf32_Off     e_shoff;                /* Section header table file offset */
+  Elf32_Word    e_flags;                /* Processor-specific flags */
+  Elf32_Half    e_ehsize;               /* ELF header size in bytes */
+  Elf32_Half    e_phentsize;            /* Program header table entry size */
+  Elf32_Half    e_phnum;                /* Program header table entry count */
+  Elf32_Half    e_shentsize;            /* Section header table entry size */
+  Elf32_Half    e_shnum;                /* Section header table entry count */
+  Elf32_Half    e_shstrndx;             /* Section header string table index */
+} Elf32_Ehdr;
+
+/* Conglomeration of the identification bytes, for easy testing as a word.  */
+#define ELFMAG          "\177ELF"
+#define SELFMAG         4
+
+/* Legal values for e_machine (architecture).  */
+
+#define EM_386          3               /* Intel 80386 */
+#define EM_486          6               /* Intel 80486 */
+
+/* Legal values for e_version (version).  */
+
+#define EV_NONE         0               /* Invalid ELF version */
+#define EV_CURRENT      1               /* Current version */
+</pre>
+<p>From the ELF specifications.</p>
+<blockquote>
+<h2>String Table</h2>
+<p>String table sections hold null-terminated character sequences, commonly called strings. The object file uses these strings to represent symbol and section names. One references a string as an index into the string table section. The first byte, which is index zero, is defined to hold a null character. Likewise, a string tables last byte is defined to hold a null character, ensuring null termination for all strings. A string whose index is zero specifies either no name or a null name, depending on the context. An empty string table section is permitted; its section headers sh_size member would contain zero. Non-zero indexes are invalid for an empty string table."</p>
+<p>...</p>
+<h2>Sections</h2>
+<p>An object file's section header table lets one locate all the file's sections. The section header table is an array of Elf32_Shdr structures as described below. A section header table index is a subscript into this array. The ELF headers e_shoff member gives the byte offset from the beginning of the file to the section header table; e_shnum tells how many entries the section header table contains; e_shentsize gives the size in bytes of each entry."</p>
+</blockquote>
+<p>From /usr/include/elf.h</p>
+<pre class="source">
+/* Section header.  */
+
+typedef struct
+{
+  Elf32_Word    sh_name;                /* Section name (string tbl index) */
+  Elf32_Word    sh_type;                /* Section type */
+  Elf32_Word    sh_flags;               /* Section flags */
+  Elf32_Addr    sh_addr;                /* Section virtual addr at execution */
+  Elf32_Off     sh_offset;              /* Section file offset */
+  Elf32_Word    sh_size;                /* Section size in bytes */
+  Elf32_Word    sh_link;                /* Link to another section */
+  Elf32_Word    sh_info;                /* Additional section information */
+  Elf32_Word    sh_addralign;           /* Section alignment */
+  Elf32_Word    sh_entsize;             /* Entry size if section holds table */
+} Elf32_Shdr;
+</pre>
+<p>From the ELF specifications.</p>
+<blockquote>
+<h2>Symbol Table</h2>
+<p>An object file's symbol table holds information needed to locate and relocate a program's symbolic definitions and references. A symbol table index is a subscript into this array. Index 0 both designates the first entry in the table and serves as the undefined symbol index. The contents of the initial entry are specified later in this section."</p>
+</blockquote>
+<pre class="source">
+/* Symbol table entry.  */
+
+typedef struct
+{
+  Elf32_Word    st_name;                /* Symbol name (string tbl index) */
+  Elf32_Addr    st_value;               /* Symbol value */
+  Elf32_Word    st_size;                /* Symbol size */
+  unsigned char st_info;                /* Symbol type and binding */
+  unsigned char st_other;               /* No defined meaning, 0 */
+  Elf32_Section st_shndx;               /* Section index */
+} Elf32_Sym;
+
+#define SHN_UNDEF       0               /* No section, undefined symbol.  */
+
+/* How to extract and insert information held in the st_info field.  */
+
+#define ELF32_ST_BIND(val)              (((unsigned char) (val)) >> 4)
+#define ELF32_ST_TYPE(val)              ((val) &amp; 0xf)
+#define ELF32_ST_INFO(bind, type)       (((bind) &lt;&lt; 4) + ((type) &amp; 0xf))
+
+/* Legal values for ST_BIND subfield of st_info (symbol binding).  */
+
+#define STB_LOCAL       0               /* Local symbol */
+#define STB_GLOBAL      1               /* Global symbol */
+#define STB_WEAK        2               /* Weak symbol */
+#define STB_NUM         3               /* Number of defined types.  */
+#define STB_LOPROC      13              /* Start of processor-specific */
+#define STB_HIPROC      15              /* End of processor-specific */
+</pre>
+<p>From the ELF specifications.</p>
+<blockquote>
+<p>"A relocation section references two other sections: a symbol table and a section to modify. The section headers sh_info and sh_link members, described in ``Sections'' above, specify these relationships. Relocation entries for different object files have slightly different interpretations for the r_offset member.</p>
+<p>In relocatable files, r_offset holds a section offset. That is, the relocation section itself describes how to modify another section in the file; relocation offsets designate a storage unit within the second section."</p>
+</blockquote>
+<p>From /usr/include/elf.h</p>
+<pre class="source">
+/* Relocation table entry without addend (in section of type SHT_REL).  */
+
+typedef struct
+{
+  Elf32_Addr    r_offset;               /* Address */
+  Elf32_Word    r_info;                 /* Relocation type and symbol index */
+} Elf32_Rel;
+
+/* How to extract and insert information held in the r_info field.  */
+
+#define ELF32_R_SYM(val)                ((val) >> 8)
+#define ELF32_R_TYPE(val)               ((val) &amp; 0xff)
+#define ELF32_R_INFO(sym, type)         (((sym) &lt;&lt; 8) + ((type) &amp; 0xff))
+</pre>
+<p>These selected paragraphs and sections from the ELF specifications and header files give us a good high level concept of how a relocatable ELF file can be linked to produce an image capable of being executed.</p>
+<p>The process of linking the lkm is as follows.</p>
+<ul>
+<li>Identify the file as being in relocatable ELF format</li>
+<li>Load each relevant section into memory</li>
+<li>For each PROGBITS section set the section address in memory</li>
+<li>For each REL (relocation) section, carry out the relocation</li>
+<li>Assemble the executable image by copying the sections into their respective positions in memory</li>
+</ul>
+<p>An extra step must also be carried out if we know where the initialization and cleanup code of a lkm is.</p>
+<ul>
+<li>Identify the file as being in relocatable ELF format</li>
+<li>Load each relevant section into memory</li>
+<li>For each PROGBITS section set the section address in memory</li>
+<li>For each REL (relocation) section, carry out the relocation</li>
+<li>Assemble the executable image by copying the sections into their respective positions in memory</li>
+<li>Locate and print the address of 'init_module' and 'cleanup_module'</li>
+</ul>
+<p>The relocation step may be expanded into the following algorithm.</p>
+<ul>
+<li>Evaluate the target section of the relocation entry</li>
+<li>Evaluate the symbol table section of the relocation entry</li>
+<li>Evaluate the location in the section that the relocation is to apply</li>
+<li>Evaluate the address of the symbol that is used in the relocation</li>
+<li>Apply the relocation</li>
+</ul>
+<p>The actual relocation is best presented by looking at the source. For more information on the relocation types refer to the ELF specifications. Note that we ignore the global offset table completely and any relocation types of its nature.</p>
+<pre class="source">
+        switch (ELF32_R_TYPE(rel->r_info)) {
+        case R_386_NONE:
+                break;
+
+        case R_386_PLT32:
+        case R_386_PC32:
+                *loc -= dot;    /* *loc += addr - dot   */
+
+        case R_386_32:
+                *loc += addr;
+                break;
+</pre>
+<p>Evaluating the address of the symbol used in the relocation can also be expanded. If the symbol is local, that is STB_LOCAL, then the symbol is in the current objects symbol table - note also, that the symbol is only visible to the current object. If the symbol is STB_GLOBAL, then the symbol is external to the object and the symbol's address is known in this instance to be a kernel symbol, thus we can use System.map or the methods presented earlier in determining the symbol's address.</p>
+<p>In this instance, probably the best source for more detailed information on link editing is the source provided.</p>
+<h2><a name="pb">Bootstrap loading of object code (LKM)</a></h2>
+<p>In practice, real life lkm's will not fit into the kmalloc pool padding and likewise may be greater than a single page if we use the empty_bad_page. The solution to this is to bootstrap load the lkm by inserting a bootstrap loader into the padding which allocates memory using the normal kernel methods of kmalloc, copying the actual lkm to this allocated memory and executing this. The bootstrap loader can be made sufficiently small and our lkm's can be of any size.</p>
+<p>In practice, the only code we are actually required to insert into the kernel to enable bootstrapping is an allocation module that will return a memory address to an allocated block of memory that can fit the real module we want to load and run.</p>
+<h2><a name="pc">The provided implementation</a></h2>
+<p>The source included provides implementations for all the algorithms discussed. Front end shell scripts are provided to leave the internal details unknown to the user.</p>
+<h2><a name="pd">Conclusion</a></h2>
+<p>The algorithms and implementations discuss provide ample demonstration that it is possible to use direct access to memory to provide things which would appear only naively possible through native support in the kernel.</p>
+<p>The supplied programs can provide practical instances for an attacker to use in his or her array, and show that access to kernel memory is a very useful concept not only in idea but in practice.</p>
+<p><a href="files/vsc/kmem-src.tgz">[Source kmem-src.tgz]</a></p>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vsc07">Back to index</a>] [<a href="/lib/vsc07.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsc07">de</a><a href="/lib/index.php?lang=en&amp;id=vsc07">en</a><a href="/lib/index.php?lang=es&amp;id=vsc07">es</a><a href="/lib/index.php?lang=it&amp;id=vsc07">it</a><a href="/lib/index.php?lang=fr&amp;id=vsc07">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsc07">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsc07">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsc07">ua</a></div>
+</body>
+</html>

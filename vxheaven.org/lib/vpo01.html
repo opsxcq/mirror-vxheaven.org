@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> pr0mix '"Smart" trash: building of logic' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="pr0mix"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, pr0mix,&quot;Smart&quot; trash: building of logic, code, trash, logic, emulator, regs, instruction, states, parameter, flags, analysis, analyzer, opcodes, virus, execution, generated"/>
+<meta name="Description" content="The main goal of garbage instructions - a hiding/protection of useful code (from av'ers, a watchful eye reverser and other curious). However, the &quot;wrong&quot; trash can lead to detection of viral code, thereby undermining all our efforts.This text is about how to improve the quality of the generated garbage."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ddd233d95fe613eed37b504cb054384c7cafc341-1498755384-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vpo01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>"Smart" trash: building of logic</h1><p><a href="/lib/?lang=en&amp;author=pr0mix"> pr0mix</a><br/> <em><a href="/vx.php?fid=1948#f1948">Electrical Ordered Freedom #3</a></em><br/> <em>August 2011</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vpo01.html';</script><div class="ci"><a href="/lib/?ci=vpo01">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=PO#vpo01">Back to index</a>] [<a href="/lib/vpo01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">Introduction</a></li>
+<li><a href="#c1">Who the opponent?</a></li>
+<li><a href="#c2">Plan of attack</a></li>
+<li><a href="#c3">Useful trash</a></li>
+<li><a href="#c4">"LOGICAL TRASH" technique</a></li>
+<li><a href="#c5">Examples of generating a simple garbage</a></li>
+<li><a href="#c6">Positive xD</a></li>
+<li><a href="#c7">References</a></li>
+</ul>
+<h2><a name="c0"></a>Introduction</h2>
+<p>The main goal of garbage instructions - a hiding/protection of useful code (from av'ers, a watchful eye reverser and other curious). However, the "wrong" trash can lead to detection of viral code, thereby undermining all our efforts.</p>
+<p>This text is about how to improve the quality of the generated garbage.</p>
+<h2><a name="c1"></a>Who the opponent?</h2>
+<p>Assume that the file is checked, infected with our virus. Antivirus can operate so:</p>
+<ul>
+<li>he will start a superficial analysis of file: its structure and some parts of code (the gathering of information to start work of the emulator, code-analyzer, heuristics);</li>
+<li>Further, the emulator is started, during the operation of which may be caused by: code-analyzer (data gathering for the emulator and heuristics), and signature analysis (search for known signatures in the emulated code);</li>
+<li>after working off of the emulator, runs a heuristic analysis of collected data (signatures for our virus haven't done =)), where there is a calculation of scores "danger". If the result greater than the set limit - get a stamp a "fucking heur-virus";</li>
+</ul>
+<p>To bypass the emulator, will help us a working anti-emulation, from the signatures - the TrashGen, which (as it turns out xD) uses our virus. But if created trash-code will weak, then we'll detected by heuristics.</p>
+<h2><a name="c2"></a>Plan of attack</h2>
+<p>So, for creation of a better trash-code, in the beginning I suggest to choose the compiler, whose generated code we will "imitate": ms, borland etc. Once selected compilers (eg, ms), you can still determine which mode of generation / optimization, we will imitate ("min size"/"max speed"). Since under different modes the code is generated in another way. For example, for ms-compiler, instruction EAX = 1 in mode "max speed" will be as follows:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;0xB8 0x01 0x00 0x00 0x00</span><br/>
+&nbsp;</div>
+<p>And for "min size"</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;0x33 0xC0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;0x40</span><br/>
+&nbsp;</div>
+<p>Trashgen can generate both of these options, but it looks more realistic if you use one tactic (do not know what perversion will be new versions of the heuristics).</p>
+<p>Further, in addition to various features that you have created in a trashgen, it must also be able to generate "realistic" code (similar to the usual code of standard programs written in HLL), namely:</p>
+<ul>
+<li>"right" instructions (opcodes and operands - for example, the command "mov eax, ecx" can be encoded using two different opcodes: 0x8B 0xC1 and 0x89 0xC8 -> ms-compilers uses the first version, some commands using the register EAX, which is have "optimized "versions of opcodes; etc);</li>
+<li>"correct" constructions (eg, test/cmp without further instruction jmp/jxx - an obvious detection);</li>
+<li>a lot of instructions (using registers, memory addresses etc), functions (with prologue/reserve stack/epilogue etc, instructions using local variables, input parameters), winapi and others;</li>
+<li>"right" Opcode Frequency Statistics (OFS) (for more exact result can to collect statistics only in programs that were created earlier selected compilers);</li>
+<li>normal entropy (in bits ~ [5.5, 6.8], btw, the entropy will be approximately in set range, if generates the "correct" code + using OFS (+ logic of instructions));</li>
+<li>only a live code (which can be executed);</li>
+<li>etc;</li>
+</ul>
+<p>But even such a trash-code generated taking into account given points, can easily be caught by heuristics.</p>
+<h2><a name="c3"></a>Useful trash</h2>
+<p>The main problem is that the garbage-code - it's just trash, useless set of instructions. This is the reason anger heuristics. And if so, then the trash should be helpful. For this we need to implement 2 more tasks:</p>
+<ol>
+<li>The useful code should use result of work of a trash-code (or on the contrary, trash-code should affect somehow work of a useful code) aka "pseudo-purpose";</li>
+<li>"LOGICAL TRASH" technique;</li>
+</ol>
+<p>The first point in the general case is implemented is quite simple: generate trash, runs it, and after trash working off the received result is used in a useful code. For example, have generated the following code:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">100</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">95</span><br/>
+&nbsp;</div>
+<p>After his execution ECX = 5. And this value can be added to key for decrypt the virus code (many of use cases). However, the generated code trash may be as follows:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">100</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">95</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;5</span><br/>
+&nbsp;</div>
+<p>After his execution ECX also = 5. But instructions 2 and 3 - garbage, for what will be punished by heuristics. The solution consists in creation a "logical trash".</p>
+<h2><a name="c4"></a>"LOGICAL TRASH" technique</h2>
+<p>The idea is in that a garbage-code to make logical, like logic of code of usual programs. Normal code first initializes the parameters (registers, local variables etc); then executes instructions, which uses and/or otherwise affect these parameters. And instructions are a single whole - carry out the general problem, and among them aren't present superfluous, no "garbage". No re-initialization, is not used uninitialized parameters. All instructions related to each other, each of which affects the subsequent course of execution of a code.</p>
+<p>Around this logic I created in new version of my engine xTG (v2.0.0), which works as follows:</p>
+<pre>
+	 ________
+	|	 |
+	| begin  |
+	|________|
+	    |
+	    |
+	    |
+	    |					+--------------------------------------------+
+	    |					|					     |
+	    |					|					     |
+	    |	 ________________________	|		 ________________________    |
+	    |	|			 |	|		|			 |   |
+	    |	| module: generation of	 |	|		| module: logic		 |   |
+	    |	| instructions		 |	|		|			 |   |
+	    |	|			 |	|		|			 |   |
+	    |	|			 |	|		|			 |   |
+	    |	| ---------------------- | 	|		| ---------------------- |   |
+	    +-->| generation  		 |&lt;-----+	   +--->| parser	      	 |   |
+	+------>| of		 	 |		   |    |			 |   |
+	|	| "right"		 | instr addr      |	| ---------------------- |   |
+	|	| instruction		 |-----------------+ 	| emulator	 	 |   |
+	|	| 			 |  			| 			 |   |
+	|	| ---------------------- |			| ---------------------- | 0 |
+	|	| updating of address	 |&lt;----------------+	| analyzer of 	         |---+
+	|     1	| to generate a new 	 |		   |  1 | instructions       	 |
+	+-------| instruction		 | 0		   +----| (logic)		 |
+		|			 |------+		|			 |
+		| ---------------------- |	|		| ---------------------- |
+		|________________________|	|		|________________________|
+						|
+						|
+	   					|			
+	 ________				|
+	|	 |				|
+	|  end	 |&lt;-----------------------------+
+	|________|
+</pre>
+<p>More details:</p>
+<ol type="I">
+<li>at first we cause the module of generation instructions;</li>
+<li>create "right" instruction: correct opcodes and other bytes. Btw, if the developed Logic-Engine (LE) will be applied to other engines, then LE should also do checking at the byte level;</li>
+<li>call module of logic, passing in it the address of (created) instructions;</li>
+<li>now the parser takes control. Parser can be built-in module logic. But also may be stand-alone engine (disassembler).
+<p>The parser determines which instruction in front of him, and gets its parameters (operands: registers, addresses, etc); then it retains in some structure these param's and exposes some flags. The completed structure will be used by code-analyzer (see below).</p>
+<p>Also, for example, if we found instructions mov ecx, dword ptr [403008h] etc, then parser will replace address 403008h on other, the corresponding address in allocated memory for correct emulation of instruction;</p></li>
+<li>then we emulate (corrected) instruction. Also, code-emulator can be built-in module logic. But also may be stand-alone engine.
+<p>Emulator receives the address of instruction, prepares a special environment, copies of this environment instruction, and emulates. Moreover, emulation can be at least 3 types: run of instructions in special environment, full imitation of execution of the instruction &amp; the combination of these two methods (1-st method is suitable for most instructions). The result of emulation (current values of instruction param's etc) are stored in variables: the virtual registers etc.</p>
+<p>Btw, emulation - an excellent technology for viruses, with which help it is can be to create very interesting things (for UEP, VM, "logical trash" tech, morphing and other);</p></li>
+<li>and then we call the code-analyzer/checker of logic. Also, code-analyzer can be built-in module logic. But also may be stand-alone engine.
+<p>The analyzer, on basis of data from the parser (filled structure) and the emulator, decides whether, fits instruction on logic or not.</p>
+<p>Analysis of instruction takes place in 2 stages:</p>
+<ol>
+<li>Checking of instructions params.
+<p>First, the analyzer must know, what are the param's and how to check them. For this he uses flags, passed from parser. A set of flags can be:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">LGC_INSTR_INIT&nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000000001b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;instruction of initialization params;</span><br/>
+LGC_INSTR_CHG &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000000010b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;... change parameters;</span><br/>
+LGC_P1_DST&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000000100b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1-st param - destination; </span><br/>
+LGC_P1_SRC&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000001000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1-st param - source; </span><br/>
+LGC_P2_DST&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000010000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2-nd param - destination; </span><br/>
+LGC_P2_SRC&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000000100000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2-nd param - source; </span><br/>
+LGC_P1_REG&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000001000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1-st param - reg;</span><br/>
+LGC_P1_ADDR &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000010000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1-st param - address;</span><br/>
+LGC_P1_NUM&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000000100000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1-st param - number;</span><br/>
+LGC_P2_REG&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000001000000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2-nd param - reg;</span><br/>
+LGC_P2_ADDR &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000010000000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2-nd param - address;</span><br/>
+LGC_P2_NUM&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000000000000000000100000000000b</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;2-nd param - number; </span><br/>
+&nbsp;</div>
+<p>These flags can describe almost all instructions (some flags can be removed). If instruction contains more than 2 parameters, then other parameters are stored in a separate field.</p>
+<p>Further, the flags determines what and how to check: checks on possibility of initialization params, change their values, to use them in other instructions, and more. The result of each check is stored in the mask's. Their 2: regs_init &amp; regs_used. Roughly speaking, this 2 dword, where each bit corresponds to a particular parameter (for example, some reg (EAX etc)). Moreover, the bits in regs_init indicate, whether it is possible to initialize parameter or not (protection against re-initialization). And on bits in regs_used we know, whether it is possible to use param in instructions or not.</p></li>
+<li>Check of states of instructions param
+<p>So, if the first stage is passed, it means that the parameters suitable. Continue.</p>
+<p>State (of param) - is a stored value that takes parameter. States of all parameters are stored in the table of states, which is a buffer of a certain size.</p>
+<p>So, the analyzer takes current value of parameter that we got through emulation (and saved, for example, in the virtual register), and compares it with all the accumulated states of this parameter.</p>
+<p>If a match is found, then instruction - garbage, check isn't passed. In this case, from table of states we take the last saved state of this param and make it current (stored it state in virtual reg); and also restore the mask's to previous value. If no match is found, then it is a new state of param, instruction passed the check. Add this value to table of states;</p></li>
+</ol></li>
+<li>go back to module of generation instructions. Check, what value was returned to us by the logic-module: if 0, then instruction is not suitable on logic - on her address will generate a new instruction (overwrite). Jmp to point II. if 1, then instruction is suitable on logic. Jmp to point VIII.</li>
+<li>increase the address (to generate a new command) on size of a checked up instruction. Also we will find out, if we have generated the necessary number of bytes, then jmp to IX. If not all, then jmp to II.</li>
+<li>exit;</li>
+</ol>
+<h2><a name="c5"></a>Examples of generating a simple garbage</h2>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; --------------------------------------- &nbsp; &nbsp; &nbsp; &nbsp;------------------------------------</span><br/>
+<span style="color: black; font-style: italic;">;| this code doesn't pass the test of &nbsp; &nbsp;|&nbsp; &nbsp; &nbsp; | this code pass the test of &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;| </span><br/>
+<span style="color: black; font-style: italic;">;| logic - not be created &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; | logic - will be created &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|</span><br/>
+<span style="color: black; font-style: italic;">; --------------------------------------- &nbsp; &nbsp; &nbsp; &nbsp;------------------------------------</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1.1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;2.1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1.2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;2.2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1.3&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;2.3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1.4&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;2.4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1.5&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;2.5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1001</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1001</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp;</div>
+<p>In Example 1.1 the first 2 commands are normal, and the third - junk. Reg EDI can be initialized, but it will take the same value, which is now - an unnecessary initialization. Example 2.1 (and later, all the others) shows the correct way to initialize.</p>
+<p>In Example 1.2 the first 3 instructions "right", and the fourth - junk. Regs EAX &amp; ECX again take the values that have already taken (check of states parameters).</p>
+<p>In Example 1.3 the first 2 instructions "right", and the third - junk. EDI += 0 (check of states);</p>
+<p>In Example 1.4 the first 3 instructions "right", and the fourth - junk. Reg EDX can't be initialized, if before, EDX didn't affect on value of another parameter (check of params);</p>
+<p>In Example 1.5 the first 4 instructions "right", and the fifth - junk. After the execution of the first 4 instructions, states of EAX would be: 1000, 999. And after the execution fifth instructions EAX = 1000. This state has been (check states parameters).</p>
+<h2><a name="c6"></a>Positive xD</h2>
+<p>Realization of technique "logical trash", examples of generation of a thrash-code, and also fuller understanding of an idea - all this you find in <a href="/vx.php?fid=1949#f1949">sources xTG v2.0.0</a>.</p>
+<p>I should say that in xTG most better quality of logic turns out at generation of a linear thrash-code without winapi-functions. In other cases, the logic will be fuzzy, but will be: on branching and with winapi. This is associated with a logic-module - it is more powerful than, the better the result.</p>
+<p>If not satisfied with the logic of any instructions, just set the other flags.</p>
+<p>Also, the variant of use of logic for already created code is possible. However the required code can be on 100% different from original.</p>
+<p>Using this technique, our trash becomes useful and logical, which makes it quite effectively bypass the heuristic. And the only complex use of techniques will realize our desires into reality. Yo0!</p>
+<h2><a name="c7"></a>References</h2>
+<ol>
+<li>beauty on the fire "Emulation of a program code", 2004, http://uinc.ru/articles/47/</li>
+<li>beauty on the fire "Code-analyzers in antiviruses", 2004, http://uinc.ru/articles/45/</li>
+<li>Sl0n "<a href="/lib/vsl05.html">Polymorphism. New technicians</a>", 2004, http://vx.netlux.org/lib/vsl05.html</li>
+</ol>
+<div align="right">m1x<br/><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ffffdbfe2e6f7cfe2eee6e3a1fdfa">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><br/>EOF</div>
+<div align="right">virmaking for yourself...art is eternal</div>
+[<a style="" href="/lib/?lang=EN&amp;index=PO#vpo01">Back to index</a>] [<a href="/lib/vpo01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vpo01">de</a><a href="/lib/index.php?lang=en&amp;id=vpo01">en</a><a href="/lib/index.php?lang=es&amp;id=vpo01">es</a><a href="/lib/index.php?lang=it&amp;id=vpo01">it</a><a href="/lib/index.php?lang=fr&amp;id=vpo01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vpo01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vpo01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vpo01">ua</a></div>
+</body>
+</html>

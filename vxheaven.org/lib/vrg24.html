@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> roy g biv 'Virtual Code - Windows 7 update' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="roy g biv"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, roy g biv,Virtual Code - Windows 7 update, maintains, bits, base, virtual, code, section, imagebase, delta, relocation, windows, data, based, file, image, aligned"/>
+<meta name="Description" content="This is a technique that I demonstrated in 2007. My idea is to remove all code from a section, and use relocation data to restore it. Since the section is now only in virtual memory, I call it virtual code."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8d013b3129a245a567eb94986229f52bb5e782c3-1498757753-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrg24.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Virtual Code - Windows 7 update</h1><p><a href="/lib/?lang=en&amp;author=roy%20g%20biv"> roy g biv</a><br/> <em><a href="/vx.php?fid=2009#f2009">Valhalla #3</a></em><br/> <em>December 2012</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrg24.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vrg24">Back to index</a>] [<a href="/lib/vrg24.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">What is virtual code?</a></li>
+<li><a href="#c2">How does it work?</a></li>
+<li><a href="#c3">Tricky relocations ;)</a></li>
+<li><a href="#c4">Other info</a></li>
+</ul>
+<h2><a name="c1"></a>What is virtual code?</h2>
+<p>This is a technique that I demonstrated in 2007. My idea is to remove all code from a section, and use relocation data to restore it. Since the section is now only in virtual memory, I call it virtual code.</p>
+<h2><a name="c2"></a>How does it work?</h2>
+<p>The idea is that the section is virtual, so we know that it is full of 00s. If we set our ImageBase value to an invalid value, then we will be relocated to 0x10000. On Windows before Windows 7, this value could be 0. It meant that if we used relocation types that work with the top 16 bits, then we could perform many +1 operations on our 00s to reach any value that we want. On Windows 7, the ImageBase value of 0 is not allowed anymore, so we have to choose another value above 2Gb. I use 0xfffe0000, since so that the delta is 3. We must use an odd number to reach any value that we want. If we use an even number then we cannot reach all values (see Virus Bulletin 8/11 for a description like that - they did not do the proper job).</p>
+<p>I also use relocation types other than the IMAGE_REL_BASED_HIGHLOW that we all know, to make fewer operations. Virus Bulletin article says that this is not possible. I don't know why. Big problem with the new ImageBase is that we cannot apply relocations in any order like before, because if we have a carry overflow in a byte that is followed by zeroes, then we have to transform all of those zeroes, too, and we cannot predict how big the decryptor can become. We still have some polymorphism, but it is very light.</p>
+<h2><a name="c3"></a>Tricky relocations ;)</h2>
+<p>Some info about relocation data now:</p>
+<p>Current versions of Windows load to 0x10000 for invalid base, but requested base must be 64kb aligned, else error occurs. There used to be twelve types of relocation item, but only eleven of them are supported now.</p>
+<p>Here is a description of the types:</p>
+<pre class="source">
+type    name                            function
+0       IMAGE_REL_BASED_ABSOLUTE        ignored
+
+1       IMAGE_REL_BASED_HIGH            adds top 16 bits of delta to word
+
+2       IMAGE_REL_BASED_LOW             adds low 16 bits of delta to word
+                                        but since Windows requires 64kb aligned images, so these bits are always 0
+
+3       IMAGE_REL_BASED_HIGHLOW         adds all 32 bits of delta to dword
+
+4       IMAGE_REL_BASED_HIGHADJ         occupies 2 slots
+                                        - forms 28-bit big-endian address
+                                        - adds delta, aligns to 64kb
+                                        - stores top 16 bits
+                                        result is always same as type 1 because 64kb alignment
+
+5       IMAGE_REL_BASED_MIPS_JMPADDR    weird 32-bit encoding
+                                        formula follows:
+
+            d[mem]=(((((d[mem]&amp;3FFFFFF)&lt;&lt;2)+delta)>>2)&amp;3FFFFFF)+(d[mem]&amp;FC000000)
+
+                                        useful for quickly reaching multiple of delta*40 at offset mem+1
+                                        maintains all 8 bits at mem
+                                        maintains low 6 bits at mem+1
+                                        maintains high 6 bits at mem+3
+
+6       same as type 0
+
+7       same as type 0
+
+8       invalid                         error occurs if used
+
+9       IMAGE_REL_BASED_MIPS_JMPADDR16  weird 64-bit encoding
+                                        formula follows:
+
+            mem=oword align ptr
+            base=((d[mem+4]&lt;&lt;8)&amp;FFC00000)+((d[mem+0c]&lt;&lt;9)&amp;200000)+((d[mem+0c]&lt;&lt;3)&amp;1F0000)+((d[mem+0c]>>b)&amp;FF80)+((d[mem+0c]>>4)&amp;7F)+delta
+            d[mem+4]=(d[mem+4]&amp;3FFF)|((base>>8)&amp;FFC000)
+            d[mem+8]&amp;=FF800000
+            d[mem+c]=((base&lt;&lt;b)&amp;7FC0000)+((base>>3)&amp;3E000)+((base>>9)&amp;1000)+((base&lt;&lt;4)&amp;7F0)+(d[mem+c]&amp;F000080F)
+
+                                        useful for quickly reaching multiple of delta*30 at offset mem+d
+                                        maintains all 8 bits at mem
+                                        maintains all 8 bits at mem+1
+                                        maintains all 8 bits at mem+2
+                                        maintains all 8 bits at mem+3
+                                        maintains all 8 bits at mem+4
+                                        maintains low 6 bits at mem+5
+                                        maintains high 1 bit at mem+a
+                                        maintains all 8 bits at mem+b
+                                        maintains low 4 bits at mem+c
+                                        maintains bit 4 at mem+d
+                                        maintains high 4 bits at mem+f
+
+A       IMAGE_REL_BASED_DIR64           same as type 3 on Window 2000
+                                        fully 64-bit on Windows XP
+</pre>
+<h2><a name="c4"></a>Other info</h2>
+<p>Windows processes import table either before relocations or after, depending on the version, so relocation data cannot be used reliably to construct import table at runtime, only to alter it afterwards for obfuscation purposes.</p>
+<p>Virtual code section must be writable else file will not load.</p>
+<p>Relocation data can be used to alter file header if header is write-enabled by using &lt; 4kb section alignment, but some fields must not be altered (eg "MZ", "PE", Machine, NumberOfSections, SizeOfOptionalHeader, Magic).</p>
+<p>Changing AddressOfEntrypoint has no effect (value is cached before relocation data are processed), however relocation data can be used to set ImageBase to impossible values (non-64kb aligned) and AddressOfEntryPoint can be adjusted indirectly using that. For example, if you add three bytes to ImageBase, then it is like subtracting three bytes from AddressOfEntryPoint. </p>
+<p>IMAGE_FILE_RELOCS_STRIPPED value in Characteristics field is ignored.</p>
+<p><strong>Greets to friendly people (A-Z):</strong></p>
+<p>Active - Benny - herm1t - hh86 - jqwerty - Malum - Obleak - Prototype - Ratter - Ronin - RT Fishel - sars - SPTH - The Gingerbread Man - Ultras - uNdErX - Vallez - Vecna - Whitehead</p>
+<div align="right">
+rgb/defjam aug 2012<br/>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="452c24281a372227052d2a3128242c296b262a28">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</div>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrg24">de</a><a href="/lib/index.php?lang=en&amp;id=vrg24">en</a><a href="/lib/index.php?lang=es&amp;id=vrg24">es</a><a href="/lib/index.php?lang=it&amp;id=vrg24">it</a><a href="/lib/index.php?lang=fr&amp;id=vrg24">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrg24">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrg24">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrg24">ua</a></div>
+</body>
+</html>

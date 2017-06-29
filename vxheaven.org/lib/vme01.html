@@ -1,0 +1,3190 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Methyl 'Tunneling Document #4 (Development of Emulation Systems)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Methyl"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Methyl,Tunneling Document #4 (Development of Emulation Systems), label, unknown, decoder, lock, struc, tables, indirect, offset, removal, direct, group, extended, conditional, segreg, entry"/>
+<meta name="Description" content="Recently, emulation systems (aka Generic Decryption in the AV world) have come into the limelight, especially in the AV marketing process under many various names such as 'Viral Instruction Code Emulation' and 'Stryker', and even though their usage by the AV is in a crippled form, this document will take us into the wonderfull world of emulation and its uses by the virogen."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ac4bfdc49f5ccbadc755c010485a574de2d2b7c9-1498757339-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vme01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Tunneling Document #4 (Development of Emulation Systems)</h1><p><a href="/lib/?lang=en&amp;author=Methyl"> Methyl</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vme01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vme01">Back to index</a>] [<a href="/lib/vme01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#pi">Introduction</a></li>
+<li><a href="#p1">Part 1. Basic emulation overview</a>
+<ul>
+<li><a href="#p11">Section 1: What is emulation?</a></li>
+<li><a href="#p12">Section 2: Emulation history</a></li>
+<li><a href="#p13">Section 3: Emulation system structure</a></li>
+<li><a href="#p14">Section 4: Emulation system considerations</a></li>
+</ul></li>
+<li><a href="#p2">Part 2. INTEL Complete Emulation</a>
+<ul>
+<li><a href="#p21">Section 1: Introducing the COS method</a></li>
+<li><a href="#p22">Section 2: ICE dispatcher and internals</a></li>
+<li><a href="#p23">Section 3: ICE generic opcode handler</a></li>
+<li><a href="#p24">Section 4: ICE special opcode handlers (basic)</a></li>
+<li><a href="#p25">Section 5: ICE special opcode handlers (advanced)</a></li>
+<li><a href="#p26">Section 6: Notes on ICE</a></li>
+</ul></li>
+<li><a href="#p3">Part 3. ICE complete source</a></li>
+<li><a href="#p4">Part 4. Anti-emulation methods</a></li>
+<li><a href="#p5">Part 5. Generic anti-tunneling</a></li>
+<li><a href="#p6">Part 6. Conclusion</a></li>
+</ul>
+<p>Tunneling Documents #1, #2, #3, and #4 are all (c) 1997 PRINCE OF SADNESS and may not be modified without prior consent by the copyright holder, but may be reprinted and/or used as long as the correct copyright status of that document is stated, and that the medium in which my work is published must be free. All documents are read/used at your own risk.</p>
+<p>ICE and COS are (c) 1997 PRINCE OF SADNESS and may be modified as long as the base code of the modified system is acknowledged, and the copyright status of said base system be stated. ICE and COS may be used, as long as the copyright status of said systems be stated correctly, but in their compiled binary form, if no other copyrights are stated in the complete package which the ICE and/or COS systems are part of, then the copyright status of ICE and/or COS need not be stated, however all usage of ICE and COS must be free. ICE and COS systems are read/used at your own risk.</p>
+<h2><a name="pi">Introduction</a></h2>
+<p>Recently, emulation systems (aka Generic Decryption in the AV world) have come into the limelight, especially in the AV marketing process under many various names such as "Viral Instruction Code Emulation" and "Stryker", and even though their usage by the AV is in a crippled form, this document will take us into the wonderfull world of emulation and its uses by the virogen.</p>
+<p>Emulation solves many problems of the tunneling process, while bringing in many of its own. Cheifly of which... emulation systems are CPU dependant, and as such, I had to decide wether to give you a crippled XT emulation system to explain, which would not run very well on higher 386+ computers... or give you a complicated 386+ emulation system which would not run on computers lesser than the 386, such as the XT.</p>
+<p>I have opted for the 386+ emulation system for many reasons. First of all, XT emulation has been done before... but full 386+ emulation hasn't. Also, if you know how to write a 386+ emulator, you can write an XT emulator, however the reverse is not so true. Finally, my XT emulator wasn't really that good, and it was hard to test as my BIOS and DOS has 386+ instructions in it :)</p>
+<h2><a name="p1">Part 1. Basic emulation overview</a></h2>
+<h3><a name="p11">Section 1: What is emulation?</a></h3>
+<p>Creating an emulation system is really just the development of your own software based CPU. This virtual-CPU can then be used to run code under in your own completely protected environment. This allows you to control every facet of that code being run... as it is not really 'running', you are simply emulating what WOULD happen if it was running under a real CPU... in accordance to your own set of CPU rules.</p>
+<p>You should have realised by now, that single stepping through an interrupt is the most reliable way to detect an original interrupt entrypoint, however a major flaw inherent in single stepping is anti-tunneling code. In an emulation system however, it is as though you are single stepping through the interrupt code... however you -CANNOT- be detected. Of course, emulation however, is nothing like single stepping :)</p>
+<p>So far you may be stupid enough to think emulation is some form of single stepping or code tracing. This is very far from the truth. No code is 'executed' or 'emulated' in code tracing (except maybe JMP SHORT, etc), and emulation has NOTHING to do with single step mode. A computer could be devoid of single step mode and it would be of no problem to the emulator. Later on however, you will learn that the emulation system you will be learning about can actually EMULATE single step mode (however, by then of course, you will understand more fully the concept of emulation).</p>
+<p>Also, do not be under the common assumption that in emulation, no code is actually run. This is untrue. Code being emulated -IS- run... however under the complete control of your emulation system :) Code written to write some text to the screen, or data to disk, will do so under an emulation system. The line seems to blur however when the AV talk about emulation systems, and their emulation systems do not emulate such things that will write to the disk, or the screen, etc. Such a system is still emulation, it's just that the emulator itself controls the code being emulated in this specific way.</p>
+<h3><a name="p12">Section 2: Emulation history</a></h3>
+<p>In the public view, usage of emulation in virogen began February 3rd 1995, when Antigen [VLAD] released the first version of Antigen's Radical Tunneler (ART). Soon however, he released a new version (2.2) which was emulation in its own right (whereas the first version was of somewhat less capability).</p>
+<p>ART 2.2 had many problems in its emulation, the least of which was that it could only (barely) emulate an XT, however in general, in a tunneler, this is enough. Antigen did create more versions of ART (up to at least v4), however I have not seen them so I cannot comment on wether he has fixed previous problems or not.</p>
+<p>The idea of ART quickly inspired CyberGOD to create 'Tracer', a complete emulation system with none of the bugs of ART. Tracer was faster, smaller, and more complete than ART (it supported some common extra 186+ instructions), and also it came in nice modules to be compiled together, with a demonstration module that used Tracer to become a primitive 'DEBUG' program.</p>
+<p>Unfortunately, Tracer keeps its secrets well hidden in complex intertwining code, and neither me, nor many other people, can understand it. ART had this same problem to a much lesser degree (as I understood it in the end) :) This is a bad thing in that I cannot learn from Tracer, however it is a good thing in that Tracer's structure will not influence my emulation system, and also because I have learnt to comment properly so that my code does not become like Tracers' in being unreadable :)</p>
+<p>And that's it. Those are the only two emulation systems created for usage in virogen by VX coders. This is good, much room remains for expansion of the emulation system, especially into the handling of new instruction sets, new structures, and new uses (so far, they can be used for tunneling and mid-file infection, however there are probably many more uses).</p>
+<h3><a name="p13">Section 3: Emulation system structure</a></h3>
+<p>There are 3 categories most emulation systems can be lumped into... some of which are only present in the AV world, some in the application world, and some in the world of virus creation.</p>
+<h4>SCCE</h4>
+<p>Self Contained Code Emulation works like a proper CPU. An instruction is fetched from memory, it is decoded by the SCCE, and passed to an appropriate routine which will emulate the instruction, and the loop continues on the next instruction. The emulator would contain routines to decode the memory/register addressing operands, and then a routine for every possible instruction on the CPU being emulated. As you can imagine, SCCE can become quite large in size... and slow in speed.</p>
+<p>The SCCE of course, has its uses for advanced AV software. With all of the instructions being handled internally... the AV can make the emulator report extensively on the actions of each instruction... allowing these reports to be cross referenced with heuristic data and generic cleaning modules to create an effective AV system. Also, the AV can control memory and port access down to the most minute detail... since it is handling address calculation/decoding, etc, all internally. This means it can prevent the virus from escaping its own memory area... or at least... if the SCCE is designed securely ;)</p>
+<p>Unfortunately, the AV are too scared... or maybe just not competent enough to code or realise the usage of such an emulation system, and often opt out to create inferior LCE systems (described later). The SCCE system is however, put to good use on Macintosh and such where an emulation system is coded to provide an INTEL processor in the macintosh environment, allowing DOS and other OS to run in a window.</p>
+<h4>BCE</h4>
+<p>Buffered Code Emulation, or BCE is a scaled down version of the SCCE, good for usage in viruses due to its small size and faster speed in comparison to SCCE. This is obviously apparent, as all 3 emulation systems written by virus coders use the BCE model to achieve emulation.</p>
+<p>In the BCE, an instruction is fetched from memory and compared against a list of instructions which are 'special'. If an instruction is not special, it is decoded slightly to get its length, and then all such instructions are routed to one small procedure which can generically emulate any instruction which is not-special. Special instructions, a small percentage of the complete instruction set, are handled in specific small handlers.</p>
+<p>The BCE lessens the number of instructions it has to handle specifically by routing the non-special instructions through a small generic handler, and by doing this it reduces its size and increases its speed. However, this is not without its drawbacks, as it means you can't really restrict access to certain memory areas or ports or anything like that, and you cannot create reports as comprehensive as those an SCCE can provide. However, those features aren't needed in viruses, so that's okay.</p>
+<h4>LCE</h4>
+<p>Limited Code Emulation is somewhat like the level of emulation system used in generic decryption as you know it. An LCE is not really an emulator at all, as it does not really 'emulate' instructions, it simply tracks the contents of registers through a section of code, and maybe maintains a small list of memory locations which were modified... or interrupts that were called, etc.</p>
+<p>The reason the LCE is used by the AV rather than the bigger, more complex systems, is because even just bare minumum support of a few instructions can take you a long way in decrypting primitive encrypted viruses, because viruses use only a tiny portion of the total INTEL instruction set to decrypt their main bodies. By using an LCE, much overhead which occurs due to having to handle the whole INTEL instruction set is lost, ending up in collosal speed increases, at the sacrifice of not being able to handle complex decryptors.</p>
+<p>LCE can become usefull when quick file scanning is needed as a small yet decent LCE can be used to quickly check files for suspicious behaviour, whereas using an SCCE algorithm on each file would be unbelievably slow. Then, maybe, if things looked suspicious in a file, the LCE could them start up some SCCE code to check the file more fully.</p>
+<h3><a name="p14">Section 4: Emulation system considerations</a></h3>
+<p>Some problems are common to all emulation systems, biggest of which is the slow speed at which they execute code compared to code execited under a real CPU. All emulation systems have major overheads, in that for each instruction needing emulation, it will take hundreds of real CPU instructions to process and decode and finally carry out the operations required by the instruction.</p>
+<p>Secondly, emulation systems are -BIG-, and the bigger they are, the faster they run, and the smaller they are, the slower they run! It all really depends on design structure. It is possible to create a relatively fast emulation system, however it would be large. To create a small emulation system means you need to compress some opcode information which means more overhead for instruction decoding which means slower execution.</p>
+<p>For the AV, they can use as much space as they want, however they need to be really fast. This is okay. Virus coders need small emulation systems, however they must also be fast so the user doesn't notice a difference in computer speed. Hence, the virus coder is in between a rock and a hard place and sacrifices must be made in the design of the emulation system.</p>
+<p>Thirdly, there is the problem of WHAT processor to emulate. The more you can emulate, the more stable you are however the bigger you will be. In the case of the virus, this is very bad, as it must be able to emulate things very reliably so the users computer does not crash, and remain small so the user does not notice disk space dissapearing. You must decide wether to take the risk of crashing and save space, or to be bigger and have less risk.</p>
+<h2><a name="p2">Part 2. INTEL Complete Emulation</a></h2>
+<h3><a name="p21">Section 1: Introducing the COS method</a></h3>
+<p>COS (complex opcode storage method) has come to replace the role of the CMT (complex mask table) in both code tracers and emulation systems. The COS method offers compact storage for opcode information from the XT to Pentium (possibly even MMX), in a format quicker to access than allowable under the CMT, while also giving the COS decoder more flexibility in determining what to do with opcodes in certain situations.</p>
+<p>To illustrate those points, the three tables below summarize what features each type of opcode storage method provides, as well as relative speed in returning opcode information, and efficency of each method to store opcode information. Of course, these tables are only very rough.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="speed">
+<tr><th colspan="4">SPEED</th></tr>
+<tr><td>Loops per opcode </td><td>CMT 1.0</td><td>CMT 2.0</td><td>COS</td></tr>
+<tr><td>Minimum </td><td>0 </td><td>0 </td><td>0 </td></tr>
+<tr><td>Maximum </td><td>80 </td><td>39 </td><td>32</td></tr>
+<tr><td>Average </td><td>60 </td><td>30 </td><td>3</td></tr>
+</table>
+<table border="1" cellspacing="0" cellpadding="0" summary="size">
+<tr><th colspan="4">SIZE</th></tr>
+<tr><td>Instruction set handled </td><td>CMT 1.0</td><td>CMT 2.0</td><td>COS</td></tr>
+<tr><td>XT </td><td>1/2k </td><td>1/3k </td><td>2/5k</td></tr>
+<tr><td>286 </td><td>3/4k </td><td>N/A </td><td>3/5k</td></tr>
+<tr><td>386 </td><td>N/A </td><td>N/A </td><td>3/4k</td></tr>
+<tr><td>Pentium </td><td>N/A </td><td>N/A </td><td>4/5k</td></tr>
+<tr><td>Pentium (MMX?) </td><td>N/A </td><td>N/A </td><td>1k</td></tr>
+</table>
+<p><em>** Note that COS can be shrunken to handle the less complicated instruction sets of lower processors, however to store more complex instruction sets leads to only negligible variations in COS size</em></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="features">
+<tr><th colspan="4">FEATURES</th></tr>
+<tr><th>Features </th><th>CMT 1.0</th><th>CMT 2.0</th><th>COS</th></tr>
+<tr><th>Opcode length determination </th><td> xxx </td><td> xxx </td><td>xxx</td></tr>
+<tr><th>Opcode validity determination </th><td> </td><td> </td><td>xxx</td></tr>
+<tr><th>Repeat descriptors for compact table storage</th><td> xxx </td><td> </td><td>xxx</td></tr>
+<tr><th>Dedicated routine handling </th><td> </td><td> xxx </td><td>xxx</td></tr>
+<tr><th>Completely variable CPU opcode storage </th><td> </td><td> </td><td>xxx</td></tr>
+</table>
+<p><em>** Note that CMT 2.0 is less capable than CMT 1.0, however this was done intentionally to speed up the processing of opcode information as seen in the relative speed table above</em></p>
+<pre>
+    .---------------------------.
+    | COS table entry structure |
+    '---------------------------'
+            .---------------------- extra type identifier flag
+            |                          0 = invalid opcode
+            |                          1 = repeat entry
+            |
+            -----.----------------- group access number
+            |    |
+            |    | .--------.------ repetition count - 1
+           .'. .-'-'-. .----'----.
+    7   6   5   4   3   2   1   0
+   '--.--' '--.--' '.' '----.----'
+      |       |     |       '------ immediate data length
+      |       |     |                  000 = none
+      |       |     |                  001 = byte sized always
+      |       |     |                  010 = word sized always
+      |       |     |                  011 = doubleword sized always
+      |       |     |                  100 = farword sized always
+      |       |     |                  101 = byte or word
+      |       |     |                  110 = word or doubleword
+      |       |     |                  111 = doubleword or farward
+      |       |     |
+      |       |     '-------------- procedure flag
+      |       |                         0 = generic routine
+      |       |                         1 = dedicated routine
+      |       |
+      |       '-------------------- restriction type
+      |                                 00 = none
+      |                                 01 = word/doubleword value
+      |                                      built into instruction
+      |                                 10 = mod/M only
+      |                                 11 = mod/R only
+      |
+      '---------------------------- opcode identification
+                                       00 = plain opcode
+                                       01 = extra type flag
+                                       10 = group entry
+                                       11 = modr/m opcode
+
+    .------------------------.
+    | COS table entry layout |
+    '------------------------'
+            Table layout:       Size    Description
+                               '----'  '-----------'
+                       optional byte    repeat descriptor
+                                byte    opcode descriptor
+                       optional word    dedicated routine address
+</pre>
+<h4>COS tables</h4>
+<p>In COS, there is no longer one big table of opcode information, opcodes are divied up into 3 sets of tables... NORMAL, EXTENDED, and GROUP. Each table is set out in exactly the same way, and as such the decoder may utilize one loop to do all instruction location processing... giving speed and size increases in decoders.</p>
+<p>All opcodes begin using the NORMAL tables with a size of 1. If the opcode is prefixed by an 0FH, it is categorized as an EXTENDED opcode, and begins with a size of 2. As the decoder processes the opcode and locates its entry in its respective table... the descriptor of that opcode may point to a GROUP table, at which time GROUP processing comes into effect (described later).</p>
+<h4>COS descriptors</h4>
+<p>There are 4 types of descriptor (characterized by the last 2 bits of the descriptor itself XXxxxxxx)... NORMAL, MODRM, EXTENDED, and GROUP. NORMAL and MODRM types are related and split up into the same sets of sections, however, GROUP and EXTENDED codes have their own layout.</p>
+<p>EXTENDED descriptors (01Xxxxxx) come in 2 forms, repeat entry amd invalid entry (specified by the 5th opcode bit). An invalid descriptor means that the opcode refrenced by this table entry is invalid, and should be treated as such, the instruction has a length of 0, and the other fields of the invalid opcode entry are unused.</p>
+<p>A repeat descriptor (011xxxxx) means that this entry covers opcodes whose numbers are from that table entry number, to that table entry number + xxxxx, the x's being a number specified in the descriptor itself. If the current opcode's number is a number in that range, then following the repeat descriptor is another descriptor, which is used in the table entry decoding procedure.</p>
+<p>GROUP descriptors (10xxxyyy) tell the decoder that the table entry for this instruction is contained within the group tables. The yyy section of the group descriptor specifies an immediate data length which is decoded and added to the total instruction length after decoding of the proper group table entry, and the set of group tables to use is indicated with the xxx portion of the descriptor.</p>
+<p>PLAIN opcodes simply have restriction, procedural, and immediate decoding applied, whereas MODRM opcodes are just like PLAIN opcodes however they go through an extra process of MODRM decoding.</p>
+<p>Restriction decoding handles some restrictive forms of MODRM. If these restriction bits are set to 00, there is no restriction, nothing happens. If the fields are 01, then instruction length must be incremented by 2, or if an address-size prefix was present before the opcode, 4. The forms of 10 and 11 restriction types can be used by a decoder to ensure further validity of the instruction being processed, however it is not neccessary. 10 means that the instruction (of the MODRM type) may only specify a memory operand, while 11 means the instruction (of the MODRM type) may only specify a register operand.</p>
+<p>Procedural decoding is just to decide wether an opcode needs a dedicated handler (ie: it is special) or if it can be handled by the generic opcode handler. If the procedure bit is set in PLAIN or MODRM descriptors, then a word follows the descriptor with the address of a routine to call to handle that opcode, otherwise the generic handler is used.</p>
+<p>Immediate data decoding is used to give instructions proper lengths. In types of immediate data length with only one type (ie: byte), this length is added to the total instruction length. In double types (ie: word/double), the instructon length is increased by 2, UNLESS an operand-size prefix is present before the opcode, at which time the instruction length if increase by 4 (in total).</p>
+<p>MODRM decoding is complex... and comes in 2 forms. One handler decodes the basic XT MODRM format... however a second MODRM decoder handles MODRM opcodes prefixed by address-size or operand-size opcodes, as these mean the opcode is of the 32-bit MODRM type, and may also include an SIB (scale index byte) to be handled. The internal handling of MODRM is of no real concern to you.</p>
+<h4>COS table usage</h4>
+<p>In each of the COS tables, an opcodes descriptor is determined by the value of the opcode. In the NORMAL and EXTENDED COS tables, the first table entry is for opcode 00, and the next, for opcode 01, etc. However, certain descriptors may cover a range of opcode numbers, by using repeat descriptors.</p>
+<p>COS GROUP tables are set out differently however. There are 8 seperate GROUP tables, each containing the equivalent (with the number of single and repeat opcode descriptors) of 8 table entries. Which of these group tables, 0-7, to use for each opcode, is indicated in the 3 xxx bits of the group descriptor (the group access code).</p>
+<p>An opcode is referenced into one of these tables, by taking the 3rd, 4th and 5th bits of the second byte of the opcode, and it corresponds to a table entry in that group table, which is where the 'real' table entry for that opcode is. Group tables cannot contain group descriptors.</p>
+<h4>Default COS decoder</h4>
+<p>The COS decoder in ICE utilizes the full COS definition, EXCEPT handling of restrictive opcode types 10 and 11 (you can add this if you like, however it is of no real consequence to emulation). Also, the COS decoder in ICE supports an extension to the COS standard, which allows the usage of index tables which (at the cost of 40 bytes) increase the speed of COS decoding eighty-fold. Quite a nice trade-off, don't you think?</p>
+<pre>
+    .----------------------------------------------.
+    | Default COS decoder structure (very roughly) |
+    '----------------------------------------------'
+
+                       .-------------------.
+                       | BCE passes opcode |
+                       |      over to      |
+       .---------------|  the COS decoder  -----------------.
+       |               '-------------------'                |
+       |                                          .---------------------.
+    .--'--.                                       | Decoder recognizes  |
+    | BCE |                                       | opcode as belonging |
+    '-----'                                       | to either normal or |
+       |                         .-----------------   extended tables   |
+       |                         |                '-------------------.-'
+       |                         |                                    |
+       |               .-------------------.      .---------------------.
+       |               | Normal tables are |      | Extended tables are |
+       |               |     loaded for    |      | loaded for scanning |
+       |               |      scanning     |      '-------------------.-'
+       |               '---------.---------'                          |
+       |                         |                                    |
+       |                         '------------------.-----------------'
+       |                               .-------------------------.
+       |     .------------------.      |  Index tables are used  |
+       |     | Group tables are |      | to provide offset into  |
+       |     |    loaded for    -------| main database tables to |
+       |     |     scanning     |      |   begin the process of  |
+       |     '------------------'      |  opcode recognition at  |
+       |              |                '------------.------------'
+       |              |                             |
+       |              |                   .------------------.
+       |              |                   |   Table entries  |
+       |              |                   | sorted as either |
+       |              |                   | repeat or single |
+       |              |                   |     entries      |
+       |              |                   '---------.--------'
+       |              |                             |
+       |              |                .-------------------------.
+       |              '-----------------   Opcode recognized as  |
+       |                               |   normal or group type  |
+       |                               '------------.------------'
+       |          .---------------------------------'
+       |  .----------------------.             .--------------------.
+       |  | Opcode determined as |   invalid   |   Size of opcode   |
+       |  |   valid or invalid   --------------| and opcode handler |
+       |  '-.--------------------'             |  address given to  |
+       |    |                                  |  emulation system  ----.
+       |    | valid                            '--------------------'   |
+       |    |                                             |             |
+       |  .-------------------------.                     |             |
+       |  | MODR/M length of opcode |           .---------'----------.  |
+       |  |  determined, immediate  |           | Last minute fixups |  |
+       |  |    length determined    ------------|     take place     |  |
+       |  '-------------------------'           '--------------------'  |
+       '----------------------------------------------------------------'
+</pre>
+<h3><a name="p22">Section 2: ICE dispatcher and internals</a></h3>
+<p>The ICE dispatcher is the control centre of the emulation system. It is charged with various jobs, from emulating single step mode, loading opcodes to be emulated, calculating their length, preparing for generic opcode emulation if necessary, and calling opcode handlers.</p>
+<p>Being the centre of control in the emulator, the dispatcher also contains the code neccessary to determine the address of interrupt entrypoints, although we will leave that code out until later on in the document.</p>
+<h4>Registers</h4>
+<p>In an emulator, a portion of memory is allocated to store the 'emulated' registers. Since an emulator needs the real CPU registers for its own usage, the emulated code does not use nor affect the real CPU registers, they affect their counterparts in the emulated registers structure. Some people get away with pushing/popping the entire CPU registers onto/off the stack as needed, however in theory both concepts are the same and this is easier to do.</p>
+<pre class="source">
+; STRUC for our simulated CPU registers
+;
+struc ice_register_struc
+      label _eax dword
+      label _ax word
+      label _al byte
+            db 0
+      label _ah byte
+            db 0
+            dw 0
+
+      label _ebx dword
+      label _bx word
+      label _bl byte
+            db 0
+      label _bh byte
+            db 0
+            dw 0
+
+      label _ecx dword
+      label _cx word
+      label _cl byte
+            db 0
+      label _ch byte
+            db 0
+            dw 0
+
+      label _edx dword
+      label _dx word
+      label _dl byte
+            db 0
+      label _dh byte
+            db 0
+            dw 0
+
+      label _edi dword
+      label _di word
+            dw 0
+            dw 0
+
+      label _esi dword
+      label _si word
+            dw 0
+            dw 0
+
+      label _ebp dword
+      label _bp word
+            dw 0
+            dw 0
+
+      label _csip dword
+      label _ip word
+            dw 0
+      _cs   dw 0
+
+      label _ssesp fword
+      label _esp dword
+      label _sp word
+            dd 0
+      _ss   dw 0
+
+      _es   dw 0
+      _ds   dw 0
+
+      label _eflags dword
+      label _flags word
+            dd 0
+ends ice_register_struc
+
+ice_reg register_struc &lt;&gt;       ; our new 32-bit registers structure
+</pre>
+<p>Notice how there is no EIP in our emulated registers structure. This is because in real mode... the top half of the EIP is always 0... and so we just ignore the top EIP half, and use simple IP addressing. It is easier this way anyway.</p>
+<h4>Stacks</h4>
+<p>Just as we need a set of registers for the simulated CPU, we also need to keep our emulation stack seperate from the stack which will be used by the emulated code. This is so we do not corrupt old stack information (which anti-tunneling stack tests look for), and do not get any conflict between our data on the stack and the data of the emulated code. To handle this, we create a small area of memory for our personal stack space (which we will call the internal stack) and a variable to keep track of our internal stack pointer.</p>
+<p>During normal emulator execution, we are using the internal stacks by default. If we need to switch to external stacks (the stacks used by the emulated code), we simply save our internal stack pointer and reaload SS and ESP with the data in the emulated registers structure. To switch back, we save the SS and ESP in the emulated registers structure and load SS with CS and ESP with the address in our internal stack pointer.</p>
+<p>Switching between internal and external stacks is handled through simple macros as it just makes some areas of the ICE code easier to understand, with one descriptive word rather than a few lines of hard to read code.</p>
+<pre class="source">
+; STRUC for our internal 32-bit stacks
+;
+struc ice_stack_struc
+      internal_esp   dd 0
+      switch dw 0
+          label bottom
+      dw 50h dup(0)
+          label top
+ends ice_stack_struc
+
+ice_internal_stack ice_stack_struc &lt;&gt;
+
+; MACRO's, used for internal/external stack switching
+;
+macro ice_switch_to_internal_stack
+        mov [cs:ice_reg._ss], ss
+        mov [cs:ice_reg._esp], esp  ; save external stack address
+        mov [cs:ice_internal_stack.switch], cs
+        mov ss, [cs:ice_internal_stack.switch]
+        mov esp, [cs:ice_internal_stack.internal_esp]
+                ; set stack to internal stack address
+        endm
+macro ice_switch_to_external_stack
+        mov [cs:ice_internal_stack.internal_esp], esp
+                                    ; save internal stack offset
+        mov ss, [cs:ice_reg._ss]
+        mov esp, [cs:ice_reg._esp]  ; set stack to external stack address
+        endm
+
+    But this is not the end of stack discussion.  We will constantly be needing
+quick access to the paramaters on the external stacks... for pushing and
+popping.  On a 386, you can push/pop word or doubleword values, and as such we
+create 4 routines to handle all the possible stack access we could need.
+
+; 16-bit external stack push from AX
+;
+proc ice_external_push_16 near
+        push es
+        push edi
+        les edi, [ds:ice_reg._ssesp]
+        dec di
+        dec di
+        mov [es:di], ax
+        mov [ds:ice_reg._sp], di
+        pop edi
+        pop es
+        ret
+endp ice_external_push_16
+; 16-bit external stack pop into AX
+;
+proc ice_external_pop_16 near
+        cld
+        push ds
+        push esi
+        lds esi, [ds:ice_reg._ssesp]
+        lodsw
+        mov [cs:ice_reg._sp], si
+        pop esi
+        pop ds
+        ret
+endp ice_external_pop_16
+; 32-bit external stack push from EAX
+;
+proc ice_external_push_32 near
+        push es
+        push edi
+        les edi, [ds:ice_reg._ssesp]
+        sub edi, 4
+        mov [es:edi], eax
+        mov [ds:ice_reg._esp], edi
+        pop edi
+        pop es
+        ret
+endp ice_external_push_32
+; 32-bit external stack pop into EAX
+;
+proc ice_external_pop_32 near
+        cld
+        push ds
+        push esi
+        lds esi, [ds:ice_reg._ssesp]
+        lodsd
+        mov [cs:ice_reg._esp], esi
+        pop esi
+        pop ds
+        ret
+endp ice_external_pop_32
+</pre>
+<h4>Finally, the dispatcher</h4>
+<p>The first thing needing attention inside the dispatcher is the simulation of single step mode. Now that may sound a little wierd... but you must realize that we are trying to simulate a proper CPU here... we cannot allow REAL single step mode to be run because that would give us away as an emulator! This was a big problem in ART, it did not handle single step mode and as such anything which used it, would find itself single stepping through ART rather than its own code.</p>
+<p>So, to begin with, we check the emulated flags register to see if the TF is set (and therefore single step mode is on). If it is set, we branch to a peice of code to emulate an INT 1. This INT 1 is only emulated inside the code being emulated... we do not actually go into INT 1 ourselves. Our INT emulation code simply clears the emulated flags' TF and IF, pushes the emulated flags, CS, and IP, onto the external stack, and sets the emulated CS and IP to point to the INT 1 address. This is an exact emulation of single step mode being done by the CPU.</p>
+<pre class="source">
+proc ice_tf_handler near
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        mov ah, 1
+        call ice_int_x
+        jmp ice_tf_handled
+endp ice_tf_handler
+
+proc ice_dispatch near
+        test [byte high word ds:ice_reg._flags], 1
+        jnz ice_tf_handler          ; check for TF in emulated flags
+
+ice_tf_handled:
+</pre>
+<p>The ICE_INT_X procedure takes the interrupt to be emulated in AH, and the number to add to the emulated IP register in the ICE_INTERRUPT_LENGTH variable. The reason why is because when handling a normal interrupt, the return IP will be 2 bytes AFTER the INT instruction. However, since we are emulating single step mode, we need the IP to point back to the original instruction, so we set the variable to 0. You'll see how that works later on.</p>
+<p>Next, we save the value of the emulated IP register in another variable before we begin processing of the opcode. This processing will require removal of segment override prefixes. However, later on, we may need the beginning of the FULL instruction rather than of just the raw opcode.</p>
+<pre class="source">
+        mov ax, [ds:ice_reg._ip]
+        mov [ds:ice_original_ip], ax; save address of _IP before prefix removal
+                                    ; begins
+</pre>
+<p>Now that we have that all sorted out, we need to begin the gruelling task of override removal. What is required, is the removal and storage of any opcode overrides found before the instruction we are needing to emulate. For our purposes, the opcode overrides we need to handle are the segment override prefixes, the repeat override prefixes, the LOCK prefix (ignored), and address size and operand size 386+ prefixes.</p>
+<p>To achieve this siphoning, we first clear our 4 seperate opcode storage variables to 0 (they are all a byte long, as there can only be one valid prefix of each type MAXIMUM... and this is the last prefix (ie: REP REPNE MOVSB, REP is ignored)), and then check for each type of override in sequence. If any are found, the override is stored and the complete override recognition process begins again (so we can trap things like REP CS: REPNE), except without the variable clearing.</p>
+<pre class="source">
+        xor eax, eax
+        mov [ds:ice_overrides], eax ; clear prefix variables
+                                    ; (they are 4 one byters, stored in a row,
+                                    ; so we use one doubleword move to clear)
+ice_segment_removal:
+        les di, [ds:ice_reg._csip]  ; ES:DI=instruction to emulate
+
+ice_breakpoint:
+        mov ax, [es:di]             ; get opcode
+        mov bx, ax
+
+        and al, 011100111b
+        cmp al, 000100110b
+        mov al, bl
+        je ice_segment_removal_process
+
+        and al, 0feh
+        cmp al, 064h
+        je ice_segment_removal_process
+        cmp al, 0f2h
+        je ice_repeat_removal_process
+
+        mov al, bl
+        cmp al, 66h
+        je ice_operand_removal_process
+        cmp al, 67h
+        je ice_address_removal_process
+
+        cmp al, 0f0h
+        je ice_removal_jump
+
+ice_decode_begin:
+                        ...
+
+ice_address_removal_process:
+        mov [ds:ice_address_override], al
+        jmp ice_removal_jump
+
+ice_operand_removal_process:
+        mov [ds:ice_operand_override], al
+        jmp ice_removal_jump        ; repeat override removal process
+
+ice_repeat_removal_process:
+        mov [ds:ice_repeat_override], bl
+        jmp ice_removal_jump        ; repeat override removal process
+
+ice_segment_removal_process:
+        mov [ds:ice_segment_override], bl
+
+ice_removal_jump:
+        inc [ds:ice_reg._ip]        ; increment IP
+        jmp ice_segment_removal     ; repeat override removal process
+</pre>
+<p>The reason the code has been set out so strangely, rather than having the jumps inline, etc, is because a conditional jump not taken is faster than a conditional jump taken. Since overrides aren't really THAT common, it's faster to have the jumps only occur, and go slowly, if overrides are found. Speed is very important in the dispatcher as it is used the most often (equal with the COS decoder).</p>
+<p>Now that we have a pure opcode, we simply call the COS decoder with that opcode! However, the COS decoder needs special registers set up and returns opcode information in a certain way as detailed below.</p>
+<pre class="source">
+; registers modified : AX, BX, CX, DX, SI, BP
+; registers untouched: DI, SP, ES, DS, SS
+; Requires:           AX holds opcode to scan through table
+;                     segment of COS tables in DS
+;                     ES:DI points to raw opcode
+;                     DF clear (direction flag)
+; Returns:            CX                = instruction length
+;                     ice_opcode_length = instruction length
+;                     ice_handler       = opcode handler address
+;
+</pre>
+<p>As you can see, the only value we return is the length of the instruction in CX... but we save copied of the instruction length and also what procedure to call to handle the opcode as well. Both of these are saved in this way for reasons you will see later.</p>
+<p>Armed with this information, you may think we are ready to emulate the instruction. However, opcodes need to be loaded into the second part of a special buffer, which is 4 bytes long, followed by 16 more bytes. We must first clear both parts of the buffer with NOPs. Then, using the length in CX, we REP MOVSB the code from the emulated CS:IP to our second buffer (the one which is 16 bytes long).</p>
+<pre class="source">
+ice_decode_begin:
+        cld
+        push bx             ; save original opcode
+        mov [ds:ice_current_opcode], ax
+
+        call ice_decoder    ; scan opcode through COS decoder
+
+        push cx             ; save length to copy
+        lds si, [ds:ice_reg._csip]
+        push cs
+        pop es
+        mov di, (offset ice_override_buffer)
+        mov cx, 5
+        mov eax, 90909090h
+        rep stosd           ; clear execution buffer with NOP instructions
+        pop cx              ; restore length of instruction to copy
+        mov di, (offset ice_opcode_buffer)
+        rep movsb           ; copy instruction to be emulated into execution
+                            ; buffer
+</pre>
+<p>What has just been done, is the opcode to be emulated (minus overrides) has been copied into a buffer, the remainder of which is filled with NOPs, and prefixed by a 4 byte NOP buffer. These 2 buffers are used by the generic opcode handler. Even if an opcode uses a special handler, sometimes those special handlers access information in these buffers, or even call the generic opcode handler outright. This is why we -ALWAYS- load the opcode up into the buffers.</p>
+<p>Now that we have things ready for the generic opcode handler, we must set up some registers for the special opcode handlers. DS must equal CS, ES:DI must point to the raw opcode of the instruction being emulated, AX must hold the actual opcode being emulated, the variable ICE_COMMUNICATION must be cleared, and DL must hold the value of the ICE_OPERAND_OVERRIDE variable (which means DL=0 if no 386 operand size override is present, otherwise it will be nonzero). Then we place a call to the address stored by the COS decoder.</p>
+<pre class="source">
+ice_copy_complete:
+        push cs
+        pop ds
+        pop ax                          ; original opcode, saved earlier
+        les di, [ds:ice_reg._csip]
+        mov dl, [ds:ice_operand_override]
+        mov [ds:ice_communication], 0   ; clear communication area
+
+        ; On entry to opcode handlers
+        ;   AX    = opcode of instruction
+        ;   ES:DI = instruction address
+        ;   DS    = CS
+        ;   DL    = ice operand override
+        call [ds:ice_handler]           ; call opcode handler
+</pre>
+<p>On return from the opcode handler, we can now increment the emulated IP register with the length of the instruction which was saved by the COS decoder earlier on. However, some instructions emulated such as INT and JMP don't need any instruction length to be added to the IP once they have finished handling the instruction themselves. In these cases, the special procedure handling the opcode sets the instruction length to 0 before returning to the dispatcher.</p>
+<pre class="source">
+        mov ax, [ds:ice_opcode_length]
+        add [ds:ice_reg._ip], ax        ; increment IP by instruction length
+</pre>
+<p>And now, before we return to the dispatcher, we do another small check for single step mode handling. If the ICE_COMMUNICATION variable has changed, this means we must skip one pass of the TF checking code. It will change after things like an IRET or POPF where the TF turns from clear to set (in which case, in the emulation of single step mode, on return from the INT 1, the emulator has time to emulate the instruction before the next INT 1 is emulated), or when the SS register gets changed (the CPU always skips single step mode for one pass after SS is changed so one can modify the SP too).</p>
+<pre class="source">
+        cmp [ds:ice_communication], 1
+        jb ice_dispatch         ; default restart condition, clear old prefixes
+                                ; and do TF check
+        jmp ice_tf_handled      ; special POPF/IRET condition, skip checking
+
+endp ice_dispatch
+</pre>
+<p>And this ends our dispatcher. To see how all the code peices fit together, then look in Part 3 where the complete ICE source is. Note how the spaghetti code is actually optimization to not take conditional jumps wherever possible. You may also want to check out how the COS decoder works...</p>
+<h3><a name="p23">Section 3: ICE generic opcode handler</a></h3>
+<p>Now for the good stuff... the very thing which seperates SCCE from the BCE, the generic opcode handler. Any opcodes which cannot run under the generic opcode handler are specified as 'special' instructions... and they are then handled seperately. Special instructions usually modify the CS or IP, and this cannot be done in the generic opcode handler so those instructions are special.</p>
+<p>Okay, now, to understand how a generic opcode emulator works, it helps to understand an overview of what we have to do. To put it in the simplest terms possible... we simply load the real CPU registers with the registers from the emulated registers structure... execute the copy of the instruction we have saved in our internal buffers while switched to the external stack... then save all the CPU registers back into the emulated registers structure, and switch back to internal stacks. That's the simple overview, now for the detail.</p>
+<p>Okay, first, we load up the CPU registers with the registers from the emulated registers structure... except for CS, IP, SS, ESP. SS and ESP are loaded using the special stack switching macro, so that we don't corrupt our internal stack pointer. We also must load up the eflags register, but to do so, we need to save a temporary copy of the flags, and then mask off the TF bit in the original copy of the flags, before loading them into the real CPU flags register. The reason we do this is so that single-stepping won't take over control in our emulation routine, as we are already emulating it seperately.</p>
+<p>Later on when we have to save the flags back into the emulated registers structure, we will have lost track of wether the TF is set or clear. This is where the saved copy of the flags comes into handy, as we simply OR the saved TF against the TF of the flags in the emulated registers structure, and we have the proper flags back! All of the instructions which can check/modify the TF use special opcode handlers, so our TF will never change in the generic opcode handler, and our saved TF will always be valid.</p>
+<p>With the flags handled (sort of), we must now copy the original overrides from their variables to the 4 bytes of NOP prefixing the 16 byte buffer which our instruction to be emulated was copied into earlier. We must be carefull however, that when we put the overrides in place, that there is no NOP space between the overrides or between the overrides and the beginning of the instruction being emulated.</p>
+<p>Once this has been done, we can load up all the CPU registers from the emulated registers structure and switch to external stacks. Right after the stack switch code, the 2 buffers (override and instruction) are sitting there... and the CS:IP runs right into them. But they don't contain data, due to all our fixing them up, they contain a proper opcode and prefixes, to become executable code (which is why we filled redundant space with NOP rather than 0). If you don't understand that, you will see how it works later.</p>
+<p>Once the instruction has executed, we switch to internal stacks and save all the CPU registers (including the flags) back into the emulated registers structure. We then touch up the saved copy of the flags, and return to the dispatcher. The opcode has been succesfully 'emulated'.</p>
+<h4>Infamous CS problems</h4>
+<p>With all that done, there are some slight problems with generic opcode handlers which must be fixed to provide proper generic emulation. Basically, when a CS override is encountered... when the instruction is 'run' in our protected environment (emulated), it will be referencing OUR CS rather than the proper CS. To fix this, in the beginning of our handler, we check to see if a CS: override present, and if so, we change it to a DS:. Then, when loading up the CPU registers from the emulated registers structure, we set DS to the CS: of the code we are emulating. Later, on storage of the CPU registers to the emulated registers structure, we don't save the DS back (as it has been changed by us), and switch the saved DS: override back to CS:.</p>
+<p>This itself presents a problem however, in instructions such as</p>
+<pre class="source">
+        LDS AX, [CS:100]    and
+        MOV DS, [CS:100]    and
+        MOV [CS:100], DS    and
+        MOV [DS:100], CS    and
+        MOV [CS:100], CS
+</pre>
+<p>In the first 2 cases, DS must be saved back to the emulated registers structure as it is changed by the emulated instructions as well. In the 3rd case however, DS itself can't be used because it is stored somewhere in memory in incorrect form (holding CS: instead of the proper value). The 4th and 5th cases just won't work at all.</p>
+<p>To handle this problem, all LDS instructions, and instructions which involve segment registers with CS: overrides, are re-routed through the COS decoder to special handlers. Then, for the 1st, 2nd, and 3rd cases, a special portion of the generic opcode handler is called, which instead of swapping the CS: override with a DS: override and loading DS... swaps CS: with ES: and loads up ES. Then, in these special cases, the opcodes will decode properly (DS will be saved back into the emulated registers structure, and ES will not be).</p>
+<p>For the 4th and 5th cases however, the answer is more complex and not to do with overrides... the special handlers for those opcodes will be covered in a later section of the document.</p>
+<p>Note that I have not given you any code for all this in here, as it would just be repeating everything in Part 3 of the document where the complete generic opcode handler source can be found (the procedure is called ice_generic).</p>
+<h3><a name="p24">Section 4: ICE special opcode handlers (basic)</a></h3>
+<p>We'll start with the most basic opcode handlers... just to give you an idea of what is needed in special opcode handlers. Later, in the next section, we will cover the more advanced handlers.</p>
+<h4>AAM</h4>
+<p>Some emulation systems do not handle the undocumented variant of AAM, which can cause a divide-by-0 exception in various circumstances. AAM usually has an opcode of D40A, and when in the form of D400, will always issue INT 0. We emulate this in our special opcode handler, unless the AAM is 'normal' in which case we parse it through the generic opcode handler.</p>
+<pre class="source">
+proc ice_aam near
+        or ah, ah
+        jz ice_div_exception        ; emulate a DIV exception
+        jmp ice_generic             ; emulate AAM generically
+endp ice_aam
+</pre>
+<h4>POP segreg</h4>
+<p>The only POP segreg instruction we must handle is POP SS, in which case we must skip single step handler checking on the next instruction pass. We do this by setting the ICE_COMMUNICATION variable to 1, and then continuing on with the generic opcode handler handling the POP segreg instruction itself.</p>
+<pre class="source">
+proc ice_pop_segreg near
+        cmp al, 17h
+        jne ice_pop_segreg_exit     ; is it POP SS?
+        inc [ds:ice_communication]  ; if so, skip single step handler on return
+ice_pop_segreg_exit:
+        jmp ice_generic             ; use generic handler for opcode anyway
+endp ice_pop_segreg
+</pre>
+<h4>PUSH segreg</h4>
+<p>Just as before... there is only one PUSH segreg instruction we must handle, and that is PUSH CS (we do not need to handle POP CS because it is handled by the COS decoder as an extended instruction prefix). With PUSH CS, there are 2 variants we must handle, the 16-bit version, where we simply use our external stack push procedure to push the emulated CS value onto the external stack... but also the 32-bit version, where we must use methods to determine the unknown top half of the CS register and push it, combined with the emulated CS, onto the external stack (in double-word form).</p>
+<pre class="source">
+proc ice_push_segreg near
+        cmp al, 0eh
+        jne ice_generic             ; not PUSH CS?  exit!
+        db 66h
+        push cs
+        pop eax
+        mov ax, [ds:ice_reg._cs]    ; determine the complete emulated CS
+        or dl, dl
+        jnz ice_push_segreg_32      ; go to 32-bit version if operand size
+                                    ; prefix is present
+        call ice_external_push_16   ; push 16-bit emulated CS
+        ret
+ice_push_segreg_32:
+        call ice_external_push_32   ; push 32-bit emulated CS
+        ret
+endp ice_push_segreg
+</pre>
+<h4>MOV segreg</h4>
+<p>There are two forms of this we must handle... both MOV with segreg as a source, and MOV with segreg as a destination. Of these, we must handle all references to CS, references to DS, and references to SS.</p>
+<p>For MOV SS, of either form, we must set ICE_COMMUNICATION to skip the next single step check... to emulate the CPU. This is so an INT 1 is not called while the emulated SP is possibly incorrect as SS was just changed, in which case things would get corrupted.</p>
+<p>For MOV DS, of either form, we must call the ICE_GENERIC_PROCESS_ES label to initiate generic opcode handling for these instructions. This will fix problems with the instructions which use DS while a CS override is present. We do not need to check for the CS override, because this is done in the generic opcode handler.</p>
+<p>For "MOV CS, ?", we must emulate an invalid opcode exception, as this is an invalid opcode :) For the alternate "MOV ?, CS" instruction however, things become more complex.</p>
+<p>First, if we find a "MOV AX, CS" or "MOV EAX, CS" instruction, we just emulate this straight out by calculating the emulated CS and overwriting eAX in the emulated registers structure with this value.</p>
+<p>If it is not of this form however, we convert the instruction to a "MOV ?, eAX" instruction in the generic opcode handler execution buffer. Then, we save the emulated eAX register on the stack, and replace the copy in the emulated registers structure with the calculated emulated CS value. Then we -CALL- the generic opcode handler, and on return, we return eAX to its original value.</p>
+<p>The reason we handle the "MOV eAX, CS" instructions seperately, is because if we didn't, then when we convert the instruction it will become "MOV eAX, eAX", and then on return from the generic opcode handler, the eAX will be replaced with its original value... and the saved CS value we just moved into it would be lost.</p>
+<pre class="source">
+proc ice_mov_segreg_source near
+        and ah, 111000b
+        cmp ah, 1000b
+        je ice_mov_regmem_cs        ; MOV ?, CS
+endp ice_mov_segreg_source
+
+proc ice_mov_segreg_destination near
+        and ah, 111000b
+        cmp ah, 1000b
+        je ice_invalid_opcode       ; MOV CS, ?
+        cmp ah, 11000b
+        je ice_generic_process_es   ; MOV DS instructions
+        cmp ax, 1000010001110b
+        jne ice_mov_segreg_exit
+        inc [ds:ice_communication]  ; MOV SS, ?
+ice_mov_segreg_exit:
+        jmp ice_generic             ; handle the rest generically
+endp ice_mov_segreg_destination
+
+proc ice_mov_regmem_cs near
+        cmp [byte high word ds:ice_current_opcode], 11001000b
+        je ice_mov_ax_cs
+        mov [byte ds:ice_opcode_buffer], 89h
+        and [byte ds:ice_opcode_buffer+1], 11000111b
+        push [ds:ice_reg._eax]      ; save _EAX
+        xor eax, eax
+        mov ax, [ds:ice_reg._cs]
+        mov [ds:ice_reg._eax], eax  ; _EAX = _CS
+        call ice_generic            ; emulate it
+        pop [ds:ice_reg._eax]       ; restore _EAX
+        ret                         ; exit
+endp ice_mov_regmem_cs
+
+proc ice_mov_ax_cs near
+        xor eax, eax
+        mov ax, [ds:ice_reg._cs]
+        cmp [ds:ice_operand_override], 0
+        jne ice_mov_ax_cs_32
+        mov [ds:ice_reg._ax], ax    ; _AX = _CS
+        ret
+endp ice_mov_ax_cs
+
+proc ice_mov_ax_cs_32 near
+        mov [ds:ice_reg._eax], eax  ; _EAX = 0000 shl 16 + _CS
+        ret
+endp ice_mov_ax_cs_32
+</pre>
+<h4>PUSHF/POPF</h4>
+<p>PUSHF and POPF are relatively easy to handle... we simply use our external stack access procedures to move the flags to/from the stack... in their 16-bit versions by deafult or, in the case of an operand size prefix override, in 32-bit form.</p>
+<p>However, in the POPF instruction, we must check for a change in the state of the trap flag... if it changes from clear to set (0 to 1), then we set the ICE_COMMUNICATION variable to 1 to skip the TF checking code for one pass... as this is what the CPU does.</p>
+<pre class="source">
+proc ice_pushf near
+        mov eax, [ds:ice_reg._eflags]   ; get the flags
+        or dl, dl
+        jnz ice_pushfd
+        call ice_external_push_16   ; push them onto external stack (word)
+        ret
+
+proc ice_pushfd near
+        call ice_external_push_32   ; push them onto external stack (double)
+        ret
+endp ice_pushfd
+endp ice_pushf
+
+proc ice_popf near
+        mov bx, [ds:ice_reg._flags] ; get a copy of the flags
+        or dl, dl
+        jnz ice_popfd
+        call ice_external_pop_16    ; get the new copy of the flags
+        mov [ds:ice_reg._flags], ax ; save them into the real flags
+        jmp ice_popf_single_step
+
+proc ice_popfd near
+        call ice_external_pop_32        ; get the new copy of the flags
+        mov [ds:ice_reg._eflags], eax   ; save them into the real flags
+
+ice_popf_single_step:
+        and bh, 1
+        jnz ice_popf_exit           ; exit if TF was originally SET
+        and ah, 1
+        jz ice_popf_exit            ; exit if TF is still SET
+        inc [ds:ice_communication]  ; TF transition from OFF-ON, skip TF check
+                                    ; for one instruction pass
+ice_popf_exit:
+        ret                         ; POPF emulation finished
+endp ice_popfd
+endp ice_popf
+</pre>
+<h4>LOOP??/JCXZ</h4>
+<p>LOOP and JCXZ instructions are easy to handle... all that really needs to be noted is that, instead of calculating 8-bit IP offsets in the case that short jumps follow through... we use the code of the short conditional jump procedure. That procedure will be discussed in the advanced handler section.</p>
+<pre class="source">
+proc ice_loop near      ; DEC CX, JNZ X
+        or dl, dl
+        jnz ice_loop_ecx
+        dec [ds:ice_reg._cx]
+        jnz ice_jmp_conditional_short_follow
+        ret
+ice_loop_ecx:           ; DEC ECX, JNZ X
+        dec [ds:ice_reg._ecx]
+        jnz ice_jmp_conditional_short_follow
+        ret
+endp ice_loop
+
+proc ice_loope near
+        test [byte low word ds:ice_reg._flags], 1000000b
+        jnz ice_loop    ; use normal LOOP procedure if ZF set
+        jmp ice_loop_dec    ; decrement eCX anyway
+endp ice_loope
+
+proc ice_loopne near
+        test [byte low word ds:ice_reg._flags], 1000000b
+        jz ice_loop     ; use normal LOOP procedure if ZF clear
+        jmp ice_loop_dec    ; decrement eCX anyway
+endp ice_loopne
+
+
+proc ice_loop_dec near
+        or dl, dl
+        jnz ice_loope_ecx
+        dec [ds:ice_reg._cx]    ; decrement CX
+        ret
+
+ice_loope_ecx:
+        dec [ds:ice_reg._ecx]   ; decrement ECX
+        ret
+endp ice_loop_dec
+
+proc ice_jcxz near
+        mov eax, [ds:ice_reg._ecx]
+        or dl, dl
+        jnz ice_jcxz_ecx
+        or ax, ax       ; follow short jump if CX was 0
+        jz ice_jmp_conditional_short_follow
+        ret
+ice_jcxz_ecx:
+        or ecx, ecx     ; follow short jump if ECX was 0
+        jz ice_jmp_conditional_short_follow
+        ret
+endp ice_jcxz
+</pre>
+<h4>INT instructions</h4>
+<p>INT instructions only need to be handled in 16-bit form, as there are no 32-bit equivalents, at least, in real mode anyway. Note how the opcode length is set to 0 on interrupt executions once they have been emulated so as not to mess with the emulated IP on return to the dispatcher. Also note how the main interrupt execution procedure accepts the interrupt to be emulated in AH, and adds the original instruction length to the emulated return IP address on the external stack.</p>
+<pre class="source">
+proc ice_into near
+        mov ah, 4
+        test [byte high word ds:ice_reg._flags], 1000b
+        jnz ice_int_x       ; emulate interrupt if emulated overflow flag set
+        ret                 ; else just skip the interrupt
+endp ice_into
+
+proc ice_int_3 near
+        mov ah, 3           ; emulate INT 3 instruction (length of 1 already in
+                            ; the ice_opcode_length variable
+proc ice_int_x near
+        xchg ax, bx         ; BX holds interrupt to emulate
+        mov ax, [ds:ice_reg._flags]
+        call ice_external_push_16   ; save emulated flags on external stack
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_16   ; save emulated CS on external stack
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_16   ; save emulated return IP on external stack
+        and [byte high word ds:ice_reg._flags], 11111100b
+                                    ; clear emulated IF and TF
+        xor ax, ax
+        mov di, ax              ; DI = 0
+        mov al, bh              ; AL = INT to emulate
+        shl ax, 2               ; AX = INT * 4
+        xchg ax, di
+        mov es, ax              ; ES = 0, DI = INT * 4
+        mov ax, [word es:di]    ; get offset of interrupt code
+        mov [ds:ice_reg._ip], ax; update emulated IP
+        mov ax, [word es:di+2]  ; get segment of interrupt code
+        mov [ds:ice_reg._cs], ax; update emulated CS
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax  ; clear opcode length as IP is already
+                                        ; set properly
+        ret
+endp ice_int_x
+endp ice_int_3
+</pre>
+<h4>RET families</h4>
+<p>Some RET instructions are easier to handle than others... due to their 16-bit and 32-bit natures. Some RET instructions have a word value following them to be added to eSP. Also, in the case of 32-bit RET instructions, you must make sure the return address is valid, in that the top half of the return IP must be 0, otherwise a protection fault must be emulated.</p>
+<p>Strangely enough, in real mode, there is a 32-bit version of IRET, however there is no corresponding 32-bit version of INT, as it just always uses the normal 16-bit INT. This is possibly due to memory manager interference, and may not be for all computers. But, shrug, who cares?</p>
+<pre class="source">
+proc ice_ret_near_value
+        mov bx, [es:di+1]
+        jmp ice_ret_near_skip   ; get value to add to eSP
+endp ice_ret_near_value
+
+proc ice_ret_near
+        xor bx, bx              ; value to add to eSP is 0
+ice_ret_near_skip:
+        or dl, dl
+        jnz ice_ret_near_32     ; 32-bit RET NEAR
+        call ice_external_pop_16; get new IP
+        mov [ds:ice_reg._ip], ax; set new IP
+        jmp ice_ret_exit
+
+ice_ret_near_32:
+        call ice_external_pop_32    ; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception       ; emulate exception if invalid return IP
+        mov [ds:ice_reg._ip], ax    ; set new IP
+endp ice_ret_near
+
+proc ice_ret_exit near
+        dec [ds:ice_opcode_length]  ; instruction length = 0, for dispatcher
+        or dl, dl
+        jnz ice_ret_exit
+        add [ds:ice_reg._sp], bx    ; update SP
+        ret
+
+ice_retn_exit_32:
+        xor eax, eax
+        mov ax, bx
+        add [ds:ice_reg._esp], eax  ; update ESP
+        ret
+endp ice_ret_exit
+
+proc ice_ret_exception near
+        call ice_external_push_32   ; for protection fault in RETs... we must
+                                    ; have a valid return address... and since
+                                    ; what we have here is an invalid one....
+                                    ; set the stack back to normal first
+        jmp ice_protection_fault
+endp ice_ret_exception
+
+proc ice_ret_far_value near
+        mov bx, [es:di+1]       ; get value to add to eSP
+        jmp ice_ret_far_skip
+endp ice_ret_far_value
+
+proc ice_ret_far near
+        xor bx, bx              ; value to add to eSP is 0
+ice_ret_far_skip:
+        or dl, dl
+        jnz ice_ret_far_32      ; 32-bit RET FAR
+        call ice_external_pop_16
+        mov [ds:ice_reg._ip], ax; save new IP
+        call ice_external_pop_16
+        mov [ds:ice_reg._cs], ax; save new CS
+        jmp ice_ret_exit
+endp ice_ret_far
+
+proc ice_ret_far_32 near
+        call ice_external_pop_32; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception   ; emulate exception if it's invalid
+        mov [ds:ice_reg._ip], ax; save new IP
+        call ice_external_pop_32
+        mov [ds:ice_reg._cs], ax; save new CS
+        jmp ice_ret_exit
+endp ice_ret_far_32
+
+proc ice_iret
+        dec [ds:ice_opcode_length]  ; set opcode length to 0
+        or dl, dl
+        jnz ice_iret_32             ; use 32-bit IRET
+        call ice_external_pop_16
+        mov [ds:ice_reg._ip], ax    ; save new IP
+        call ice_external_pop_16
+        mov [ds:ice_reg._cs], ax    ; save new CS
+        jmp ice_popf                ; emulate POPF
+
+ice_iret_32:
+        call ice_external_pop_32    ; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception       ; emulate exception if it's invalid
+        mov [ds:ice_reg._ip], ax    ; set new IP
+        call ice_external_pop_32
+        mov [ds:ice_reg._cs], ax    ; set new CS
+        jmp ice_popf                ; emulate POPF[D]
+endp ice_iret
+</pre>
+<h4>Commentary</h4>
+<p>As you can see, the basic opcode handlers for ICE are very simple... and there is probably some slight room for optimization, especially in the case of combining 16-bit and 32-bit code, which is the crutch of most confusion.</p>
+<p>Anyway, with the basic handler concepts out of the way, we now move onto the remaining few handlers which are slightly more complex. Actually, most in the next section aren't really complex at all... however I lumped them there just because I felt like it.</p>
+<p>What are you doing here reading this? Get to the next section!</p>
+<h3><a name="p25">Section 5: ICE special opcode handlers (advanced)</a></h3>
+<p>Good. You're here. In this section, we cover JMP SHORT instructions, conditional jump instructions, JMP/CALL instructions with direct values, JMP/CALL instructions with indirect values, BOUND, and DIV handling. They are all slightly complex due to the difference between their 16-bit and 32-bit forms.</p>
+<h4>JMP (short, conditional)</h4>
+<p>Through the COS database tables, JMP SHORT is re-routed to point to the 'follow conditional jump' section of code. This then brings us to the handling of conditional jumps (with short, long, and very long displacements).</p>
+<p>For efficient JMP handling, we use the concept of self-modifying code. We copy the first byte of the jump instruction to emulate (which holds the details of WHAT type of jump it is), and use our own displacement to point to a section of code which emulates the following of a conditional jump. If the conditional jump falls through, then the special handler exits and the IP is updated by the dispatcher to point past the conditional jump instruction.</p>
+<p>Look at the code (note the jump to clear instruction prefetch).</p>
+<pre class="source">
+proc ice_jmp_conditional_short near
+        mov [byte ds:ice_jmp_conditional_short_modify], al
+        db 0ebh, 00
+        mov ebx, [ds:ice_reg._eflags]
+        and bh, 11111110b
+        push ebx
+        popfd
+
+ice_jmp_conditional_short_modify:
+        jc ice_jmp_conditional_short_follow
+        ret
+
+ice_jmp_conditional_short_follow:
+        mov al, [es:di+1]
+        cbw
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_short
+
+proc ice_jmp_conditional_long near
+        mov [word ds:ice_jmp_conditional_long_modify], ax
+        db 0ebh, 00
+        mov ebx, [ds:ice_reg._eflags]
+        and bh, 11111110b
+        push ebx
+        popfd
+
+ice_jmp_conditional_long_modify:
+        dw 0fh
+        dw 1
+        ret
+
+ice_jmp_conditional_long_follow:
+        or dl, dl
+        jnz ice_jmp_conditional_long_32
+        mov ax, [es:di+2]
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_long
+
+proc ice_jmp_conditional_long_32 near
+        xor eax, eax
+        mov ax, [ds:ice_opcode_length]
+        add ax, [ds:ice_reg._ip]
+        add eax, [es:di+2]
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_long_32
+</pre>
+<h4>JMP/CALL (direct)</h4>
+<p>These are all easy enough to handle... just note how we continue to check the 32-bit versions so as to have valid IPs (or, if the IP is not valid, emulating a general protection fault), and that we keep clearing the opcode length to 0... except in the case of 16-bit JMP/CALL NEAR DIRECT, in which case the opcode length isn't touched because it forms a part of the new IP.</p>
+<p>Note that this is not the only method of handling direct JMP/CALL, as there is another way which can be used in conjunction with indirect JMP/CALL handling, which will save 1 kilobyte of space! However... it has problems... discussed in the next section.</p>
+<pre class="source">
+proc ice_direct_call_far near
+        or dl, dl
+        jnz ice_direct_call_far_32
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_16
+        mov ax, [ds:ice_reg._ip]
+        add ax, 5
+        call ice_external_push_16
+
+proc ice_direct_jmp_far near
+        or dl, dl
+        jnz ice_direct_jmp_far_32
+        mov ax, [word es:di+1]
+        mov [ds:ice_reg._ip], ax
+        mov ax, [word es:di+3]
+        mov [ds:ice_reg._cs], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_far
+endp ice_direct_call_far
+
+proc ice_direct_call_far_32 near
+        cmp [word high dword es:di+1], 0
+        jnz ice_protection_fault
+        db 66h
+        push cs
+        pop eax
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_32
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, 7
+        call ice_external_push_32
+
+proc ice_direct_jmp_far_32 near
+        mov eax, [es:di+1]
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        mov ax, [word es:di+5]
+        mov [ds:ice_reg._cs], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_far_32
+endp ice_direct_call_far_32
+
+proc ice_direct_call_near near
+        or dl, dl
+        jnz ice_direct_call_near_32
+        mov ax, [ds:ice_reg._ip]
+        add ax, 3
+        call ice_external_push_16
+
+proc ice_direct_jmp_near near
+        or dl, dl
+        jnz ice_direct_jmp_near_32
+        mov ax, [es:di+1]
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_direct_jmp_near
+endp ice_direct_call_near
+
+proc ice_direct_call_near_32 near
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, 5
+        push eax
+        add eax, [es:di+1]
+        cmp eax, 10000h
+        pop eax
+        jnb ice_protection_fault
+        call ice_external_push_32
+
+proc ice_direct_jmp_near_32 near
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add eax, [es:di+1]
+        add eax, 5
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_near_32
+endp ice_direct_call_near_32
+</pre>
+<h4>INDIRECTS (JMP, CALL, BOUND, DIV)</h4>
+<p>I've decided to leave the hardest for the very last... special instructions which can use indirect operands, in which you have multiple choices about how to handle them, all as complex as each other and with various speed, size, and reliability trade offs :(</p>
+<p>The first method, which is 100% reliable, is spending +2k or more on manually decoding the MODRM fields of these opcodes in both 16-bit and 32-bit forms. It's slow, and it's a bitch. You could possibly work out some sort of table format for this... or maybe not. I did not bother with this possibility, as although it is viable for 16-bit MODRM, with 32-bit MODRM and SIB bytes it is just hopeless.</p>
+<p>The second method, is to modify the instructions in the generic opcode handler to calculate the address being referenced, which is faster and smaller than the first method, and can be 100% reliable. Unfortunately, it still takes up alot of code, especially with the 32-bit variants, however it can be used for ALL indirect instructions, so you do save a little space.</p>
+<p>The third method, is to hook i0 for DIV, i5 for BOUND, and generically execute the instruction. Then, if your handler gets executed, you unhook and generically emulate the exception interrupt. However, this leaves you open to anti-emulation code which will, for instance, use DIV using the value at 0:0, which will no longer be there since you hooked it, etc. It is small, and not 100% effective but still reliable enough to use.</p>
+<p>Then, for JMP/CALL access, you could single step through the individual JMP/CALL instruction, and then you will record the CS+IP and fix up the old part of the stack which was destroyed by the i1. This is very effective in that -ALL- direct and indirect JMP/CALL instructions can use the SAME procedure... bringing down the complete ICE size to 2k, major space savings considering it is normally about 3k.</p>
+<p>Unfortunately, this 3rd method also has the problem of instructions accessing the values in the IVT at vector 1 (ie: CALL [FAR 0:4] for emulating an interrupt), some of which can be avoided but most of which cannot, which means this procedure is... reliable enough for use as you can mask indirect JMP/CALLs to i1... however unreliable in that using only part of the address at i1 will screw you up (and this could be done by some debuggers, possibly).</p>
+<p>So, as you can see, the only really choices are options 2 and 3, the question is wether you are willing to sacrifice an extra 512 bytes to be reliable, or save 512 bytes and skimp out on properly handling things. Note that also, in the third method, since you are single stepping, if there is a faulty 32-bit JMP/CALL instruction, then you cannot emulate an exception, whereas you can if you use the second method.</p>
+<p>Decisions, decisions :)</p>
+<p>Here is the code to handle all direct/indirect CALL/NEAR instructions using the third method, however in the full example source code I use the second method. If you want to swap the methods over, you must remove the DIRECT and INDIRECT JMP/CALL handling code (which was shown above), and point all indirect and direct jmp near/far instructions to ice_indirect_jmp. The indirect and direct call near instructions go to ice_indirect_calln and the indirect and direct call far instructions go to ice_indirect_callf. This is done by modifying the COS tables. These routines could stand to be optimized slightly, as using them does slow down emulation quite a bit.</p>
+<pre class="source">
+proc ice_indirect_calln near
+        or dl, dl
+        jnz ice_indirect_calln_32
+        mov ax, 8
+        jmp ice_indirect
+
+ice_indirect_calln_32:
+        mov ax, 0ah
+        jmp ice_indirect
+endp ice_indirect_calln
+
+proc ice_indirect_callf near
+        or dl, dl
+        jnz ice_indirect_callf_32
+        mov ax, 0ah
+        jmp ice_indirect
+
+ice_indirect_callf_32:
+        mov ax, 0eh
+        jmp ice_indirect
+endp ice_indirect_callf
+
+proc ice_indirect_jmp near
+        mov ax, 6
+endp ice_indirect_jmp
+
+proc ice_indirect near
+        les edi, [ds:ice_reg._ssesp]
+        sub di, ax
+        push [dword es:di]
+        push [word es:di+4]
+        push di
+
+        mov ax, [ds:ice_original_ip]
+        mov [ds:ice_reg._ip], ax
+
+        xor ax, ax
+        mov es, ax
+        les di, [dword es:4]
+        push [dword es:di]
+        push [word es:di+4]
+        mov [byte es:di], 0eah
+        mov [word es:di+1], offset ice_int_1
+        mov [word es:di+3], cs
+
+        mov [ds:ice_indirect_saved], 2
+        mov ebx, [ds:ice_reg._ebx]
+        mov ecx, [ds:ice_reg._ecx]
+        mov edx, [ds:ice_reg._edx]
+        mov edi, [ds:ice_reg._edi]
+        mov esi, [ds:ice_reg._esi]
+        mov ebp, [ds:ice_reg._ebp]
+        mov es, [ds:ice_reg._es]
+        mov ds, [ds:ice_reg._ds]        ; registers loaded (except eAX)
+        ice_switch_to_external_stack    ; stack loaded
+        cli
+        pushf
+        pop ax
+        or ah, 1
+        push ax
+        mov eax, [cs:ice_reg._eax]      ; load eAX now
+        popf                            ; turn on single step mode
+        jmp [dword cs:ice_reg._csip]    ; do it
+
+ice_indirect_return:
+        ice_switch_to_internal_stack    ; internal stack is now on ;)
+        push cs
+        pop ds
+        xor ax, ax
+        mov es, ax
+        les di, [dword es:4]
+        pop [word es:di+4]
+        pop [dword es:di]               ; restore INT 1 vector
+
+        call ice_external_pop_32
+        mov [ds:ice_reg._csip], eax
+        call ice_external_pop_16
+
+        mov es, [ds:ice_reg._ss]
+        pop di
+        pop [word es:di+4]
+        pop [dword es:di]
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        ret
+endp ice_indirect
+
+proc ice_int_1 far
+        dec [cs:ice_indirect_saved]
+        jz ice_indirect_return          ; don't activate too early
+        iret
+endp ice_int_1
+</pre>
+<p>Here are the procedures to do BOUND/DIV using the interrupt hooking method, which is much more reliable than the above procedure for JMP/CALL handling. This is using the third method, and will not be used in the full source code, as it uses the second method which all BOUND/DIV/JMP/CALL instructions can go through. To swap code sections, after replacing the JMP/CALL procedures as above, and fixing up the COS tables, point IDIV and DIV to the ice_div and the BOUND instruction to ice_bound.</p>
+<pre class="source">
+proc ice_bound near
+        mov di, (5*4)
+        call ice_bound_div_execute
+        jnz ice_bound_exception
+        ret
+
+ice_bound_exception:
+        mov ah, 5
+        jmp ice_fault_execute
+endp ice_bound
+
+proc ice_int far
+        inc [word cs:ice_indirect_saved]
+        iret
+endp ice_int
+
+proc ice_div near
+        xor di, di
+        call ice_bound_div_execute
+        jnz ice_div_exception
+        ret
+
+ice_div_exception:
+        xor ax, ax
+        jmp ice_fault_execute
+endp ice_div
+
+proc ice_bound_div_execute near
+        xor ax, ax
+        mov [ds:ice_indirect_saved], ax
+        mov es, ax
+        push [dword es:di]
+        push di
+        mov [word es:di], offset ice_int
+        mov [es:di+2], cs
+        call ice_generic
+        pop di
+        xor ax, ax
+        mov es, ax
+        pop [dword es:di]
+        cmp [ds:ice_indirect_saved], ax
+        ret
+endp ice_bound_div_execute proc
+</pre>
+<p><em>To see the 2nd method, refer to the full source code in part 3 of this document.</em></p>
+<h4>LOCK</h4>
+<p>I discussed the complexity of LOCK handlers earlier, but since I've already written (and scrapped) a routine to handle LOCK instructions, I've included it just for educational purposes. It looks complex, and has no comments, so is most probably not bug free. I drew up the table below to help me determine which instructions are able to be prefixed by LOCK, and used it while coding my LOCK handler. If a LOCK prefixes any instruction not on this list, then you emulate an invalid opcode exception.</p>
+<pre class="source">
+    Set 1: normal set of instructions
+    Set 2: all extended instructions
+
+        VALID OPCODES:      Set 1              Set 2
+                           '-----'            '-----'
+            BT   mem, op    .                   A3h
+            BTS  mem, op    .                   ABh
+            BTR  mem, op    .                   B3h
+            BTC  mem, op    &lt;-- grp8            BBh
+
+            XCHG mem, op    &lt;-- 86h
+            XCHG reg, mem   &lt;-- 87h
+
+            ADD  mem, op    .                   00h, 01h
+            ADC  mem, op    .                   10h, 11h
+            AND  mem, op    .                   20h, 21h
+            OR   mem, op    .                   08h, 09h
+            SBB  mem, op    .                   18h, 19h
+            SUB  mem, op    .                   28h, 29h
+            XOR  mem, op    &lt;-- 80h, 81h, 83h   30h, 31h
+
+            DEC  mem        .
+            INC  mem        &lt;-- grp 4
+            NEG  mem        .
+            NOT  mem        &lt;-- grp 3
+</pre>
+<p>Before we go onto the ICE_LOCK procedure I'll quickly describe how to include it into the ICE emulation system. To use it, you must include the procedure itself in the source file and remove the LOCK opcode siphoner from the beginning of the dispatcher. Then, at the end of the dispatcher where the ICE_COMMUNICATION variable is checked, you must add another check for it to be equal to 2, and if it is you continue with the opcode siphoning but SKIP the section which CLEARS the opcodes (ie: je ICE_SEGMENT_REMOVAL). Finally, you must update the COS table to set the 'use a procedure' bit, then add a word variable after it pointing to this ICE_LOCK procedure.</p>
+<pre class="source">
+proc ice_lock_override near
+        inc di
+        mov ax, [es:di]
+proc ice_lock near
+        cmp al, 2eh
+        je ice_lock_override
+        cmp al, 3eh
+        je ice_lock_override
+        cmp al, 26h
+        je ice_lock_override
+        cmp al, 36h
+        je ice_lock_override
+        cmp al, 0f2h
+        je ice_lock_override
+        cmp al, 0f3h
+        je ice_lock_override
+        cmp al, 66h
+        je ice_lock_override
+        cmp al, 67h
+        je ice_lock_override
+
+        cmp al, 0fh
+        je ice_lock_extended
+        cmp ah, 86h
+        je ice_lock_testmem
+        cmp ah, 87h
+        je ice_lock_testmem
+        cmp al, 0feh
+        je ice_lock_grp4
+        cmp al, f6h
+        je ice_lock_grp3
+        cmp al, f7h
+        je ice_lock_grp3
+
+        cmp al, 0
+        je ice_lock_testmem
+        cmp al, 1
+        je ice_lock_testmem
+        cmp al, 10h
+        je ice_lock_testmem
+        cmp al, 11h
+        je ice_lock_testmem
+        cmp al, 20h
+        je ice_lock_testmem
+        cmp al, 21h
+        je ice_lock_testmem
+        cmp al, 30h
+        je ice_lock_testmem
+        cmp al, 31h
+        je ice_lock_testmem
+        cmp al, 08h
+        je ice_lock_testmem
+        cmp al, 09h
+        je ice_lock_testmem
+        cmp al, 18h
+        je ice_lock_testmem
+        cmp al, 19h
+        je ice_lock_testmem
+        cmp al, 28h
+        je ice_lock_testmem
+        cmp al, 29h
+        je ice_lock_testmem
+
+        cmp al, 80h
+        jb ice_lock_invalid
+        cmp al, 83h
+        ja ice_lock_invalid
+        jmp ice_lock_testmem
+
+ice_lock_grp3:
+        push ax
+        and ah, 111000b
+        cmp ah, 10000b
+        je ice_lock_grp3_okay
+        cmp ah, 11000b
+        je ice_lock_grp3_okay
+        pop ax
+        jmp ice_invalid_opcode
+ice_lock_grp3_okay:
+        pop ax
+        jmp ice_lock_testmem
+
+ice_lock_grp4:
+        push ax
+        and ah, 111000b
+        cmp ah, 0
+        je ice_lock_grp4_okay
+        cmp ah, 1000b
+        je ice_lock_4_grp_okay
+        pop ax
+        jmp ice_invalid_opcode
+ice_lock_grp4_okay:
+        pop ax
+        jmp ice_lock_testmem
+
+ice_lock_extended:
+        cmp ah, a3h
+        je ice_lock_testmem
+        cmp ah, b3h
+        je ice_lock_testmem
+        cmp ah, abh
+        je ice_lock_testmem
+        cmp ah, bbh
+        je ice_lock_testmem
+        cmp ah, bah
+        jne ice_invalid_opcode
+        mov ah, [ds:si+2]
+
+ice_lock_grp8:
+        test ah, 100000b
+        jz ice_invalid_opcode
+
+ice_lock_testmem:
+        and ah, 11000000b
+        cmp ah, 11000000b
+        je ice_invalid_opcode
+        mov [ds:ice_communication], 2
+        ret
+endp ice_lock
+endp ice_lock_override
+</pre>
+<h3><a name="p26">Section 6: Notes on ICE</a></h3>
+<p>So how well does ICE fare? Well, it can vary between 2k and 3.5k depending on what type of procedures you use to handle indirect instructions, and wether you include the LOCK procedure or not (probably not a good idea, mine is prone to bug, because why fix it if I won't use it?). The included source however, is an average of 3k.</p>
+<p>Is that good or bad? Well, the XT tracers are generally between 1.5k and 2k... and since you can get ICE down to 2k it is -FUCKING- good! Also, ICE could really be optimized quite a bit... many of the special opcode handlers are nowhere near as optimized as possible :) However, you must make sure as you decrease size you don't decrease speed too.</p>
+<p>What about COS? The checks for invalid MODR/M combinations were removed from the COS decoder simply because we don't really need them, however the COS tables -ARE- set up with the MODR/M restrictions set. The COS decoder provided is quite excellent actually in its usage of index tables to speed processing of the COS tables, however could possibly be optimized.</p>
+<p>As for the general BCE design, there are many other generic opcode handlers which are much smaller and faster than mine, ICEs BCE could be redesigned to be smaller and faster too although it would probably require you to alter the many other parts of ICE to work with the new modifications too.</p>
+<p>And how well does ICE work? I can emulate 32-bit TBSCAN for DOS under it, so I suppose it is good enough ;) I can also emulate PKZIP/ARJ/RAR/etc under it, as well as things like IRG#8 magazine reader, and other DOS programs like SCANDISK and DEFRAG (but you cannot access floppy disks with it, emulators are too slow for this, the disks time out).</p>
+<p>There -ARE- a few minor bugs in ICE... which I cannot find. ICE will not run Manifest from QEMM (MFT.EXE) nor MSD.EXE nor QPEG 386 (QPV.EXE), and all seem to be hanging on the same problem opcode, which I suspect is there due to some emulation bug because it's not a valid opcode :) ICE -USED- to be able to run MSD.EXE just fine... however somewhere along the line it stopped working.</p>
+<p>I decided to release ICE anyway as it is probably a minature bug... not worth holding up finishing my glorious tunneling series up for :) If anyone can find the bug... tell me! I've gone half insane (and deaf, listening to music while I code) trying to find it!</p>
+<p>Uhh, anyway, like I said, ICE is a first generation product, there are no other 386+ emulators written for viruses out there at the moment. Note that the COS tables only work for 386 opcodes, and that the reason I call ICE a 386+ emulation system is because the COS tables can be, if you can find the opcode information, updated to include even Pentium instructions (I just do not have those opcode lists however). Note I said you only have to update the TABLES, not COS or the decoder... which is why COS is so neat ;) Well, you might have to change the COS definition a little bit for Pentium, as I think there are 64-bit MODR/M instructions? Maybe soon a COS v2 will be needed? :)</p>
+<p>For the worlds first (virogen) 386+ emulator, ICE does a damn good job, but just like anything, it can be improved. I'm sure you'll all bring out ICEs of your own (probably looking nothing like mine), assuming anyone wants to use an emulation system at all. More on that later.</p>
+<p>Time for the full source code (mmmm mmm) :)</p>
+<p>Normally I give you an example program to display tunneled i13 and i21 vectors, however in this document I shall do things a little differently, being the last one and all. This source will emulate its own residency, and after that, -EVERYTHING- is being emulated, hence the reason your computer slows down to a crawl :)</p>
+<p>To convert ICE to tunnel things, you would simply set the correct registers in the emulated registers structure, set the CS:IP properly, set the stack to point to the return emulation address, and add in code to the ICE dispatcher to check for the emulated CS:IP to point back to your virus (so when control is returned from the interrupt being emulated) at which time control is passed straight from ICE to your virus. Also, code would be added to ICE to save the emulated CS:IP address when the original interrupt entrypoint was detected.</p>
+<p>For test purposes however, remember, loading ANYTHING after running even this current program source will be emulated... so a DIR is emulated, the INTs it makes are emulated, -EVERYTHING-. So you can even load (given enough time) your favourite AV program and see how it doesn't notice it's under complete control of ICE. Imagine that power used in your next virus...</p>
+<div align="center">
+<p><strong>IMPORTANT IMPORTANT IMPORTANT IMPORTANT</strong></p>
+<p><strong>ICE WILL -NOT- RUN UNDER ANY SORT OF MEMORY MANAGER, BECAUSE BCE EMULATORS CAN NOT SUPPORT PROTECTED MODE SWITCHING. FOR TUNNELING HOWEVER, NORMAL INTERRUPTS WILL NOT CAUSE A MEMORY MANAGER TO SWITCH BETWEEN PROCESSOR MODES, HENCE THE REASON EMULATORS WILL WORK UNDER MEMORY MANAGERS IN TUNNELERS :)</strong></p>
+</div>
+<h2><a name="p3">Part 3. ICE complete source</a></h2>
+<pre class="source">
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; ICE, the INTEL complex emulator
+;
+; tasm /m9 ice.asm
+; tlink /3 ice
+;
+ideal
+p386
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; MACRO's, used for internal/external stack switching
+;
+macro ice_switch_to_internal_stack
+        mov [cs:ice_reg._ss], ss
+        mov [cs:ice_reg._esp], esp  ; save external stack address
+        mov [cs:ice_internal_stack.switch], cs
+        mov ss, [cs:ice_internal_stack.switch]
+        mov esp, [cs:ice_internal_stack.internal_esp]
+                ; set stack to internal stack address
+        endm
+macro ice_switch_to_external_stack
+        mov [cs:ice_internal_stack.internal_esp], esp
+                                    ; save internal stack offset
+        mov ss, [cs:ice_reg._ss]
+        mov esp, [cs:ice_reg._esp]  ; set stack to external stack address
+        endm
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; STACK
+segment stackers para stack 'stack'
+        dw 050h
+ends stackers
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; Segment definition... where all our code/data is stored
+;
+segment ice para public 'code'
+        assume cs:ice, ds:ice, es:nothing, ss:stackers
+
+proc ice_setup near
+        xor ax, ax
+        mov ds, ax
+        les ax, [ds:21h*4]
+        push cs
+        pop ds
+        mov [ds:ice_reg._cs], es
+        mov [ds:ice_reg._ip], ax
+        mov [ds:ice_reg._ah], 31h
+        mov [ds:ice_reg._dx], 100h
+        mov ax, (offset ice_return)
+        pushf
+        push cs
+        push ax
+
+        mov [ds:ice_reg._ss], ss
+        mov [ds:ice_reg._esp], esp
+
+        push cs
+        pop ss
+        mov esp, (offset ice_internal_stack.top)
+
+        cli
+        pushfd
+        pop [dword ds:ice_reg._eflags]
+        and [byte high word ds:ice_reg._flags], 11111100b
+
+        jmp ice_dispatch
+
+ice_return:
+        mov ax, 4c00h
+        int 21h
+
+endp ice_setup
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; ICE Dispatcher
+;
+proc ice_tf_handler near
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        mov ah, 1
+        call ice_int_x
+        jmp ice_tf_handled
+endp ice_tf_handler
+
+ice_address_removal_process:
+        mov [ds:ice_address_override], al
+        jmp ice_removal_jump
+
+ice_operand_removal_process:
+        mov [ds:ice_operand_override], al
+        jmp ice_removal_jump        ; repeat override removal process
+
+ice_repeat_removal_process:
+        mov [ds:ice_repeat_override], bl
+        jmp ice_removal_jump        ; repeat override removal process
+
+ice_segment_removal_process:
+        mov [ds:ice_segment_override], bl
+
+ice_removal_jump:
+        inc [ds:ice_reg._ip]        ; increment IP
+        jmp ice_segment_removal     ; repeat override removal process
+
+proc ice_dispatch near
+        test [byte high word ds:ice_reg._flags], 1
+        jnz ice_tf_handler          ; check for TF in emulated flags
+
+ice_tf_handled:
+        mov ax, [ds:ice_reg._ip]
+        mov [ds:ice_original_ip], ax; save address of _IP before prefix removal
+                                    ; begins
+        xor eax, eax
+        mov [ds:ice_overrides], eax ; clear prefix variables
+                                    ; (they are 4 one byters, stored in a row,
+                                    ; so we use one doubleword move to clear)
+ice_segment_removal:
+        les di, [ds:ice_reg._csip]  ; ES:DI=instruction to emulate
+
+ice_breakpoint:
+        mov ax, [es:di]             ; get opcode
+        mov bx, ax
+
+        and al, 011100111b
+        cmp al, 000100110b
+        mov al, bl
+        je ice_segment_removal_process
+
+        and al, 0feh
+        cmp al, 064h
+        je ice_segment_removal_process
+        cmp al, 0f2h
+        je ice_repeat_removal_process
+
+        mov al, bl
+        cmp al, 66h
+        je ice_operand_removal_process
+        cmp al, 67h
+        je ice_address_removal_process
+
+        cmp al, 0f0h
+        je ice_removal_jump
+
+ice_decode_begin:
+        cld
+        push bx             ; save original opcode
+        mov [ds:ice_current_opcode], ax
+
+        call ice_decoder    ; scan opcode through COS decoder
+
+        push cx             ; save length to copy
+        lds si, [ds:ice_reg._csip]
+        push cs
+        pop es
+        mov di, (offset ice_override_buffer)
+        mov cx, 5
+        mov eax, 90909090h
+        rep stosd           ; clear execution buffer with NOP instructions
+        pop cx              ; restore length of instruction to copy
+        mov di, (offset ice_opcode_buffer)
+        rep movsb           ; copy instruction to be emulated into execution
+                            ; buffer
+
+ice_copy_complete:
+        push cs
+        pop ds
+        pop ax                          ; original opcode, saved earlier
+        les di, [ds:ice_reg._csip]
+        mov dl, [ds:ice_operand_override]
+        mov [ds:ice_communication], 0   ; clear communication area
+
+        ; On entry to opcode handlers
+        ;   AX    = opcode of instruction
+        ;   ES:DI = instruction address
+        call [ds:ice_handler]           ; call opcode handler
+        cli
+
+        mov ax, [ds:ice_opcode_length]
+        add [ds:ice_reg._ip], ax        ; increment IP by instruction length
+
+        cmp [ds:ice_communication], 1
+        jb ice_dispatch         ; default restart condition, clear old prefixes
+                                ; and do TF check
+        jmp ice_tf_handled      ; special POPF/IRET condition, skip checking
+
+endp ice_dispatch
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; ICE COS decoder
+;
+ice_decoder_extended:
+        inc cx          ; increment instruction length
+        inc di          ; increment pointer to point to rest of instruction
+        mov al, ah
+        mov bx, (offset ice_extended_layout)
+        mov si, (offset ice_tables._extended)
+        jmp ice_decoder_normal_middle
+
+proc ice_decoder near
+        xor cx, cx                      ; clear instruction length
+        cmp al, 0fh
+        je ice_decoder_extended
+
+ice_decoder_normal:
+        mov bx, (offset ice_normal_layout)
+        mov si, (offset ice_tables._normal)
+
+ice_decoder_normal_middle:
+        and ax, 11110000b
+        mov dx, ax
+        shr al, 4
+        add ax, bx
+
+        xchg ax, si
+        xor bx, bx
+        mov bl, [ds:si]
+        add ax, bx
+        xchg ax, si
+
+ice_decoder_setup:
+        mov ax, [es:di] ; load opcode to compare with table numbers
+        mov ah, 0       ; clear top half as it's junk
+
+ice_decoder_loop:
+        mov bl, [ds:si]
+        and bl, 11100000b
+        cmp bl, 01100000b               ; is repeat flag set?
+        jne ice_decoder_single          ; no, handle it as a single entry
+
+ice_decoder_repeat:
+        mov bl, [ds:si]
+        and bl, 11111b                  ; get repeat length
+        inc bx                          ; make real repeat length
+                        ; get number of opcodes covered by this repeat entry
+        add dx, bx      ; table entry = table entry + repeat entries
+        inc si          ; point to 'real' opcode entry
+        cmp ax, dx      ; is our opcode covered by repeater?
+        jb ice_decoder_match    ; yes, decode entry
+        jmp ice_decoder_nomatch
+
+ice_decoder_single:
+        cmp ax, dx      ; does opcode = table entry?
+        je ice_decoder_match    ; yes, decode entry
+        inc dx          ; increment table entry number
+
+ice_decoder_nomatch:
+        test [byte ds:si], 1000b    ; is procedure entry set?
+        jz ice_decoder_skip_entry_easy
+        push ax
+        mov al, [ds:si]
+        and al, 11000000b
+        cmp al, 10000000b
+        pop ax
+        je ice_decoder_skip_entry_easy  ; invalid if group flag set
+        inc si
+        inc si          ; fixup pointer to skip procedure address
+
+ice_decoder_skip_entry_easy:
+        inc si          ; point to next table entry
+                        ; move pointer to next entry
+        jmp ice_decoder_loop            ; test next entry against opcode
+endp ice_decoder
+
+proc ice_decoder_groups near
+        call ice_decoder_immediates     ; calculate immediates
+        mov al, [ds:si]
+        and ax, 111000b         ; get group access number
+        shr al, 3               ; right-align it
+        add ax, (offset ice_groups_layout)
+        xchg ax, si
+        mov ax, (offset ice_tables._groups)
+        xor bx, bx
+        mov bl, [byte ds:si]
+        add ax, bx
+        xchg ax, si             ; get group table address
+
+        mov al, [es:di+1]
+        and ax, 111000b
+        shr al, 3               ; index into group entry
+        xor dx, dx              ; clear table entry number
+        jmp ice_decoder_loop    ; decode !
+endp ice_decoder_groups
+
+proc ice_decoder_invalid near
+        xor cx, cx                      ; length of 0
+        mov [ds:ice_handler], offset ice_invalid_opcode
+                                        ; use invalid opcode handler
+        ret
+endp ice_decoder_invalid
+
+proc ice_decoder_fixup_test near
+        and ah, 111000b
+        jnz ice_decoder_fixup_over
+
+        cmp al, 0f6h
+        je ice_decoder_fixup_byte
+        cmp [ds:ice_operand_override], 0
+        je ice_decoder_fixup_word
+        inc cx  ; DWORD fixup
+        inc cx
+ice_decoder_fixup_word:
+        inc cx  ; WORD fixup
+ice_decoder_fixup_byte:
+        inc cx  ; BYTE fixup
+        jmp ice_decoder_fixup_over
+endp ice_decoder_fixup_test
+
+proc ice_decoder_match near
+        mov bl, [ds:si]         ; get table entry
+        and bl, 11000000b
+        cmp bl, 10000000b       ; mask for group entry flag
+        je ice_decoder_groups   ; convert decoding for group tables
+        mov bl, [ds:si]
+        and bl, 11100000b
+        cmp bl, 01000000b
+        je ice_decoder_invalid  ; invalid opcode
+
+        mov bp, (offset ice_generic)    ; use generic opcode handler by default
+        test [byte ds:si], 1000b
+        jz ice_decoder_match_no_handler
+        mov bp, [ds:si+1]       ; use special opcode handler
+
+ice_decoder_match_no_handler:
+        mov ax, [es:di]
+        cmp al, 0f6h
+        je ice_decoder_fixup_test
+        cmp al, 0f7h
+        je ice_decoder_fixup_test
+        cmp al, 0c8h
+        je ice_decoder_fixup_byte   ; note that the extended C8h instruction
+                                    ; (0FC8) is invalid and won't come by here
+                                    ; so this won't stuff it up
+ice_decoder_fixup_over:
+        mov bl, [ds:si]         ; get table entry again
+        and bl, 11110000b       ; get header bits of table entry
+        jz ice_decoder_plain            ; just a plain old opcode
+        cmp bl, 00010000b
+        je ice_decoder_special_address  ; special address opcode
+endp ice_decoder_match
+
+proc ice_decoder_modrm near
+        inc cx
+        mov bl, [es:di+1]
+        mov al, bl
+        cmp [ds:ice_address_override], 0
+        jne ice_decoder_modrm_32        ; use 32-bit MODR/M calculations
+
+        and al, 11000111b
+        cmp al, 110b
+        je ice_decoder_modrm_big        ; address   = two addition
+        and al, 11000000b
+        jz ice_decoder_plain            ; register = no addition
+        cmp al, 01000000b
+        je ice_decoder_modrm_small      ; small     = one addition
+        cmp al, 10000000b
+        jne ice_decoder_plain           ; register = no addition
+                                        ; big       = two addition
+ice_decoder_modrm_big:
+        inc cx
+ice_decoder_modrm_small:
+        inc cx
+        jmp ice_decoder_plain
+endp ice_decoder_modrm
+
+proc ice_decoder_modrm_32 near
+        and al, 11000000b
+        cmp al, 11000000b
+        je ice_decoder_plain            ; register = no addition
+        mov al, bl
+        and al, 111b
+        cmp al, 100b
+        jne ice_decoder_modrm_sib
+        inc cx          ; account for Scale/Index/Base byte
+
+        mov al, bl
+        and al, 11000000b
+        jnz ice_decoder_modrm_sib
+        mov al, [es:di+2]
+        and al, 111b
+        cmp al, 101b
+        je ice_decoder_modrm_four_32
+
+ice_decoder_modrm_sib:
+        mov al, bl
+        and al, 11000111b
+        cmp al, 101b
+        je ice_decoder_modrm_four_32    ; 32-bit displacement = four addition
+        and al, 11000000b
+        jz ice_decoder_plain            ; no addition
+        cmp al, 10000000b
+        jb ice_decoder_modrm_one_32     ; small displacement = one addition
+
+ice_decoder_modrm_four_32:              ; 32-bit displacements
+        add cx, 3
+
+ice_decoder_modrm_one_32:               ; 8-bit displacements
+        inc cx
+        jmp ice_decoder_plain           ; go to immediate data length decoder
+endp ice_decoder_modrm_32
+
+proc ice_decoder_special_address near
+        inc cx
+        inc cx                          ; word memory address
+        cmp [byte ds:ice_address_override], 0
+        je ice_decoder_plain
+        inc cx
+        inc cx                  ; doubleword memory address
+endp ice_decoder_special_address
+
+proc ice_decoder_plain near
+        call ice_decoder_immediates     ; calculate immediates
+        inc cx                          ; instruction size + 1
+        mov [ds:ice_opcode_length], cx  ; save opcode length
+        mov [ds:ice_handler], bp        ; save opcode handler address
+        ret
+endp ice_decoder_plain
+
+proc ice_decoder_immediates near
+        mov al, [ds:si]
+        and ax, 111b
+        shl al, 1
+        add ax, (offset ice_immediates_table)
+        cmp [ds:ice_operand_override], 0
+        je ice_decoder_immediates_conversion
+        inc ax
+
+ice_decoder_immediates_conversion:
+        xchg ax, si
+        add cl, [ds:si]
+        xchg ax, si
+        ret
+endp ice_decoder_immediates
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_mov_segreg_source near
+        and ah, 111000b
+        cmp ah, 1000b
+        je ice_mov_regmem_cs        ; MOV ?, CS
+endp ice_mov_segreg_source
+
+proc ice_mov_segreg_destination near
+        and ah, 111000b
+        cmp ah, 1000b
+        je ice_invalid_opcode       ; MOV CS, ?
+        cmp ah, 11000b
+        je ice_generic_process_es   ; MOV DS instructions
+        cmp ax, 1000010001110b
+        jne ice_mov_segreg_exit
+        inc [ds:ice_communication]  ; MOV SS, ?
+ice_mov_segreg_exit:
+        jmp ice_generic             ; handle the rest generically
+endp ice_mov_segreg_destination
+
+proc ice_mov_regmem_cs near
+        cmp [byte high word ds:ice_current_opcode], 11001000b
+        je ice_mov_ax_cs
+        mov [byte ds:ice_opcode_buffer], 89h
+        and [byte ds:ice_opcode_buffer+1], 11000111b
+        push [ds:ice_reg._eax]      ; save _EAX
+        xor eax, eax
+        mov ax, [ds:ice_reg._cs]
+        mov [ds:ice_reg._eax], eax  ; _EAX = _CS
+        call ice_generic            ; emulate it
+        pop [ds:ice_reg._eax]       ; restore _EAX
+        ret                         ; exit
+endp ice_mov_regmem_cs
+
+proc ice_mov_ax_cs near
+        xor eax, eax
+        mov ax, [ds:ice_reg._cs]
+        cmp [ds:ice_operand_override], 0
+        jne ice_mov_ax_cs_32
+        mov [ds:ice_reg._ax], ax    ; _AX = _CS
+        ret
+endp ice_mov_ax_cs
+
+proc ice_mov_ax_cs_32 near
+        mov [ds:ice_reg._eax], eax  ; _EAX = 0000 shl 16 + _CS
+        ret
+endp ice_mov_ax_cs_32
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_fault_execute near
+        xchg bl, ah
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        mov ax, [ds:ice_original_ip]
+        mov [ds:ice_reg._ip], ax
+        xchg ah, bl
+        jmp ice_int_x
+endp ice_fault_execute
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_protection_fault near
+        mov ah, 13              ; yes, 13, not 13h
+        jmp ice_fault_execute
+endp ice_protection_fault
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_invalid_opcode near
+        mov ah, 6
+        jmp ice_fault_execute
+endp ice_invalid_opcode
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_indirect near
+        mov al, 10001011b
+        and ah, 11000111b
+        mov [word ds:ice_opcode_buffer], ax
+        push [ds:ice_reg._eax]
+        call ice_generic
+        mov eax, [ds:ice_reg._eax]
+        mov [ds:ice_indirect_saved], eax
+        pop [ds:ice_reg._eax]
+        mov ax, [ds:ice_current_opcode]
+        cmp al, 62h
+        je ice_indirect_second
+        and ah, 111000b
+        cmp ah, 110000b
+        je ice_div
+        cmp ah, 111000b
+        je ice_div
+
+        mov bl, [ds:ice_operand_override]
+        cmp ah, 100000b
+        je ice_indirect_jmp_near
+        cmp ah, 010000b
+        jne ice_indirect_second
+
+ice_indirect_call_near:
+        or bl, bl
+        jnz ice_indirect_call_near_32
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_16
+
+ice_indirect_jmp_near:
+        or bl, bl
+        jnz ice_indirect_jmp_near_32
+        mov ax, [word low dword ds:ice_indirect_saved]
+        mov [ds:ice_reg._ip], ax
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        ret
+
+ice_indirect_call_near_32:
+        cmp [word high dword ds:ice_indirect_saved], 0
+        jne ice_protection_fault
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_32
+
+ice_indirect_jmp_near_32:
+        mov eax, [ds:ice_indirect_saved]
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        ret
+
+ice_indirect_second:
+        push [ds:ice_reg._eax]
+        mov [byte ds:ice_opcode_buffer], 8dh
+        call ice_generic
+        mov eax, [ds:ice_reg._eax]
+        pop [ds:ice_reg._eax]
+        cmp [ds:ice_address_override], 0
+        jnz ice_indirect_second_32
+
+        xchg ax, di
+        mov al, [ds:ice_segment_override]
+        mov bx, [word low dword ds:ice_indirect_saved]
+        cmp al, 26h
+        je ice_indirect_es
+        cmp al, 2eh
+        je ice_indirect_cs
+        cmp al, 36h
+        je ice_indirect_ss
+        cmp al, 64h
+        je ice_indirect_fs
+        cmp al, 65h
+        je ice_indirect_gs
+
+ice_indirect_ds:
+        mov es, [ds:ice_reg._ds]
+        cmp bx, [es:di]
+        je ice_indirect_third
+
+ice_indirect_ss:
+        mov es, [ds:ice_reg._ss]
+        cmp bx, [es:di]
+        je ice_indirect_third
+
+ice_indirect_cs:
+        mov es, [ds:ice_reg._cs]
+        cmp bx, [es:di]
+        je ice_indirect_third
+
+ice_indirect_es:
+        mov es, [ds:ice_reg._es]
+        cmp bx, [es:di]
+        je ice_indirect_third
+
+ice_indirect_fs:
+        push fs
+        pop es
+        cmp bx, [es:di]
+        je ice_indirect_third
+
+ice_indirect_gs:
+        push gs
+        pop es
+        cmp bx, [es:di]
+        jne ice_protection_fault
+
+ice_indirect_third:
+        mov cx, [es:di+2]
+
+        mov ax, [ds:ice_current_opcode]
+        cmp al, 62h
+        je ice_bound
+        and ah, 111000b
+        cmp ah, 101000b
+        je ice_indirect_jmp_far
+
+ice_indirect_call_far:
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_16
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_16
+
+ice_indirect_jmp_far:
+        mov [ds:ice_reg._cs], cx
+        mov ax, [word low dword ds:ice_indirect_saved]
+        mov [ds:ice_reg._ip], ax
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        ret
+
+ice_indirect_second_32:
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        xchg eax, edi
+        mov al, [ds:ice_segment_override]
+        mov ebx, [ds:ice_indirect_saved]
+
+        cmp al, 26h
+        je ice_indirect_es_32
+        cmp al, 2eh
+        je ice_indirect_cs_32
+        cmp al, 36h
+        je ice_indirect_ss_32
+        cmp al, 64h
+        je ice_indirect_fs_32
+        cmp al, 65h
+        je ice_indirect_gs_32
+
+ice_indirect_ds_32:
+        mov es, [ds:ice_reg._ds]
+        cmp ebx, [es:edi]
+        je ice_indirect_third_32
+
+ice_indirect_ss_32:
+        mov es, [ds:ice_reg._ss]
+        cmp ebx, [es:edi]
+        je ice_indirect_third_32
+
+ice_indirect_cs_32:
+        mov es, [ds:ice_reg._cs]
+        cmp ebx, [es:edi]
+        je ice_indirect_third_32
+
+ice_indirect_es_32:
+        mov es, [ds:ice_reg._es]
+        cmp ebx, [es:edi]
+        je ice_indirect_third_32
+
+ice_indirect_fs_32:
+        push fs
+        pop es
+        cmp ebx, [es:edi]
+        je ice_indirect_third_32
+
+ice_indirect_gs_32:
+        push gs
+        pop es
+        cmp ebx, [es:edi]
+        jne ice_protection_fault
+
+ice_indirect_third_32:
+        mov ecx, [es:di+4]
+
+        mov ax, [ds:ice_current_opcode]
+        cmp al, 62h
+        je ice_bound_32
+        and ah, 111000b
+        cmp ah, 101000b
+        je ice_indirect_jmp_far_32
+
+ice_indirect_call_far_32:
+        db 66
+        push cs
+        pop eax
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_32
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_32
+
+ice_indirect_jmp_far_32:
+        mov [ds:ice_reg._cs], cx
+        mov ax, [word low dword ds:ice_indirect]
+        mov [ds:ice_reg._ip], ax
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax
+        ret
+endp ice_indirect
+
+proc ice_div near
+        mov ebx, [ds:ice_indirect_saved]
+        cmp al, 0f6h
+        jne ice_div_word
+
+ice_div_byte:
+        or bl, bl
+        jz ice_div_exception
+
+ice_div_okay:
+        mov ax, [ds:ice_current_opcode]
+        mov [word ds:ice_opcode_buffer], ax
+        jmp ice_generic
+
+ice_div_word:
+        cmp [ds:ice_operand_override], 0
+        jnz ice_div_dword
+        or bx, bx
+        jnz ice_div_okay
+
+ice_div_exception:
+        xor ax, ax
+        jmp ice_fault_execute
+
+ice_div_dword:
+        or ebx, ebx
+        jz ice_div_exception
+        jmp ice_div_okay
+endp ice_div
+
+proc ice_bound near
+        push [ds:ice_reg._ax]
+        push cx
+        mov al, 89h
+        and ah, 111000b
+        or ah, 11000000b
+        mov [word ds:ice_opcode_buffer], ax
+        mov [word ds:ice_opcode_buffer+2], 9090h
+        call ice_generic
+        mov ax, [ds:ice_reg._ax]
+        mov bx, [word low dword ds:ice_indirect_saved]
+        pop cx
+        pop [ds:ice_reg._ax]
+        cmp ax, bx
+        jb ice_bound_triggered
+        cmp ax, cx
+        ja ice_bound_triggered
+        ret
+
+ice_bound_triggered:
+        mov ah, 5
+        jmp ice_fault_execute
+endp ice_bound
+
+proc ice_bound_32 near
+        push [ds:ice_reg._eax]
+        push ecx
+        mov al, 89h
+        and ah, 111000b
+        or ah, 11000000b
+        mov [word ds:ice_opcode_buffer], ax
+        mov [dword ds:ice_opcode_buffer+2], 90909090h
+        call ice_generic
+        mov eax, [ds:ice_reg._eax]
+        mov ebx, [ds:ice_indirect_saved]
+        pop ecx
+        pop [ds:ice_reg._eax]
+        cmp eax, ebx
+        jb ice_bound_triggered
+        cmp eax, ecx
+        ja ice_bound_triggered
+        ret
+endp ice_bound_32
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_direct_call_far near
+        or dl, dl
+        jnz ice_direct_call_far_32
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_16
+        mov ax, [ds:ice_reg._ip]
+        add ax, 5
+        call ice_external_push_16
+
+proc ice_direct_jmp_far near
+        or dl, dl
+        jnz ice_direct_jmp_far_32
+        mov ax, [word es:di+1]
+        mov [ds:ice_reg._ip], ax
+        mov ax, [word es:di+3]
+        mov [ds:ice_reg._cs], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_far
+endp ice_direct_call_far
+
+proc ice_direct_call_far_32 near
+        cmp [word high dword es:di+1], 0
+        jnz ice_protection_fault
+        db 66h
+        push cs
+        pop eax
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_32
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, 7
+        call ice_external_push_32
+
+proc ice_direct_jmp_far_32 near
+        mov eax, [es:di+1]
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        mov ax, [word es:di+5]
+        mov [ds:ice_reg._cs], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_far_32
+endp ice_direct_call_far_32
+
+proc ice_direct_call_near near
+        or dl, dl
+        jnz ice_direct_call_near_32
+        mov ax, [ds:ice_reg._ip]
+        add ax, 3
+        call ice_external_push_16
+
+proc ice_direct_jmp_near near
+        or dl, dl
+        jnz ice_direct_jmp_near_32
+        mov ax, [es:di+1]
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_direct_jmp_near
+endp ice_direct_call_near
+
+proc ice_direct_call_near_32 near
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add ax, 5
+        push eax
+        add eax, [es:di+1]
+        cmp eax, 10000h
+        pop eax
+        jnb ice_protection_fault
+        call ice_external_push_32
+
+proc ice_direct_jmp_near_32 near
+        xor eax, eax
+        mov ax, [ds:ice_reg._ip]
+        add eax, [es:di+1]
+        add eax, 5
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        dec [ds:ice_opcode_length]
+        ret
+endp ice_direct_jmp_near_32
+endp ice_direct_call_near_32
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_into near
+        mov ah, 4
+        test [byte high word ds:ice_reg._flags], 1000b
+        jnz ice_int_x       ; emulate interrupt if emulated overflow flag set
+        ret                 ; else just skip the interrupt
+endp ice_into
+
+proc ice_int_3 near
+        mov ah, 3           ; emulate INT 3 instruction (length of 1 already in
+                            ; the ice_opcode_length variable
+proc ice_int_x near
+        xchg ax, bx         ; BX holds interrupt to emulate
+        mov ax, [ds:ice_reg._flags]
+        call ice_external_push_16   ; save emulated flags on external stack
+        mov ax, [ds:ice_reg._cs]
+        call ice_external_push_16   ; save emulated CS on external stack
+        mov ax, [ds:ice_reg._ip]
+        add ax, [ds:ice_opcode_length]
+        call ice_external_push_16   ; save emulated return IP on external stack
+        and [byte high word ds:ice_reg._flags], 11111100b
+                                    ; clear emulated IF and TF
+        xor ax, ax
+        mov di, ax              ; DI = 0
+        mov al, bh              ; AL = INT to emulate
+        shl ax, 2               ; AX = INT * 4
+        xchg ax, di
+        mov es, ax              ; ES = 0, DI = INT * 4
+        mov ax, [word es:di]    ; get offset of interrupt code
+        mov [ds:ice_reg._ip], ax; update emulated IP
+        mov ax, [word es:di+2]  ; get segment of interrupt code
+        mov [ds:ice_reg._cs], ax; update emulated CS
+        xor ax, ax
+        mov [ds:ice_opcode_length], ax  ; clear opcode length as IP is already
+                                        ; set properly
+        ret
+endp ice_int_x
+endp ice_int_3
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_ret_near_value
+        mov bx, [es:di+1]
+        jmp ice_ret_near_skip   ; get value to add to eSP
+endp ice_ret_near_value
+
+proc ice_ret_near
+        xor bx, bx              ; value to add to eSP is 0
+ice_ret_near_skip:
+        or dl, dl
+        jnz ice_ret_near_32     ; 32-bit RET NEAR
+        call ice_external_pop_16; get new IP
+        mov [ds:ice_reg._ip], ax; set new IP
+        jmp ice_ret_exit
+
+ice_ret_near_32:
+        call ice_external_pop_32    ; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception       ; emulate exception if invalid return IP
+        mov [ds:ice_reg._ip], ax    ; set new IP
+endp ice_ret_near
+
+proc ice_ret_exit near
+        dec [ds:ice_opcode_length]  ; instruction length = 0, for dispatcher
+        or dl, dl
+        jnz ice_ret_exit
+        add [ds:ice_reg._sp], bx    ; update SP
+        ret
+
+ice_retn_exit_32:
+        xor eax, eax
+        mov ax, bx
+        add [ds:ice_reg._esp], eax  ; update ESP
+        ret
+endp ice_ret_exit
+
+proc ice_ret_exception near
+        call ice_external_push_32   ; for protection fault in RETs... we must
+                                    ; have a valid return address... and since
+                                    ; what we have here is an invalid one....
+                                    ; set the stack back to normal first
+        jmp ice_protection_fault
+endp ice_ret_exception
+
+proc ice_ret_far_value near
+        mov bx, [es:di+1]       ; get value to add to eSP
+        jmp ice_ret_far_skip
+endp ice_ret_far_value
+
+proc ice_ret_far near
+        xor bx, bx              ; value to add to eSP is 0
+ice_ret_far_skip:
+        or dl, dl
+        jnz ice_ret_far_32      ; 32-bit RET FAR
+        call ice_external_pop_16
+        mov [ds:ice_reg._ip], ax; save new IP
+        call ice_external_pop_16
+        mov [ds:ice_reg._cs], ax; save new CS
+        jmp ice_ret_exit
+endp ice_ret_far
+
+proc ice_ret_far_32 near
+        call ice_external_pop_32; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception   ; emulate exception if it's invalid
+        mov [ds:ice_reg._ip], ax; save new IP
+        call ice_external_pop_32
+        mov [ds:ice_reg._cs], ax; save new CS
+        jmp ice_ret_exit
+endp ice_ret_far_32
+
+proc ice_iret
+        dec [ds:ice_opcode_length]  ; set opcode length to 0
+        or dl, dl
+        jnz ice_iret_32             ; use 32-bit IRET
+        call ice_external_pop_16
+        mov [ds:ice_reg._ip], ax    ; save new IP
+        call ice_external_pop_16
+        mov [ds:ice_reg._cs], ax    ; save new CS
+        jmp ice_popf                ; emulate POPF
+
+ice_iret_32:
+        call ice_external_pop_32    ; get new IP
+        cmp eax, 10000h
+        jnb ice_ret_exception       ; emulate exception if it's invalid
+        mov [ds:ice_reg._ip], ax    ; set new IP
+        call ice_external_pop_32
+        mov [ds:ice_reg._cs], ax    ; set new CS
+        jmp ice_popf                ; emulate POPF[D]
+endp ice_iret
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_pushf near
+        mov eax, [ds:ice_reg._eflags]   ; get the flags
+        or dl, dl
+        jnz ice_pushfd
+        call ice_external_push_16   ; push them onto external stack (word)
+        ret
+
+proc ice_pushfd near
+        call ice_external_push_32   ; push them onto external stack (double)
+        ret
+endp ice_pushfd
+endp ice_pushf
+
+proc ice_popf near
+        mov bx, [ds:ice_reg._flags] ; get a copy of the flags
+        or dl, dl
+        jnz ice_popfd
+        call ice_external_pop_16    ; get the new copy of the flags
+        mov [ds:ice_reg._flags], ax ; save them into the real flags
+        jmp ice_popf_single_step
+
+proc ice_popfd near
+        call ice_external_pop_32        ; get the new copy of the flags
+        mov [ds:ice_reg._eflags], eax   ; save them into the real flags
+
+ice_popf_single_step:
+        and bh, 1
+        jnz ice_popf_exit           ; exit if TF was originally SET
+        and ah, 1
+        jz ice_popf_exit            ; exit if TF is still SET
+        inc [ds:ice_communication]  ; TF transition from OFF-ON, skip TF check
+                                    ; for one instruction pass
+ice_popf_exit:
+        ret                         ; POPF emulation finished
+endp ice_popfd
+endp ice_popf
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_loop near      ; DEC CX, JNZ X
+        or dl, dl
+        jnz ice_loop_ecx
+        dec [ds:ice_reg._cx]
+        jnz ice_jmp_conditional_short_follow
+        ret
+ice_loop_ecx:           ; DEC ECX, JNZ X
+        dec [ds:ice_reg._ecx]
+        jnz ice_jmp_conditional_short_follow
+        ret
+endp ice_loop
+
+proc ice_loope near
+        test [byte low word ds:ice_reg._flags], 1000000b
+        jnz ice_loop    ; use normal LOOP procedure if ZF set
+        jmp ice_loop_dec    ; decrement eCX anyway
+endp ice_loope
+
+proc ice_loopne near
+        test [byte low word ds:ice_reg._flags], 1000000b
+        jz ice_loop     ; use normal LOOP procedure if ZF clear
+        jmp ice_loop_dec    ; decrement eCX anyway
+endp ice_loopne
+
+
+proc ice_loop_dec near
+        or dl, dl
+        jnz ice_loope_ecx
+        dec [ds:ice_reg._cx]    ; decrement CX
+        ret
+
+ice_loope_ecx:
+        dec [ds:ice_reg._ecx]   ; decrement ECX
+        ret
+endp ice_loop_dec
+
+proc ice_jcxz near
+        mov eax, [ds:ice_reg._ecx]
+        or dl, dl
+        jnz ice_jcxz_ecx
+        or ax, ax       ; follow short jump if CX was 0
+        jz ice_jmp_conditional_short_follow
+        ret
+ice_jcxz_ecx:
+        or ecx, ecx     ; follow short jump if ECX was 0
+        jz ice_jmp_conditional_short_follow
+        ret
+endp ice_jcxz
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_aam near
+        or ah, ah
+        jz ice_div_exception        ; emulate a DIV exception
+        jmp ice_generic             ; emulate AAM generically
+endp ice_aam
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_pop_segreg near
+        cmp al, 17h
+        jne ice_pop_segreg_exit     ; is it POP SS?
+        inc [ds:ice_communication]  ; if so, skip single step handler on return
+ice_pop_segreg_exit:
+        jmp ice_generic             ; use generic handler for opcode anyway
+endp ice_pop_segreg
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_jmp_conditional_short near
+        mov [byte ds:ice_jmp_conditional_short_modify], al
+        db 0ebh, 00
+        mov ebx, [ds:ice_reg._eflags]
+        and bh, 11111110b
+        push ebx
+        popfd
+
+ice_jmp_conditional_short_modify:
+        jc ice_jmp_conditional_short_follow
+        ret
+
+ice_jmp_conditional_short_follow:
+        mov al, [es:di+1]
+        cbw
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_short
+
+proc ice_jmp_conditional_long near
+        mov [byte high word ds:ice_jmp_conditional_long_modify], ah
+        db 0ebh, 00
+        mov ebx, [ds:ice_reg._eflags]
+        and bh, 11111110b
+        push ebx
+        popfd
+
+ice_jmp_conditional_long_modify:
+        dw 0fh
+        dw 1
+        ret
+
+ice_jmp_conditional_long_follow:
+        or dl, dl
+        jnz ice_jmp_conditional_long_32
+        mov ax, [es:di+2]
+        add [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_long
+
+proc ice_jmp_conditional_long_32 near
+        xor eax, eax
+        mov ax, [ds:ice_opcode_length]
+        add ax, [ds:ice_reg._ip]
+        add eax, [es:di+2]
+        cmp eax, 10000h
+        jnb ice_protection_fault
+        mov [ds:ice_reg._ip], ax
+        ret
+endp ice_jmp_conditional_long_32
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_push_segreg near
+        cmp al, 0eh
+        jne ice_generic             ; not PUSH CS?  exit!
+        db 66h
+        push cs
+        pop eax
+        mov ax, [ds:ice_reg._cs]    ; determine the complete emulated CS
+        or dl, dl
+        jnz ice_push_segreg_32      ; go to 32-bit version if operand size
+                                    ; prefix is present
+        call ice_external_push_16   ; push 16-bit emulated CS
+        ret
+ice_push_segreg_32:
+        call ice_external_push_32   ; push 32-bit emulated CS
+        ret
+endp ice_push_segreg
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; 16-bit external stack push from AX
+;
+proc ice_external_push_16 near
+        push es
+        push edi
+        les edi, [ds:ice_reg._ssesp]
+        dec di
+        dec di
+        mov [es:di], ax
+        mov [ds:ice_reg._sp], di
+        pop edi
+        pop es
+        ret
+endp ice_external_push_16
+; 16-bit external stack pop into AX
+;
+proc ice_external_pop_16 near
+        cld
+        push ds
+        push esi
+        lds esi, [ds:ice_reg._ssesp]
+        lodsw
+        mov [cs:ice_reg._sp], si
+        pop esi
+        pop ds
+        ret
+endp ice_external_pop_16
+; 32-bit external stack push from EAX
+;
+proc ice_external_push_32 near
+        push es
+        push edi
+        les edi, [ds:ice_reg._ssesp]
+        sub edi, 4
+        mov [es:edi], eax
+        mov [ds:ice_reg._esp], edi
+        pop edi
+        pop es
+        ret
+endp ice_external_push_32
+; 32-bit external stack pop into EAX
+;
+proc ice_external_pop_32 near
+        cld
+        push ds
+        push esi
+        lds esi, [ds:ice_reg._ssesp]
+        lodsd
+        mov [cs:ice_reg._esp], esi
+        pop esi
+        pop ds
+        ret
+endp ice_external_pop_32
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+proc ice_generic_process_es near
+        cmp [ds:ice_segment_override], 2eh
+        jne ice_generic_main
+        mov [ds:ice_cs_swapped], 2
+        mov [ds:ice_segment_override], 26h
+
+proc ice_generic near
+        cmp [ds:ice_segment_override], 2eh
+        jne ice_generic_main
+        mov [ds:ice_cs_swapped], 1
+        mov [ds:ice_segment_override], 3eh
+
+ice_generic_main:
+        push [ds:ice_reg._flags]
+        and [byte high word ds:ice_reg._flags], 11111110b
+
+        push ds
+        pop es
+        std
+        mov si, (offset ice_overrides+3)
+        mov di, (offset ice_override_buffer+3)
+
+        lodsb
+        or al, al
+        jz ice_generic_no_segment
+        stosb
+
+ice_generic_no_segment:
+        lodsb
+        or al, al
+        jz ice_generic_no_repeat
+        stosb
+
+ice_generic_no_repeat:
+        lodsb
+        or al, al
+        jz ice_generic_no_operand
+        stosb
+
+ice_generic_no_operand:
+        lodsb
+        or al, al
+        jz ice_generic_no_address
+        stosb
+
+ice_generic_no_address:
+        mov eax, [ds:ice_reg._eax]
+        mov ebx, [ds:ice_reg._ebx]
+        mov ecx, [ds:ice_reg._ecx]
+        mov edx, [ds:ice_reg._edx]
+        mov edi, [ds:ice_reg._edi]
+        mov esi, [ds:ice_reg._esi]
+        mov ebp, [ds:ice_reg._ebp]
+        mov es, [ds:ice_reg._es]
+        mov ds, [ds:ice_reg._ds]
+        cmp [cs:ice_cs_swapped], 0
+        je ice_generic_swapped
+
+        cmp [cs:ice_cs_swapped], 2
+        je ice_generic_swap_es
+
+ice_generic_swap_ds:
+        mov ds, [cs:ice_reg._cs]
+        jmp ice_generic_swapped
+ice_generic_swap_es:
+        mov es, [cs:ice_reg._cs]
+
+ice_generic_swapped:
+        push [cs:ice_reg._eflags]
+        popfd
+        ice_switch_to_external_stack
+
+align 4
+ice_override_buffer db 4 dup (90h)
+ice_opcode_buffer db 10h dup (90h)
+
+        ice_switch_to_internal_stack
+
+        pushfd
+        pop [cs:ice_reg._eflags]
+        cmp [cs:ice_cs_swapped], 0
+        je ice_generic_save_both
+        cmp [cs:ice_cs_swapped], 1
+        je ice_generic_restore_ds
+        mov es, [cs:ice_reg._es]
+        jmp ice_generic_save_both
+ice_generic_restore_ds:
+        mov ds, [cs:ice_reg._ds]
+ice_generic_save_both:
+        mov [cs:ice_reg._ds], ds
+        push cs
+        pop ds
+        mov [ds:ice_reg._es], es
+
+        mov [ds:ice_reg._eax], eax
+        mov [ds:ice_reg._ebx], ebx
+        mov [ds:ice_reg._ecx], ecx
+        mov [ds:ice_reg._edx], edx
+        mov [ds:ice_reg._edi], edi
+        mov [ds:ice_reg._esi], esi
+        mov [ds:ice_reg._ebp], ebp
+        cmp [ds:ice_cs_swapped], 0
+        je ice_generic_exit
+        mov [ds:ice_segment_override], 2eh
+
+ice_generic_exit:
+        pop ax
+        and ah, 1
+        or [byte high word ds:ice_reg._flags], ah
+        mov [ds:ice_cs_swapped], 0
+proc ice_skip near
+        ret
+endp ice_skip
+endp ice_generic
+endp ice_generic_process_es
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+; STRUC definitions
+;
+; STRUC for our internal 32-bit stacks
+;
+struc ice_stack_struc
+      internal_esp   dd 0
+      switch dw 0
+          label bottom
+      dw 50h dup(0)
+          label top
+ends ice_stack_struc
+; STRUC for immediate tables
+;
+struc ice_immediates_table_struc
+    db 0, 0
+    db 1, 1
+    db 2, 2
+    db 4, 4
+    db 6, 6
+    db 1, 2
+    db 2, 4
+    db 4, 6
+ends ice_immediates_table_struc
+; STRUC for group layouts
+;
+struc ice_groups_layout_struc
+        db (offset ice_tables._group_0 - offset ice_tables._groups)
+        db (offset ice_tables._group_1 - offset ice_tables._groups)
+        db (offset ice_tables._group_2 - offset ice_tables._groups)
+        db (offset ice_tables._group_3 - offset ice_tables._groups)
+        db (offset ice_tables._group_4 - offset ice_tables._groups)
+        db (offset ice_tables._group_5 - offset ice_tables._groups)
+        db (offset ice_tables._group_6 - offset ice_tables._groups)
+        db (offset ice_tables._group_7 - offset ice_tables._groups)
+ends ice_groups_layout_struc
+; STRUC for extended layouts
+;
+struc ice_extended_layout_struc
+        db (offset ice_tables._extended_0 - offset ice_tables._extended)
+        db (offset ice_tables._extended_1 - offset ice_tables._extended)
+        db (offset ice_tables._extended_2 - offset ice_tables._extended)
+        db (offset ice_tables._extended_3 - offset ice_tables._extended)
+        db (offset ice_tables._extended_4 - offset ice_tables._extended)
+        db (offset ice_tables._extended_5 - offset ice_tables._extended)
+        db (offset ice_tables._extended_6 - offset ice_tables._extended)
+        db (offset ice_tables._extended_7 - offset ice_tables._extended)
+        db (offset ice_tables._extended_8 - offset ice_tables._extended)
+        db (offset ice_tables._extended_9 - offset ice_tables._extended)
+        db (offset ice_tables._extended_a - offset ice_tables._extended)
+        db (offset ice_tables._extended_b - offset ice_tables._extended)
+        db (offset ice_tables._extended_c - offset ice_tables._extended)
+        db (offset ice_tables._extended_d - offset ice_tables._extended)
+        db (offset ice_tables._extended_e - offset ice_tables._extended)
+        db (offset ice_tables._extended_f - offset ice_tables._extended)
+ends ice_extended_layout_struc
+; STRUC for normal layouts
+;
+struc ice_normal_layout_struc
+        db (offset ice_tables._normal_0 - offset ice_tables._normal)
+        db (offset ice_tables._normal_1 - offset ice_tables._normal)
+        db (offset ice_tables._normal_2 - offset ice_tables._normal)
+        db (offset ice_tables._normal_3 - offset ice_tables._normal)
+        db (offset ice_tables._normal_4 - offset ice_tables._normal)
+        db (offset ice_tables._normal_5 - offset ice_tables._normal)
+        db (offset ice_tables._normal_6 - offset ice_tables._normal)
+        db (offset ice_tables._normal_7 - offset ice_tables._normal)
+        db (offset ice_tables._normal_8 - offset ice_tables._normal)
+        db (offset ice_tables._normal_9 - offset ice_tables._normal)
+        db (offset ice_tables._normal_a - offset ice_tables._normal)
+        db (offset ice_tables._normal_b - offset ice_tables._normal)
+        db (offset ice_tables._normal_c - offset ice_tables._normal)
+        db (offset ice_tables._normal_d - offset ice_tables._normal)
+        db (offset ice_tables._normal_e - offset ice_tables._normal)
+        db (offset ice_tables._normal_f - offset ice_tables._normal)
+ends ice_normal_layout_struc
+; STRUC for our simulated CPU registers
+;
+struc ice_register_struc
+      label _eax dword
+      label _ax word
+      label _al byte
+            db 0
+      label _ah byte
+            db 0
+            dw 0
+
+      label _ebx dword
+      label _bx word
+      label _bl byte
+            db 0
+      label _bh byte
+            db 0
+            dw 0
+
+      label _ecx dword
+      label _cx word
+      label _cl byte
+            db 0
+      label _ch byte
+            db 0
+            dw 0
+
+      label _edx dword
+      label _dx word
+      label _dl byte
+            db 0
+      label _dh byte
+            db 0
+            dw 0
+
+      label _edi dword
+      label _di word
+            dw 0
+            dw 0
+
+      label _esi dword
+      label _si word
+            dw 0
+            dw 0
+
+      label _ebp dword
+      label _bp word
+            dw 0
+            dw 0
+
+      label _csip dword
+      label _ip word
+            dw 0
+      _cs   dw 0
+
+      label _ssesp fword
+      label _esp dword
+      label _sp word
+            dd 0
+      _ss   dw 0
+
+      _es   dw 0
+      _ds   dw 0
+
+      label _eflags dword
+      label _flags word
+            dd 0
+
+ends ice_register_struc
+; STRUC for COS database tables
+;
+struc ice_tables_struc
+    label _normal unknown
+        label _normal_0 unknown
+        label _normal_1 unknown
+        label _normal_2 unknown
+        label _normal_3 unknown
+            db 063h, 0c0h, 001h, 006h, 000h, 008h
+            dw offset ice_pop_segreg
+            db 063h, 0c0h, 001h, 006h, 008h
+            dw offset ice_push_segreg
+            db 000h
+        label _normal_4 unknown
+        label _normal_5 unknown
+            db 06fh, 000h
+        label _normal_6 unknown
+            db 000h, 000h, 0e8h
+            dw offset ice_indirect
+            db 0f0h, 063h, 000h, 006h, 0c6h, 001h, 0c1h, 063h, 000h
+        label _normal_7 unknown
+            db 06fh, 009h
+            dw offset ice_jmp_conditional_short
+        label _normal_8 unknown
+            db 081h, 086h, 040h, 081h, 067h, 0c0h, 0c8h
+            dw offset ice_mov_segreg_source
+            db 0e0h, 0c8h
+            dw offset ice_mov_segreg_destination
+            db 0c0h
+        label _normal_9 unknown
+            db 069h, 000h, 08h
+            dw offset ice_direct_call_far
+            db 000h, 008h
+            dw offset ice_pushf
+            db 008h
+            dw offset ice_popf
+            db 000h, 000h
+        label _normal_a unknown
+            db 063h, 010h, 063h, 000h, 001h, 006h, 065h, 000h
+        label _normal_b unknown
+            db 067h, 001h, 067h, 006h
+        label _normal_c unknown
+            db 089h, 089h, 008h
+            dw offset ice_ret_near_value
+            db 008h
+            dw offset ice_ret_near
+            db 0e0h, 0e8h
+            dw offset ice_generic_process_es
+            db 0c1h, 0c6h, 002h, 000h, 008h
+            dw offset ice_ret_far_value
+            db 008h
+            dw offset ice_ret_far
+            db 008h
+            dw offset ice_int_3
+            db 009h
+            dw offset ice_int_x
+            db 008h
+            dw offset ice_into
+            db 008h
+            dw offset ice_iret
+        label _normal_d unknown
+            db 063h, 088h, 009h
+            dw offset ice_aam
+            db 001h, 040h, 000h, 067h, 0c0h
+        label _normal_e unknown
+            db 009h
+            dw offset ice_loopne
+            db 009h
+            dw offset ice_loope
+            db 009h
+            dw offset ice_loop
+            db 009h
+            dw offset ice_jcxz
+            db 063h, 001h, 00eh
+            dw offset ice_direct_call_near
+            db 00eh
+            dw offset ice_direct_jmp_near
+            db 008h
+            dw offset ice_direct_jmp_far
+            db 009h
+            dw offset ice_jmp_conditional_short_follow
+            db 063h, 000h
+        label _normal_f unknown
+            db 000h, 040h, 000h, 000h, 008h
+            dw offset ice_skip
+            db 000h, 090h, 090h, 065h, 000h, 098h, 0a0h
+
+    label _extended unknown
+        label _extended_0 unknown
+            db 0a8h, 0b0h, 0c0h, 0c0h, 040h, 040h, 000, 68h, 40h
+        label _extended_1 unknown
+            db 06fh, 040h
+        label _extended_2 unknown
+            db 064h, 0f0h, 040h, 0f0h, 68h, 40h
+        label _extended_3 unknown
+        label _extended_4 unknown
+        label _extended_5 unknown
+        label _extended_6 unknown
+        label _extended_7 unknown
+            db 06fh, 040h
+        label _extended_8 unknown
+            db 06fh, 00eh
+            dw offset ice_jmp_conditional_long
+        label _extended_9 unknown
+            db 06fh, 0c0h
+        label _extended_a unknown
+            db 000h,000h,040h,0c0h,0c1h,0c0h,040h,040h,000h,000h,040h,0c0h,0c1h,0c0h,040h,0c0h
+        label _extended_b unknown
+            db 040h,040h,0e0h,0c0h,0e0h,0e0h,0c0h,0c0h,040h,040h,0b9h,064h,0c0h
+        label _extended_c unknown
+        label _extended_d unknown
+        label _extended_e unknown
+        label _extended_f unknown
+            db 06fh, 040h
+
+    label _groups unknown
+        label _group_0 unknown
+            db 067h, 0c0h
+        label _group_1 unknown
+            db 065h, 0c0h, 040h, 0c0h
+        label _group_2 unknown
+            db 0c0h, 040h, 063h, 0c0h, 061h, 0c8h
+            dw offset ice_indirect
+        label _group_3 unknown
+            db 0c0h, 0c0h, 065h, 040h
+        label _group_4 unknown
+            db 0c0h, 0c0h, 063h, 0c8h
+            dw offset ice_indirect
+            db 0c0h, 040h
+        label _group_5 unknown
+            db 065h, 0c0h, 040h, 040h
+        label _group_6 unknown
+            db 064h, 0c0h, 040h, 0c0h, 040h
+        label _group_7 unknown
+            db 063h, 040h, 063h, 0c0h
+ends ice_tables_struc
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+align 4
+ice_tables ice_tables_struc &lt;&gt;
+align 4
+ice_normal_layout ice_normal_layout_struc &lt;&gt;
+align 4
+ice_extended_layout ice_extended_layout_struc &lt;&gt;
+align 4
+ice_groups_layout ice_groups_layout_struc &lt;&gt;
+align 4
+ice_immediates_table ice_immediates_table_struc &lt;&gt;
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+align 4
+ice_reg ice_register_struc &lt;&gt;
+align 4
+ice_internal_stack ice_stack_struc &lt;&gt;
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+align 4
+
+ice_indirect_saved dd 0
+label ice_overrides dword
+    ice_repeat_override  db 0
+    ice_segment_override db 0
+    ice_address_override db 0
+    ice_operand_override db 0
+
+ice_current_opcode dw 0
+ice_opcode_length dw 0
+ice_original_ip dw 0
+ice_handler dw 0
+ice_cs_swapped db 0
+ice_communication db 0
+; =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ends ice
+    end ice_setup
+</pre>
+<h2><a name="p4">Part 4. Anti-emulation methods</a></h2>
+<p>Emulation is supposed to be the be-all and end-all of tunneling methods, but emulation, just like all other tunneling methods, is not perfect, and is actually quite far from perfect, as you will soon discover.</p>
+<h3>Anti-emulation with invalid opcodes</h3>
+<p>The easiest way to detect a stupid emulator is to hook the invalid opcode interrupt and execute an invalid opcode. Of course, this will not work on 8086 processors as they just hang on invalid opcodes, however on a 286+, normally, your hooked i6 routine will be executed. ICE emulates the i6 instruction properly, however some other emulation systems may not do this. Some emulation systems (such as those used in AV) might even just abort straight away on invalid opcodes... nice eh? Protected mode instructions in real-mode have the same effect, however they look legitimate so they might not be able to be flagged by AV products heuristically like they do with other invalid opcodes.</p>
+<h3>Anti-emulation with AAM</h3>
+<p>This is an easy to way stop even good BCE and SCCE systems. Normally, AAM will come in the opcode form of D40A... however by changing the opcode to D400, the AAM instruction, if emulated in a BCE, will cause a divide by 0 exception, whose interrupt you can hook before emulation of the instruction.</p>
+<p>In an SCCE system however, they may only check the first byte of the opcode and if it matches, they emulate a proper D40A AAM opcode. In this case, if you clear a flag before execution of the opcode, and then set the flag inside your divide-by-0 exception handler... after that opcode, if you check the flag and it isn't set, you're definately under an emulation system.</p>
+<p>The only problem with this particular method is that some clone CPUs may execute AAM in exactly the manner of an SCCE, and may not execute the divide by 0 exception. Another problem is that the emulation system designers saw this trick coming, and emulate your exception handler, which is what ICE does, or hook the divide-by-0 exception for themselves like ART does (this has problems, see the INDIRECT handlers section for more detail).</p>
+<h3>Anti-emulation with FLAGS</h3>
+<p>Another little trick is to set INTEL undefined bits in the flags register which aren't used by any current processor. If the emulation system is stupid, it might allow you to set some of the bitfields which INTEL has left undefined, and wouldn't normally allow you to change.</p>
+<p>ICE has this problem, however it has it in a different way which you have to check for specifically to catch out. Although your PUSHF is coped directly into the emulated register structure, once inside the generic opcode emulation routine, your newly set flags are corrected by the CPU. So to detect ICE one would have to emulate PUSHF/POPF directly after each other to detect the flaws in the flags :)</p>
+<p>This is a very good way to detect SCCE systems, as they may not correct the flags like a BCE does. Unfortunately, clone CPUs and even newer INTEL CPUs may use these undefined fields for their own purposes and allow them to be set and cleared at will. This may also hang the computer anyway :) As such, this is not a very good emulation system detection method.</p>
+<h3>Anti-emulation with hardware</h3>
+<p>The most exploitable problems with emulators, are usually in the form of hardware tricks. Generally, under debuggers and emulation systems (especially in AV software), hardware interrupts are completely disabled, which means if you hook yourself into something like the timer interrupt, i8, and then go into a never-ending loop... then your i8 will never run and the emulator will crash or abort.</p>
+<p>Another trick, is to hook i76, the hard disk interrupt... and issue some sort of file processing/disk interrupt. If the system is 286+ and has a hard disk, your interrupt will be executed by the hardware. If you're under a stupid SCCE system, you could even break out this way, even if it uses its own disk/file handling procedures. This technique will also work on BCE systems.</p>
+<p>The problem comes in when emulators disable hardware interrupts entirely at all times, in which case your i76 and/or i8 will never be emulated. Emulators might even emulate an i8 from time to time just to make things seem normal for the clock. However, in this state, NO keyboard or disk access will function whatsoever. For certain uses however, such as in a tunneler, you could disable hardware interrupts temporarily as they shouldn't be needed in handling a simple interrupt. However, then you are open to detection :)</p>
+<p>This problem is common to ALL forms of BCE... and is pretty impossible to avoid... as you cannot just hook certain vectors, as you could be detected. Even if you hid yourself... you couldn't protect yourself from all stos/movs instructions and the like... and even then, some programs such as Windows and DESQView reprogram the PIC (Programmable Interrupt Controller) to point those IRQs into other places, and you CANNOT (without using DPMI services) work out where they now point.</p>
+<h3>Exploiting CPU differences</h3>
+<p>An easy way to detect an emulation system is to find out what processor you are running on. If you are on an 8086... then if you cause a DIV exception... the return address should point to the instruction AFTER the one which caused the exception. On a 286+ however, it will point to the instruction CAUSING the exception. In this way, if the emulation system emulates the wrong divide-by-0 exception, you've caught it out.</p>
+<h3>Exploiting 386+ bugs</h3>
+<p>The 386+ instruction set is immensely complex and its very hard (if not impossible) to support all instructions down to the slightest quirk (ICE doesn't complety support indirect instructions for example). You see, coding an emulation system is hard work, and designers may cut corners by not properly checking the EIP in CALL/JMP instructions, or handle LOCK instructions fully, etc, in which case you can catch them out by hooking general protection fault and invalid opcode exception handlers and doing some tricky opcodes.</p>
+<h3>Conclusion</h3>
+<p>Anti-emulation does exist. As you can see, there are many problems for the emulation system designer... and to fix those problems he/she must take risks of being detected by smart code. ICE can be made close to impossible to break out of with hardware interrupts, however it then looses its power to process interrupts properly!</p>
+<p>It's all about trade offs :)</p>
+<h2><a name="p5">Part 5. Generic anti-tunneling</a></h2>
+<p>Since this -IS- supposed to be a document about tunneling, and not just emulation, I've decided to show you how all tunneling systems, including those of the emulation type, can be made completely and utterly useless with just a few opcodes. Neat, huh? :)</p>
+<pre>
+     +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+                  Generic anti-tunneler/virus mechanism
+
+       Calling code              Standard handler
+    .----------------.         .--------------------.
+    | ....           |      .-&gt;|PUSHF               |
+    | INT xx         -------'  |CMP [CS:VAR], FFH   |
+    | ....           |&lt;-----.  |JNE ALERT           |
+    '----------------'      |  |INC [CS:VAR]        |
+                            |  |POPF                |        User Application
+                            |  |CALL FAR INT_HANDLER-----.    Interrupt Code
+ .------------------------- |-&gt;|PUSHF               |    | .------------------.
+ |                          |  |CMP [CS:VAR], 0     |    | |Normal application|
+ |                          |  |JNE ALERT           |    '&gt;|code for handling |
+ |.-------------------------|--|DEC [CS:VAR]        |-------    interrupts    |
+ ||    JMP handler          |  |POPF                |      '------------------'
+ || .----------------.      '---RETF 2              |
+ |'&gt;|PUSHF           |         '--------------------'
+ |  |CMP [CS:VAR], 0 |          Kernel Code          Hidden handler
+ |  |JNE ALERT       -.      .----------------.    .----------------.
+ |  |MOV [CS:VAR], 1 ||      | Proper kernel  | .-&gt;|CALL TEST_CNTR  -----.
+ |  |CALL RESTORE_JMP|&lt;-.    |   interrupt    | |  |INC [CS:VAR]    |&lt;---|-.
+ |  |CALL FAR "KC"   -------&gt;|  instructions  --'  |POPF            |    | |
+ |.&gt;|PUSHF           || |    '----------------'    |JMP ORIG_HANDLER--.  | |
+ || |CMP [CS:VAR], 2 || |                          '----------------' |  | |
+ || |JNE ALERT       -- |  .---------------.                          |  | |
+ || |MOV [CS:VAR], 0 || |  |               |                          |  | |
+ || |CALL OUR_JMP    |&lt;-|--'  RESTORE_JMP  '----.      OUR_JMP        |  | |
+ || |POPF            || | .-------------------. | .----------------.  |  | |
+ '|--RETF 2          || | | Restore original  | | |Overwrite bytes |  |  | |
+  | '----------------'| '&gt;| bytes from the KC | '&gt;|at KC entrypoint|  |  | |
+  |                   |   | entrypoint        |   |with a FAR JMP  |  |  | |
+  |                   |   '-------------------'   '----------------'  |  | |
+  |                   |                                               |  | |
+  |                   |     More Kernel Code                          |  | |
+  '-------------------------------------------------------------------'  | |
+                      |                                                  | |
+          ALERT       |       Test Center                                | |
+      .-------------. |  .----------------------.&lt;-----------------------' |
+      | [CS:VAR]=0  | |  |   Here, we test for  |       [CS:VAR]=1         |
+      | (tunneler)  |&lt;'  |  [CS:VAR]   and bad  |     and safe functions   |
+      |     or      |&lt;---- interrupt functions  ---------------------------'
+      |bad functions|    '----------------------'
+      | (evil code) |
+      '-------------'
+     +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+</pre>
+<p>In case you don't understand that... let me explain. What you have there, is a complex intertwining of interrupt handlers, inserted into different places along the interrupt chain. Each handler modifies this variable in some way, and if -ANY- of the interrupt handlers are not called, then an interrupt has been executed in a non-standard way, which indicates a tunneling program has been activated (they are -ALL- called in normal program execution).</p>
+<h3>Initialization</h3>
+<p>When your program loads up, it first grabs the entrypoint of the interrupt it is wanting to keep a watch on (through standard tunneling techniques if it is not the first to load up), and overwrites the first few bytes there to form a FAR JMP to its own code handler (described later).</p>
+<p>Next, your program hooks a 'secret' interrupt vector. For i13 (on 286+ systems), i76 is called by the hardware every time i13 is finished. In DOS, i21 calls i2A sometime during execution. We hook which of these we want, and then we finally hook the vector itself through modification of the IVT. With this done, we set our internal variable to FFH, set our memory up so we stay resident, and then we exit.</p>
+<h3>Level 1</h3>
+<p>Level 1 is the standard interrupt hook. On each exit from this hook, it sets an internal variable to FFH... and on entry to this hook, it checks to make sure the variable -IS- FFH. If the variable is not FFH, then some program has accessed other levels of the interrupt chain bypassing this hook, at which time we tell the user. If the variable is okay, we set it to 0, and pass control over to the standard interrupt code following ours, which would normally be our level 2 hook. The level 2 hook, on exit, sets the internal variable to 0, we check to make sure it is zero (alerting the user if it isn't), and then set it to FFH, before exiting our hook to the calling program code.</p>
+<h3>Level 2</h3>
+<p>Level 2 is the interrupt splice we set up. On entry to this hook, we check that our internal variable is set to 0 (by the Level 1 handler). If it is not 0, we alert the user to a tunneling presence. If it is 0, we set it to 1, restore the original bytes of the interrupt handler we overwrote, and then emulate an interrupt call to the address of that interrupt handler. On exit from our hook, we check the internal variable is set to 2 (for reasons you'll discover later), and if it isn't, we alert the user. If it is 2, we set it back to 0 and exit our hook, transferring control to our Level 1 handler, which will check that the value 0 is set, alerting the user otherwise.</p>
+<h3>Level 3</h3>
+<p>Level 3 is our secret interrupt hook. First it checks our other hooks have been processed, by making sure the internal variable is set to 1. If it isn't, we alert the user, and if it is, we increment it to 2 (later to be checked by the Level 2 handler). Here we can also check to see if any bad functions are being processed... however generally, in the level 3 hook, the function has already been executed and all you could do is alert the user and halt the computer.</p>
+<h3>Why so complex?</h3>
+<p>Why the complexity? Why can't you just hook the secret hidden interrupt and check things from there? Well, the reason is that some nasties (grin) kill those interrupt vectors before using interrupts, which means your code won't be called. In this way, with the JMP FAR handler, a security alarm will be set off if a tunneler tries to do this :)</p>
+<p>Of course, if you just had the JMP FAR interrupt controller... you could check for nasty functions from there. Not a bad idea... unless a nasty program saves the bytes at the interrupt entrypoint and will restore them from time to time if they change ;) Of course, that wouldn't be very common... and could actually be quite bad for networking programs, etc. Sigh, oh well.</p>
+<p>Finally, we all know a standard interrupt hook alone is not good enough to stop any virus out there, as it will invariably just tunnel past the routine alltogether! Either way, even if some parts of the code presented above are slightly redundant, it will generically detect any and all tunneling attempts (or at least... it will detect a tunneler has gone through the interrupt vectors as the program which used the tunneler calls what it thinks is the original interrupt entrypoint).</p>
+<p>There is a large possibility for false alarms however... should a program which has hooked into the early chain of command, and uses interrupts to do processing while in the middle of handling an interrupt. But to stop these false alarms there are ways you can check if there really was a tunneling attempt or if a proper INT was executed... or you can innoculate certain programs from causing an alarm.</p>
+<p>There are many ways to do it :)</p>
+<p>Oh well, that may not all be correct but you get the idea, right?</p>
+<h2><a name="p6">Part 6. Conclusion</a></h2>
+<pre>
+   HURRAH!  HURRAH!  HURRAH!  HURRAH!  HURRAH!  HURRAH!  HURRAH!  HURRAH!
+
+                  .--------------------------------------.
+                  |             YOU ARE A                |
+                  |           TUNNELING GOD              |
+                  '--------------------------------------'
+</pre>
+<p>Yes, that's right, you have reached the end of my series of documents on tunneling! You have reached the status of a tunneling GOD... and hopefully, judging from how fast my documents have spread into magazines, web sites, and personal collections, and from how much people have liked them... you will be joined in your tunneling GOD status by alot of other virus coders. There can never be too many to help in the war against the AV :)</p>
+<p>Sigh, what can I say? It has surely been an interesting journey down the path of tunneling methods. Now that I have reached the end, I can surely say that I know more than I will ever need to really know about tunneling, and that tunneling, although it has its uses, is not worth spending so much time on when there are so many other important things to learn. However, now that you and I have mastered tunneling we can move onto other things, which is good.</p>
+<p>With the tunneling series finally over and done with, it is time to tell you about some other projects I have on the horizon. First of all, is an excellent document discussing wether viruses are 'alive' or not. It gets into some quite philosophical ideas and questions, which are sure to stimulate you, or at the very least, make you think twice next time you create or destroy a virus. I also have another document in mind on virus technology, the pros and cons, where it is at the moment, and where it is headed for the future. It also covers some ground on the new fully polymorphic (metamorphic) viruses, and how emulation technology used in AV software will cope with it and other virus technologies.</p>
+<p>Looks like this is going to be another interesting year of documents.</p>
+<pre>
+			Prince Of Sadness [Immortal Riot/Genesis]
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vme01">Back to index</a>] [<a href="/lib/vme01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vme01">de</a><a href="/lib/index.php?lang=en&amp;id=vme01">en</a><a href="/lib/index.php?lang=es&amp;id=vme01">es</a><a href="/lib/index.php?lang=it&amp;id=vme01">it</a><a href="/lib/index.php?lang=fr&amp;id=vme01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vme01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vme01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vme01">ua</a></div>
+</body>
+</html>

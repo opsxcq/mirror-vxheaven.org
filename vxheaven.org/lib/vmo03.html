@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> M0SA 'Dynamic Analysis .. What is it and how to defeat it?!' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="M0SA"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, M0SA,Dynamic Analysis .. What is it and how to defeat it?!, analysis, address, taint, direct, kernel, dynamic, anti, flow, malware, emulation, program, systems, table, article, data"/>
+<meta name="Description" content="Dynamic analysis is an important issue today as the number of malware is increasing every year. For example, in the year 2008 Symantec got more than 4000 new unknown sample per day! and MacAfee got about 12,300 per day!. This emphasized the need for automated tools that can scan the submitted samples and try detecting malicious software among them.In this article I’ll try to discuss some of the most frequently used techniques of dynamic analysis with emphasis on how to overcome them."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"44c7c5f06e81b064ce86ff9039a93de3d8417a47-1498756132-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmo03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Dynamic Analysis .. What is it and how to defeat it?!</h1><p><a href="/lib/?lang=en&amp;author=M0SA"> M0SA</a><br/> <em><a href="/vx.php?fid=2008#f2008">Valhalla #2</a></em><br/> <em>February 2012</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmo03.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#vmo03">Back to index</a>] [<a href="/lib/vmo03.html#disqus_thread">Comments</a>]<br/> 
+<p>Dynamic analysis is an important issue today as the number of malware is increasing every year. For example, in the year 2008 Symantec got more than 4000 new unknown sample per day! and MacAfee got about 12,300 per day!. This emphasized the need for automated tools that can scan the submitted samples and try detecting malicious software among them.</p>
+<p>In this article I’ll try to discuss some of the most frequently used techniques of dynamic analysis with emphasis on how to overcome them.</p>
+<p>Before I talk about dynamic analysis let’s just say what static analysis is. Static analysis is about analyzing the malware without executing it. The sample will not run but its structure will be examined and searched for known signatures. However, static analysis is very weak against obfuscated or packed malware. Unless the packing routine is well known, the analysis component cannot unpack the target malware for analysis. Also the static analysis can be cheated using indirect jumps and self-modifying code.</p>
+<p>The following are some of dynamic analysis methods that are mainly used by AV products and/or sandboxes:</p>
+<ul>
+<li><strong>API hooking:</strong> the analysis component hooks an API such as CreateFileA, so that when the malware tries to open a file, the component can intercept its call to the function and determine the parameters, that is, it traces the behavior of the malware through intercepting its calls. API hooking can do “post” and “pre” processing of the API call, in other words, the analysis component intercepts the call to the API and examines the parameters then calls the API and gets the returned result for further examination and handles the result back to the malware to continue its execution. This procedure is mostly transparent to the malware as nothing is changed in the parameter or returned results. See figure 1.
+<ul>
+<li><strong>Defense:</strong> a malware should be executed in a higher level than the analysis component. If the component is run in the user level, malware should be in kernel level. If the component runs in kernel mode, the malware should exhibit some of rootkits techniques to hide its presence. Also many AV systems opt to monitor Windows APIs but not Native Windows APIs. With such systems, malware can evade the monitoring if using only native windows APIs.</li>
+</ul>
+<div align="center">
+<img src="img/vmo03_1.png" alt="Fig. 1. API hooking"/>
+<p><strong>Fig. 1. API hooking</strong></p>
+</div>
+</li>
+<li><strong>Taint Analysis:</strong> Taint analysis is about highlighting “interesting” data in the malware, mark it and trace it along the program execution. Taint analysis mainly consists of three methods:
+<ul>
+<li><strong>Direct Data Dependencies:</strong> where the taint label or mark is propagated for direct assignment or arithmetic operations that involve a tainted value. See figure 2.
+<ul>
+<li><strong>Defense:</strong> It’s pretty easy to find workarounds to assign registers to values without direct assignment or arithmetic instructions. Such methods are to use stack to pass the values through PUSH and POP, or writing the value in a memory location and then reading it back if the AV system doesn’t support address tainting, etc. AV systems differ on how tight they monitor instructions.
+<pre class="source">
+//tainted x
+a = x		; mov eax, x
+
+a = a + x	; add eax, x
+
+<strong>Fig.2 Direct data dependencies example</strong>
+</pre></li>
+</ul></li>
+<li><strong>Address Dependencies:</strong> In this method, a memory address can also be tainted if for example it is written to by an instruction that has a tainted value as one of its arguments. If a tainted value is used as a pointer or as index of an array, the target address is also tainted. See figure 3
+<ul>
+<li><strong>Defense:</strong> Data and address dependencies mainly consider single instruction to decide if the operands should be tainted or not. Both data and address dependencies can be evaded using control flow operation to set other variable. See figure 4.
+<pre class="source">	
+//tainted pointer x e.g., jump table
+a = x[10]	; mov eax, [x + 10]
+
+//tainted value y e.g., translation table
+b = c[y]	; mov eax, [c+y]
+
+<strong>Fig. 3. Address dependencies examples</strong>
+
+//tainted x
+if (x == 0) {
+v = 0;
+} if (x == 1) {
+v = 1;
+} ...
+<strong>Fig. 4. Setting values using control flow</strong>
+</pre></li>
+</ul></li>
+</ul></li>
+<li><strong>Instruction tracing:</strong> AVs can try to trace the execution of the instruction through setting the trap flag EFLAG which raise debug exception that is handled by the AV and allows it to examine the instruction and its parameter.
+<ul>
+<li><strong>Defense:</strong> Anti-debugging techniques that are commonly used by malware can be effectively applied in this case. One of these techniques is to read the EFLAG and detect if it is set or not.</li>
+</ul></li>
+<li><strong>CPU &amp; Memory Emulation:</strong> This is the most commonly used by AV products installed at the user end. The AV emulates the commonly used instructions and emulates its execution, it also emulates memory operations. This technique is effective in unpacking malware and obtaining the unpacked body and then applying signature matching over the body.
+<ul>
+<li><strong>Defense:</strong>
+<ul>
+<li>As anti-debugging, there are several anti-emulation techniques that are widely used by malware to detect the emulation environment. Running instructions that are no likely to be emulated is one of these techniques. Also in some cases, there are certain versions of CPU which are known by bugs when executing certain sequence of instructions, emulators will behave different in such situations.</li>
+<li>Another very useful technique is using the internet to request some data. In that case the emulators will be exposed to the malware as the data will never be delivered. One drawback of this technique is that it is slow and also it can be overcome by network simulation.</li>
+<li>Logic bomb is a type of malware that doesn’t show malicious behavior unless a condition takes place, such as certain date or time or specific user input. Logic bombs can greatly evade emulators as there is very small probability that the condition occurs during the scan.</li>
+<li>Slow execution of a malware can greatly help it to escape detection by AV. Typical AV system gives few seconds for the samples to execute and unpack to determine if it is malicious or not. If a malware slows down its execution, that would make the AV give up and terminate the scan process. It is highly recommended to not to use RDTSC register for time counting as some AV detect that and patch it so the malware can continue execution.</li>
+<li>Timing difference is one of the methods that are used to detect the presence of emulator. The time it takes for an emulator to execute an instruction is different than the real CPU, so the malware program can detect this difference and abort execution.</li>
+<li>A malware program can also check the presence of common external applications on user systems. If such applications are not present, then it is highly likely an analysis environment.</li>
+</ul></li>
+</ul></li>
+<li><strong>Network Simulation:</strong> Some dynamic analysis engines have a network simulator to deceive the malware and make it feels that it can connect to the internet. Generally, those engines either support emulation to basic network service such as DNS and SMTP but with no real data, or allow the malware to have limited connection to the outside world but in this case all the communications is tightly monitored and filtered. But either case they mainly can allow the malware to request data but not send to outside world.
+<ul>
+<li><strong>Defense:</strong> Due to this limited allowed outbound connection, a malware can use like three-way handshake connection with an external website. If it fails, then the malware can detect it is inside an emulator.</li>
+</ul></li>
+</ul>
+<p>Here is a table that summarizes all the above:</p>
+<table border="1" summary="summary">
+<tr><th>AV Technique</th><th>Malware fight back</th></tr>
+<tr><td>API hook in user mode</td><td>Run in Kernel mode</td></tr>
+<tr><td>API hook in kernel mode</td><td>Use rootkit techniques</td></tr>
+<tr><td>Direct data and address taint analysis</td><td>Use control flow statements for information flow</td></tr>
+<tr><td>Instruction trace</td><td>Use anti-debugging techniques<br/>Read EFLAG</td></tr>
+<tr><td>CPU &amp; memory emulation</td><td><ul>
+<li>Anti-emulation techniques</li>
+<li>Use data from the internet</li>
+<li>Logic bomb behavior</li>
+<li>Delayed execution</li>
+</ul></td></tr>
+<tr><td>Network simulation</td><td>Get data or files from the internet</td></tr>
+</table>
+<p>Dynamic analysis techniques are diverse and advanced. In this article I tried to shed some lights on how they work on different levels and how a malware writer can fight them back. I hope soon I write a more in-details article about sandboxes that are a widely used by AV companies to classify new unknown samples.</p>
+<address>
+M0SA, February 13, 2012<br/>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3e530e4d5f1048467e59535f5752105d5153">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</address>
+<p>References:</p>
+<ul>
+<li>“A Survey on Automate Dynamic Malware Analysis Techniques and Tools”, Manuel Egele et al, ACM Computing Survey.</li>
+<li>“Taint Analysis”, Edgar Barbosa, H2HC 2009</li>
+<li>And many others</li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#vmo03">Back to index</a>] [<a href="/lib/vmo03.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmo03">de</a><a href="/lib/index.php?lang=en&amp;id=vmo03">en</a><a href="/lib/index.php?lang=es&amp;id=vmo03">es</a><a href="/lib/index.php?lang=it&amp;id=vmo03">it</a><a href="/lib/index.php?lang=fr&amp;id=vmo03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmo03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmo03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmo03">ua</a></div>
+</body>
+</html>

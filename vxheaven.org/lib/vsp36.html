@@ -1,0 +1,373 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'Some ideas to increase detection complexity' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,Some ideas to increase detection complexity, dword, memory, code, obfuscation, engineering, reverse, decrypt, encrypted, matlab, factors, number, encryption, form, mbie, engine"/>
+<meta name="Description" content="Here you'll find a few small ideas and thoughts about making detection of computerviruses harder. Thanks alot to herm1t and hh86 for discussion and asking the right questions."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8b3b6b1e16cfc97180dd0edf1db81ea421ef8410-1498757164-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp36.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Some ideas to increase detection complexity</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em><a href="/vx.php?fid=1943#f1943">Valhalla #1</a></em><br/> <em>July 2011</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp36.html';</script><div class="ci"><a href="/lib/?ci=vsp36">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=ME#vsp36">Back to index</a>] [<a href="/lib/vsp36.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">0) Introduction</a></li>
+<li><a href="#c1">1) Improving tau-obfuscation?</a></li>
+<li><a href="#c2">2) Reverse Engineering vs. Meta-Language in Body</a></li>
+<li><a href="#c3">3) Code Integration -> Code Merging</a></li>
+<li><a href="#c4">4) Overlapping Code for mutations</a></li>
+</ul>
+<h2><a name="c0"></a>0) Introduction</h2>
+<p>Here you'll find a few small ideas and thoughts about making detection of computerviruses harder. Thanks alot to herm1t and hh86 for discussion and asking the right questions.</p>
+<h2><a name="c1"></a>1) Improving tau-obfuscation?</h2>
+<p>The idea of tau-obfuscation is to perform a time-intensive calculation before encrypting/executing the virus-code, with the result that realistic AV emulators have to give up (as they can't scan one file for too long). This technique has been already covered by Beaucamps &amp; Filiol[1] and Z0MBiE[2].</p>
+<p>A simple example:</p>
+<pre class="source">
+	encrypted_code=[ENCRYPTED CODE];
+	key=sum(factors(VERY_BIG_INTEGER_NUMBER));
+	eval(decrypt(encrypted_code, key));
+</pre>
+<ul>
+<li>First question: What algorithm should be used?
+<p>Algorithms such as factorization need much code, and could be a source for detection themselves.</p>
+<p>Z0MBiE used a RSA algorithm, which is smaller than factorization, but still big in terms of assembler instructions - and as its asymmetric decryption, it has to carry both encrypted code and decryption key.</p>
+<p>In MatLab.MicrophoneFever[3] I've used inbuild complex mathematic functions provided by MatLab, thus reduced the code size. Disadvantage of this methode is obviously the dependence on mathematical programs.</p>
+<p>A simple solution is to use short Random Number Generators such as LCG or XORSHIFT, which can be created with &lt;10 assembler instructions.</p>
+<p>With that method, the decryption key could be the n-th random number starting from a given random seed. n can be adjusted such that it takes xxx seconds to find the key.</p>
+<p>To avoid X-Ray attacks, subsequent numbers can be combined to form the whole key.</p></li>
+<li>Second question: What about observant users?
+<p>Imagine threshold tau is set to one minute. An infected program is executed, the user would have to wait for one minute. Obviously this will smell fishy.</p>
+<p>The most simple solution would be to start the decryption engine as own process with lowest priority. By that, whenever CPU isn't used, the engine continues to decrypt itself.</p>
+<p>Advantage: user wont notice anything and emulator still would have to to invest much time.</p></li>
+<li>Third question: After decryption - fully unprotected?
+<p>We could use partial decryption of the code:</p>
+<ul>
+<li>Get 1st key with tau-obfuscation</li>
+<li>Decrypt 1st part</li>
+<li>Execute 1st part</li>
+<li>Re-encrypt 1st part</li>
+</ul>
+<ul>
+<li>Get 2nd key with tau-obfuscation</li>
+<li>Decrypt 2nd part</li>
+<li>Execute 2nd part</li>
+<li>Re-encrypt 2nd part</li>
+</ul>
+<p>...</p>
+<ul>
+<li>Get n-th key with tau-obfuscation</li>
+<li>Decrypt n-th part</li>
+<li>Execute n-th part</li>
+<li>Re-encrypt n-th part</li>
+</ul>
+<p>The virus will never be fully undecrypted in memory - it never loses its shild.</p></li>
+<li>Fourth question: Suspicious single loop?
+<p>What if antivirus program mark a short long-running loop as suspicious?</p>
+<p>Simple: Instead of searching for one key after N loops of a RNG engine we can search for m keys after (N/m) loops each, and use each key to encrypt one of the m parts of the virusbody.</p></li>
+<li>Fifth question: Can I use it only for encryption?
+<p>We can use this technique for general obfuscation, not just encryption.</p>
+<p>Examples:</p>
+<pre class="source">
+	bignum=BIG_SPECIAL_NUMBER;
+	jmpvalue=add(factors(bignum))%pow(2,32);
+	jmp dword[jmpvalue]
+</pre>
+<p>or</p>
+<pre class="source">
+	bignum=BIG_SPECIAL_NUMBER;
+	datavalue=add(factors(bignum))%pow(2,32);
+	mov dword[eax], datavalue
+</pre>
+<p>We see using tau-obfuscation can be fun for us and pain for them. :)</p></li>
+</ul>
+<ol>
+<li>Philippe Beaucamps &amp; Eric Filiol, "On the possibility of practically obfuscating programs Towards a unified perspective of code protection" Journal in Computer Virology, April 2007.</li>
+<li>Z0MBiE, "<a href="/lib/vzo23.html">"DELAYED CODE" technology (version 1.1)</a>", 2000, http://vxheavens.com/lib/vzo23.html</li>
+<li>SPTH, "Matlab.MicrophoneFever2", Valhalla Magazine, July 2011.</li>
+</ol>
+<h2><a name="c2"></a>2) Reverse Engineering vs. Meta-Language in Body</h2>
+<p>Metamorphic viruses/worms need the information of their structure coded in a metalanguage to work with it later (change it and write it back to native code).</p>
+<p>One way is to get it by reverse engineering (disassembling) the code.</p>
+<p>Biologic organisms need the information of their structure coded in a metalanguage to work with it later (due to the lack of a "copy function").</p>
+<p>They could also use a mechanism of reverse engineering the structures in the cell to get this information.</p>
+<p>They dont do this, because its way to complicated. Instead, they save the whole information within the cell in form of the metalanguage (DNA), and therefor they can directly start at this step.</p>
+<p>For compuerviruses, the meta-language structure must not appear in plain-text, and simple encryption is vulnerable to statistical attacks.</p>
+<p>Instead, one could write the zero-form at runtime to memory:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> Alloc_memory_for_metalanguage<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'AABBCCDD'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'EEFFGGHH'</span><br/>
+&nbsp;</div>
+<p>Advantage: This writing process is an excellent source for metamorphic mutations, thus increases the variability of the organism alot, by that also increases the detection complexity.</p>
+<p>We can be funny and add simple encryption to written memory:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> Alloc_memory_for_metalanguage<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'XXYYZZAA'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">'BBCCDDEE'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span><span style="color: #993333;">int</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;</span>Metalanguage_size<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov byte<span style="color: black;">&#91;</span>edi<span style="color: #339933;">+</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>byte<span style="color: black;">&#91;</span>edi<span style="color: #339933;">+</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">+</span><span style="color: #0000dd;">23</span><span style="color: black;">&#41;</span><span style="color: #339933;">%</span><span style="color:#800080;">26</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ...<br/>
+&nbsp;</div>
+<p>Now - an emulation can kill us? No, just use tau-obfuscation :)</p>
+<p>PS: Conway's Game of Life is known to be Turing-complete. In 2010, Andrew Wade wrote the first self-replicator in that "universe". The self-replicator has its own structure stored in a dynamic tape (DNA) and uses a glider-stream (biosynthesis?) to gain the information. (http://conwaylife.com/forums/viewtopic.php?f=2&amp;t=399)</p>
+<h2><a name="c3"></a>3) Code Integration -> Code Merging</h2>
+<p>Code integration is certainly the most complex infection technique for computer viruses so far. It was first used in ZMist by Z0MBiE for Win32 executeables in 2001[4][5], and later in 2007 by herm1t in his Linux.Lacrimae[6][7].</p>
+<p>The idea is to fully disassemble the host and virus, and integrate the viruscode into the hostcode:</p>
+<pre>
+     ***************             #####################
+     *             *             ##                 ##
+     *      H      *             ##  jmp Vir1       ##
+     *             *             ##  Host1:         ##
+     *      O      *             ##        H        ##
+     *             *             ##  jmp Host2      ##
+     *      S      *             ##  Vir3:          ##
+     *             *             ##        R        ##
+     *      T      *             ##  jmp Host1      ##
+     *             *             ##  Host2:         ##
+     ***************             ##        O        ##
+                       - - - >   ##  jmp Host3      ##
+     +++++++++++++++             ##  Vir1:          ##
+     +             +             ##        V        ##
+     +      V      +             ##  jmp Vir2       ##
+     +             +             ##  Host3:         ##
+     +      I      +             ##        S        ##
+     +             +             ##  jmp Host4      ##
+     +      R      +             ##  Vir2:          ##
+     +             +             ##        I        ##
+     +++++++++++++++             ##  jmp Vir3       ##
+                                 ##  Host4:         ##
+                                 ##        T        ##
+                                 ##                 ##
+                                 #####################
+</pre>
+<p>This is a successful technique. However, we can try to put it one additional step further.</p>
+<p>We can not just insert the virus between the hostcode, but actually use the hostcode as viruscode, by creating a second codeflow.</p>
+<p>Let's say, we want to include a simple</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; invoke MessageBox<span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span><span style="color: #339933;">,</span> VMSG1<span style="color: #339933;">,</span> VMSG2<span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span><br/>
+&nbsp;</div>
+<p>into a given hostcode:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">include <span style="color: #7f007f;">'E:\Programme\FASM\INCLUDE\win32ax.inc'</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+FileName <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'info.txt'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+hCreateFileFile <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0x0</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; FILE_ATTRIBUTE_NORMAL<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; OPEN_ALWAYS<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#40;</span>GENERIC_READ <span style="color: #00007f; font-weight: bold;">or</span> GENERIC_WRITE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; FileName<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stdcall <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span>CreateFileA<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span>hCreateFileFile<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<span style="color: #339933;">.</span>end <span style="color: #0000ff; font-weight: bold;">start</span><br/>
+&nbsp;</div>
+<p>To get enough instructions that we can use, we can expand the hostcode</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">include <span style="color: #7f007f;">'E:\Programme\FASM\INCLUDE\win32ax.inc'</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+FileName <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'info.txt'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+hCreateFileFile <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0x0</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> FILE_ATTRIBUTE_NORMAL<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; OPEN_ALWAYS<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>GENERIC_READ <span style="color: #00007f; font-weight: bold;">or</span> GENERIC_WRITE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> FileName<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> CreateFileA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stdcall <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> hCreateFileFile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: #339933;">.</span>end <span style="color: #0000ff; font-weight: bold;">start</span> &nbsp; &nbsp; &nbsp; <br/>
+&nbsp;</div>
+<p>And now let's merge our MessageBox with this hostcode.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">include <span style="color: #7f007f;">'E:\Programme\FASM\INCLUDE\win32ax.inc'</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+FileName <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'info.txt'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+hCreateFileFile <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">0x0</span><br/>
+<br/>
+VMSG1 <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'Hello'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+VMSG2 <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'VXers!'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set ZF</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; VirInstr1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HostInstr0<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> FILE_ATTRIBUTE_NORMAL<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; HostInstr1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr3<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>VMSG1<span style="color: #339933;">-</span>FileName<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set ZF</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; VirInstr4<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HostInstr1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr6<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr7<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; OPEN_ALWAYS<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr7<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr8<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>GENERIC_READ <span style="color: #00007f; font-weight: bold;">or</span> GENERIC_WRITE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr4<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr5<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr2<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> FileName<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr3<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; HostInstr4<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr10<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Clear ZF</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; HostInstr0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HostInstr4<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> CreateFileA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr9<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; stdcall <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; VirInstr10<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; HostInstr2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr5<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>VMSG2<span style="color: #339933;">-</span>VMSG1<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set ZF</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; VirInstr6<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HostInstr2<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> hCreateFileFile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; HostInstr3<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VirInstr8<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>MessageBox<span style="color: #339933;">-</span>VMSG2<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set ZF</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; VirInstr9<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HostInstr3<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: #339933;">.</span>end <span style="color: #0000ff; font-weight: bold;">start</span> &nbsp; &nbsp; <br/>
+&nbsp;</div>
+<p>We use the instructions given by the hostcode, and combine them with conditional jumps. The only instructions that are not merged are some re-adjustments of addresses (MessageBox, VMSG1, VMSG1) - but in fact this could be done by merging too, however, the result would be more complex.</p>
+<p>Beside of hard recognizion of the code (even for the human eye), it provides alot of freedom which can be used to alter after every generation: which instructions are expanded; which registers are used for expansion; how is the codeflow of the virus; ...</p>
+<p>In my oppinion: Absolutly worth to bring to reality! :)</p>
+<ol start="4">
+<li>Z0MBiE, "<a href="/lib/vzo21.html">Automated reverse engineering: Mistfall engine</a>.", 2000, http://vxheavens.com/lib/vzo21.html</li>
+<li>Peter Ferrie &amp; Péter Ször, "<a href="/lib/apf47.html">Zmist Opportunities</a>", VirusBulletin Mar 2001, http://vxheavens.com/lib/apf47.html</li>
+<li>herm1t, "Code integration on Linux: Cooking the PIE", EOF-DR-RRLF, 2008.</li>
+<li>Peter Ferrie, "<a href="/lib/apf12.html">Crimea river</a>", VirusBulletin February 2008, http://vxheavens.com/lib/apf12.html</li>
+</ol>
+<h2><a name="c4"></a>4) Overlapping Code for mutations</h2>
+<p>Overlapping code are code segments that have different behaviour depending on how they are executed. For instance:</p>
+<pre class="source">
+         00402000 > $ B8 31C04040    MOV EAX,4040C031
+</pre>
+<p>what happens if we jump to 00402001?</p>
+<pre class="source">
+         00402001   > 31C0           XOR EAX,EAX
+         00402003   . 40             INC EAX
+         00402004   . 40             INC EAX
+</pre>
+<p>This can be used in a vast variety of ways for obfuscation (in 1994, Stormbringer wrote a virus that just consists of jump instructions, using overlapping code[8]) or code protection[9].</p>
+<p>Certainly, this can be used in mutation engines too, gives additional variability.</p>
+<p>Some examples:</p>
+<p>Our code:</p>
+<pre class="source">
+         00402000 > $ 31C0           XOR EAX,EAX
+         00402002   . 40             INC EAX
+         00402003   . 40             INC EAX
+</pre>
+<p>Overlapped Code:</p>
+<pre class="source">
+         00402000 > $ 68 11204000    PUSH overlap_.00402011
+         00402005   . 68 0C204000    PUSH overlap_.0040200C
+         0040200A   . 81F7 31C040C3  XOR EDI,C340C031
+         00402010   . C3             RETN
+         00402011   . 40             INC EAX
+</pre>
+<p>or</p>
+<pre class="source">
+         00402000 > $ B8 31C04040    MOV EAX,4040C031
+         00402005   . 3D 31C04040    CMP EAX,4040C031
+         0040200A   .^74 F5          JE SHORT overlap_.00402001
+</pre>
+<p>or</p>
+<pre class="source">
+         00402000 > $ EB 02          JMP SHORT overlap_.00402004
+         00402002   . 81FE 31C04040  CMP ESI,4040C031
+</pre>
+<p>There are over 9.000 other ways to write the original instructions down using overlapping code. One may consider this when planing the next mutation engine.</p>
+<ol start="8">
+<li>Stormbringer, "Jump", 40hex #14, 1994.</li>
+<li>Matthias Jacob &amp; Mariusz H. Jakubowski &amp; Ramarathnam Venkatesan, "Towards Integral Binary Execution: Implementing Oblivious Hashing Using Overlapped Instruction Encodings", 2007.</li>
+</ol>
+<div align="right">Second Part To Hell<br/>July 2011</div>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#vsp36">Back to index</a>] [<a href="/lib/vsp36.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp36">de</a><a href="/lib/index.php?lang=en&amp;id=vsp36">en</a><a href="/lib/index.php?lang=es&amp;id=vsp36">es</a><a href="/lib/index.php?lang=it&amp;id=vsp36">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp36">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp36">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp36">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp36">ua</a></div>
+</body>
+</html>

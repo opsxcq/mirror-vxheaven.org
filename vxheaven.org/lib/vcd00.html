@@ -1,0 +1,502 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Cyberdude 'How to have fun with ptrace syscall' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Cyberdude"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Cyberdude,How to have fun with ptrace syscall, movl, include, prot, cyberdude, process, pushl, regs, shared, read, laptop, syscall, call, struct, wait, denywrite"/>
+<meta name="Description" content="Hi boys in this text i want show to you how is possible to &quot;hack&quot; one process using some assembly strings and the Dynamic linker. If you search in internet you can find it : a dynamic linker is the part of an operating system that loads and links the shared libraries for an executable when it is run. Such linkers typically also have a shared library that is linked with the executable when it is compiled and may determine the actions of the linker. One shared library,in addition to being loaded statically or dynamically, are also often classified according to how they are shared among programs. In Linux the dynamic linker shared libraries, tipically are based on a common set of environment variables, including LD_LIBRARY_PATH and LD_PRELOAD. In this text we will use the LD_PRELOAD variable. When LD_PRELOAD is set, the dynamic linker will use the specified library before any other when it searches for shared libraries. Now imagine that our process is the next code"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a0ef937f490e9a4a60fa16c083a9927d492f117f-1498756420-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vcd00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>How to have fun with ptrace syscall</h1><p><a href="/lib/?lang=en&amp;author=Cyberdude"> Cyberdude</a><br/> <em><a href="/vx.php?fid=1581#f1581">Electrical Ordered Freedom #2 (EOF-DR-RRLF)</a></em><br/> <em>May 2008</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vcd00.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=UN#vcd00">Back to index</a>] [<a href="/lib/vcd00.html#disqus_thread">Comments</a>]<br/> 
+<p>Hi boys in this text i want show to you how is possible to "hack" one process using some assembly strings and the Dynamic linker. If you search in internet you can find it : a dynamic linker is the part of an operating system that loads and links the shared libraries for an executable when it is run. Such linkers typically also have a shared library that is linked with the executable when it is compiled and may determine the actions of the linker. One shared library,in addition to being loaded statically or dynamically, are also often classified according to how they are shared among programs. In Linux the dynamic linker shared libraries, tipically are based on a common set of environment variables, including LD_LIBRARY_PATH and LD_PRELOAD. In this text we will use the LD_PRELOAD variable. When LD_PRELOAD is set, the dynamic linker will use the specified library before any other when it searches for shared libraries. Now imagine that our process is the next code:</p>
+<p><strong>process.c</strong></p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;unistd.h&gt;</span><br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Userid = %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>getuid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>if we compile and run it...</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9efde7fcfbecfaebfafbdefde7fcfbecfaebfafbb3f2ffeeeaf1ee">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ gcc process.c -o process
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6f0c160d0a1d0b1a0b0a2f0c160d0a1d0b1a0b0a42030e1f1b001f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ ./process
+Userid = 1000
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="43203a2126312736272603203a212631273627266e2f2233372c33">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ strace ./process
+execve("./process", ["./process"], [/* 32 vars */]) = 0
+brk(0)                                  = 0x804a000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f3c000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=67304, ...}) = 0
+mmap2(NULL, 67304, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f2b000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/tls/i686/cmov/libc.so.6", O_RDONLY) = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0`\1\000"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0644, st_size=1307104, ...}) = 0
+mmap2(NULL, 1312164, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0xb7dea000
+mmap2(0xb7f25000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x13b) = 0xb7f25000
+mmap2(0xb7f28000, 9636, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xb7f28000
+close(3)                                = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7de9000
+set_thread_area({entry_number:-1 -> 6, base_addr:0xb7de96c0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+mprotect(0xb7f25000, 4096, PROT_READ)   = 0
+munmap(0xb7f2b000, 67304)               = 0
+getuid32()                              = 1000
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 3), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f3b000
+write(1, "Userid = 1000\n", 14Userid = 1000
+)         = 14
+exit_group(0)                           = ?
+Process 6885 detached
+
+The line that we want change is the next:
+getuid32()                              = 1000
+</pre>
+<p>Imagine that we want obtain that when the process call the syscall getuid32() the returnament is not 1000 but is an id that we decide. I can just use a new library and call it tnk to LD_PRELOAD. In my lib i will create a new method named getuid() so when the operativ sistem will catch the string: printf("Userid = %d\n",getuid()) will use my persona getuid() and not the original. My lib is very simply and is showed next</p>
+<p><strong>lib.s</strong></p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">.</span>globl getuid<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>type &nbsp; getuid<span style="color: #339933;">,</span> @function &nbsp; &nbsp; &nbsp; <br/>
+getuid<span style="color: #339933;">:</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>This code is very simply, i just declare the name of my funcion as getuid and after move the value 0 in the eax registry. When i call the ret syscall, the funcion will return the value that is in the eax registry, so it will return the value 0. In this way when you will run the function getuid () from this library, it will return to you the value 0 and not the true id. At this point you have just to complie the lib like a shared library and run the prev code using the LD_PRELOAD and the shared lib as showed next</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0e6d776c6b7c6a7b6a6b4e6d776c6b7c6a7b6a6b23626f7e7a617e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ gcc -shared lib.s -o lib
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="c8abb1aaadbaacbdacad88abb1aaadbaacbdacade5a4a9b8bca7b8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ LD_PRELOAD=./lib ./process
+Userid = 0
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3c5f455e594e584958597c5f455e594e5849585911505d4c48534c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ LD_PRELOAD=./lib strace ./process
+execve("./process", ["./process"], [/* 33 vars */]) = 0
+brk(0)                                  = 0x804a000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7fd4000
+open("./lib", O_RDONLY)                 = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0\3\0\000"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=5215, ...}) = 0
+getcwd("/home/cyberdude", 128)          = 16
+mmap2(NULL, 5436, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0xb7fd2000
+mmap2(0xb7fd3000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0) = 0xb7fd3000
+mprotect(0xbfbbc000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC|PROT_GROWSDOWN) = 0
+close(3)                                = 0
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=67304, ...}) = 0
+mmap2(NULL, 67304, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7fc1000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/tls/i686/cmov/libc.so.6", O_RDONLY) = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0`\1\000"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0644, st_size=1307104, ...}) = 0
+mmap2(NULL, 1312164, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0xb7e80000
+mmap2(0xb7fbb000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x13b) = 0xb7fbb000
+mmap2(0xb7fbe000, 9636, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xb7fbe000
+close(3)                                = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7e7f000
+set_thread_area({entry_number:-1 -> 6, base_addr:0xb7e7fac0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+mprotect(0xb7fbb000, 4096, PROT_READ)   = 0
+munmap(0xb7fc1000, 67304)               = 0
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 3), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7fd1000
+write(1, "Userid = 0\n", 11Userid = 0
+)            = 11
+exit_group(0)                           = ?
+Process 6932 detached
+</pre>
+<p>As you can see, the difference between the two exection of the same prcess is in this block of istruction. The first block is the block that we runned without using the LD_PRELOAD variable. The second block is the block that we runned with the LD_PRELOAD. The difference is that in the first block there is a called to getuid32() with returnament 1000, in the second block this system call is not execute. The write is different too becouse the Write call in the first block return the original id, the Write call in the second block return the userid = 0 as decided in our lib</p>
+<p><strong>BLOCK 1</strong></p>
+<pre class="source">
+mprotect(0xb7f25000, 4096, PROT_READ)   = 0
+munmap(0xb7f2b000, 67304)               = 0
+getuid32()                              = 1000
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 3), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) =
+                                                                   0xb7f3b000
+write(1, "Userid = 1000\n", 14Userid = 1000
+</pre>
+<p><strong>BLOCK 2</strong></p>
+<pre class="source">
+mprotect(0xb7fbb000, 4096, PROT_READ)   = 0
+munmap(0xb7fc1000, 67304)               = 0
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 3), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) =
+                                                                   0xb7fd1000
+write(1, "Userid = 0\n", 11Userid = 0
+</pre>
+<p>But unluckly, this tecnique is not good if the process is compiled like a static process, as showed next:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="74170d1611061001101134170d1611061001101159181504001b04">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ gcc -static process.c -o process
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3a5943585f485e4f5e5f7a5943585f485e4f5e5f17565b4a4e554a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ LD_PRELOAD=./lib ./process
+Userid = 1000
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="14776d7671667061707154776d7671667061707139787564607b64">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ LD_PRELOAD=./lib strace ./process
+execve("./process", ["./process"], [/* 33 vars */]) = 0
+uname({sys="Linux", node="cyberdude-laptop", ...}) = 0
+brk(0)                                  = 0x80bc000
+brk(0x80bccb0)                          = 0x80bccb0
+set_thread_area({entry_number:-1 -> 6, base_addr:0x80bc830, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+brk(0x80ddcb0)                          = 0x80ddcb0
+brk(0x80de000)                          = 0x80de000
+getuid32()                              = 1000
+fstat64(1, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 3), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f19000
+write(1, "Userid = 1000\n", 14Userid = 1000
+)         = 14
+exit_group(0)                           = ?
+Process 6985 detached
+</pre>
+<p>In this case we have to change our strategy using differents system call There is one system call named ptrace(). We can do some requests to ptrace, but we are interested just to the next 4 requests:</p>
+<ul>
+<li>PTRACE_TRACEME: This request let that we can trace the execution of the process like if we are making a debug on the current process</li>
+<li>PTRACE_SYSCALL: If we make a fork and add this request to the parent, it will notify everytime that the child enter or exit from one systemcall</li>
+<li>PTRACE_GETREGS: We can read the registry of the current process. The values are readed in a structure named user_regs_struct. In this struct there is an information named eax (that we know very well :D)</li>
+<li>PTRACE_SETREGS: With this request we can write in one registry all that we want</li>
+</ul>
+<p>So our strategy is the next:</p>
+<ol>
+<li>Create a new process</li>
+<li>make a fork() on this process to make a child</li>
+<li>The child will make a request: PTRACE_TRACEME so the parent can trace he</li>
+<li>The child will run the stati process that we want hack</li>
+<li>The parent will make a request: PTRACE_SYSCALL on his child, so the parent always know what is the syscall that the child is running in the current moment</li>
+<li>The parent will make a request: PTRACE_GETREGS to know the registry of everyone syscall called by the child</li>
+<li>The parent will control the orig_eax value of the current syscall called by the child. If the value is the same that i search (in our case is SYS_getuid32), the parent will change the value of eax (the result of the syscall) with the value that we want (in out case the value 0)</li>
+</ol>
+<p>To explain it better we let that the process call the true getuid procedure but we will interect the returnament of this procedure and we will change it before that the process can return it to the operativ system. In this way we can set the returnament as we want</p>
+<p><strong>hack.s</strong></p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">patch<span style="color: #339933;">:</span>&nbsp; <span style="color: #339933;">.</span>string <span style="color: #7f007f;">&quot;/home/cyberdude/process&quot;</span> &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> The path of the process<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;that we want hack &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+<span style="color: #339933;">.</span>globl main &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> The main function &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+main<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">In</span> this address I will<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;store &nbsp;the variable to<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;wait the child process<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">8</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">In</span> this address I &nbsp;will<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;store the output value<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;that &nbsp;i will read from<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp;registry &nbsp;of &nbsp;sys<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> runned by child &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">12</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> Thi is a value &nbsp;that i<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;will use to control if<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the &nbsp; &nbsp; &nbsp;parent &nbsp; &nbsp; is<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;intercepting a entering<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">syscall</span> <span style="color: #00007f; font-weight: bold;">or</span> exiting it &nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; fork&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> I <span style="color: #00007f; font-weight: bold;">call</span> the fork <span style="color: #00007f; font-weight: bold;">syscall</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to obtain the child &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">16</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">And</span> i store the child<span style="color: #7f007f;">' s<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;pid in -16(%ebp) &nbsp; &nbsp; &nbsp; */<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpl&nbsp; &nbsp; $0, -16(%ebp) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* Now &nbsp;compare &nbsp;this &nbsp;pid<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;with 0 to know &nbsp;if &nbsp;i'</span>m<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">in</span> &nbsp;parent &nbsp;process &nbsp;<span style="color: #00007f; font-weight: bold;">or</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;child it &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; parent&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> If the pid is <span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #ff0000;">0</span> i<span style="color: #7f007f;">'m<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;in the parent execution<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;so &nbsp;i &nbsp; jump &nbsp;to &nbsp;label<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;named parent &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; */<br/>
+<br/>
+child:&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* Else i &nbsp;continue &nbsp;with<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;child processing &nbsp; &nbsp; &nbsp;*/<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $26,%eax&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* The syscall ptrace &nbsp; &nbsp;*/ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, %ebx&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* The &nbsp;first &nbsp; Parameter<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;setted to 0 is TRACEME*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, %ecx&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* second parameter &nbsp; &nbsp; &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, %edx&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* therd parameter &nbsp; &nbsp; &nbsp; */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, %esi&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* fourtf parameter &nbsp; &nbsp; &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int &nbsp; &nbsp; $0x80 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* i run it in this way <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the child accept that <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the parent trace &nbsp;he &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;during &nbsp;his execution */<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $0&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* Now i run the process */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $patch&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* &nbsp;created &nbsp;previously &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $patch&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* with the syscall &nbsp; &nbsp; &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; execlp&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* execlp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;*/<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp &nbsp; &nbsp; quit&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* Here is finished the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;child'</span>s life &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+parent<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> Here <span style="color: #0000ff; font-weight: bold;">start</span> the life<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;of parent &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> I leal the space of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;variable previously <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;created &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">push</span> this space &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; wait&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #00007f; font-weight: bold;">call</span> the wait to <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;wait the execution of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;child &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+<br/>
+whileCicle<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">26</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> The ptrace function &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">24</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> The first parameter is<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">24</span> = PTRACE_SYSCALL &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">16</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">In</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">16</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span> there is <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the pid<span style="color: #339933;">,</span> it &nbsp;is &nbsp;the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;second &nbsp;parameter of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the ptrace function &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">0x80</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; wait<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> Now i control if the &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; andl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">127</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> returnament of the &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; testl &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> the wait funcion is &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;equals to <span style="color: #ff0000;">127</span> <span style="color: black;">&#40;</span>if is &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;equals the child is<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;finished &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; quit&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> If is finished jump to<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;quit &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">92</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> Else i leal the address<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">-</span><span style="color: #ff0000;">92</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> <span style="color: #00007f; font-weight: bold;">in</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">16</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">12</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> This parameter rapresent<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;GETREGS<span style="color: #339933;">,</span> i use it to<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;obtain the registrs used<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;for the intercepted sys<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; ptrace&nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">48</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">In</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">48</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> there is <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the value orig_eax that<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;say to me the number of <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the systemcall catched &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">8</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">199</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">8</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> I control if this number <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;is <span style="color: #ff0000;">199</span> <span style="color: black;">&#40;</span>getuid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> number <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; whileCicle&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> If is <span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #ff0000;">199</span> i come back<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to the while Cicle to <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;intercept the next <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #339933;">*/</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpl&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">12</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> Else i control the value <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">in</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">12</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span>! i set this <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;variable previously to <span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;so if his value is still <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">1</span> it does &nbsp;mean &nbsp;that &nbsp;i<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;never change this &nbsp;value<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;so &nbsp;i<span style="color: #7f007f;">'m &nbsp;in &nbsp;the &nbsp;moment<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;that i'</span>m entering <span style="color: #00007f; font-weight: bold;">in</span> the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">syscall</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; changeEaxValue&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> If is equals to <span style="color: #ff0000;">0</span> it &nbsp;is<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the moment that &nbsp;i<span style="color: #7f007f;">'m &nbsp;in<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;in the out of syscall so <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;i can &nbsp;take &nbsp;the &nbsp;output<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;value and change it &nbsp; &nbsp; */<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, -12(%ebp) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* Else &nbsp; if &nbsp;i'</span>m &nbsp;<span style="color: #00007f; font-weight: bold;">in</span> &nbsp;the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;entering moment<span style="color: #339933;">,</span> i have<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to change the value &nbsp;of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;my &nbsp;variable &nbsp;to &nbsp;<span style="color: #ff0000;">0</span> &nbsp;to<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;remember that the &nbsp;next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;intercept time<span style="color: #339933;">,</span> will be<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the <span style="color: #00007f; font-weight: bold;">out</span> time &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; whileCicle&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> After that i change the <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;variable &nbsp;value &nbsp;i &nbsp;can<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;come back to the &nbsp;cicle<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to incercept &nbsp;the &nbsp;next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">syscall</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+changeEaxValue<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">92</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> If i<span style="color: #7f007f;">'m in the &nbsp;exiting<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;of syscall i leal some<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;space &nbsp;from &nbsp;ebp &nbsp;and<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;push it &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; -16(%ebp), %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $12 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* I obtain the GETREGS */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; ptrace<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, -68(%ebp) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* I change &nbsp;the &nbsp;output<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;value that is &nbsp;stored<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;in -68(%ebp) to 0! in<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;this way i'</span>m changing<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the &nbsp; returnament &nbsp;of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the &nbsp;intercepted &nbsp;sys<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: black;">&#40;</span>that &nbsp;<span style="color: #00007f; font-weight: bold;">in</span> &nbsp;our<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;case is the getuid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*/</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal&nbsp; &nbsp; <span style="color: #339933;">-</span><span style="color: #ff0000;">92</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> I &nbsp;repush &nbsp; all &nbsp;the &nbsp;<span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> structure of ptrace<span style="color: #7f007f;">'s */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $0&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* function &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; -16(%ebp), %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; %eax&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; $13 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* and call the SETREGS &nbsp;*/<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; ptrace&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* function on ptrace() &nbsp;*/<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $1, -12(%ebp) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; /* After i change another <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;time the variable value<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to remember that in the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;next &nbsp; time, &nbsp;the &nbsp;call<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;interception will be<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;to entering syscall &nbsp; */<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp &nbsp; &nbsp; whileCicle<br/>
+quit:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl&nbsp; &nbsp; $0, %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; exit<br/>
+</span></div>
+<p>The next code is the same of the showed previously, just in asm inline version, in this way, maybe you can understand better the process execution</p>
+<p><strong>AsmInLineVersion.c</strong></p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;sys/ptrace.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;sys/types.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;sys/wait.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;unistd.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;string.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;errno.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;linux/user.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;sys/syscall.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;sys/reg.h&gt; </span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span><span style="color: #339933;">*</span> path <span style="color: #339933;">=</span> <span style="color: #ff0000;">&quot;/home/cyberdude/process&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> status <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> callIdNumber <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> isEntering <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> user_regs_struct regs<span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> pid <span style="color: #339933;">=</span> fork<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: #339933;">!</span>pid<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; asm<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $26,%%eax;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0, %%ebx;&quot;</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0, %%ecx;&quot;</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0, %%edx;&quot;</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0, %%esi;&quot;</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;int&nbsp; &nbsp; $0x80;&quot;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $11,%%eax;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; %%edi,%%ebx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%ecx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%edx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;int&nbsp; &nbsp; $0x80;&quot;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">::</span> <span style="color: #ff0000;">&quot;D&quot;</span><span style="color: black;">&#40;</span>path<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wait<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>status<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; asm<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $26,%%eax;&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $24,%%ebx;&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%edx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%esi;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;int&nbsp; &nbsp; $0x80;&quot;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">::</span> <span style="color: #ff0000;">&quot;c&quot;</span><span style="color: black;">&#40;</span>pid<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wait<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>status<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> WIFEXITED<span style="color: black;">&#40;</span> status <span style="color: black;">&#41;</span> <span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; asm<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $26,%%eax;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $12,%%ebx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%edx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;int&nbsp; &nbsp; $0x80;&quot;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">::</span> <span style="color: #ff0000;">&quot;c&quot;</span><span style="color: black;">&#40;</span>pid<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;S&quot;</span><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>regs<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; callIdNumber<span style="color: #339933;">=</span> regs.<span style="color: #202020;">orig_eax</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> callIdNumber <span style="color: #339933;">==</span> <span style="color: #0000dd;">199</span> <span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> isEntering <span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; isEntering <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; regs.<span style="color: #202020;">eax</span> <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; asm<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $26,%%eax;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $13,%%ebx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;movl &nbsp; $0,%%edx;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;int&nbsp; &nbsp; $0x80;&quot;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">::</span> <span style="color: #ff0000;">&quot;c&quot;</span><span style="color: black;">&#40;</span>pid<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;S&quot;</span><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>regs<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; isEntering <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>And with this code is finished this text ... see you to the next article bye bye Cyberdude! Happy code to everybody :D</p>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vcd00">Back to index</a>] [<a href="/lib/vcd00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vcd00">de</a><a href="/lib/index.php?lang=en&amp;id=vcd00">en</a><a href="/lib/index.php?lang=es&amp;id=vcd00">es</a><a href="/lib/index.php?lang=it&amp;id=vcd00">it</a><a href="/lib/index.php?lang=fr&amp;id=vcd00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vcd00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vcd00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vcd00">ua</a></div>
+</body>
+</html>

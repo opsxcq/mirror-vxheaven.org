@@ -1,0 +1,281 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov, Andrew Rassokhin 'Effusion - a new sophisticated injector for Nginx web servers' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov, Andrew Rassokhin"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Kovalev, Andrew; Otrashkevich, Konstantin;Sidorov, Evgeny; Rassokhin, Andrew,Effusion - a new sophisticated injector for Nginx web servers, nginx, http, memory, malware, offset, samples, yandex, function, configuration, code, list, decryption, modified, modules, figure"/>
+<meta name="Description" content="At VB2013 Evgeny Sidorov spoke about three modern approaches used by attackers to embed malicious code into HTTP responses. One such approach was the use of web-server modules for malware distribution. Here, Evgeny and his colleagues describe ‘Effusion’ – a new piece of malware that uses malicious modules for an Nginx web server, and which was used in a massive infection campaign in the third quarter of 2013."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"4c0310801cadf64ac0efe88a47293ce41941b81e-1498756155-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/aak01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Effusion - a new sophisticated injector for Nginx web servers</h1><p><a href="/lib/?lang=en&amp;author=Kovalev%2C%20Andrew">Andrew Kovalev</a>, <a href="/lib/?lang=en&amp;author=Otrashkevich%2C%20Konstantin">Konstantin Otrashkevich</a>, <a href="/lib/?lang=en&amp;author=Sidorov%2C%20Evgeny">Evgeny Sidorov</a>, <a href="/lib/?lang=en&amp;author=Rassokhin%2C%20Andrew">Andrew Rassokhin</a><br/> <em>Virus Bulletin, Jan 2014, pp.21-27</em><br/> <em>ISSN 0956-9979</em><br/> <em>January 2014</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/aak01.html';</script><div class="ci"><a href="/lib/?ci=aak01">1</a></div><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Effusion%20-%20a%20new%20sophisticated%20injector%20for%20Nginx%20web%20servers.pdf">Download</a> PDF (294.96Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=AN#aak01">Back to index</a>] [<a href="/lib/aak01.html#disqus_thread">Comments</a>]<br/> <form method="post" action=""><input type="hidden" name="pages" value="1"/><input type="submit" value="Turn on page numbers"/></form>
+<address>
+<p><em>Andrew Kovalev, Konstantin Otrashkevich, Evgeny Sidorov &amp; Andrew Rassokhin</em></p>
+Yandex, Russia
+<p><em>Editor: Helen Martin</em></p>
+</address>
+<ul>
+<li><a href="#c0">Abstract</a></li>
+<li><a href="#c1">Introduction</a>
+<ul>
+<li><a href="#c11">Malware representation</a></li>
+<li><a href="#c12">Analysis of the initialization process</a></li>
+<li><a href="#c13">Code injection</a></li>
+<li><a href="#c14">Remote control functions</a></li>
+<li><a href="#c15">Monitoring of the processes in the system and detection of root activity</a></li>
+<li><a href="#c16">Configuration decryption algorithm</a></li>
+<li><a href="#c17">Format of the configuration</a></li>
+</ul></li>
+<li><a href="#c2">Black market</a></li>
+<li><a href="#c3">Infection campaign</a></li>
+<li><a href="#c4">Conclusion</a></li>
+<li><a href="#c5">Bibliography</a></li>
+</ul>
+<h2><a name="c0"></a>Abstract</h2>
+<p>At VB2013 Evgeny Sidorov spoke about three modern approaches used by attackers to embed malicious code into HTTP responses. One such approach was the use of web-server modules for malware distribution. Here, Evgeny and his colleagues describe ‘Effusion’ – a new piece of malware that uses malicious modules for an <em>Nginx</em> web server, and which was used in a massive infection campaign in the third quarter of 2013.</p>
+<p>This article is a continuation of our research into modern methods of web malware distribution, the initial results of which were presented at VB2013. In our presentation, we spoke about three modern approaches used by attackers to embed malicious code into HTTP responses [<a href="#f1">1</a>]. One of those approaches was the use of web-server modules for malware distribution, and as an example of this we described malicious modules for an <em>Apache</em> web server. In this article we will describe ‘Effusion’ – a new piece of malware that uses a similar approach, but for an <em>Nginx</em> web server, and which was used in a massive infection campaign in the third quarter of 2013. </p><p>All the data for this article has been obtained with the use of <em>Yandex</em>’s anti-virus system [<a href="#f2">2</a>].</p>
+<h2><a name="c1"></a>Introduction</h2>
+<p>The methods by which malicious code is distributed in drive-by download attacks are constantly evolving. One of the first methods to be used involved adding malicious code to static content (HTML templates, JavaScript files, etc.) – however, after some time such modifications became easy for anti virus products to detect using signatures. To complicate signature analysis, attackers began to use obfuscation and encryption techniques. In response to this, anti-virus products started to employ JavaScript emulators (sandboxes), which did a better job of detecting malicious code in web pages. The next stage in the evolution of drive by downloads involved modifying the source code of content management systems (CMS) such as <em>Joomla</em>, <em>WordPress</em>, <em>DLE</em>, etc. The malicious code began checking the referer (e.g. for referral from SERPs) and the user agent (the code is not displayed to search bots, mobile redirects, etc.), as well as the user session (to determine whether the user is an administrator) and, depending on the results, deciding whether or not to insert malicious code into the web page. However, it has become a straightforward task for the majority of webmasters to remove such an infection from their web servers – in fact, there are even special scripts that help with this task [<a href="#f3">3</a>].</p>
+<p>The next step of the evolution involved embedding a piece of malicious code into the body of an HTTP response. This approach is heavily employed today, and is the method used by Effusion – which injects malicious code into the HTTP responses of <em>Nginx</em> web servers.</p>
+<h3><a name="c11"></a>Malware representation</h3>
+<p>At the end of November 2013, we received several calls for help from webmasters who were having difficulty removing infections from their websites. During the investigation of these incidents we found (and analysed) two malicious samples.</p>
+<p>We also discovered that the attackers had modified the /etc/init.d/nginx script in order to load a malicious shared object with the name ‘/usr/lib/libnginx.so’ into the <em>Nginx</em> address space. The shared object was loaded using the LD_PRELOAD technique. Part of the modified script is shown in Figure 1.</p>
+<div align="center">
+<img src="img/aak01/fig1.png" alt="Figure 1. Part of the modified /etc/init.d/nginx script."/>
+<p><strong>Figure 1. Part of the modified /etc/init.d/nginx script.</strong></p>
+</div>
+<p>We found that the malware is represented by only a single shared object. We analysed two such shared objects with the following MD5 hashes:</p>
+<pre class="source">
+	9f1796452a20fca0093d7a4954efad2d
+	f26ac64f927b0f445cd3f19d91294624
+</pre>
+<p>We checked the samples using the <em>VirusTotal</em> service – the results are shown in Table 1.</p>
+<table summary="The results of checking the samples using the VirusTotal service." border="1">
+<tr><th align="center">Hash</th><th align="center">Date</th><th align="center">VirusTotal results</th></tr>
+<tr><td>9f1796452a20fca0093d7a4954efad2d</td><td>2013-12-05</td><td>1/48</td></tr>
+<tr><td>&nbsp;</td><td>2013-11-25</td><td>1/48</td></tr>
+<tr><td>f26ac64f927b0f445cd3f19d91294624</td><td>2013-12-05</td><td>0/48</td></tr>
+<tr><td>&nbsp;</td><td>2013-11-27</td><td>0/48</td></tr>
+</table>
+<p><strong>Table 1. The results of checking the samples using the VirusTotal service.</strong></p>
+<p>We found that the ELF headers in the samples were corrupted in order to complicate their analysis. The first sample was detected only by <em>Avira</em>’s <em>AntiVir</em> product, which detected it as HEUR/ELF.Malformed. The second sample was not detected by any product. The samples were compiled for the x64 platform with the ‘-fPIC’ key.</p>
+ 
+<h3><a name="c12"></a>Analysis of the initialization process</h3>
+<p>The LD_PRELOAD technique allows the shared object to be the first to be loaded and allows it to hook different functions easily. If a standard library function is reimplemented in such an object, it will be replaced by that of the shared object. The malicious sample contains its own implementation of the setsid function, so this function is invoked by <em>Nginx</em> instead of the original one.</p>
+<p>The reimplementation of the setsid function is used for the initialization of the malicious sample. First, the dlsym function is executed in order to obtain the address of the original setsid function, then the original setsid is executed. Next, the sample checks whether initialization has already been performed. If initialization is required, it will continue with the execution. The initialization process involves the following steps:</p>
+<ol type="1">
+<li>The base address is obtained by searching for the ELF signature in memory. A type of ABI (application binary interface) and a file class of the shared object are obtained from the ELF header and stored in memory for future use.</li>
+<li>The malicious configuration, stored in the data segment, is decrypted and parsed. If the configuration contains a particular filename, then this file will be opened and mapped into the process memory, and additional configuration information (an array with blacklisted IP addresses) will be loaded. If there is no such a filename, a part of memory will be allocated via the mmap function call. This memory will be used for inter process communications.</li>
+<li>The process is cloned via a call to the fork function and the child process will be used for remote control, system process monitoring and root activity detection functions.</li>
+<li>The addresses of the zlibVersion and inflateInit2 functions are obtained via the corresponding dlsym function calls and stored in memory. They will be used for the processing of compressed HTTP responses.</li>
+</ol>
+<p>An overview of the hooking of the setsid function is shown in Figure 2.</p>
+<div align="center">
+<img src="img/aak01/fig2.png" alt="Overview of the hooking of the setsid function"/>
+<p><strong>Figure 2. Overview of the hooking of the setsid function</strong></p>
+</div>
+<p>During the loading of the shared object, an initialization function, _init_proc, is executed. In this function, the ngx_http_copy_filter_init function is hooked by replacing its address in the ngx_http_copy_filter_module_ctx structure; the address of the reference to this function in the structure is hard coded in the shared object and differs from sample to sample.</p>
+<div align="center">
+<img src="img/aak01/fig3.png" alt="Addresses of several Nginx functions in the shared object are hard coded."/>
+<p><strong>Figure 3. Addresses of several Nginx functions in the shared object are hard coded.</strong></p>
+</div>
+<p>The hooking of ngx_http_copy_filter_init in turn embeds pointers to the custom HTTP header and HTTP body filters (defined in the shared object) into <em>Nginx</em>’s filter chain. These functions will be executed during the processing of the HTTP response header and HTTP response body, respectively. The embedding is performed by replacing the values of the global variables ngx_http_top_header_filter and ngx_http_top_body_filter in <em>Nginx</em>’s memory using addresses of special functions in the shared object. The original values of these variables are stored in memory and will be used in the embedded filters. Additional information about the handlers and filters in the <em>Nginx</em> web server can be found in [<a href="#f4">4</a>]. Figure 4 shows a typical HTTP request processing cycle in <em>Nginx</em> – the filter chain in which the functions are embedded is underlined.</p>
+<p>The embedded functions will be used for analysis of HTTP traffic and for injection of malicious code. The addresses for the replacements (in other words, the addresses of global references ngx_http_top_header_filter and ngx_http_top_body_filter) are also hard coded in the shared object. This completes the initialization process. An overview of the hooking of ngx_http_copy_filter_init is shown in Figure 5.</p>
+ 
+<div align="center">
+<img src="img/aak01/fig4.png" alt="Typical HTTP request processing cycle in an Nginx web server."/>
+<p><strong>Figure 4. Typical HTTP request processing cycle in an Nginx web server.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak01/fig5.png" alt="Overview of the hooking of the ngx_http_copy_filter_init function."/>
+<p><strong>Figure 5. Overview of the hooking of the ngx_http_copy_filter_init function.</strong></p>
+</div>
+<h3><a name="c13"></a>Code injection</h3>
+<p>The two filters embedded into <em>Nginx</em>’s filter chain are used to provide code injection and remote control functions. Let’s start with the malicious HTTP header filter. During the execution of the filter the following steps are performed:</p>
+<ol type="1">
+<li>The ctx field of the ngx_http_request_t structure (the parameter of the original function) is obtained and checked.</li>
+<li>If the pointer to ctx is NULL, then 160 bytes of memory will be allocated and the pointer to the memory area will be assigned to ctx. A special marker, 0xDEADBEEF, will be written into the memory.</li>
+<li>The ctx memory is checked for the presence of the 0xDEADBEEF marker. If the marker is not found, the hook will execute the original ngx_http_top_header_filter and will exit after execution.</li>
+<li>The filter performs several checks. For example, it checks whether the request method is ‘GET’, whether the content length is a non-zero value, whether the status code is 200, etc. If any of these checks fail, the execution of the hook will be interrupted and the original function will be invoked.</li>
+<li>If an HTTP request contains the ‘Pragma’ header and remote control is allowed by the current configuration, then the filter will attempt to process it as a management request.</li>
+<li>If it is not a management request, the filter performs more checks. It checks whether the current time value is greater than a particular value, that the client IP address isn’t blacklisted and malicious code hasn’t already been injected into the HTTP response for this client, that the URI doesn’t contain certain forbidden substrings listed in the configuration, that the processed HTTP response has a Content-Type header with a proper value, that the client has a proper user-agent and referer headers, that root isn’t logged on, and that a forbidden process isn’t being run. If the processed HTTP header is suitable for code injection, information about it will be stored in the ctx field.</li>
+<li>The original filter is executed.</li>
+</ol>
+<p>IP addresses for which a piece of malicious code has already been injected into an HTTP response are added to the hash table in order to avoid repeated infection of the same client. The hash table structure is employed to avoid performance issues. In addition, if a client requests a URI that contains a forbidden substring, then the IP address of the client will be placed on the array in the memory space that was allocated during the initialization process, and harmful code won’t be injected into the client.</p>
+<p>Now let’s consider the case of an embedded HTTP body filter, which is used for the processing of the HTTP response body. The following steps are performed during the execution of this filter:</p>
+<ol type="1">
+<li>The filter checks that the ctx field value is not NULL, and checks for the presence of the 0xDEADBEEF marker in the ctx memory.</li>
+<li>The information from the ngx_http_top_header_filter is checked, and if this HTTP response has been marked as suitable for injection, the execution will be continued.</li>
+<li>The filter checks whether the processed response is an answer to a management HTTP request. If it is, it will be processed as a management request.</li>
+<li>The filter searches for a string in the response body before or after which the malicious code will be injected, and then the injection is performed. The string is defined in the configuration.</li>
+<li>The original ngx_http_top_body_filter is executed.</li>
+</ol>
+<h3><a name="c14"></a>Remote control functions</h3>
+<p>Effusion’s remote control is accomplished via a specially crafted HTTP request that must contain the ‘Pragma’ header. During the processing of such a request, the value of
+ 
+the ‘Pragma’ header is decoded from BASE64, then the first eight bytes of decoded data are decrypted and the first four bytes of the eight byte block are checked for the presence of the 0xDEADBEEF marker. The last four bytes in this eight byte block denote the remote command. The available types of command are shown in Table 2.</p>
+<table summary="The remote commands available." border="1">
+<tr><th align="center">The last DWORD value in first eight bytes</th><th align="center">Description of remote command</th></tr>
+<tr><td>10001h</td><td>Get status of the malware</td></tr>
+<tr><td>10002h</td><td>Update malware configuration</td></tr>
+<tr><td>10003h</td><td>Resume code injection</td></tr>
+<tr><td>10004h</td><td>Pause code injection</td></tr>
+<tr><td>10005h</td><td>Backconnect to remote server</td></tr>
+</table>
+<p><strong>Table 2. The remote commands available.</strong></p>
+<p>The other part of data is the payload, which is encrypted only in the case of update malware configuration messages. For example, if the attacker wanted the malware to perform a backconnect and route his commands to an opened root shell, he would send an HTTP request with the ‘Pragma’ header and the value of this header must be in the following form:</p>
+<pre class="source">BASE64_ENCODE(XTEA_ECB_ENCRYPT(key, 0xDEADBEEF||0x10005)||IP address||Port)</pre>
+<p>where ‘key’ is the encryption key which is stored in the data segment of the sample; the backconnect is performed in the child process which appears after the call to the fork function during the initialization of the shared object. An overview of the remote control function is shown in Figure 6.</p>
+<div align="center">
+<img src="img/aak01/fig6.png" alt="Overview of the remote control function."/>
+<p><strong>Figure 6. Overview of the remote control function.</strong></p>
+</div>
+<h3><a name="c15"></a>Monitoring of the processes in the system and detection of root activity</h3>
+<p>The malware has functions for scanning the list of running processes and for detection of root activity in the system.</p>
+<p>Such functions are implemented in order to protect the shared object from anti-rootkit software such as <em>rkhunter</em>, and from being detected by the server administrator. The functionality acts in the child process which appears after the call to the fork function during the initialization of the shared object.</p>
+<p>While monitoring system processes, the shared object reads the content of the /proc directory. Each record is examined to determine whether it is a number or a string. After that, a path to a command line for each process is obtained in the form of ‘/proc/%d/cmdline’, then the values of the command lines are read and checked for the presence of forbidden process names. If a forbidden process is being run, the shared object stops acting.</p>
+<p>As for the detection of root activity, the malware obtains the IDs of the processes being run, then for each process the status is read (‘/proc/%d/status’). Next, a UID is obtained from each status and compared with zero. If there is a process whose status contains a zero UID, then for that process opened file descriptors are obtained by reading ‘/proc/%d/fd’. After that the malware searches through opened file descriptors for those that contain the ‘pts’ substring, and the modification time of such descriptors is obtained via a call to the lstat function. Eventually, if the difference between the current time value and the value of the modification time is less than a constant set in the configuration, the malware decides that root is logged in and stops acting.</p>
+<h3><a name="c16"></a>Configuration decryption algorithm</h3>
+<p>Every sample we analysed contained initial configuration stored in the data segment in an encrypted form. The decryption key is also stored in the data segment. The first byte of the encryption key is used as an offset inside the data segment array and is used to find a valid start address of the ciphertext.</p>
+<p>At first, only the first eight bytes are decrypted, then the malware checks whether the last four bytes are equal to 0xDEADBEEF. If they are, then the first four bytes
+ 
+represent the length of the encrypted data. After this the rest of the ciphertext is decrypted. Figure 8 shows pseudo code of the decryption algorithm. </p>
+<div align="center">
+<img src="img/aak01/fig7.png" alt="How to find valid encrypted data in the shared object."/>
+<p><strong>Figure 7. How to find valid encrypted data in the shared object.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak01/fig8.png" alt="The decryption algorithm used in Effusion."/>
+<p><strong>Figure 8. The decryption algorithm used in Effusion.</strong></p>
+</div>
+<p>We analysed this code and found that this is an implementation of the XTEA encryption algorithm [<a href="#f5">5</a>], [<a href="#f6">6</a>] with the number of rounds equal to 11; the mode of operations is ECB [<a href="#f7">7</a>], [<a href="#f8">8</a>]. Different encryption keys are used in different samples. We developed a special tool for the decryption of such configurations [<a href="#f9">9</a>].</p>
+<p>Configuration of the shared object can be updated via specially crafted HTTP requests – the XTEA algorithm in ECB mode is also used for data decryption in such requests.</p>
+<h3><a name="c17"></a>Format of the configuration</h3>
+<p>Examples of the initial configuration and updated configuration of the samples are presented in Figure 9 and Figure 10. The first part of the configuration contains special flags and offsets to data in the rest of the file.</p>
+<div align="center">
+<img src="img/aak01/fig9.png" alt="The initial configuration."/>
+<p><strong>Figure 9. The initial configuration.</strong></p>
+</div>
+<div align="center">
+<img src="img/aak01/fig10.png" alt="Strings from the updated configuration of Effusion."/>
+<p><strong>Figure 10. Strings from the updated configuration of Effusion.</strong></p>
+</div>
+<p>The configuration format is described in Table 3.</p>
+<p>None of the samples we analysed contained malicious code for injection in their initial configuration – such malicious code appeared only after an update of the configuration via special management HTTP requests.</p>
+<h2><a name="c2"></a>Black market</h2>
+<p>Effusion appeared on the black market on 13 November 2013, costing $2,500 – it is sold only to a limited number of verified customers. Its author also developed ‘Trololo_mod’, a malicious module for an <em>Apache</em> web server. According to a seller on one of the underground forums, the product is distributed in binary form and doesn’t need developer packages to be installed on the target server. An attacker just needs to run the builder that will install the malware; the process takes between 60 and 180 seconds. The malware doesn’t require a C&amp;C server for its activity.</p>
+<h2><a name="c3"></a>Infection campaign</h2>
+<p>As stated at the beginning of this article, Effusion was used in a massive infection campaign which started in the middle of November 2013. Figure 11 shows the number of infected hosts and their appearances in <em>Yandex</em> search results (with alerts) on a day by-day basis.</p>
+ 
+<table summary="The format of the malware configuration." border="1">
+<tr><th align="center">Offset </th><th align="center">Size in bytes</th><th align="center">Description</th></tr>
+<tr><td>0</td><td>4</td><td>This field contains the number of eight byte blocks in the configuration – in other words, the length of the configuration in eight-byte blocks</td></tr>
+<tr><td>4</td><td>4</td><td>Special marker 0xDEADBEEF</td></tr>
+<tr><td>8</td><td>4</td><td>Time interval which represents an IP address lifetime in the hash table containing IP addresses of the clients</td></tr>
+<tr><td>12</td><td>4</td><td>Offset to ‘Content-Type’ values for future checks (permitted values of ‘Content Type’ header)</td></tr>
+<tr><td>16</td><td>4</td><td>If the value in this field is 1, then malicious code will be injected before particular strings which are also stored in the configuration; if the value is 2, then malicious code will be injected after the strings</td></tr>
+<tr><td>20</td><td>4</td><td>Offset to the strings before or after which malicious code can be injected into the HTTP response</td></tr>
+<tr><td>24</td><td>4</td><td>Offset to a piece of malicious code for injection</td></tr>
+<tr><td>28</td><td>4</td><td>Offset to a list of strings for the ‘User Agent’ header check</td></tr>
+<tr><td>32</td><td>4</td><td>Offset to a list of strings with forbidden IP address ranges – e.g. 127.0.0.0/8</td></tr>
+<tr><td>36</td><td>4</td><td>Offset to a list of forbidden substrings in URIs</td></tr>
+<tr><td>40</td><td>4</td><td>Offset to the name of a special file for mapping into memory</td></tr>
+<tr><td>44</td><td>4</td><td>Check special management header in HTTP headers flag – if this flag has a non zero value, remote control is allowed through HTTP requests with the ‘Pragma’ header</td></tr>
+<tr><td>48</td><td>4</td><td>Offset to the strings used by the malware – in other words, an offset to strings used in regular procedures in the shared object</td></tr>
+<tr><td>52</td><td>4</td><td>Offset to the list of names of forbidden processes</td></tr>
+<tr><td>56</td><td>4</td><td>Offset to a filename with the list of forbidden IP addresses</td></tr>
+<tr><td>60</td><td>4</td><td>Time interval for detection of root activity in the system</td></tr>
+<tr><td>64</td><td>4</td><td>Time for silence – malicious code won’t be injected after this point in time</td></tr>
+<tr><td>68</td><td>4</td><td>Offset to a list of strings for ‘Referer’ header checks</td></tr>
+</table>
+<p><strong>Table 3. The format of the malware configuration.</strong></p>
+<div align="center">
+<img src="img/aak01/fig11.png" alt="Hosts infected by Effusion and their appearance in Yandex search results (with alerts)."/>
+<p><strong>Figure 11. Hosts infected by Effusion and their appearance in Yandex search results (with alerts).</strong></p>
+</div>
+<p>The victims were servers hosting moderately popular websites. Effusion was used to embed code which loaded malicious content from web resources with URLs in the following format:</p>
+<pre class="source">hxxp://rdomn[0-9]{8,11}.hopto.me</pre>
+<p>In order to embed harmful code, Flash objects were also used. Eventually, users were redirected to a landing page of a Nuclear exploit kit, and a piece of ransomware was installed onto their systems.</p>
+<h2><a name="c4"></a>Conclusion</h2>
+<p>Effusion is the most sophisticated injector for *nix systems that we have come across. In a nutshell, it has the following peculiarities:</p>
+<ul type="disc">
+<li>ELF headers are modified in order to complicate analysis.</li>
+<li>Modified functions similar to strlen, inet_addr, etc. are used instead of regular ones.</li>
+ 
+<li>The XTEA algorithm (11 rounds) in ECB mode is used for encryption/decryption.</li>
+<li>Hash tables are used in order to avoid performance issues.</li>
+<li>There are functions that monitor forbidden processes.</li>
+<li>Advanced techniques are used for checking root activity.</li>
+<li>Updated configuration is stored only in RAM and is never dumped to disk.</li>
+</ul>
+<p>The appearance of this malware confirms the fact that attackers are moving from the practice of infecting individual files to infecting the executable files of web servers. The old infection methods are gradually coming to nought, clearing a way for modern hi-tech methods of malicious code embedding which are hard to detect using traditional approaches. Yandex uses a traffic analysis approach to detect such types of infection: an anti-virus robot browses web pages, emulates legitimate user behaviour and analyses HTTP responses, so harmful code injected into web pages can be detected. The SafeBrowsing API [<a href="#f10">10</a>] can be used to check whether a particular site is infected, and additional information about detected malicious code is available at [<a href="#f11">11</a>].</p>
+<h2><a name="c5"></a>Bibliography</h2>
+<ol>
+<li><a name="f1"></a>Rassokhin, A.; Sidorov, E. Embedding malware in websites using executable web server files. Proceedings of the 23rd Virus Bulletin International Conference, 2013.</li>
+<li><a name="f2"></a>http://company.yandex.ru/technologies/antivirus/ .</li>
+<li><a name="f3"></a>http://www.revisium.com/ai/ .</li>
+<li><a name="f4"></a>Emiller’s Guide To Nginx Module Development. http://www.evanmiller.org/nginx-modules-guide.html .</li>
+<li><a name="f5"></a>Wheeler, D.; Needham, R. Correction to XTEA. http://www.movable-type.co.uk/scripts/xxtea.pdf .</li>
+<li><a name="f6"></a>Wikipedia. XTEA. http://en.wikipedia.org/w/index.php?title=XTEA&amp;oldid=558387953 .</li>
+<li><a name="f7"></a>Wikipedia. Block cipher mode of operation. http://en.wikipedia.org/w/index.php?title=Block_cipher_mode_of_operation&amp;oldid=582012907 .</li>
+<li><a name="f8"></a>Schneier, B. Applied Cryptography. John Wiley &amp; Sons, 1996.</li>
+<li><a name="f9"></a>GitHub. Effusion. https://github.com/e-sidorov/Effusion .</li>
+<li><a name="f10"></a>Yandex Safe Search. http://safe.yandex.com/ .</li>
+<li><a name="f11"></a>Yandex Webmaster. http://webmaster.yandex.com/ .</li>
+</ol>
+ 
+[<a style="" href="/lib/?lang=EN&amp;index=AN#aak01">Back to index</a>] [<a href="/lib/aak01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=aak01">de</a><a href="/lib/index.php?lang=en&amp;id=aak01">en</a><a href="/lib/index.php?lang=es&amp;id=aak01">es</a><a href="/lib/index.php?lang=it&amp;id=aak01">it</a><a href="/lib/index.php?lang=fr&amp;id=aak01">fr</a><a href="/lib/index.php?lang=pl&amp;id=aak01">pl</a><a href="/lib/index.php?lang=ru&amp;id=aak01">ru</a><a href="/lib/index.php?lang=ua&amp;id=aak01">ua</a></div>
+</body>
+</html>

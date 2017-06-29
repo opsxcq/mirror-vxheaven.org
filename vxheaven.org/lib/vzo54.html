@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Трассировка процессов под Win32' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Трассировка процессов под Win32, входа, программы, debug, можно, адрес, точки, выполнятся, впатчивать, после, создании, процесс, процесса, event, выполнения, exception"/>
+<meta name="Description" content="Трассировка здесь рассматривается как частный случай отладочных фич предоставляемых win32 api. Описанными здесь хернями, по идее, должен пользоваться труподебагер. Примечание. Без WIN32.HLP не обойтись."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"71695a012a475e6d5dd38bf44d9087f6c19aebff-1498757873-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo54.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Трассировка процессов под Win32</h1><p><a href="/lib/?lang=ru&amp;author=Z0mbie"> Z0mbie</a><br/> <em><a href="/vx.php?fid=459#f459">Top Device Online [10]</a></em><br/> <em>Октябрь 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo54.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=WI#vzo54">Вернуться к списку</a>] [<a href="/lib/vzo54.html#disqus_thread">Комментарии</a>]<br/> 
+<p>Трассировка здесь рассматривается как частный случай отладочных фич предоставляемых win32 api. Описанными здесь хернями, по идее, должен пользоваться труподебагер. Примечание. Без WIN32.HLP не обойтись.</p>
+<p>Теперь, для чего мы это делаем.</p>
+<p>Вот есть у нас заражение PE файлов.</p>
+<ol>
+<li>Можно директом изменять адрес точки входа (EntryPointRVA). Это отлавливается эвристикой даже без эмуляции. (типа, точка входа показывает в конец файла? ну и пиздец ему)</li>
+<li>Можно в точку входа внутри файла впатчивать JMP на себя. Эмуляция проебет такие JMPы как нехуй ссать. Если же вместо JMPа будет нечто сложное, аверы напишут подпрограмму.</li>
+<li>Можно впатчивать JMP на себя в случайное место программы. Это кардинально лучше первых двух способов. Но тут нет гарантий, что вы попадете именно в код, а не в данные, да еще и непосредственно на начало инструкции. А если используете в качестве начала PUSH EBP/MOV EBP,ESP и им подобную хрень, то такую точку входа будет относительно просто найти. Да и вообще, сканирование файла и проверка всего, куда показывают JMPы/CALLы -- штука несложная. Но самый главный минус в том, что неизвестно, когда выполнятся ваши впатченные инструкции, и выполнятся ли вообще.</li>
+<li>Анализ кода без его выполнения. Лучше всего такую фишку проводит IDA в комбинации с мозгами. Похожие, но сильно упрощенные алгоритмы я использовал в: ZCME/AZCME(dos) и RPME/CODEPERVERTOR(win32). Эти вещи работают относительно быстро, и неплохо выделяют код среди данных, хоть и не весь. Но и здесь есть качественный недостаток. В случае, если, например, какой-нибудь участок кода не выполняется никогда, а например условный переход (Jxx) на него существует, этот код будет проанализирован вместе с "нормальным".</li>
+<li><em>Трассировка.</em>
+<p>А вот эта вещь позволяет не только пометить выполняемый (а не весь) код, но и узнать ПОРЯДОК выполнения инструкций и подпрограмм.</p>
+</li>
+</ol>
+<p>А для чего нахрен нужен порядок выполнения инструкций? Вот здесь-то и кроется самая охуительная фишка, которая призвана вконец разорвать ламерско-антивирусное очко. Дошло до меня, что нечто подобное пытались и даже делали под dos-ом, но поскольку результата не видно, маза видно заглохла.</p>
+<p>Итак, сам вирус, как пиздец зашифрованный, может лежать где угодно в файле. А передавать ему управление по-идее мог бы JMP, впатченый в некоторое, заведомо исполняемое место файла. Но JMP-это говно. Поэтому мы развратим его в несколько разных полиморфных инструкций, и при этом, впатчим их не одну за другой, а в <em>разные</em> места файла, но так, что выполнятся они в нужной нам последовательности.</p>
+<p>Но по плану в этом тексте будет рассказываться только о трассировке и ни о чем больше.</p>
+<p>Итак, что у нас есть.</p>
+<p>Для еще не запущенных процессов отладка начинается с CreateProcessA, с флажками DEBUG_PROCESS+DEBUG_ONLY_THIS_PROCESS. Если же требуемый процесс открыт, то можно юзать DebugActiveProcess.</p>
+<p>После того, как вызванная функция вернула success, можно крутить цикл. А в цикле происходит такое действо: вызывается WaitForDebugEvent и мы получаем так называемый debug event, то бишь структурку заполненную всяким отстоем.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; DEBUG_EVENT</span><br/>
+de &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;label &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span><br/>
+de_code &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;?<br/>
+de_pid &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;?<br/>
+de_tid &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;?<br/>
+de_data &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">1024</span> dup <span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span> &nbsp;<span style="color: black; font-style: italic;">; кил - от фени</span><br/>
+&nbsp;</div>
+<p>После того, как структурка проанализирована, вызываем ContinueDebugEvent. После чего можно снова надеяться на получение от WaitForDebugEvent какой-нибудь херни.</p>
+<p>Теперь о структурке. Идентификаторы каждого евента лежат в de_code. de_pid и de_tid - это id текущих отлаживаемых процесса и нити, для которых и сгенерился евент. Ибо мы можем отлаживать несколько процессов, и у каждого процесса могут быть свои нити.</p>
+<p>Теперь о том, какие debug event'ы приходят в наш цикл.</p>
+<dl>
+<dt>CREATE_PROCESS_DEBUG_EVENT</dt><dd>самый первый event который мы получаем. В нем лежит такая хрень как хендлы файла, процесса и нити. Файл открыт на только-чтение или на чтение-запись. (наябывать тут нечего) Еще там начальный адрес, имя файла и прочий отстой.</dd>
+<dt>LOAD_DLL_DEBUG_EVENT</dt><dd>эти события происходят когда загружается новая DLL-ка в контекст отлаживаемого процесса. Загрузчиком, либо LoadLibrary.</dd>
+<dt>EXIT_PROCESS_DEBUG_EVENT</dt><dd>по этим событиям надо из цикла сваливать,</dd>
+<dt>RIP_EVENT</dt><dd>ибо это конец отладки</dd>
+<dt>CREATE_THREAD_DEBUG_EVENT</dt><dd>здесь надо выставлять TF</dd>
+<dt>EXIT_THREAD_DEBUG_EVENT</dt>
+<dt>UNLOAD_DLL_DEBUG_EVENT</dt>
+<dt>OUTPUT_DEBUG_STRING_EVENT</dt><dd>прочие отстойные евенты, совершенно нам не интересны</dd>
+<dt>EXCEPTION_DEBUG_EVENT</dt><dd>а вот это самый интересный event. Он говорит что случился exception, в частности INT1 или INT3.</dd>
+</dl>
+<p>Фичи тут такие.</p>
+<ol>
+<li>Перед тем как исполнять отлаживаемую программу, система вызывает кернеловскую функцию DebugBreak, в которой происходит INT3 (0xCC).</li>
+<li>По умолчанию флаг TF (трассировка) не установлен, и мы (вроде бы) должны его устанавливать сами после КАЖДОЙ обработки событий типа INT1/INT3, ибо система так и норовит этот флажок сбросить.</li>
+</ol>
+<p>Работа с памятью отлаживаемого процесса (ибо память эта находится в другом контексте и по-другому не доступна) производится посредством функций ReadProcessMemory и WriteProcessMemory.</p>
+<p>Работа с регистрами отлаживаемой нити производится функциями GetThreadContext и SetThreadContext.</p>
+<p>Итак, структура трассировщика примерно такая:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; CreateProcessA<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">while</span><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; WaitForDebugEvent<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>EXIT_PROCESS_DEBUG_EVENT or RIP_EVENT<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>EXCEPTION_DEBUG_EVENT<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>int1 or int3<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; set_trace_flag<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; ContinueDebugEvent<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Подобный трассировщик будет обладать одним недостатком. Дело в том, что трассировать он будет не только текущий процесс, но и все загруженные в него DLL-ки. А у DLL-ек этих тоже есть свои точки входа, и вызываются они ДО точки входа основной программы. Кроме того, когда процесс сделает CALL в DLL-ку, трассировщик будет там долго и упорно охуевать, и вернется нескоро. И потом, здесь не поддерживаются нити.</p>
+<p>Обходится это дело таким образом.</p>
+<p>Чтобы поскипать DLLкин код в начале, надо</p>
+<ol>
+<li>проебать кернеловский INT3 (который в DebugBreak), то есть попросту забить на него, и TF не устанавливать</li>
+<li>написать простенький механизм впатчивания в прогу INT3 (0xCC) и восстановления оных (хранить оригинальные байты), аргумент -- адрес.</li>
+<li>по получении евента CREATE_PROCESS_DEBUG_EVENT впатчить в начало программы (lpStartAddress) INT3.</li>
+</ol>
+<p>Чтобы не выполнять трассировку в DLL-ках, проверяете текущий адрес, и если он вне программы, то</p>
+<ol>
+<li>берете дворд со стэка (это будет адрес возврата) и впатчиваете по нему INT3</li>
+<li>убираете TF к херам</li>
+</ol>
+<p>Для поддержки разных нитей придется поебаться.</p>
+<ol>
+<li>Надо будет впатчивать INT 3 в lpStartAddress при создании новой нити.</li>
+<li>Хранить в себе список всех нитей, т.е. соответствие их ThreadId &lt;--> ThreadHandle</li>
+<li>При вызове екскепшенов int1/int3 конвертить TheadId (данный для текущего евента) в соответствующий ему ThreadHandle</li>
+<li>Апдейтить эту инфу о нитях при создании процесса, создании нити и закрытии нити.</li>
+</ol>
+<p>В дополнение. Флажок TF по-видимому, охуячивается при глюках, то есть сгенерив глюк и отловив его SEHом можно наебать отладчик.</p>
+<p>Как разобраться с такой хуйней? Это дело непростое.</p>
+<ol>
+<li>При получении екскепшена взять FS от отлаживаемой нити</li>
+<li>Зная FS, и юзая GetThreadSelectorEntry получить VA от FS:[0]</li>
+<li>Разобрать SEH'овую структуру и выявить адрес SEH'ового хандлера</li>
+<li>Вхуячить в хандлер INT3</li>
+</ol>
+<p>Вот собственно и все. Вышеописанное дело производит программа tracer32.</p>
+<p>Теперь, как это реально использовать.</p>
+<ol>
+<li>выбрать программу</li>
+<li>протрассировать 2-3 секунды</li>
+<li>полученный адрес использовать для впатчивания JMPа на вирус</li>
+</ol>
+[<a style="" href="/lib/?lang=RU&amp;index=WI#vzo54">Вернуться к списку</a>] [<a href="/lib/vzo54.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo54">de</a><a href="/lib/index.php?lang=en&amp;id=vzo54">en</a><a href="/lib/index.php?lang=es&amp;id=vzo54">es</a><a href="/lib/index.php?lang=it&amp;id=vzo54">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo54">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo54">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo54">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo54">ua</a></div>
+</body>
+</html>

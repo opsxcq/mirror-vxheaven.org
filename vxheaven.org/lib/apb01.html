@@ -1,0 +1,722 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Philippe Beaucamps 'Advanced Metamorphic Techniques in Computer Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Philippe Beaucamps"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Beaucamps, Philippe,Advanced Metamorphic Techniques in Computer Viruses, techniques, viruses, metamorphic, block, encryption, instruction, push, random, instructions, computer, virus, disassembled, instr, detection, seed"/>
+<meta name="Description" content="Nowadays viruses use polymorphic techniques to mutate their code on each replication, thus evading detection by antiviruses. However detection by emulation can defeat simple polymorphism: thus metamorphic techniques are used which thoroughly change the viral code, even after decryption. We brieﬂy detail this evolution of virus protection techniques against detection and then study the METAPHOR virus, today’s most advanced metamorphic virus."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"23088ffffb13649726ea25188e5465b654021e3b-1498755449-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/apb01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Advanced Metamorphic Techniques in Computer Viruses</h1><p><a href="/lib/?lang=en&amp;author=Beaucamps%2C%20Philippe">Philippe Beaucamps</a><br/> <em>International Conference on Computer, Electrical, and Systems Science, and Engineering - CESSE'07</em><br/> <em>November 2008</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/apb01.html';</script><div class="ci"><a href="/lib/?ci=apb01">1</a></div><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Advanced%20Metamorphic%20Techniques%20in%20Computer%20Viruses.pdf">Download</a> PDF (310.73Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=ME#apb01">Back to index</a>] [<a href="/lib/apb01.html#disqus_thread">Comments</a>]<br/> <form method="post" action="">
+<img src="/img/cache/0b9fd596a90421f9f1f68a9760275737.gif" alt="\text{T_EX size}" valign="middle"/>
+<select name="TeX_size"><option value="-2">-2</option><option value="-1">-1</option><option value="0" selected="selected">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option> </select>
+<input type="submit" value="Scale"/>
+</form>
+<address>
+Philippe Beaucamps is with the Loria, Nancy, France, email: ph.beaucamps at loria dot fr,<br/>
+and also with the Virology and Cryptology Lab of the &Eacute;cole Sup&eacute;rieure et d’Application des Transmissions (Army Signals Academy), Rennes, France
+</address>
+<ul>
+<li><a href="#c0">Abstract</a></li>
+<li><a href="#c1">I. Introduction</a></li>
+<li><a href="#c2">II. Polymorphism - early stages</a>
+<ul>
+<li><a href="#c21">A. First viruses</a></li>
+<li><a href="#c22">B. Polymorphic viruses</a></li>
+<li><a href="#c23">C. Metamorphic viruses</a></li>
+</ul></li>
+<li><a href="#c3">III. Study of a metamorphic virus: Metaphor</a>
+<ul>
+<li><a href="#c31">A. Overview of the techniques used by METAPHOR</a></li>
+<li><a href="#c32">B. Polymorphism in METAPHOR</a></li>
+<li><a href="#c33">C. Metamorphism in METAPHOR</a></li>
+<li><a href="#c34">D. Randomness techniques</a></li>
+<li><a href="#c35">E. Detection of METAPHOR</a></li>
+</ul></li>
+<li><a href="#c4">IV. Conclusion</a></li>
+<li><a href="#c5">References</a></li>
+</ul>
+<h2><a name="c0"></a>Abstract</h2>
+<p>Nowadays viruses use polymorphic techniques to mutate their code on each replication, thus evading detection by antiviruses. However detection by emulation can defeat simple polymorphism: thus metamorphic techniques are used which thoroughly change the viral code, even after decryption. We brieﬂy detail this evolution of virus protection techniques against detection and then study the METAPHOR virus, today’s most advanced metamorphic virus.</p>
+<p><strong>Keywords</strong> Computer virus, Viral mutation, Polymorphism, Metamorphism, MetaPHOR, Virus history, Obfuscation, Viral genetic techniques</p>
+<h2><a name="c1"></a>I. Introduction</h2>
+<p>WHen the ﬁrst antiviral protections appeared in the late 80’s to answer the nascent viral threat, they consisted of a mere binary scan of programs looking for known virus signatures. Never mind, virus writers adapted their code so that it would mutate its binary form on each replication: as early as in 1988 a ﬁrst virus protected itself using encryption, followed in 1990 by the ﬁrst <em>polymorphic</em> viruses which were able to mutate their code as well as their decryption method. Their ability to evade detection by the then antivirus software gave them immediate “popularity”. Nevertheless antiviruses quickly adapted to this protection by letting viruses decrypt themselves and then only scanning the decrypted code looking for any known signature. This led, as early as in 1997, to the ﬁrst <em>metamorphic</em> viruses which mutate their code <em>in its decrypted form</em>.</p>
+<p>This article will therefore study polymorphism and its miscellaneous techniques and more particularly the most evolved ones, namely metamorphic techniques. In order to do so, we will study most notably the 2002 METAPHOR virus. For more details, the reader may consult ´Eric Filiol’s books [Fil05], [Fil07] as well as the <a href="http://vxheaven.org/">VX Heavens</a> website, which is crammed with malware resources.</p>
+<h2><a name="c2"></a>II. Polymorphism - early stages</h2>
+<p>This section shortly describes the evolution and techniques of viruses from the most basic techniques to simple polymorphic techniques and ﬁnally to advanced metamorphic techniques. The reader may refer to [Fil05], [Fil07], [Szo05], [Ayc06] for a more exhaustive and detailed study.</p>
+<h3><a name="c21"></a>A. First viruses</h3>
+<p>The ﬁrst virus outbreak broke out in 1981 with the ELK CLONER virus, followed by BRAIN in 1986, the ﬁrst virus to implement stealth techniques, and from then by numerous other viruses. The most commonly used techniques consisted in appending the viral code at the end of the executable ﬁle, modifying the entry point to point at the virus and then letting the virus spread among the system (ﬁg. 1). Thus, a basic protection method is <em>form analysis</em> where each virus is identiﬁed by a speciﬁc signature: such a signature is a sequence of – not necessarily consecutive – bytes whose detection inside a program allows to identify as undeniably as possible infection by the virus. This method has the advantage of being non-greedy in its complexity as well as subject to a tiny rate of false alarms.</p>
+<div align="center">
+<img src="img/apb01/fig1.gif" alt="Fig. 1. Basic virus infection."/>
+<p><strong>Fig. 1. Basic virus infection.</strong></p>
+</div>
+<p>Back in time, as early as in 1984, F. Cohen had been the ﬁrst one to study viruses from a theoretical point of view, christening them and deﬁning them as programs which are able to infect other programs with a possibly evolved copy of themselves. Thus, this deﬁnition already suggested the existence of viruses which would alter their form when replicating. And indeed such viruses turned up quite quickly. Cohen also showed that the problem of virus detection was undecidable, meaning in other words that no algorithm would ever be able to determine with unquestionable certainty whether a given program is a virus or not [Coh84].</p>
+<h3><a name="c22"></a>B. Polymorphic viruses</h3>
+<p>The ﬁrst virus encrypting its code, CASCADE, appeared in 1988. Yet its decryption method remained unchanged from one replication to another and thus it was not really a polymorphic virus per se. In 1990 however, the ﬁrst family of polymorphic viruses appeared: the CHAMELEON viruses (or V2P) which were developped by Mark Washburn, were based on the CASCADE and VIENNA viruses and mutated the code of their decryption method (ﬁg. 2). The shock they created shaked the antiviral community, since detection techniques using a ﬁxed signature had suddenly become obsolete for this new brand of viruses.</p>
+<div align="center">
+<img src="img/apb01/fig2.gif" alt="Fig. 2. Polymorphic virus infection."/>
+<p><strong>Fig. 2. Polymorphic virus infection.</strong></p>
+</div>
+<p>The famous WHALE virus appeared the same year: it included polymorphism, stealth and armouring techniques and mutated in particular the code of its mutation function using obfuscation techniques (dead code, test repetition, redundant code, ...). Then “boards” appeared, where were shared viruses and e-zines, among which Phrack and 40Hex, and where were worked out and shared new viral techniques. Then in 1992 the ﬁrst polymorphic engines appeared, like MTE, TPE, NED and DAME<sup><a href="#f1" name="b1">1</a></sup>, which could be linked to the virus to produce a polymorphic variant. They were quickly followed by the ﬁrst virus creation toolkits, like VCL, PS-MPC and G2<sup><a href="#f2" name="b2">2</a></sup>, some of which including polymorphism features. This signalled the start of massive creation – in thousands – of simple and polymorphic viruses.</p>
+<p>On the antiviral community side, the answer came in 1992 when Eugene Kaspersky worked out a technique now used by most antivirus products, namely <em>detection by code emulation</em>. Since one could not anymore rely on the static version of a program’s code to detect a virus, the code was run in a controlled (emulated or sandboxed) environment on a given number of instructions, and periodically or in the end the affected memory was analysed to detect the (possibly partially) decrypted viral code. Indeed, and this is the base principle of metamorphism, polymorphic codes had the major drawback of always decrypting themselves into the memory into an invariant and thus detectable form. However this detection technique also has the disadvantage of being quite cpu-intensive.</p>
+<p>Several techniques, called anti-emulation techniques, have been developped as a result by virus writers to hinder this kind of detection:</p>
+<ul>
+<li>Using unusual instructions which an emulator might not support and interpret, or similar tricks that would prevent the virus from decrypting itself correctly or that would betray the presence of an emulator.</li>
+<li>Inserting dead code that will loop long enough to have the emulator give up on detection, relying on the prohibitive cost of emulation (this technique is used by the BISTRO virus for instance).</li>
+<li>Random cancelling of decryption, thus running the viral code only a random basis.</li>
+<li>Entry Point Obscuring (EPO) techniques, which consist in avoiding executing the virus body at the very beginning of the host’s execution, but rather executing it during the host execution or even in the end.</li>
+<li>Using several encryption layers.</li>
+<li>Decrypting and running the code chunk by chunk, some viruses decrypting and running only one instruction at a time (like the DARK PARANOID virus, in 2004).</li>
+<li><em>Metamorphic</em> techniques, which transform the encrypted code.</li>
+</ul>
+<p>These techniques are detailed in the literature [Fil05], [Fil07], [Ayc06]: some of these techniques are used by METAPHOR and we shall come back on them in the next section.</p>
+<p>Finally, we state Spinellis’s recent result [Spi03], which establishes the general complexity of the detection of such viruses. He shows that the problem of detecting polymorphic viruses, of bounded length, is NP-complete, by reducing to it the well-known SAT problem of satisﬁability.</p>
+<h3><a name="c23"></a>C. Metamorphic viruses</h3>
+<p>Metamorphic viruses are in a sense advanced polymorphic viruses: on each replication, the code to be executed completely mutates, without altering its functionality. Thus, encryption is not anymore necessary and, when used, the decryption method as well as the decrypted code of the virus are different for each new generation. Figure 3 presents a basic example of infection by a metamorphic virus, on its <em>i<sup>eme</sup></em> mutation: in practice, the code is often encrypted and the decryption routine is sometimes scattered among the host’s code (ZMIST virus for instance).</p>
+<p>The ﬁrst metamorphic techniques made their appearance in 1997 with the TINY MUTATION COMPILER (TMC), by Ender. This virus had a compiler embedded in its body as well as its own sources in encrypted pseudocode. On execution, the virus decrypted its source code, inserted dead code, mixed up its code and data, and recompiled everything.</p>
+<p>On the same year, Z0mbie developped his Z0MBIE’S CODE MUTATION ENGINE (ZCME), which did not use any encryption techniques but allocated a 16K buffer where it randomly copied out its instructions, linking them with each other with JMP instructions and ﬁlling the remaining space with dead code.</p>
+<div align="center">
+<img src="img/apb01/fig3.gif" alt="Fig. 3. Metamorphic virus infection on generation i."/>
+<p><strong>Fig. 3. Metamorphic virus infection on generation i.</strong></p>
+</div>
+<p>In 1998, Vecna implemented MISS LEXOTAN, which disassembled itself, added some dead code and modiﬁed the form of its instructions, in a computational way most particularly (see later). To create dead code, it inserted most notably meta-instructions <code>XOR ebp, imm</code>, with no effect, but which deﬁned which registers were used and thus should not be modiﬁed. He also implemented REGSWAP later, which shufﬂed the registers. Here is an excerpt from LEXOTAN:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span> __fill <span style="color: #339933;">+</span> __ax <span style="color: #339933;">+</span> __bx <span style="color: #339933;">+</span> __flag<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; tells that registers ax, bx and</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; the FLAGS are used by the code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span> __fill <span style="color: #339933;">+</span> __ax <span style="color: #339933;">+</span> __flag<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">10h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp;</div>
+<p>After transformation, this code may look like this, with no jumps:</p>
+<src lamg="asm">
+xor bp, __fill + __ax + __bx + __flag
+mov dx, bx
+xor cx, cx ;
+push cx ; dead code
+add ax, dx
+pop cx ;
+xor bp, __fill + __ax + __flag
+mov bx, 34h
+push bx
+mov bx, ffCCh
+pop ax
+add ax, bx
+xor bx, bx
+push ax
+mov bx, 10h
+sub ax, ax
+</src>
+<p>In 2000, the BADBOY, ZMORPH, EVOL, ZPERM, BISTRO and ZMIST viruses enter the growing list of metamorphic viruses, using more or less complex techniques. ZPERM most notably introduces the REAL PERMUTATION ENGINE (RPME), which can be linked to other viruses, and enables random permutation of the virus code, with insertion of dead code and branching using JMP instructions.</p>
+<p>ZMIST, by Z0mbie, is more particularly one of the most evolved (and most stable) metamorphic viruses until now. It uses the following techniques:</p>
+<ul>
+<li>Entry Point Obscuring (EPO).</li>
+<li>Metamorphism:
+<ul>
+<li>(Random) encryption with two keys.</li>
+<li>Code integration: it’s the ﬁrst virus to use this method which consists in scattering the decryptor’s code directly among the host’s code, which makes the virus hard to detect and hard to disinfect. The MISTFALL engine is used for this technique.</li>
+<li>Permutations (it uses ZPERM’s RPME engine).</li>
+<li>Dead code, generated by the EXECUTABLE TRASH GENERATOR (ETG).</li>
+<li>Syntaxic modiﬁcation of instructions.</li>
+</ul></li>
+</ul>
+<p>The virus is analysed, along with other polymorphic and metamorphic viruses, in [Szo05].</p>
+<p>Finally, METAPHOR, by Mental Driller, appears in 2002 and is certainly the most advanced metamorphic virus until today. It may infect both Elf (on Linux) and PE (on Windows) ﬁles, on the local ﬁle system and on mounted partitions (in Linux) or shared folders (in Windows).</p>
+<p>Let’s also mention the recent development of Java and MSIL<sup><a href="#f3" name="b3">3</a></sup> viruses, which are platform-independent. .NET assemblies infection is simpliﬁed by the presence of assembler libraries (System.Reflection.Emit namespace) and both technologies enclose standard high level cryptography libraries. Only one metamorphic MSIL virus is known as of today, —Gastropod—, and there still are very few Java and MSIL viruses. But given the ubiquity of both technologies, these viruses might well represent a threat in the near future for any platform that supports them.</p>
+<p>The rapid evolution of viral techniques towards ﬁrst polymorphic and then metamorphic techniques motivated the working out of new detection techniques, based on emulation and behaviour analysis allowing to identify suspect behaviours. However in the same time, they revealed two limitations that are inherent to antiviral defence and beneﬁt virus writers. First, the efﬁciency of these methods relies on an often prohibitive complexity when iterated on a high number of ﬁles: defence cannot monopolize resources of the protected system whereas attack has a priori no cost nor time limits. Moreover a delay of a few hours or of a day is long enough for a well-implemented virus to spread on a very large scale, hence the interest for virus writers to complicate as much as possible analysis of their viruses. Although these weaknesses, combined with advanced metamorphic techniques, are not used yet in a lot of viruses (or these very viruses are often buggy and easily detected and stopped), they deﬁne a new age of viral detection, in which current protection methods will be thoroughly obsolete.</p>
+<h2><a name="c3"></a>III. Study of a metamorphic virus: Metaphor</h2>
+<p>The cross-platform metamorphic virus METAPHOR<sup><a href="#f4" name="b4">4</a></sup> was written in 2002 by The Mental Driller and was the second highly advanced metamorphic virus (with ZMIST), and the ﬁrst ever polymorphic, and metamorphic, Linux virus. It was published in 29A’s magazine [MD02]: its sources can be found on VX Heavens [MDa]. It uses highly advanced metamorphic techniques which combine the majority of the techniques used by its predecessors. They’re used along with anti-heuristic and anti-emulation techniques.</p>
+<h3><a name="c31"></a>A. Overview of the techniques used by METAPHOR</h3>
+<p>Here are the main polymorphic techniques used by METAPHOR:</p>
+<ul>
+<li>XOR / SUB / ADD encryption, with random key, or no encryption at all;</li>
+<li>Branching technique;</li>
+<li>Pseudo-Random Index Decryption (PRIDE);</li>
+<li>Metamorphic techniques:
+<ul>
+<li>Dead code insertion;</li>
+<li>Instruction modiﬁcation;</li>
+<li>Random modiﬁcation and permutation of registers;</li>
+<li>Code permutation;</li>
+<li>Mutation of the memory access proﬁle.</li>
+</ul></li>
+</ul>
+<h3><a name="c32"></a>B. Polymorphism in METAPHOR</h3>
+<p><em>1) Encryption techniques:</em> First let’s describe the miscellaneous encryption techniques which are commonly used in polymorphic viruses (see [Mid99] for some more details and for examples).</p>
+<p><em>a) Basic encryption:</em> The most simple ones, as well as the most common ones, use a mere XOR (as shown in the example), ADD or SUB encryption, with a key which is randomly generated on each replication and which is stored inside the virus data or directly inside the decryption method. The following code is a basic example of such an encryption:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> offset enc_code_start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; start of encrypted code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; start of decrypted code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>offset enc_code_end <span style="color: #339933;">-</span> offset enc_code_start<span style="color: black;">&#41;</span> <span style="color: #339933;">/</span> <span style="color: #ff0000;">4</span> <span style="color: black; font-style: italic;">; size in dwords</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">6B3C728Ah</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; encryption key</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; load a dword in eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; decrypt it</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; save it</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">start</span><br/>
+end<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; enc_code_start<br/>
+&nbsp;</div>
+<p><em>b) Sliding key encryption:</em> One drawback of the previous technique is that, once the key has been chosen, each character is encrypted in a unique way. Thus the sliding key encryption updates the key as the decryption progresses, either in a ﬁxed way or for instance with the last encrypted character. For instance, the previous code could be modiﬁed in the following way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p><em>c) Flow encryption:</em> This method uses a key to generate a keystream of the same size as the data to encrypt. For instance the generation of this pseudo-random keystream might use one or several linear feedback shift registers (LFSR, see section III-D1). Some basic implementations simply duplicate as much as needed the input key. The previous code can be easily adapted to this technique, in the case of a single register (lfsr_init initializes the register, and lfsr_next shifts the 32bits register, thus generating a new key):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">6B3C728Ah</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; lfsr_init &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; init the register from the key</span><br/>
+<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; lfsr_next &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ebx := 4 new bytes from keystream</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p><em>d) Encryption with permutation:</em> The input data is simply permutated. Permutation can occur on the scale of the whole data, of chunks of bytes (of ﬁxed or variable length), or even of each byte (with the ROR instruction for instance).</p>
+<p><em>e) Multiple encryption:</em> Several encryption techniques are sequentially applied.</p>
+<p><em>f) Random key encryption:</em> The data is encrypted with a random key which is not stored for future decryption. Upon execution, the key (as well as the encryption technique) can only be recovered by brute force attack or cryptanalysis. This technique disables any code emulation analysis. The size of the key space (and possibly its properties) allows to control over the decryption time. This technique was introduced by DarkMan in 1999 in his RANDOM DECODING ALGORITHM ENGINE (RDAE), which implemented several encryption techniques without storing the key: only the code’s CRC32 checksum was stored. These techniques are detailed in [BF07], [Kha07].</p>
+<p><em>g) Code-dependent encryption:</em> The binary code itself is used as the encryption key, or a combination of the code and a random key. This technique was usually used to ensure that the code had not been modiﬁed – during an antiviral analysis (where the code could be patched to disable some anti-debugging techniques).</p>
+<p>Upon decryption, the virus needs access to the decryption key(s). This key is usually directly stored in the program: inside the decryption procedure, inside the virus data or simply related to the host program (for instance the key can be the host’s ﬁlename). The case of RDA is different since the key is retrieved by brute force. However other scenarios exist where the key isn’t stored in the code but is inferred from the environment. This technique is called environmental key generation [RS98]. Here are some examples:</p>
+<ul>
+<li>The key is forged from the local environment. For instance, the key is the hard disk serial number, combined with some random value stored in the code, etc.</li>
+<li>The key depends on activation factors. For instance, it depends on the current date and will only be valid during some predetermined period. In consequence, the virus itself will be disabled outside the valid periods.</li>
+<li>The key is stored on a web server, a news server, etc.</li>
+</ul>
+<p>The most advanced implementation of this technique is the proof of concept BRADLEY virus [Fil04]. It uses several encryption layers, whose keys are retrieved from the environment. The interest of such viruses from their writer’s point of view, is that they can restrict the activity of their virus geographically as well as temporally. Filiol also shows in [Fil04] that, if the key is unknown during the analysis, the cryptanalysis’s complexity is exponential (in BRADLEY’s case).</p>
+<p>As for METAPHOR, it encrypts its code with an initial probability of 15/16 and uses an encryption method (with random key) of type XOR, ADD or SUB.</p>
+<p>However, METAPHOR’s decryption method is much more interesting. It uses techniques that The Mental Driller had already implemented into the TUAREG engine (TAMELESS UNPREDICTABLE ANARCHIC RELENTLESS ENCRYPTION GENERATOR) and that he describes in another issue of 29A’s magazine [MD00], [MDb]. This engine combined most notably two novel techniques, with an anti-heuristic purpose, which also took part in the mutation of the decryption routine. Both techniques, the branching technique and the <em>PRIDE</em> technique, are used in METAPHOR. Finally, an EPO technique is used to give control to the decryption routine: METAPHOR changes all calls to the exit function into calls to this routine. Thus, the virus only gains control after execution of the program, which contributes to its stealth and protects it from the detection by emulation.</p>
+<p><em>2) Branching technique:</em> A basic decryption method has a structure that often follows a common template which will trigger an alarm in any heuristic engine, as one can see with the examples from last section. Thus the branching technique allows to simulate as much as possible the behaviour of an innocuous program. Such programs will usually sequentially test several conditions and, depending on the result, ﬁnally branch on distinct paths. This technique therefore creates several random tests, until a given recursivity level, that will deﬁne an execution tree with leaves representing distinct ways to decrypt the code. Figure 4 describes the execution tree for a maximum depth of recursivity equal to 2: each terminal branch has its own decryption code, though the ﬁnal result is the same, whatever branch is taken. Thus for a depth of recursivity equal to <em>n</em>, <img src="/img/cache/d1db0d9c696a8c056e7117dbbb4ef6db.gif" alt="2^n" valign="middle"/> decryption branches are generated.</p>
+<div align="center">
+<img src="img/apb01/fig4.gif" alt="Fig. 4. Execution tree with and without branching technique."/>
+<p><strong>Fig. 4. Execution tree with and without branching technique.</strong></p>
+</div>
+<p>Furthermore, to reduce the risk of an heuristic alert upon execution of a branch, terminal branches do not contain a decryption loop but only its body: once the body is executed, a jump is made to any one of the previous nodes in order to carry on decryption. Thus, upon execution, each branch makes the same computation and all branches are shared and alternatively used to implement the decryption loop. Here is the C algorithm used in METAPHOR (ll. 15750 – 16075):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> do_branching <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; make_branch <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> cnt_partial_jumps<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// redirect each jump at a random node</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; complete_partial_jump <span style="color: black;">&#40;</span>partial_jumps<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> get_random_node <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #993333;">void</span> make_branch <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> jmp<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>recLevel <span style="color: #339933;">&gt;=</span> maxLevel<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// maximum depth?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; insert_code <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// decryption code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; build_instr <span style="color: black;">&#40;</span>OP_CMP<span style="color: #339933;">,</span> REG_ECX<span style="color: #339933;">,</span> code_len<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// CMP ecx, code_len</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp <span style="color: #339933;">=</span> insert_partial_jump <span style="color: black;">&#40;</span>OP_JNZ<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// JNZ &lt;?&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; partial_jumps <span style="color: black;">&#91;</span>cnt_partial_jumps <span style="color: #339933;">++</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> jmp<span style="color: #339933;">;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">// update the target in the end</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ... &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// call the decrypted code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; recLevel <span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; add_node <span style="color: black;">&#40;</span>insert_label <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// save the new branch</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>random_boolean <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// test CMP or TEST?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> reg<span style="color: #339933;">,</span> val<span style="color: #339933;">,</span> op<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; reg <span style="color: #339933;">=</span> get_random_register <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; val <span style="color: #339933;">=</span> <span style="color: #208080;">0x80000000</span> <span style="color: #339933;">|</span> <span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x3fffffff</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">// 0x8XYYYYYY (X &lt; 4)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; build_instr <span style="color: black;">&#40;</span>OP_CMP<span style="color: #339933;">,</span> reg<span style="color: #339933;">,</span> val<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// CMP reg, val</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; op <span style="color: #339933;">=</span> OP_JB <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x5</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// JB/JA/JBE/JAE</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp <span style="color: #339933;">=</span> build_partial_jump <span style="color: black;">&#40;</span>op<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// partial jump</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> reg<span style="color: #339933;">,</span> val<span style="color: #339933;">,</span> op<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; reg <span style="color: #339933;">=</span> get_random_register <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; val <span style="color: #339933;">=</span> <span style="color: #208080;">0x1</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x1f</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// 2ˆX (X &lt; 32)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; build_instr <span style="color: black;">&#40;</span>OP_TEST<span style="color: #339933;">,</span> reg<span style="color: #339933;">,</span> val<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// TEST reg,val</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; op <span style="color: #339933;">=</span> OP_JZ <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// JZ or JNZ</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp <span style="color: #339933;">=</span> build_partial_jump <span style="color: black;">&#40;</span>op<span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// partial jump</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* first branch: */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; make_branch <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; complete_partial_jump <span style="color: black;">&#40;</span>jmp<span style="color: #339933;">,</span> insert_label <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* alternative branch: */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; make_branch <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; recLevel <span style="color: #339933;">--;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>And here is an example code it could yield, for a recursivity depth of 2:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">br0<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; reg1<span style="color: #339933;">,</span> val1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; reg1, random register</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val1 = 8XYYYYYYh (X &lt; 4)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jcc &nbsp; &nbsp; alt0&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; jcc = jb / ja / jbe / jae</span><br/>
+br1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span>&nbsp; &nbsp; reg2<span style="color: #339933;">,</span> val2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; reg2, random register</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val2 = 2ˆX (X &lt; 32)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jcc &nbsp; &nbsp; alt1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; jcc = jz / jnz</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;Decryption <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #ff0000;">1</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> code_len<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; br1’<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+alt1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;Decryption <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #ff0000;">2</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> code_len<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; br1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; alt0<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; br1’<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; reg3<span style="color: #339933;">,</span> val3<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jcc &nbsp; &nbsp; alt1’<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;Decryption <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #ff0000;">3</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> code_len<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; br0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+alt1’<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;Decryption <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #ff0000;">4</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> code_len<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; br0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>As this will be detailed in section III-C about metamorphic techniques, this code is actually an intermediate representation of the ﬁnal code: once the code has been created, METAPHOR generates the ﬁnal x86 code by rewriting each instruction into an equivalent sequence of instructions and by randomly inserting dead code.</p>
+<p><em>3) PRIDE technique (Pseudo-Random Index DEcryption):</em> The purpose of this technique is also to protect the virus from a heuristic detection. Indeed, even with the modiﬁcation of the execution tree of the decryption procedure, it follows the following common mechanism (for a basic encryption):</p>
+<ol>
+<li>data := address of a buffer inside the data section of the virus.</li>
+<li>Sequentially read data and create a new buffer, which will contain the decrypted data.</li>
+<li>Give control to the new decrypted code.</li>
+</ol>
+<p>The second stage of this procedure, which consists in sequentially reading a sequence of 1000 bytes or more in memory, presents a high risk of heuristic alert. Therefore, the PRIDE technique consists in decrypting data in a pseudorandom order and not anymore in a sequential order. Byte 10 will be decrypted, then byte 23, then byte 7, then byte 48, and so on. This memory access proﬁle is much closer to an innocuous application’s memory access proﬁle. In the same time, this technique reinforces the polymorphism of the decryption code.</p>
+<p>Here is the algorithm used for the PRIDE technique (ll. 15570 – 15652 and 15827 – 15984). size_of_data is the size of the data to be encrypted, rounded up to a power of 2. First the algorithm initializes its variables:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; pride_start <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>size_of_data <span style="color: #339933;">-</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// aligned on a dword boundary</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pride_step <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>size_of_data <span style="color: #339933;">-</span> <span style="color: #0000dd;">8</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// aligned on a qword boundary</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pride_key <span style="color: #339933;">=</span> get_random_key <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Then it initializes the registers to be used by the decryption routine: CR, IR and BR. CR is the counter register and contains the sequential decryption index, IR is the index register and contains the pseudo-random decryption index (XOR’ed actually with CR), BR is the buffer register used as temporary storage for encrypted data. Compared to the decryption routine in section III-B1, we have: CR ≡ ecx, IR ≡ esi ≡ edi and BR ≡ eax. The following code is written at the beginning of the decryption routine:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; CR<span style="color: #339933;">,</span> pride_start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; IR<span style="color: #339933;">,</span> val &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val = (size_of_data - 4) &amp; random()</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; BR<span style="color: #339933;">,</span> val’&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val’ = random()</span><br/>
+&nbsp;</div>
+<p>Finally, when the decryption routine’s body must be generated (call to insert_code inside the make_branch method), the algorithm writes:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span>&nbsp; &nbsp; IR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">XOR</span> &nbsp; &nbsp; IR<span style="color: #339933;">,</span> CR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; BR<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>IR <span style="color: #339933;">+</span> source<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">XOR</span> &nbsp; &nbsp; BR<span style="color: #339933;">,</span> key &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; or ADD BR, +/- key</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; or nothing (no decryption)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ADD</span> &nbsp; &nbsp; IR<span style="color: #339933;">,</span> dest<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>IR<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> BR&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; write the decrypted dword</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> &nbsp; &nbsp; IR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ADD</span> &nbsp; &nbsp; CR<span style="color: #339933;">,</span> val &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; CR += [4;7]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">AND</span> &nbsp; &nbsp; CR<span style="color: #339933;">,</span> val’&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val’ = ((random() &amp;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ˜size_of_data) | (size_of_data-4)) &amp; -4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; (-&gt; CR := (CR % size_of_code) &amp; FFFFFFFCh)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ADD</span> &nbsp; &nbsp; IR<span style="color: #339933;">,</span> pride_step<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">AND</span> &nbsp; &nbsp; IR<span style="color: #339933;">,</span> val’’ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; val’’ = ((random() &amp;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ˜size_of_data) | (size_of_data-1)) &amp; -1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; (-&gt; IR := IR % size_of_code)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; CR<span style="color: #339933;">,</span> pride_start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JNZ</span> &nbsp; &nbsp; &lt;?&gt; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; jump at a random branch</span><br/>
+&nbsp;</div>
+<p>Furthermore, the last instructions which update registers CR and IR (ADD CR, val and AND CR, val’ for the CR register) are permutated with each other, with the obvious requirement that the AND instruction is executed before its ADD counterpart. Also, as we can see, pride_step determines the “order” of decryption: when equal to 0, it simply corresponds to a sequential decryption (starting at index (IR ˆ pride_start)).</p>
+<p>This ends the study of polymorphic techniques in METAPHOR. Both techniques we described mainly aim to impede any detection by emulation: however, in a sense, they also have a mutation role, not anymore in the form but in the behaviour. This proximity between signatures used for form analysis and signatures used for behaviour analysis is studied into more details in [Fil07].</p>
+<h3><a name="c33"></a>C. Metamorphism in METAPHOR</h3>
+<p>METAPHOR’s metamorphic engine takes up 70% of the source code (11000 lines in all), the remaining 30% accounting for the infection routines (20%) and the decryptor’s creation routine (10%). This proportion isn’t uncommon: some metamorphic viruses devote up to 90% of their code to their metamorphic engine. The engine is used to mutate the virus body (more precisely the part to be encrypted) as well as the decryptor itself.</p>
+<p>The engine works according to the following template, which The Mental Driller calls humorously <em>accordion model</em>:</p>
+<ol>
+<li>Disassembly / Depermutation</li>
+<li>Compression</li>
+<li>Permutation</li>
+<li>Expansion</li>
+<li>Reassembly</li>
+</ol>
+<p>One particularity of this engine, which conceptually differentiates it from its predecessors, is the use of an intermediate representation which allows to dissociate from the complexity of the underlying processor’s instruction set and to simplify the miscellaneous transformations and the code manipulation and creation. For instance, equivalences between x86 instructions are deferred until the reassembly stage, jumps at other code instructions are translated into a pointer perspective (that are much easier to manipulate, compared to offsets), etc.</p>
+<p><em>1) Description of the pseudo-instruction set:</em> METAPHOR uses a limited instruction set. It only considers instructions that are actually used by the code. Since this intermediate representation isn’t used when modifying the host code, this restriction is natural. This instruction set is organized as follows:</p>
+<ul>
+<li>Base instructions with 2 operands: ADD, OR, AND, SUB, XOR, CMP, MOV and TEST.</li>
+<li>Base instructions with 1 operand: PUSH, POP, Jcc, NOT, NEG, CALL and JMP.</li>
+<li>Other instructions: SHIFT, MOVZX, LEA, RET and NOT.</li>
+<li>Macro-instructions:
+<ul>
+<li>APICALL_BEGIN, APICALL_END, APICALL_STORE, which represent the instruction sequences which are used when calling a Windows API (in the case of a PE infection): since the registers to be used by these calls are predeﬁned, these macro-instructions ensure their protection from register swapping transformations.</li>
+<li>SET_WEIGHT which is used for “genetic” evolution (see section III-D2).</li>
+<li>LINUX_GETPARAMS, which is similar to APICALL_BEGIN, and represents the loading of parameters into general purpose registers.</li>
+<li>LINUX_SYSCALL which represents a syscall (int 80h – used to call a system function); and LINUX_SYSCALL_STORE which represents a syscall followed by the result’s saving.</li>
+</ul></li>
+<li>Instructions used only by internal operations: Mov Mem, Mem, used during the compression stage, and INC and LITERAL_BYTE (unencoded byte to be inserted as it is) which are used during the reassembly stage.</li>
+</ul>
+<p>The opcode choices are motivated by the equivalent x86 opcode organization and by the sake of simplifying the manipulation of instructions and the coding of transformations. In particular, for the ﬁrst type of opcodes, the opcode itself (for instance ADD) is encoded into bits 6..3, and the operand types into bits 2..0 and 7: bit 7 speciﬁes whether the operands are 8 bits (for instance mov al, 12h) or 32 bits (for instance mov eax, 12h) whereas bits 2..0 specify the type of operands (Reg, Imm, etc.).</p>
+<p>Finally, a pseudo-instruction is encoded in 16 bytes:</p>
+<pre>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+OP *--------- operands --------* LM *- instr -*
+</pre>
+<p>OP contains the instruction opcode, on one byte. Then the operands are encoded (register index, memory address or immediate value) on the following 10 bytes. Then LM (“Label Mark”) is a ﬂag on 1 byte telling whether this instruction is the target of a branching instruction: when this is the case, the instruction can neither be deleted nor compressed with instructions preceding it. The last 4 bytes contain a pointer which has miscellaneous signiﬁcations along the execution: during the disassembly, it contains the address of the initial x86 instruction, during the permutation, it contains the instruction’s address inside the non-permutated code, etc.</p>
+<p>Once the virus decrypted its code, it gives control to it. After initialization of the variables and possible payload activation, it deﬁnes the form of next generation (internal organization of the code – where to put code, where to put data, etc.). Then it starts the code transformation process.</p>
+<p><em>2) Disassembly:</em> The x86 code is ﬁrst disassembled into an intermediate representation which uses the previous instruction set. This procedure loads the intermediate code into the buffer pointed by variable InstructionTable. It also creates an array of labels which contains all instructions which are the target of a branching instruction. In the end, the computed intermediate code has been depermutated and the inaccessible code (dead code) removed: this is actually a direct consequence from the routine’s algorithm.</p>
+<p>The x86 code is disassembled by <em>following the execution ﬂow</em>. The algorithm uses an array, FutureLabelTable, which contains instructions which are waiting for their disassembly (namely these are the targets of conditional jumps and direct calls). Here is the algorithm:</p>
+<ul>
+<li>If the current instruction was already disassembled, simply add a JMP instruction which points at the disassembled instruction. Then carry on disassembly with an instruction from FutureLabelTable (if any) or terminate.</li>
+<li>Otherwise:
+<ol>
+<li>If previous instructions did point at the current instruction, update them in order to point at the new disassembled instruction.</li>
+<li>Create the new pseudo-instruction. The following cases are more speciﬁcally distinguished:
+<ul>
+<li>INC and DEC instructions are replaced by their ADD and SUB counterparts: during the reassembly stage, the opposite transformation will be applied (or not).</li>
+<li>If this is a JMP instruction: either its target was already disassembled and we simply insert a JMP instruction pointing at that instruction (by creating a label), or the target has not been disassembled yet and we insert a mere NOP.</li>
+<li>If the instruction is a conditional jump or a direct call: if the target has been disassembled yet, add it to the wait array FutureLabelTable. Then insert the corresponding branching instruction (pointing at the disassembled target, if it exists, or at the x86 target instruction).</li>
+</ul></li>
+<li>Finally, if this was a JMP instruction whose target had not been disassembled yet, continue with this target. If the target was already disassembled, or the instruction is a RET, continue with an instruction from FutureLabelTable (if any). Otherwise continue with the next instruction.</li>
+</ol></li>
+</ul>
+<p>Code permutation is carried out, as we will see, using unconditional jumps (no “opaque predicates” or similar tricks): during the disassembly, the JMP instruction used to join two permutated blocks is replaced by a NOP instruction and the disassembly continues with the new block. Given that the pseudo-code is built in a linear way, its ﬁnal shape will be that of the depermutated code. Similarly, inaccessible code that was inserted will never be disassembled.</p>
+<p><em>3) Compression:</em> After disassembly and depermutation, the generated pseudocode is compressed. This cancels the expansion effects of the previous generations, since the compression rules are exactly the inverse of the expansion rules. There are ﬁve kinds of rules:</p>
+<ol>
+<li>Instr -> Instr rules:
+<ul>
+<li>XOR Reg, -1 -> NOT Reg</li>
+<li>SUB Reg, Imm -> ADD Reg, -Imm</li>
+<li>OR Reg, 0 -> NOP</li>
+<li>AND Reg, Reg -> CMP Reg, 0</li>
+<li>...</li>
+</ul></li>
+<li>Instr / Instr -> Instr rules:
+<ul>
+<li>PUSH Imm / POP Reg -> MOV Reg, Imm</li>
+<li>MOV Mem, Imm / PUSH Mem -> PUSH Imm</li>
+<li>OP Mem, Imm / OP Mem, Imm2 -> OP Mem, (Imm OP Imm2)</li>
+<li>NOT Reg / NEG Reg -> ADD Reg, 1</li>
+<li>TEST X, Y / !=Jcc -> NOP</li>
+<li>Jcc @xxx / !Jcc @xxx -> JMP @xxx</li>
+<li>...</li>
+</ul></li>
+<li>Instr / Instr / Instr -> Instr rules:
+<ul>
+<li>MOV Mem, Reg / OP Mem, Reg2 / Mov Reg, Mem -> OP Reg, Reg2</li>
+<li>...</li>
+</ul></li>
+<li>Instr / Instr / Instr -> Instr / Instr rules:
+<ul>
+<li>MOV Mem, Reg / TEST Mem, Reg2 / Jcc @xxx -> TEST Reg, Reg2 / Jcc @xxx</li>
+<li>...</li>
+</ul></li>
+<li>Macro-operations identiﬁcation rules:
+<ul>
+<li>PUSH eax / PUSH ecx / PUSH edx -> APICALL_BEGIN</li>
+<li>POP edx / POP ecx / POP eax -> APICALL_END</li>
+<li>POP edx / POP ecx / POP ebx / POP eax -> LINUX_GETPARAMS</li>
+<li>CALL Mem / MOV Mem2, eax -> CALL Mem / APICALL_STORE Mem2</li>
+<li>INT 80h -> LINUX_SYSCALL</li>
+<li>INT 80h / MOV Mem, eax -> LINUX_SYSCALL_STORE</li>
+<li>PUSH Reg1 / MOV Reg1, Imm1 / MOV Reg2, Imm2 / MOV Mem, Reg2 / POP Reg1 -> SET_WEIGHT Mem, Imm1, Reg1, Reg2</li>
+</ul></li>
+</ol>
+<p>Notation !=Jcc denotes “any opcode that is not a conditional jump” and the notation !Jcc denotes the inverse of the last Jcc (for instance, JA and JBE). Furthermore, some of these rules might not be veriﬁed in the general case, but they are in the case of METAPHOR’s code.</p>
+<p>The algorithm is simple. It compresses the code as much as possible. When it looks up the next instruction, it skips any NOP instruction that is not the target of jump or a call (ﬂag LM is set). As long as it did not reach the end of the code, it tries to compress chunks of one, two or three instructions starting from the current instruction: if a compression occurs, it makes a three instructions step-back and continues. This allows to take into account any new reduction opportunity that might have appeared with an instruction created by the last reduction. For the sake of simplicity, instructions that are deleted are simply replaced by NOP instructions. In the end, the algorithm identiﬁes all sequences of instructions that correspond to macro-instructions (APICALL_*, LINUX_SYSCALL*, LINUX_GETPARAMS, SET_WEIGHT) and replaces them accordingly. Also note that, for a reduction – of any type – to occur, no instruction, except the ﬁrst one, shall be the target of a jump (ﬂag LM).</p>
+<p>The algorithm also allows to reduce sequences of operations into a unique operation. For instance, ADD Reg, X / SUB Reg, Y will be reduced into ADD Reg, (X - Y): these decompositions are created during the expansion. Finally, when a Jcc instruction is replaced by a JMP instruction, the following code is deleted (NOPed) until reaching a label (instruction with LM = 1).</p>
+<p>Here is an example of compression (this code represents a basic decryption routine):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> val1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> val2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>val2 <span style="color: #339933;">+</span> val3<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> val3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem2<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">1</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem2<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; val4&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> val4<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem3<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem3<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>Mem3<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> val5 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> val5 <span style="color: #00007f; font-weight: bold;">XOR</span> val6<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> val6 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+label<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; |<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem4<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; |==&gt;&nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem4<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem5<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem5<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>Mem5<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem6<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem6<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">not</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">neg</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem10<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem10<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">1</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>Mem10<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem11<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem11<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> label<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Mem11<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; label &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp;</div>
+<p><em>4) Variable reorganization:</em> METAPHOR aims to mutate at the semantic level (instructions expansion / compression) and at the code level (permutation) as well as at the code behaviour level. We already mentionned previously that it was mutating the internal organization of the viral code. When the virus gains control, it allocates into memory a space of (340000h + X) bytes, where X is a random value between 0h and 01F000h. This space is then organized into 5 sections (see ﬁgure 5):</p>
+<ul>
+<li>Section Code contains the decrypted x86 code.</li>
+<li>Section Buffers contains the miscellaneous arrays and buffers used by the virus.</li>
+<li>Section Data contains the virus global variables.</li>
+<li>Section Disasm contains the disassembled code and then the result of the expansion of the permutated code. When creating the decryption routine, it will contain its pseudocode as well as the reassembled code.</li>
+<li>La section Disasm2 is ﬁrst used as a buffer, then it contains the result of the permutation of the compressed pseudocode, and ﬁnally it contains the reassembled code.</li>
+</ul>
+<div align="center">
+<img src="img/apb01/fig5.gif" alt="Fig. 5. METAPHOR’s memory organization (generation 0)."/>
+<p><strong>Fig. 5. METAPHOR’s memory organization (generation 0).</strong></p>
+</div>
+<p>Before starting the mutation and replication process, sections are randomly permutated and each section is shifted by a random value between 0h and 7FFFh. In the end, the maximum required size (into memory) is: 300000h + 5 * 7FFFh = 340000h. Thus, upon execution, METAPHOR never has a unique memory access proﬁle.</p>
+<p>The virus contains about 200 global variables, each of these variables being allocated 8 bytes inside the Data section. These variables are accessed by their offset in that section. A register is speciﬁcally assigned, which isn’t modiﬁed during the virus execution, and which contains that section’s address. During generation 0, this base register is ebp. Thus, to access to the contents of variable InstructionTable, which is at offset 10h of the Data section, one uses:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span></div>
+<p>Given that this register (ebp) is strictly reserved to data access, it is sufﬁcient to spot all instructions that use it to identify read and write accesses to a variable and to list these very variables. Method IdentifyVariables does this job and replaces in each one of those instructions the offset by the index of the associated variable. Then the variables are shufﬂed: their organization inside the Data section is thus completely modiﬁed. Then, during reassembly, when an instruction uses one of these variables, the instruction is updated to contain the new base register (initially ebp) and the new offset of the referenced variable.</p>
+<p>Thus the memory access proﬁle is modiﬁed. This kind of transformation isn’t however taken to extremes. For instance, the code often reads the contents of pseudo-instructions, as in the following code excerpt (where esi and edi contain pseudo-instructions addresses):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Get the value in ECX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">7</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Get the register in EAX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set the register</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">+</span><span style="color: #ff0000;">7</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set the value</span><br/>
+&nbsp;</div>
+<p>This kind of access can be proﬁled, since the internal organization of an instruction does not mutate. However The Mental Driller could have taken memory access proﬁle mutation to extremes by modifying this very internal organization of pseudo-instructions. Given the massive use of instructions accessing the contents of these pseudo-instructions, impact would have been even stronger, even though the mutation of the organization of pseudo-instructions is quite limited (might we add a few padding bytes to increase mutation possibilities).</p>
+<p>Let’s note that, in this transformation’s implementation, variables are aligned on 8 bytes boundaries so that they can be randomly positionned on any one of the ﬁrst 4 bytes: ﬁnally, only 4 bytes are used by a variable.</p>
+<p><em>5) Permutation:</em> Once the compression is over, the engine permutates the code by splitting it into blocks of random sizes, between F0h and 1E0h. When doing the splitting, the following breaks are avoided:</p>
+<ul>
+<li>between a CALL instruction and the associated APICALL_STORE instruction;</li>
+<li>before a JMP or a RET instruction, to avoid two consecutive jumps;</li>
+<li>before a JMP or a Jcc instruction, in order for the compression process to correctly compress any Jcc + JMP or CMP/TEST + Jcc instructions.</li>
+</ul>
+<p>Once the code blocks have been computed and shufﬂed, the new code is built (and its address saved into variable PermutationResult). A jump at the ﬁrst code block is inserted at the very beginning of the code and the code blocks are linked with each other using JMP instructions, except in the following cases:</p>
+<ul>
+<li>The target block directly follows the current block.</li>
+<li>The block’s last instruction is an unconditional jump or a return instruction.</li>
+</ul>
+<p>The ﬁnal result shall look like:</p>
+<pre>
+jmp @block1
+@block4:
+;-------------;
+; block 4     ;
+;-------------; (ends with a ret)
+@block2:
+;-------------;
+; block 2     ;
+;-------------;
+@block3:
+;-------------;
+; block 3     ;
+;-------------;
+jmp @block4
+@block1:
+;-------------;
+; block 1     ;
+;-------------;
+jmp @block2
+</pre>
+<p><em>6) Expansion:</em> The expansion stage consists in applying the inverse rules from the compression stage. This method is called on the virus compressed pseudocode and, later, on the decryption routine’s code.</p>
+<p>The ﬁrst step consists in randomly modifying the used registers. A bijective transformation is applied, which takes into account the following requirements:</p>
+<ul>
+<li>No register should of course be transformed in ESP.</li>
+<li>The base register (initially EBP) used to store the Data section’s address (see section III-C4) should not be any of EAX, ECX or EDX (which are used by system calls).</li>
+<li>The 8 bits register used by 8 bits operations in the code must be related to a general purpose register (EAX, EBX, ECX or EDX).</li>
+</ul>
+<p>Then, the expansion can start: it will update registers as well as accesses to the virus’ global variables. The expansion’s result is stored in variable ExpansionResult. To control the size of expansion, a maximum level of recursivity is ﬁrst chosen: it cannot be larger than 3. Then, for each instruction, we increment the recursivity level and we randomly transform it, by using the inverse compression rules. Intermediate instructions which are generated are also transformed. NOP instructions are ignored in the compressed code (to avoid an uncontrolled increase of size, after several generations).</p>
+<p>When an instruction is generated, which uses a <em>temporary memory address</em>, this memory address points at the Data section and should not have been allocated for the virus global variables nor by any previous instruction in the current expansion chain. The VarMarksTable array is used to mark which addresses have been allocated. As for global variables, the allocated address is randomly aligned on one of the ﬁrst 4 bytes. However, this is different in the case of the decryption routine since the memory has not been allocated yet (with a call to malloc): the space to be used by intermediate operations is then the data section that was allocated inside the host ﬁle for the decryption operations.</p>
+<p>When an instruction uses an <em>immediate value</em>, this value is computationally decomposed into a sequence of operations that ﬁnally yield the expected immediate value. This expansion is managed by method Xp_MakeComposedOPImm. It uses operators ADD, AND, OR and XOR (the SUB operator is randomly generated when transforming ADD instructions). Here is for instance the algorithm used to generate a <code>MOV Dest, Imm</code> instruction:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> v1 <span style="color: #339933;">=</span> random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> v2 <span style="color: #339933;">=</span> random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span></div>
+<p>choose randomly among:</p>
+<ul>
+<li>MOV Dest, v1; ADD Dest, Imm - v1</li>
+<li>MOV Dest, v1 &amp; Imm; OR Dest, ((v2 &amp; Imm) ˆ (v1 &amp; Imm)) | (v2 &amp; Imm)</li>
+<li>MOV Dest, (v2 &amp; ˜v1) | Imm; AND Dest, v1 | Imm</li>
+<li>MOV Dest, ˜v1 | Imm; AND Dest, v1 | Imm</li>
+<li>MOV Dest, v1; XOR Dest, v1 ˆ Imm</li>
+<li>MOV Dest, Imm</li>
+</ul>
+<p>In addition, dead code is inserted, with probability 1/16, after each expansion of an instruction of the compressed code (if this instruction’s opcode was a CMP, TEST, CALL or APICALL_STORE, a mere NOP is inserted):</p>
+<ul>
+<li>Instructions that do nothing, like:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; Reg<span style="color: #339933;">,</span> Reg<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ADD</span> &nbsp; &nbsp; Reg<span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">AND</span> &nbsp; &nbsp; Reg<span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">NOP</span><br/>
+&nbsp;</div></li>
+<li>Tests that always fail, like:
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; Reg<span style="color: #339933;">,</span> Reg <span style="color: #339933;">/</span> <span style="color: #00007f; font-weight: bold;">JNZ</span> <span style="color: black;">&#91;</span>RandomLabel<span style="color: black;">&#93;</span></div></li>
+<li>Useless x86 instructions: STC, CLC.</li>
+</ul>
+<p><em>7) Reassembly:</em> The last stage consists in assembling the pseudo-code into valid x86 code. When several translations are possible, the algorithm chooses one at random. Also, short jumps and long jumps are randomly used (when a short jump is possible), and jumps at subsequent addresses are stored in array JmpRelocationTable, in order to be updated in the end. After completion of this stage, the code is ready for encryption and copy out in the host.</p>
+<h3><a name="c34"></a>D. Randomness techniques</h3>
+<p><em>1) Pseudo-Random Numbers Generator (PRNG):</em> METAPHOR makes a heavy use of random numbers. It uses its own pseudo-random numbers generator, with two seeds, seed1 and seed2, which are initialized depending on the UNIX date for seed1 and on the code’s ﬁrst bytes for seed2. Then a random value is generated using the following algorithm (ror_X denotes right rotation by X bits):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; seed1 ˆ<span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>seed2 <span style="color: #339933;">+</span> ror_13 <span style="color: black;">&#40;</span>seed1 <span style="color: #339933;">+</span> seed2<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; seed2 <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>seed1 <span style="color: #339933;">+</span> ror_17<span style="color: black;">&#40;</span>seed2<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> ˆ <span style="color: black;">&#40;</span>seed1 <span style="color: #339933;">+</span> seed2<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> seed1 <span style="color: #339933;">+</span> ror_17 <span style="color: black;">&#40;</span>seed1 ˆ seed2<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Though this may not be obvious at ﬁrst sight, the second seed is very weak, given furthermore that it is initialized depending on the code’s ﬁrst bytes which have a low randomness: thus we get, in the worst case, a cyclic generator of 32 pseudo-random numbers (as soon as seed2 reaches value 0x00000000 or value 0xFFFFFFFF). For a random seed2, a few tests allow to compute the PRNG’s period about 40000, which is barely better that the glibc’s generator (random () function), whose statistical properties are particularly weak and whose period is in the order of 30000.</p>
+<p>Polymorphic viruses usually have their own pseudo-random generator, often of poor quality, which protects them at least from a heuristic alert due to a strong utilization of a system’s PRNG. Yet, some generators exist that are quite powerful and have a small cost, but their use in polymorphic viruses is scarce. Here are some of them:</p>
+<ul>
+<li><em>Linear Congruential Generator</em> (LCG), of which the following code is an implementation:
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> lcg_next <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; seed <span style="color: #339933;">*=</span> 1664525u<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; seed <span style="color: #339933;">+=</span> 1013904223u<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> seed<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li><em>Registers generaztors</em>, like <em>Xorshift</em> generators (the following example code comes from [Mar03]) and generators with linear feedback shift registers (LFSR):
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Galois’ LFSR, with taps 32 31 29 1 */</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> lfsrg_next <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">static</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> seed <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/time.html"><span style="color: #000066;">time</span></a> <span style="color: black;">&#40;</span>NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// shift 32 times</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seed <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>seed <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> ˆ <span style="color: black;">&#40;</span><span style="color: #339933;">-</span><span style="color: black;">&#40;</span><span style="color: #993333;">signed</span> <span style="color: #993333;">int</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>seed <span style="color: #339933;">&amp;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> 0xd0000001u<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> seed<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> xorshift128_next <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* initialization with random values */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">static</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; x <span style="color: #339933;">=</span> <span style="color: #0000dd;">123456789</span><span style="color: #339933;">,</span> y <span style="color: #339933;">=</span> <span style="color: #0000dd;">362436069</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; z <span style="color: #339933;">=</span> <span style="color: #0000dd;">521288629</span><span style="color: #339933;">,</span> w <span style="color: #339933;">=</span> <span style="color: #0000dd;">88675123</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> t<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; t <span style="color: #339933;">=</span> x ˆ <span style="color: black;">&#40;</span>x <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">11</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; x <span style="color: #339933;">=</span> y<span style="color: #339933;">;</span> y <span style="color: #339933;">=</span> z<span style="color: #339933;">;</span> z <span style="color: #339933;">=</span> w<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> w <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>w ˆ <span style="color: black;">&#40;</span>w <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">19</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> ˆ <span style="color: black;">&#40;</span>t ˆ <span style="color: black;">&#40;</span>t <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">8</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+</ul>
+<p><em>2) “Genetic” techniques:</em> METAPHOR combines genetic characteristics to its generator. Here is the principle. The virus contains some sort of genetic material which will have a tendency to favour some behaviours rather than others. On each replication, this genetic material is updated with a small random variation from the preceding material.</p>
+<p>For instance, a gene contains the current propension of the virus to encrypt its code or not: the virus initially encrypts its code with probability 1/16. Depending on its decision, the gene will be altered in favour or in disfavour of encryption: if the virus encrypts its body, it will have next time a higher probability to encrypt again its body, and conversely. Thus after a few generations, either the code will have a strong propension to encryption, or a strong propension to absence of encryption. The propension strengh is related to the survival time (and to the number of replications) of the virus. Thus, if the virus has a strong propension to encryption, this means that most of the previous generations chose encryption and survived: this is kind of an implementation of natural selection, where viruses are preys and antiviruses are predators. Thus, let’s imagine that the antivirus easily detects encrypted replications of the virus (using statistical entropy analysis for instance) but not unencrypted replications. In this case, encrypted replications will be detected before being able to replicate and increase their propension to encryption, and in the end, most of the survivors will come from unencrypted ancestors, with a high propension to no encryption.</p>
+<p>METAPHOR contains a genetic material of 24 genes. In other words, 24 of its choices depend on its genetic history and its survival abilities. These genes are used for instance for:</p>
+<ul>
+<li>Number of ﬁles to infect: initially, only 50% are infected.</li>
+<li>Choice of the method of infection: position of the viral code, EPO type, type of the system calls, etc.</li>
+<li>Encryption of the viral code, or no encryption: initially, the code is encrypted with probability 1/16.</li>
+<li>Encryption method (ADD, XOR, SUB): initially, all methods have the same probability of being chosen.</li>
+<li>Decryption routine’s code: form of the instructions, obfuscation type, use of anti-heuristic methods, etc.</li>
+</ul>
+<p>Given that the virus does not store any information in its host other than its code, it must still be able to update its genetic material, from one generation to another. This is where SET_WEIGHT macro-instructions come into play: they’re located on disassembly and, on reassembly, the “evolved” gene is used.</p>
+<p>Here is the algorithm used to update the genes (function CheckForBooleanWeight). We notice that the genes values cannot exceed a minimal and a maximal threshold (thus the associated probability never reaches 1 or 0).</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/*<br/>
+&nbsp; Returns 1 or 0, depending on the gene’s contents.<br/>
+*/</span><br/>
+<span style="color: #993333;">int</span> query_gene <span style="color: black;">&#40;</span><span style="color: #993333;">int</span> gene<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> val <span style="color: #339933;">=</span> get_gene <span style="color: black;">&#40;</span>gene<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xFF</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;=</span> val<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// return 1 and increase propension to 1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">do</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// minimal threshold reached?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>val <span style="color: #339933;">&lt;</span> <span style="color: #208080;">0x08</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0F</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// increase propension to 1:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; set_gene <span style="color: black;">&#40;</span>gene<span style="color: #339933;">,</span> <span style="color: #339933;">--</span> val<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0F</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// repeat with probability 1/16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">else</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">do</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// maximal threshold reached?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>val <span style="color: #339933;">&gt;=</span> <span style="color: #208080;">0xF8</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0F</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// increase propension to 0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; set_gene <span style="color: black;">&#40;</span>gene<span style="color: #339933;">,</span> <span style="color: #339933;">++</span> val<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>random <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0F</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// repeat with probability 1/16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>For a more detailled analysis of genetic viruses, one may refer to M. Ludwig’s books [Lud95], [Lud93].</p>
+<h3><a name="c35"></a>E. Detection of METAPHOR</h3>
+<p>Analysis of METAPHOR comes to an end. As we saw, several advanced techniques of polymorphism and of anti-emulation / anti-heuristic protection are implemented in this virus. Nevertheless they’re not taken to their extremes and thus this mutation model is still detectable, mainly because of the following “weaknesses”:</p>
+<ul>
+<li>The viral code’s encryption can always be identiﬁed by a statistical analysis of the code [Fil07]. Indeed, a program usually has a predeﬁned entropy proﬁle, which shows few variations when comparing miscellaneous executable ﬁles. Encrypted data, however, have a speciﬁc entropy proﬁle which is much more uniform, depending on the underlying encryption system, and thus is characteristic of an encrypted content. Same goes for compressed data. Any antivirus using this kind of analysis will most likely consider as suspect a program that contains a lot of encrypted content. However, several legitimate applications use encrypted data, for the purpose of intellectual property protection. This is the case of “packed” applications (even though malware also uses packers on a regular basis), and this is also the case of Skype for instance.</li>
+<li>When the virus is executed, it compresses its code into a form that is roughly the same from one generation to another, by conception: METAPHOR is therefore vulnerable to any form analysis that monitors memory. As we might have expected, this weakness can be corrected to some extent, using miscellaneous techniques that are preferably not described here but easy to ﬁnd out. Another weakness is also the immutability of METAPHOR’s mutation grammar.</li>
+<li>METAPHOR’s mutation grammar is globally simple and does not use any sophisticated obfuscation tricks – this is by conception given that the virus wants to be able to revert effects of mutation. In other words, using more advanced obfuscation techniques, possibly along with the addition of metadata into the code (as is the case with MISS LEXOTAN – see section II-C), would lead to a virus, which would be much harder to detect (speaking of its mere detectability as well as of the complexity of its detectability).</li>
+<li>Except during decryption, METAPHOR does not protect itself from behaviour analysis.</li>
+</ul>
+<p>&Eacute;. Filiol studies into more details some aspects of METAPHOR in [Fil07], from a theoretical point of view, and most notably regarding the detection barrier on which METAPHOR sits astride: if it mostly inclines towards detectability, some modiﬁcations would be sufﬁcient to have it incline towards the other side (see the POC virus PBMOT). To sum up, METAPHOR is a highly advanced virus, which could be really dangerous with a few improvements (PBMOT certainly is the most appropriate proof). Other advances, as on the ﬁeld of functional polymorphism, would also give metamorphic viruses more sophisticated means of defence against detection.</p>
+<h2><a name="c4"></a>IV. Conclusion</h2>
+<p>If polymorphic and above all metamorphic techniques described in this document enable viruses to protect themselves in a more efﬁcient way against detection, their sophistication mostly stems from antiviral protection. For antiviral protection is in fact eternally submitted to two paradoxes:</p>
+<ul>
+<li>The more it develops, the more viruses, worms and other malwares use advanced protection techniques which get harder and harder to bypass. In a sense, it sentences itself indirectly to its own impotence (wrt these advanced techniques). Yet currently it still remains efﬁcient, thanks to the mediocre quality of most malwares or to the complexity of the mentionned protection techniques, which discourages most malware writers.</li>
+<li>And secondly, if on one side the increase of RAM size and CPU speed, as well as the upcoming of multi-core processors, seem to be in favour of antiviral protection, it also enables malwares to use more and more complex techniques, without having to worry about their cost. And this is all the more true as, as we told previously, antiviruses will always be limited in time and CPU cost, unlike malwares.</li>
+</ul>
+<p>Also, it should be noted that the state of the art of current metamorphic techniques (with viral protection purpose) is not representative of the threat they represent. Some antiviral experts sweep blatantly away – recently again [She07] – this threat on the pretext that it never actually proved itself except for proving its own uselessness. And as a matter of fact, the history of metamorphic viruses tends to corroborate this: there are few of them, most of which are poorly accomplished and contain critical ﬂaws (bugs or conception ﬂaws which make detection easy). In the same time, development of rootkit techniques draws away attention. Yet, both threats are real, with different maturities, but none of them should be overlooked. Even though the second one is mostly implemented in worms, which currently represent the most important infectious threat, and even though it is more technical than the ﬁrst one, and thus within the means of more hackers.</p>
+<p>All in all, if virus writers were a bit less “in a hurry” and reﬁned their techniques, the antiviral community could be quickly overtaken. An advanced use of syntactic and functional polymorphism techniques, combined with advanced stealth techniques, would theoretically make the complexity of the detection problem prohibitive or even undecidable [Fil07] (POC virus PBMOT).</p>
+<h2><a name="c5"></a>References</h2>
+<ul>
+<li>[Ayc06] John Aycock. <em><a href="/lib/mja01.html">Computer Viruses and Malware</a></em>. Springer, 2006.</li>
+<li>[BF07] Philippe Beaucamps and &Eacute;ric Filiol. On the possibility of practically obfuscating programs – towards a uniﬁed perspective of code protection. <em>Journal in Computer Virology</em>, 3(1), April 2007.</li>
+<li>[Coh84] Fred Cohen. <a href="/lib/afc01.html">Computer viruses - theory and experiments</a>, 1984.</li>
+<li>[Fil04] &Eacute;ric Filiol. <a href="/lib/aef02.html">Strong cryptography armoured computer viruses forbidding code analysis: the BRADLEY virus</a>. In <em>Proceedings of the 14th EICAR conference</em>, May 2004.</li>
+<li>[Fil05] &Eacute;ric Filiol. <em>Computer viruses: from theory to applications</em>. Springer Verlag, 2005.</li>
+<li>[Fil07] &Eacute;ric Filiol. <em>Advanced viral techniques</em>. Springer Verlag France, 2007. An english translation is pending, due mid 2007.</li>
+<li>[Kha07] Kharn. <a href="/lib/vkh00.html">Exploring RDA</a>. <em>.aware eZine</em>, 1, January 2007.</li>
+<li>[Lud93] Mark Ludwig. <em><a href="/lib/vml02.html">Computer Viruses, Artiﬁcial Life and Evolution</a></em>. American Eagle Publications, Inc., 1993.</li>
+<li>[Lud95] Mark Ludwig. <em><a href="/lib/vml01.html">The Giant Black Book of Computer Viruses</a></em>. American Eagle Publications, Inc., 1995.</li>
+<li>[Mar03] George Marsaglia. Xorshift RNGs. <em>Journal of Statistical Software</em>, 8(14), 2003.</li>
+<li>[MDa] The Mental Driller. <a href="/src.php?info=metaphor1d.zip">METAPHOR source code</a>. Version 1D available at: http://vxheaven.org/src_view.php?file=metaphor1d.zip.</li>
+<li>[MDb] The Mental Driller. TUAREG details and source code. Available in 29A#5: <a href="http://vx.org.ua/29a/29A-5.html">http://vx.org.ua/29a/29A-5.html</a>.</li>
+<li>[MD00] The Mental Driller. <a href="/lib/vmd03.html">Advanced polymorphic engine construction</a>. 29A, 5, December 2000. Available at: http://vx.netlux.org/lib/vmd03.html.</li>
+<li>[MD02] The Mental Driller. <a href="/lib/vmd01.html">Metamorphism in practice or ”how i made METAPHOR and what i’ve learnt”</a>. 29A, 6, February 2002. Available at: http://vx.netlux.org/lib/vmd01.html.</li>
+<li>[Mid99] MidNyte. An introduction to encryption Part <a href="/lib/vmn04.html">1</a>, <a href="/lib/vmn05.html">2</a>, <a href="/lib/vmn06.html">3</a>, April 1999. Available at: http://vx.netlux.org/lib/vmn{04,05,06}.html.</li>
+<li>[RS98] James Riordan and Bruce Schneier. Environmental key generation towards clueless agents. In <em>Lecture Notes In Computer Science</em>, volume 1419, pages 15 – 24, 1998.</li>
+<li>[She07] Alisa Shevchenko. The evolution of self-defense technologies in malware. Available at: http://www.net-security.org/article.php?id=1028, July 2007.</li>
+<li>[Spi03] Diomidis Spinellis. <a href="/lib/ads03.html">Reliable identiﬁcation of bounded-length viruses is NP-complete</a>. <em>IEEE Transactions on Information Theory</em>, 49(1):280 – 284, January 2003.</li>
+<li>[Szo05] Peter Szor. <em><a href="/lib/aps00.html">The Art of Computer Virus Research and Defense</a></em>. Addison Wesley Professional, 2005.</li>
+</ul>
+<p><strong>Philippe Beaucamps</strong> is a PhD student at the CNRS / LORIA in Nancy, France. He works on the modelization of viral infections, and on formal and practical malware detection and protection.</p>
+<p>Contact address: Loria, &Eacute;quipe Carte, 615 rue du Jardin botanique, CS 20101, 54603 Villers-ls-Nancy Cedex France</p>
+<hr size="1"/>
+<p><a name="f1" href="#b1">1</a> MUTATION ENGINE (MTE) by Dark Avenger, TRIDENT POLYMORPHIC ENGINE (TPE), NUKE ENCRYPTION DEVICE (NED) and DARK ANGEL’S MULTIPLE ENCRYPTOR (DAME).</p>
+<p><a name="f2" href="#b2">2</a> VIRUS CONSTRUCTION LAB (VCL), PHALCON/SKISM MASS-PRODU-CED CODE GENERATOR (PS-MPC) and PHALCON/SKISM’S G2 VIRUS GENERATOR (G2).</p>
+<p><a name="f3" href="#b3">3</a> i.e. targetting .NET assemblies.</p>
+<p><a name="f4" href="#b4">4</a> METAPHOR is also known as SIMILE or ETAP.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#apb01">Back to index</a>] [<a href="/lib/apb01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=apb01">de</a><a href="/lib/index.php?lang=en&amp;id=apb01">en</a><a href="/lib/index.php?lang=es&amp;id=apb01">es</a><a href="/lib/index.php?lang=it&amp;id=apb01">it</a><a href="/lib/index.php?lang=fr&amp;id=apb01">fr</a><a href="/lib/index.php?lang=pl&amp;id=apb01">pl</a><a href="/lib/index.php?lang=ru&amp;id=apb01">ru</a><a href="/lib/index.php?lang=ua&amp;id=apb01">ua</a></div>
+</body>
+</html>

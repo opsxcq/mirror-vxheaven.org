@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> 'How AVs Detect Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content=""/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, ,How AVs Detect Viruses, strings, inclusion, scan, emulator, call, decryptor, things, emulation, byte, start, instructions, polymorphic, detect, section, small"/>
+<meta name="Description" content="Over the last 10 years, Anti-Virus products evolved a great deal to well beyond the simple scan-stringers of the early 90s. Yet, beyond some vague concepts like &quot;emulation&quot;, the AV industry has been reasonably successful in keeping everyone in the dark as to exactly the mechanisms by which viruses are detected. The time has come (in fact been long overdue) to shed light on a little of the info the AV guys don't want you to know."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ee32e29bd908590935827e839849d5018a92a332-1498756412-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vxx01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>How AVs Detect Viruses</h1><p> <em><a href="/vx.php?fid=976#f976">Natural Selection [1]</a></em><br/> <em>October 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vxx01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AV#vxx01">Back to index</a>] [<a href="/lib/vxx01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">1 : Introduction</a></li>
+<li><a href="#c2">2 : The Basics</a></li>
+<li><a href="#c3">3 : Emulation</a></li>
+<li><a href="#c4">4 : Last Resort</a></li>
+<li><a href="#c5">5 : Conclusion</a></li>
+</ul>
+<h2><a name="c1"></a>1 : Introduction</h2>
+<p>Over the last 10 years, Anti-Virus products evolved a great deal to well beyond the simple scan-stringers of the early 90s. Yet, beyond some vague concepts like "emulation", the AV industry has been reasonably successful in keeping everyone in the dark as to exactly the mechanisms by which viruses are detected. The time has come (in fact been long overdue) to shed light on a little of the info the AV guys don't want you to know.</p>
+<h2><a name="c2"></a>2 : The Basics</h2>
+<p>AVs still use scan strings to identify the vast majority of viruses. Several newer techniques have been added into their scanning engines which allow them more options incase that signature scanning is not practical. So, let's look at the problem from an AV point of view.</p>
+<p>You have a file and you wish to determine which, if any, of a big list of viruses patterns it contains. Since there are a large number of viruses (over 40,000) it is not practical to go through a file once for each virus individually. Instead all the simple to ID viruses are checked for first and all at once. Viruses which are simple to ID include those for which regular scan strings exist and for those viruses who use a overly simple method of encryption like add, sub, or xor (there is an article about it in matrix#2 if you're interested).</p>
+<p>First the file type of the file being scanned is determined. Depending on the file type being checked the corresponding subset of viruses which are capable of infecting that file type are included and the rest excluded from the search (there is no point is scanning for a MBR infector inside a Word document afterall).</p>
+<p>The exact nature of the scan strings depend on the vendor. Scan strings are typically 20-30 bytes long. Some AVs allows scan strings with wild cards. Others allow for half-byte (nibble) matches. Some even allow for some variation in the length of wildcards (e.g. B8 02 [wildcard - 3 to 5 bytes] B9 00 ) to accommodate for garbage code. It is worthwhile to note that the AV guys don't like using wildcards to match viruses, and instead, rather put multiple scan strings per virus to catch all possibilities (some viruses have 8 or more different scan strings). Anyways, this is what a typical scans string looks like:</p>
+<pre class="source">
+	E8 3D 00 C3 BA 00 01 B9 55 10 B4 40 E8 41 FE C3 B8 02 42 33 C9 33 D2 E8
+	(an actual scan string of Kampi.4181)
+</pre>
+<p>Some AV products, after getting a scan string match, then preform a CRC check on the rest of the suspected virus so as to be sure they identified it correctly.</p>
+<p>In an effort to speed up scanning, some of the AV guys like to have all their scan strings conform to a certain type. That being scan strings which start with the only a small set of bytes instead of being able to start with any byte. This has the effect that a scanner does not have to check every byte in the input file as a possible start of a scan string. This set of start bytes is typically small - around 16 or so - and correspond to some of the most common instructions found in programs. For example, in a DOS file scanner bytes corresponding to some of the following instructions are probably used:</p>
+<p>"cs:", "cmp ax,#", "push ax", "int", "jz", "mov reg, r/m", "mov ax, #", "call", "jmp (full)"</p>
+<p>When scanning for unknown viruses, most AV products use emulation, but some still use a form of scan strings. These strings are short, and represent code sequences commonly found in viruses (EXE header checks, open file, the word "virus" [haha], etc). The presence of only one of these strings will not set off a scanner, but the presence of multiple ones may (though it is rare these scanners ever find anything).</p>
+<h2><a name="c3"></a>3 : Emulation</h2>
+<p>So, now that all the easy stuff has been detected, the AV is left with the problem of detecting the strong polymorphic and metamorphic viruses. For this, one of the methods of checking is to use emulation. The emulator attempts to go through the code, and decrypt part or all of the main virus body in memory at which point it again tries to scan string.</p>
+<p>Since most of the viruses which are still left to scan for are polymorphic, the scanners expect to see stuff like a decryption routines and garbage instructions. They thus formulated a few nice speed ups.</p>
+<p>The emulator works by keeping track of the areas of virtual memory (where the file is being emulated) that have been changed. Every so often, the emulator is interrupted and the changed bytes in virtual memory (typically their emulators can handle around 64kb of dirty pages) are scanned for the presence of a scan string of one of the remaining viruses. Interruptions can occur after any write to memory - especially those to a code segment, and when the number writes to a single page is much more common than writes to another page.</p>
+<p>In order to prevent the emulator from running forever, the emulator stops when either 1) the file could not contain any known virus, or 2) a certain amount of instructions have been processed. The upper limit of instruction emulated is usually somewhere around 1 to 2 million but it could be higher now. Emulators also tend to shut down when they are presented with an unknown API (the emulator doesn't know how many parameters the API thus can't clean the stack).</p>
+<p>Emulation is slow - and hence it is desirable for it to stop before the upper limit of emulation is reached. Early scanners used a heuristic on how long the emulator should run. The file is assumed to have some initial percentage chance to be infected (10% or so). As the file is emulated, this probability updated with Promoter and Inhibitor Rules. Promoter Rules are suspicious things that indicate the presence of a virus. For example, encountering a garbage instruction (destroys content of registers before use) will increase this by about 1%. Inhibitor rules do the opposite. They reduce the possibility of a virus being in the file (rules like: system calls, and few memory writes). Emulation continued with this method while probability of a virus was more than zero. While this method is no longer used for scanning for known viruses, it is likely some form of it is in use for detecting unknown viruses.</p>
+<p>In newer scanners, as the emulator progresses, the list of viruses which could still be in the file is updated based on the instructions encountered.</p>
+<p>For example, if a file contains the instruction: "ADD eax, 3". In machine code there are three ways to represent this instruction (great design):</p>
+<pre class="source">
+	05 03 00 00 00		; EAX register "short" form
+	83 C0 03		; Sign extended general reg add
+	81 C0 03 00 00 00	; Not sign extended general
+</pre>
+<p>Strangely enough, the first is the normal one to use in this case. Go Figure. Anyways, if a poly engine is only capable of making the first and third of these instructions, but the emulator finds the second, then that virus is eliminated from the list of viruses possibly infecting the file. This is called an exclusion string. Exclusion strings are typically small (around 3 bytes) which can eliminate the presence of a virus from a file.</p>
+<p>There also exist something called Inclusion Strings. Inclusion strings register an unusual set of instructions which could signify a virus and they let the emulator know that it should keep on scanning because something funny is happening. Things that make inclusion strings are things like the third case from the above example, and various do nothing garbage instructions like "ADD al, 0", "CLC / JC", etc. Inclusion strings are also used if a virus always contains a small constant string near the beginning that is too short for a full scan string. Failure to find the inclusion string will eliminate the virus from the viruses that the file could be infected with.</p>
+<p>Some of the most interesting inclusion/exclusion choices are those in which a uninitialized value has been used as an index to a memory location. An uninitialized value for a memory read is a dead give away that something funny is going on as this is not a common feature of most programs :). A random memory write though is hardly ever used in program or virus, and it indicated that there is something wrong with the file - maybe corrupt - and thus is an exclusion condition.</p>
+<p>The newer AV emulators also do not have to go through a program in the same order as the program would run. The AV were troubled now for quite some time about conditional branches that would cause the virus to not run. Something like "if ( seconds &lt; 20 ) then early_abort" could cause a virus to exit prematurely which meant that the emulator would fail to find it. To combat this, whenever a conditional branch of this type is encountered, the AVs can save the state of the program before and after the branch, and if it appears that the path the emulator took is a dead end, it can go back and try running the other sequence of code. With this method, they are capable - <strong>in theory</strong> - to make sure that each and every instruction of a program can be run.</p>
+<p>The emulator can stop early if all of the known viruses are eliminated from being in the file (and heuristics doesn't want to continue).</p>
+<p>Little of this should come as any huge surprise or anything. The AV guys at this point are hoping that 99.9% or more of all viruses are eliminated as being in the file. So, since this is defeatable with a good long poly decryptor, some good EPO tactics (Entry Point Obscursion), and of course metamorphism, it'd be nice to see what the AVs use when all else fails.</p>
+<h2><a name="c4"></a>4 : Last Resort</h2>
+<p>The AVs still have a few tricks up their sleeves. They hate using them from what I gather though as it makes their scanners pretty slow as they have to deal with the virus more or less individually (plus it's more work for them).</p>
+<p>In the case of a virus with EPO, the AV guys have the option of trying to guess where the start of the decryptor and emulating from there normally. This methods sometimes works ok, but some quick exclusion code/condition is a necessity for this kind of scanning. Furthermore, it may not always be possible to locate the decryptor or, good heavens, the virus could even be metamorphic :-)</p>
+<p>Sometimes, like in the early days of polymorphic viruses, they attempt to detect the polymorphic decryptor itself, rather than the virus code. This method however is seldom used as it yields both false negatives and false positives a high percentage of the time.</p>
+<p>What is often tried at this point is to detect a virus without the use of a scan string. I mean really - how many real files have the entry point in the last section (writable of course) of a PE file with the section name being "VIRUS", has an incorrect SizeOfData, and has a file size divisible evenly by the number 101?</p>
+<p>Yes, I agree it's an extremely cheap, dishonest, and cheesy way of detecting viruses, but unfortunately it works. If they can't detect the virus code, they just look for other give away signs, combine it with the little info they know the virus does, and they have a detection routine. For some reason, they call this method "Geometric Detection". It's error prone and yields false positives at times, but it can work well enough.</p>
+<p>So, what do they look for in the file with their "Geometric Detection"? A lot of things - some of which is used by their heuristics to pick up unknown viruses too. Among these include:</p>
+<ul>
+<li>Entry Point Location (in the last section)</li>
+<li>Entry Point code starts with a "JMP"</li>
+<li>Incorrectly calculated SizeOfCode/SizeOfImage in the header</li>
+<li>Suspicious section names</li>
+<li>Suspicious imports from KERNEL32 (like by ordinals)</li>
+<li>Finding Delta offset like code (CALL/POP) near Entry Point</li>
+<li>Multiple PE Headers (in case of a prepender)</li>
+<li>Incorrect checksum (Good reason NOT to use it as an infection marker)</li>
+<li>A Patched Import table</li>
+</ul>
+<p>They combine this with virus specific things (they call a 'filter') like:</p>
+<ul>
+<li>Any inclusion strings</li>
+<li>The infection marker</li>
+<li>The approximate code size</li>
+<li>The instructions encountered during emulation (type of garbage code)</li>
+<li>etc - there are many others of course.</li>
+</ul>
+<p>This is what they do if they are lazy and or they let their scanning engine get a little old and didn't have time for a complete overhaul to the new way of doing things. There are two more things they can do.</p>
+<p>The first is to combine a state-machine with their emulator. If a virus is metamorphic by only inserting garbage code, then as the emulator goes along, it compares instructions to ones used in the virus. If the emulator finds the same series of instructions as the virus (the virus without the garbage code), then it is flagged.</p>
+<p>One would have to assume that after a certain number of mismatches, the emulator would have to give up and claim not found. Thus a large enough amount of garbage code could do the trick.</p>
+<p>A last and best option that the AV guys have currently is to scan the dataflow while emulating. Suppose there was not a single byte constant from virus generation to generation. The AVs figured out that they must scan for functionality, not the opcodes.</p>
+<p>For example, when you have some random series of instructions which is completely metamorphic which generate the following:</p>
+<ul>
+<li>push offset to "CreateFileA" string</li>
+<li>push handle of KERNEL32.DLL</li>
+<li>call GetProcAddress</li>
+</ul>
+<p>The AVs can break from the emulator when they reach the first instruction in GetProcAddress in KERNEL32, and examine the parameters to see what is being requested. If the emulator detects the same combination of calls in the same order as the virus, even a metamorphic virus can be detected in this way. The scanners are switching over to this method of scanning, if they have not done so already.</p>
+<p>There are only few ways around this method of scanning:</p>
+<ol>
+<li>Use EPO to hide the start of the virus/decryptor</li>
+<li>Make sure the emulator doesn't get to the virus code - This can be done via very long polymorphic loops, and brute force decryption loops. If the polymorphic engine is just right (garbage read and WRITE statement), then it should be possible for the AVs to get to no single point where they can check values. Although this can't hide the data (like offsets, etc), if can try to obscure it by masking it with dozens of unrelated garbage instructions.</li>
+<li>Vary the algorithm - Granted, this method is hard. In theory it should be possible though. What you could do is figure out which API and other functions have to be done before others and then rearrange the order in which those parts are executed from one generation to the next.</li>
+<li>Garbage API calls - Call random APIs and discard the answers. This should confuse the state machines. Beware - you need to call the APIs with most of the parameters correct as APIs like to crash when it expects a pointer and it gets NULL instead.</li>
+</ol>
+<h2><a name="c5"></a>5 : Conclusion</h2>
+<p>Since the information in this article was not exactly easy to gather - for some reason the AV guys are not forthcoming about it - I cannot guarantee accuracy. If there are any new developments, I'd love to hear about them. Hopefully though, this will give you a good enough idea as to what you are up against, and how to make them invest just a little more time on your virus. They like to boast that it takes vXers months to write the stuff that they can detect in minutes and at worst in days. Let's see if we can fix that dreadful imbalance. :-)</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AV#vxx01">Back to index</a>] [<a href="/lib/vxx01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vxx01">de</a><a href="/lib/index.php?lang=en&amp;id=vxx01">en</a><a href="/lib/index.php?lang=es&amp;id=vxx01">es</a><a href="/lib/index.php?lang=it&amp;id=vxx01">it</a><a href="/lib/index.php?lang=fr&amp;id=vxx01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vxx01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vxx01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vxx01">ua</a></div>
+</body>
+</html>

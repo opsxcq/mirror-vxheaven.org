@@ -1,0 +1,512 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SPTH 'Taking the redpill: Artificial Evolution in native x86 systems' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SPTH"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SPTH,Taking the redpill: Artificial Evolution in native x86 systems, text, instructions, guard, frac, computer, meta, arguments, ﬁles, language, evolution, clones, processes, adami, mutation, selection"/>
+<meta name="Description" content="First, three successful environments for artiﬁcial evolution in computer systems are analysed brieﬂy. The organism in these enviroment are in a virtual machine with special chemistries. Two key-features are found to be very robust under mutations: Non-direct addressing and separation of instruction and argument.In contrast, the x86 instruction set is very brittle under mutations, thus not able to achieve evolution directly. However, by making use of a special meta-language, these two key-features can be realized in a x86 system. This meta-language and its implementation is presented in chapter 2.First experiments show very promising behaviour of the population. A statistically analyse of these population is done in chapter 3. One key-result has been found by comparison of the robustness of x86 instruction set and the meta-language: A statistical analyse of mutation densities shows that the meta-language is much more robust under mutations than the x86 instruction set.In the end, some Open Questions are stated which should be addressed in further researches. An detailed explanation of how to run the experiment is given in the Appendix."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"67cf0fd1db8fd380ef1a21ae8b9a0488141f9417-1498757250-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsp26.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Taking the redpill: Artificial Evolution in native x86 systems</h1><p><a href="/lib/?lang=en&amp;author=SPTH"> SPTH</a><br/> <em>October 2010</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsp26.html';</script><div class="ci"><a href="/lib/?ci=vsp26">2</a></div><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Taking%20the%20redpill%3A%20Artificial%20Evolution%20in%20native%20x86%20systems.pdf">Download</a> PDF (370.31Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=AI#vsp26">Back to index</a>] [<a href="/lib/vsp26.html#disqus_thread">Comments</a>]<br/> <form method="post" action="">
+<img src="/img/cache/0b9fd596a90421f9f1f68a9760275737.gif" alt="\text{T_EX size}" valign="middle"/>
+<select name="TeX_size"><option value="-2">-2</option><option value="-1">-1</option><option value="0" selected="selected">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option> </select>
+<input type="submit" value="Scale"/>
+</form>
+<address>
+Sperl Thomas<br/>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cbb8bbaeb9a7e5bfa3a4a6aab88baca6aaa2a7e5a8a4a6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</address>
+<p><a href="files/vsp26/ArtEvol.rar">download sources and binaries for this project (1.2MB)</a></p>
+<ul>
+<li><a href="#c0">Abstract</a></li>
+<li><a href="#c1">1. Overview</a>
+<ul>
+<li><a href="#c11">1.1. History</a>
+<ul>
+<li><a href="#c111">1.1.1. CoreWorld</a></li>
+<li><a href="#c112">1.1.2. Tierra</a></li>
+<li><a href="#c113">1.1.3. Avida</a></li>
+</ul></li>
+<li><a href="#c12">1.2. Evolutionary Properties of di#erent Chemistries</a></li>
+<li><a href="#c13">1.3. Biological Information Storage</a></li>
+</ul></li>
+<li><a href="#c2">2. Artificial Evolution in x86</a>
+<ul>
+<li><a href="#c21">2.1. Chemistry for x86</a></li>
+<li><a href="#c22">2.2. The instruction set</a>
+<ul>
+<li><a href="#c221">2.2.1. An example: Linear congruential generator</a></li>
+</ul></li>
+<li><a href="#c23">2.3. Translation of meta-language</a></li>
+</ul></li>
+<li><a href="#c3">3. Experiments</a>
+<ul>
+<li><a href="#c31">3.1. Overview</a></li>
+<li><a href="#c32">3.2. First attempts</a></li>
+<li><a href="#c33">3.3. Statistical analyse of experiment</a></li>
+<li><a href="#c34">3.4. Comparing Robustness with x86 instruction set</a></li>
+</ul></li>
+<li><a href="#c4">4. Outlook</a>
+<ul>
+<li><a href="#c41">4.1. Open questions</a></li>
+<li><a href="#c42">4.2. Computer malware</a></li>
+<li><a href="#c43">4.3. Conclusion</a></li>
+</ul></li>
+<li><a href="#c5">Bibliography</a></li>
+<li><a href="#c6">A. Appendix</a>
+<ul>
+<li><a href="#c61">A.1. The package</a></li>
+<li><a href="#c62">A.2. Running the experiment</a></li>
+</ul></li>
+</ul>
+<h2><a name="c0"></a>Abstract</h2>
+<p>First, three successful environments for artiﬁcial evolution in computer systems are analysed brieﬂy. The organism in these enviroment are in a virtual machine with special chemistries. Two key-features are found to be very robust under mutations: Non-direct addressing and separation of instruction and argument.</p>
+<p>In contrast, the x86 instruction set is very brittle under mutations, thus not able to achieve evolution directly. However, by making use of a special meta-language, these two key-features can be realized in a x86 system. This meta-language and its implementation is presented in chapter 2.</p>
+<p>First experiments show very promising behaviour of the population. A statistically analyse of these population is done in chapter 3. One key-result has been found by comparison of the robustness of x86 instruction set and the meta-language: A statistical analyse of mutation densities shows that the meta-language is much more robust under mutations than the x86 instruction set.</p>
+<p>In the end, some Open Questions are stated which should be addressed in further researches. An detailed explanation of how to run the experiment is given in the Appendix.</p>
+<h2><a name="c1"></a>1. Overview</h2>
+<h3><a name="c11"></a>1.1. History</h3>
+<h4><a name="c111"></a>1.1.1. CoreWorld</h4>
+<p>Artiﬁcial evolution for self-replicating computer codes has been introduced for the ﬁrst time in 1990, when Steen Rasmussen created <em>CoreWorld</em>.[1] CoreWorld is a virtual machine which can be controlled by a language called <em>RedCode</em>. This assembler-like language has a pool of ten diﬀerent instructions that take two addresses as arguments. Rasmussen’s idea was to introduce a random ﬂaw of the MOV command, resulting of random mutations of the self-replicating codes within the environment. The big disadvantage of RedCode was, that nearly all ﬂaws led to a lethal mutation, hence evolution did not occure as wished.</p>
+<h4><a name="c112"></a>1.1.2. Tierra</h4>
+<p>In 1992, Tom Ray found out that the problem with RedCode was due to <em>argumented instruction set</em>: Independent mutations in the instruction and its arguments are unlikely to lead to a meaningful combination.[2] Instead of direct connection between the instruction and its argument, Ray developed a pattern-based addressing mechanism: He introduced two NOP-instructions (NOP0 and NOP1). These instructions do not operate themselve, but can be used as marker within the code. A pattern-matching algorithmus would ﬁnd the ﬁrst appearence of a complementary marker string given (after the search-command), and returns its addresse.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AX</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; push ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JMP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP0&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; jmp marker101</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">INC</span> &nbsp; &nbsp; A &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; inc ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NOP1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; marker101:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">CX</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; pop cx</span><br/>
+&nbsp;</div>
+<p>There are 32 instructions available in the virtual Tierra world, roughly based on assembler (JMP, PUSH AX, INC B and so on). With these inventions, Ray was able to gain great results for artiﬁcial evolution (like parasitism, multi-cellularity[3][4], ...).</p>
+<h4><a name="c113"></a>1.1.3. Avida</h4>
+<p>In 1994, Christoph Adami has developed another artiﬁcial evolution simulation, called <em>Avida</em>. Beside of some diﬀerent structures of the simulation, an important change has been made in the artiﬁcial chemistry: Instead of hardcoded arguments within the instructions (as in Tierra for example PUSH AX), instructions and arguments are completely separated. The arguments are deﬁned by NOPs (in avida there are three NOPs: nop-A, nop-B, nop-C) following the operation (for example, a nop-A following a PUSH pushes the AX-register to the stack). There are 24 instructions available in avida, again roughtly based on assembler (call, return, add, sub, allocate and so on).</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>A &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; push ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jump<span style="color: #339933;">-</span>f<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>A<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>B<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>B &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; jmp markerBCC</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>A &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; inc ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>B<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>C<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>C &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; markerBCC:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><span style="color: #339933;">-</span>B &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; pop bx</span><br/>
+&nbsp;</div>
+<p>With that improvements of the virtual simulation, the researchers using avida found out amazing results, among other things about the origin of complex features in organism [5].</p>
+<h3><a name="c12"></a>1.2. Evolutionary Properties of diﬀerent Chemistries</h3>
+<p>In 2002, an detailed analyse about diﬀerent artiﬁcial chemistries has been published[6]. The authors compare several diﬀerent instruction sets for evolutionary properties as Fitness and Robustness (<img src="/img/cache/f277e86c6934ca1149636159a99f7357.gif" alt="R = \frac{N}{M}" valign="middle"/> where N is the number of non-lethal mutations and M is the number of all possible mutations).</p>
+<p>The Chemistry I consists of 28 operations and has total seperated operations and arguments (same as Avida). Chemistry II has 84 unique instructions and seperated operations and arguments. The last Chemistry III has 27 instructions, but within the instructions the argument is given (i.e. push-AX, pop-CX, ...). As a result, it has been found that Chemistry I is much robuster and can achieve a much higher ﬁttness than Chemistry II, Chemistry III is the worst language for evolution.</p>
+<h3><a name="c13"></a>1.3. Biological Information Storage</h3>
+<p>The information in natural organism is stored in the DNA. The DNA is roughly speaking a string of nucleotides. There are four nucleotides - Adenine, Cytosine, Guanine and Thymine. Three nucleotides form a codon, and are translated by tRNA to amino acids. Amino acids are the building blocks of proteins, which are main modules of cells.</p>
+<p>One can calculate that there are <img src="/img/cache/72abb5b6a7b2cc3c7eaa362d3210739e.gif" alt="N = 4^3 = 64" valign="middle"/> possibilities how you can sort the codons - one could code 64 diﬀerent amino acids. But nature just provides 20 diﬀerent amino acids, hence there is big redundancy in the translation process.</p>
+<table summary="">
+<tr><th>Amino acid</th><th>% in human</th><th>Codons</th></tr>
+<tr><td>ALA</td><td>6.99</td><td>GCU, GCC, GCA, GCG</td></tr>
+<tr><td>ARG</td><td>5.28</td><td>CGU, CGC, CGA, CGG, AGA, AGG</td></tr>
+<tr><td>ASN</td><td>3.92</td><td>AAU, AAC</td></tr>
+<tr><td>ASP</td><td>5.07</td><td>GAU, GAC</td></tr>
+<tr><td>CYS</td><td>2.44</td><td>UGU, UGC</td></tr>
+<tr><td>GLU</td><td>6.82</td><td>GAA, GAG</td></tr>
+<tr><td>GLN</td><td>4.47</td><td>CAA, CAG</td></tr>
+<tr><td>GLY</td><td>7.10</td><td>GGU, GGC, GGA, GGG</td></tr>
+<tr><td>HIS</td><td>2.26</td><td>CAU, CAC</td></tr>
+<tr><td>ILE</td><td>4.50</td><td>AUU, AUC, AUA</td></tr>
+<tr><td>LEU</td><td>9.56</td><td>UUA, UUG, CUU, CUC, CUA</td></tr>
+<tr><td>LYS</td><td>5.71</td><td>AAA, AAG</td></tr>
+<tr><td>MET</td><td>2.23</td><td>AUG</td></tr>
+<tr><td>PHE</td><td>3.84</td><td>UUU, UUC</td></tr>
+<tr><td>PRO</td><td>5.67</td><td>CCU, CCC, CCA, CCG</td></tr>
+<tr><td>SER</td><td>7.25</td><td>UCU, UCC, UCA, UCG, AGU, AGC</td></tr>
+<tr><td>THR</td><td>5.68</td><td>ACU, ACA, ACC, ACG</td></tr>
+<tr><td>TRP</td><td>1.38</td><td>UGG</td></tr>
+<tr><td>TYR</td><td>3.13</td><td>UAC, UAU</td></tr>
+<tr><td>VAL</td><td>6.35</td><td>GUU, GUC, GUA, GUG</td></tr>
+<tr><td>STOP</td><td>0.24</td><td>UAA, UAG, UGU</td></tr>
+</table>
+<p>There is a connection between the frequency of the amino acid in the genom and the redundancy of the translation process. This mechanism protects the organism from consequences of mutation. Imagine an Alanine (ALA) codon GCU will be mutated to GCC, this codon will still be translated to Alanine, thus there is no eﬀect.</p>
+<h2><a name="c2"></a>2. Artiﬁcial Evolution in x86</h2>
+<h3><a name="c21"></a>2.1. Chemistry for x86</h3>
+<p>The aim is to create an evolvable chemistry for a native x86 system. So far, all noteable attempts have been done in virtual simulated plattforms, where the creator can deﬁne the structure and the embedded instruction set.</p>
+<p>On the other hand, the x86 chemistry has been deﬁned long time ago and appears to be not very evolution-friendly. The instruction set is very big, the arguments and operations are directly connected, there is no instruction-end marker or constant instruction-size. Hence, selfreplicators are very brittle in that environment, and almost all mutations are lethal.</p>
+<p>A possibility to avoid the bad behaviour of the x86 instruction set concerning mutations is to create a (at best Turing-complete) meta-language. At execution, the meta-language has to be translated to x86 assembler instructions.</p>
+<p>Here, a meta-language is presented with a eight bit code for each instruction, which will be translated to x86 code at execution. Obviously, this is the same procedure as in Protein biosynthesis. The eight bits coding a single instruction in the meta-language are analogs of the three codons representing one amino acid. At execution they are translated to a x86 instruction - just as tRNA transformes the codon to a amino-acid. A punch of translated x86 instructions form a speciﬁc functionality, in biology a number of amino acids form a protein (which is responsible for a certain functionality in the organism).</p>
+<h3><a name="c22"></a>2.2. The instruction set</h3>
+<p>One intention was to create an instruction set which can be translated to x86 instructions in a very trivial way. This was a noteable restriction as key instructions used in Tierra and avida (like search-f, jump-b, dividate, allocate, ...) can not be written in a simple way in x86 assembler.</p>
+<p>The main idea of the meta-language is to have a number of buﬀers which are used as arguments of all operations. Registers are not used directly as arguments for instructions, but have to be copied from/to buﬀers, leading to a seperation of operation and argument. The instructions have a very similar form as in avida; comparing nopsA &amp; push vs. push &amp; nop-A, or pop &amp; nopdA vs. pop &amp; nop-A or nopsA &amp; inc &amp; nopdA vs. inc &amp; nop-A for the meta-language and avida, respectively.</p>
+<p>It has emerged that it is enough to use three registers (RegA, RegB, RegD), two buﬀers for calculations and operations (BC1, BC2) and two buﬀers for addressing (BA1, BA2).</p>
+<table summary="">
+<tr><th colspan="3">Buffer instructions (16)</th></tr>
+<tr><td>nopsA</td><td>BC1=RegA</td><td>mov ebx, eax</td></tr>
+<tr><td>nopsB</td><td>BC1=RegB</td><td>mov ebx, ebp</td></tr>
+<tr><td>nopsD</td><td>BC1=RegD</td><td>mov ebx, edx</td></tr>
+<tr><td>nopdA</td><td>RegA=BC1</td><td>mov eax, ebx</td></tr>
+<tr><td>nopdB</td><td>RegB=BC1</td><td>mov ebp, ebx</td></tr>
+<tr><td>nopdD</td><td>RegD=BC1</td><td>mov edx, ebx</td></tr>
+<tr><td>saveWrtOff</td><td>BA1=BC1</td><td>mov edi, ebx</td></tr>
+<tr><td>saveJmpOff</td><td>BA2=BC1</td><td>mov esi, ebx</td></tr>
+<tr><td>writeByte</td><td>byte[BA1]=(BC1&amp;&amp;0xFF)</td><td>mov byte[edi], bl</td></tr>
+<tr><td>writeDWord</td><td>dword[BA1]=BC1</td><td>mov dword[edi], ebx</td></tr>
+<tr><td>save</td><td>BC2=BC1</td><td>mov ecx, ebx</td></tr>
+<tr><td>addsaved</td><td>BC1+=BC2</td><td>add ebx, ecx</td></tr>
+<tr><td>subsaved</td><td>BC1-=BC2</td><td>sub ebx, ecx</td></tr>
+<tr><td>getDO</td><td>BC1=DataOffset</td><td>mov ebx, DataOffset</td></tr>
+<tr><td>getdata</td><td>BC1=dword[BC1]</td><td>mov ebx, dword[ebx]</td></tr>
+<tr><td>getEIP</td><td>BC1=instruction pointer</td><td>call gEIP; gEIP: pop ebx</td></tr>
+<tr><th colspan="3">Operations (10+8)</th></tr>
+<tr><td>zer0</td><td>BC1=0</td><td>mov ebx, 0x0</td></tr>
+<tr><td>push</td><td>push BC1</td><td>push ebx</td></tr>
+<tr><td>pop</td><td>pop BC1</td><td>pop ebx</td></tr>
+<tr><td>mul</td><td>RegA*=BC1</td><td>mul ebx</td></tr>
+<tr><td>div</td><td>RegA/=BC1</td><td>div ebx</td></tr>
+<tr><td>shl</td><td>BC1 &lt;&lt; (BC2&amp;&amp;0xFF)</td><td>shl ebx, cl</td></tr>
+<tr><td>shr</td><td>BC1 >> (BC2&amp;&amp;0xFF)</td><td>shr ebx, cl</td></tr>
+<tr><td>and</td><td>BC1=BC1&amp;&amp;BC2</td><td>and ebx, ecx</td></tr>
+<tr><td>xor</td><td>BC1=BC1</td><td>xor BC2 xor ebx, ecx</td></tr>
+<tr><td>add0001</td><td>BC1+=0x1</td><td>add ebx, 0x0001</td></tr>
+<tr><td>add0004</td><td>BC1+=0x4</td><td>add ebx, 0x0004</td></tr>
+<tr><td>add0010</td><td>BC1+=0x10</td><td>add ebx, 0x0010</td></tr>
+<tr><td>add0040</td><td>BC1+=0x40</td><td>add ebx, 0x0040</td></tr>
+<tr><td>add0100</td><td>BC1+=0x100</td><td>add ebx, 0x0100</td></tr>
+<tr><td>add0400</td><td>BC1+=0x400</td><td>add ebx, 0x0400</td></tr>
+<tr><td>add1000</td><td>BC1+=0x1000</td><td>add ebx, 0x1000</td></tr>
+<tr><td>add4000</td><td>BC1+=0x4000</td><td>add ebx, 0x4000</td></tr>
+<tr><td>sub0001</td><td>BC1-=1</td><td>sub ebx, 0x0001</td></tr>
+<tr><th colspan="3">Jumps (4)</th></tr>
+<tr><td>JnzUp</td><td colspan="2">jz over &amp;&amp; jmp esi &amp;&amp; over:</td></tr>
+<tr><td>JnzDown</td><td colspan="2">jnz down (&amp;&amp; times 32: nop) &amp;&amp; down:</td></tr>
+<tr><td>JzDown</td><td colspan="2">jz down (&amp;&amp; times 32: nop) &amp;&amp; down:</td></tr>
+<tr><td>ret</td><td colspan="2">ret</td></tr>
+<tr><th colspan="3">API calls (11) - Windows based</th></tr>
+<tr><td>CallAPIGetTickCounter</td><td colspan="2">stdcall [GetTickCount]</td></tr>
+<tr><td>CallAPIGetCommandLine</td><td colspan="2">stdcall [GetCommandLine]</td></tr>
+<tr><td>CallAPICopyFile</td><td colspan="2">stdcall [CopyFile]</td></tr>
+<tr><td>CallAPICreateFile</td><td colspan="2">stdcall [CreateFile]</td></tr>
+<tr><td>CallAPIGetFileSize</td><td colspan="2">stdcall [GetFileSize]</td></tr>
+<tr><td>CallAPICreateFileMapping</td><td colspan="2">stdcall [CreateFileMapping]</td></tr>
+<tr><td>CallAPIMapViewOfFile</td><td colspan="2">stdcall [MapViewOfFile]</td></tr>
+<tr><td>CallAPICreateProcess</td><td colspan="2">stdcall [CreateProcess]</td></tr>
+<tr><td>CallAPIUnMapViewOfFile</td><td colspan="2">stdcall [UnMapViewOfFile]</td></tr>
+<tr><td>CallAPICloseHandle</td><td colspan="2">stdcall [CloseHandle]</td></tr>
+<tr><td>CallAPISleep</td><td colspan="2">stdcall [Sleep]</td></tr>
+</table>
+<p>There are 30+8 unique commands (the eight addNNNN and sub0001 could be reduced to one single command, but this would make the code very big) and 11 API calls - giving 49 instructions. For translation, a command is identiﬁed by 8bits. Therefore there are <img src="/img/cache/f153264643ac751575406e1498d8a197.gif" alt="N = 2^8 = 256" valign="middle"/> possible combinations, thus there is a big redundancy within the translation of commands to x86 code - just as in natural organism. This gives the code a big freedom in protecting itself against harmful eﬀects of mutations.</p>
+<h4><a name="c221"></a>2.2.1. An example: Linear congruential generator</h4>
+<p>The following code creates a new random number (Linear congruential generator) via</p>
+<p><img src="/img/cache/52bc3abe2b5a2170ad4464a992933581.gif" alt="x_{n+1} = (ax_n + c)\text{mod } m" valign="middle"/></p>
+<p>with a = 1103515245, c = 12345 and m = 232 (these are the numbers used by GCC).</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+DataOffset<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SomeData&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; RandomNumber&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0x0</span><br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+macro addnumber arg <span style="color: black;">&#123;</span> <span style="color: #339933;">...</span> <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Creates the correct addNNNN combination</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; getDO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; add0004<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; getdata &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov ebx, dword[RandomNumber]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nopdA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; eax=dword[RandomNumber]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; zer0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addnumber <span style="color: #ff0000;">1103515245</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov ebx, 1103515245</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mul</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mul ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; zer0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addnumber <span style="color: #ff0000;">12345</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; save&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov ecx, ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nopsA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addsaved<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nopdB &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov ebp, (1103515245*[RandomNumber]+12345)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ebp=new random number</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; getDO<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; add0004<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; saveWrtOff&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov edi, RandomNumber</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nopsB<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; writeDWord&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; mov dword[RandomNumber], ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Save new random number</span><br/>
+<span style="color: #339933;">.</span>end <span style="color: #0000ff; font-weight: bold;">code</span><br/>
+&nbsp;</div>
+<h3><a name="c23"></a>2.3. Translation of meta-language</h3>
+<p>As the instruction set has been created to construct a trivial translator, the translator can be written as a single loop. A meta-language instruction is one byte, the corresponding x86 instruction has 8 bytes (for 256 instructions, this gives a 8 ∗ 256 = 2.120 Byte long translation table).</p>
+<p>The Translator picks one 8bit codon, searchs the corresponding x86 instruction and writes that x86 instruction to the memory. At the end of all codons, it executes the memory.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; VirtualAlloc<span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x10000</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x1000</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>Place4Life<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 64 KB RAM</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EDX will be used as the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; counter of this loop</span><br/>
+WriteMoreToMemory<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x0</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EBX=0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bl</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">byte</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">+</span>StAmino<span style="color: black;">&#93;</span> &nbsp; <span style="color: black; font-style: italic;">; BL=NUMBER OF AMINO ACID</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EBX*=8;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> StartAlphabeth &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Alphabeth offset</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; offset of the current amino acid</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; current number of amino acid</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; lenght of amino acids</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>Place4Life<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Memory address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Offset of current memory</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">8</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ECX=8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">rep</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">movsb</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Write ECX bytes from ESI to EDI</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Write 8 bytes from Alphabeth</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; to Memory</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Increase EDX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>EndAmino<span style="color: #339933;">-</span>StAmino<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; WriteMoreToMemory<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: black;">&#91;</span>Place4Life<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Run organism!</span><br/>
+&nbsp;</div>
+<p>The Translation Table/Alphabeth has the following form:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; 0001 1000 - 24:</span><br/>
+getEIP&nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> &nbsp; &nbsp; <span style="color: #ff0000;">24</span><br/>
+ACommand24<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; gEIP<br/>
+gEIP<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+ECommand24<span style="color: #339933;">:</span><br/>
+<span style="color: #0000ff; font-weight: bold;">times</span> <span style="color: black;">&#40;</span><span style="color: #ff0000;">8</span><span style="color: #339933;">-</span>ECommand24<span style="color: #339933;">+</span>ACommand24<span style="color: black;">&#41;</span><span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; 0001 1001 - 25:</span><br/>
+JnzUp &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> &nbsp; &nbsp; <span style="color: #ff0000;">25</span><br/>
+ACommand25<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; over<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+over<span style="color: #339933;">:</span><br/>
+ECommand25<span style="color: #339933;">:</span><br/>
+<span style="color: #0000ff; font-weight: bold;">times</span> <span style="color: black;">&#40;</span><span style="color: #ff0000;">8</span><span style="color: #339933;">-</span>ECommand25<span style="color: #339933;">+</span>ACommand25<span style="color: black;">&#41;</span><span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp;</div>
+<h2><a name="c3"></a>3. Experiments</h2>
+<div align="right"><em>To achieve evolution it is necessary to have replication, mutation and selection.</em></div>
+<h3><a name="c31"></a>3.1. Overview</h3>
+<p>An ancestor organism has been written, which is able <strong>replicate</strong> itself. It copies itself in the current directory to a random named ﬁle and execute its oﬀspring.</p>
+<p>The <strong>mutation</strong>-algorithm is written within the code (not given by the plattform as it is possible in Tierra or avida). With a certain probability a random bit within a special interval of the new ﬁle ﬂips. Each organism can create ﬁve oﬀspring, each with a diﬀerent intervall and probability of mutation.</p>
+<p>For ﬁnding an adequate mutation probability, one can calculate the probability <em>P</em> that at least one bit-ﬂip occures giving a N byte interval and a probability pbit for a single bit to ﬂip:</p>
+<p><img src="/img/cache/220269979f2d106ebfb4f9913fa62c54.gif" alt="P(N, p_{bit}) = \sum_{n=0}^{N-1} p_{bit}(1 - p_{bit})^ n = 1 - (1 - p_{bit})^n" valign="middle"/></p>
+<table summary="">
+<tr><th>Interval</th><th>N</th><th>P</th><th><img src="/img/cache/9afef8aa15708bce9905b45fb3a4212c.gif" alt="p_{bit}" valign="middle"/></th></tr>
+<tr><td>1</td><td>Code</td><td>2100</td><td>0.9</td><td><img src="/img/cache/82ddfdfcd14eba5ea4ccb01351dd38cd.gif" alt="\frac{1}{900}" valign="middle"/></td></tr>
+<tr><td>2</td><td>Code+Alphabeth</td><td>4200</td><td>0.9</td><td><img src="/img/cache/e94c3f27c670651bd240565d2310af51.gif" alt="\frac{1}{1800}" valign="middle"/></td></tr>
+<tr><td>3</td><td>whole file</td><td>6150</td><td>0.9</td><td><img src="/img/cache/054bd919ccb32635013c36cc5f40d984.gif" alt="\frac{1}{2666}" valign="middle"/></td></tr>
+<tr><td>4</td><td>Code</td><td>2100</td><td>0.75</td><td><img src="/img/cache/f3c03b7eb5b3ecb3e439fcbb9ad7b353.gif" alt="\frac{1}{1500}" valign="middle"/></td></tr>
+<tr><td>5</td><td>Code</td><td>2100</td><td>0.68</td><td><img src="/img/cache/4fa006f233bfbbd39a5d2c9b147709a5.gif" alt="\frac{1}{1820}" valign="middle"/></td></tr>
+</table>
+<p>The second oﬀspring has also the opportunity to change the alphabeth. This could lead to redundancy in the alphabeth to avoid negative eﬀects of mutations (as used in nature - descriped in 1.3). The mutations in the third oﬀspring can access the whole ﬁle.</p>
+<p>Natural <strong>selection</strong> is not very strong in this experiment, CPU speed and harddisk space is limited. Thus, most non-lethal mutations are neutral and disribute randomly within the population. This can be used very easy to understand the relationship of the population: The smaller their <em>Hamming distance</em>, the nearer their relationship.</p>
+<p>The Hamming distance <img src="/img/cache/101b44ac3741e8f4de3399b5a099f09d.gif" alt="\Delta(x, y)" valign="middle"/> is deﬁned as</p>
+<p><img src="/img/cache/e36a477fc4388a3a0bec5b65bd73bc0e.gif" alt="\Delta(x, y) := \sum_{x_i \ne y_i} 1,\ \ i = 1, \dots, n" valign="middle"/></p>
+<p>Beside of natural selection, their could be artiﬁcial selection. Some artiﬁcial selection has been used to prevent some wired behaviour of the populations.</p>
+<p>The experiments have been done on a native WindowsXP. For stabilization, several small C++ guard programs have been developed which searches and closes endless-loops, closes error messages and dead processes (processes that live longer than a certain time).</p>
+<h3><a name="c32"></a>3.2. First attempts</h3>
+<p>The ﬁrst attempt has shown some unexpected behaviour.</p>
+<p><strong>Multiple instances of same ﬁle:</strong> Already after a few dozen of generations, the process list started to ﬁll with multiple instances of the same ﬁle. An analyse of the ﬁle shows that this happens due to a mutation corrupting the random name engine. The random name engine always generates the same ﬁlename (for instance aaaaaaaa.exe). After the mutation process (which has no eﬀect as the ﬁle has write protection due to execution) the new/old ﬁle is executed again.</p>
+<p>To prevent this unnatural behaviour, it has become necessary to include an artiﬁcial selection to the system. The new C++ ﬁle scans the process list for multiple ﬁle instances, and closes them.</p>
+<p>It is interesting to see that this is a real selection, not a restriction to the system. Mutation still can create such eﬀects, but with that additional guard ﬁle, they have negative consequences for the ﬁle (the will be deleted immediatly) and therefore will not spread within the population.</p>
+<p><strong>Avoid mutations:</strong> The ﬁrst long-time experiment appeared to be very promising. The guard ﬁles closed error messages, endless loops, dead processes and multiple instances of the same ﬁle. After some hundred generations the experiment has been stopped and the ﬁles have been analysed. Surprisingly, all ﬁles had the exact same bit-code, they were all clones.</p>
+<p>There has been a mutation in the alphabeth, changing the xor instruction. This instruction is responsible for changing a bit at the mutation-process. If the mutation does not work anymore, no ﬁles will change anymore.</p>
+<p>For the organism, this is a big advantage. All oﬀspring will survive as no more mutation happens. Other organism often create corrupt oﬀspring, hence spread slower. After a while, the whole system is dominated by unmutable organism.</p>
+<p>In nature, organism also created very complex systems to prevent mutation or mutational eﬀects. DNA repairing or amino acid redundancy are just two examples.</p>
+<p>Even this discoverment is very interesting and has a great analogon in nature, it prevents from further discoverments in this artiﬁcial system. Therefore another guard ﬁle has been developed, which scans the running ﬁles for clones and deletes them.</p>
+<p>It’s not natural to prohibit clones at all, thus a adequate probability should be found. If there are 42 clones in the process list, they should be detected by a probability of 51% in one guard ﬁle cycle. This gives a probability of <img src="/img/cache/50f0df327faf0f677d356f5d91f53fc9.gif" alt="P = \frac{1}{59}" valign="middle"/> that a running ﬁle will be checked whether it has clones. A controlled ﬁle will be compared to all other running ﬁles, all clones will be deleted.</p>
+<h3><a name="c33"></a>3.3. Statistical analyse of experiment</h3>
+<p>Afer installing the new guard ﬁle, a further experiment has been run. This ﬁrst ”long-term” experiment can be analysed statistically by comparing the density and type of mutation from the ancestor ﬁle and the latest population. Unforunatley it is very hard to determinate the number of generations in the population; by comparing mutations in the oldest population with the primary ancestor and using the mutation probability, one could speculate that there have been 400-600 generations.</p>
+<p><strong>Number of mutations - ancestor vs. successor:</strong> A number of 100 successor have been randomly picked and compared with the ancestor. One can calucate the average number of mutation during the lifetime of the experiment, and its standard deviation:</p>
+<p><img src="/img/cache/4dbd5b6fc8af5e2387b4ab407f73d062.gif" alt="\overline X = \frac{1}{n}\sum_{i=1}^n X_i = \text{192.02 Mutations}" valign="middle"/></p>
+<p><img src="/img/cache/9576155e82b75e0e4c74b4d9ca439826.gif" alt="\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \overline{X_i})^2} = 4.59" valign="middle"/></p>
+<p>The standard deviation gives an unexpected small value, which means that the number of mutations is quite constant over the lifetime of the population.</p>
+<p><strong>Relations between individua:</strong> One can analyse the relation beween the individua by calculating their Hamming distance (the number of diﬀerences in their bytecode). A number of six ﬁles have been selected randomly and analysed.</p>
+<pre>
+				ancestor.exe - a.exe: 195
+				ancestor.exe - b.exe: 195
+				ancestor.exe - c.exe: 184
+				ancestor.exe - d.exe: 192
+				ancestor.exe - e.exe: 194
+				ancestor.exe - f.exe: 200
+
+		a.exe - b.exe: 2	c.exe - a.exe: 75	e.exe - a.exe: 9
+		a.exe - c.exe: 75	c.exe - b.exe: 75	e.exe - b.exe: 9
+		a.exe - d.exe: 20	c.exe - d.exe: 73	e.exe - c.exe: 74
+		a.exe - e.exe: 9	c.exe - e.exe: 74	e.exe - d.exe: 19
+		a.exe - f.exe: 28	c.exe - f.exe: 81	e.exe - f.exe: 27
+		
+		b.exe - a.exe: 2	d.exe - a.exe: 20	f.exe - a.exe: 28
+		b.exe - c.exe: 75	d.exe - b.exe: 20	f.exe - b.exe: 28
+		b.exe - d.exe: 20	d.exe - c.exe: 73	f.exe - c.exe: 81
+		b.exe - e.exe: 9	d.exe - e.exe: 19	f.exe - d.exe: 16
+		b.exe - f.exe: 28	d.exe - f.exe: 16	f.exe - e.exe: 27
+</pre>
+<p>While a.exe, b.exe and e.exe are near related, c.exe is far away from all other ﬁles. d.exe and f.exe are medium related. Interestingly, while c.exe has the biggest distance to all other successors, it has the smallest distance to the ancestor.</p>
+<p><strong>Distribution of mutations:</strong> It is interesting to see which mutations are rare and which are widely spread within the population. There are 153 mutations which appeare in every single ﬁle, 32 mutations appearing in 84 ﬁles and so on. Many mutations are located in unused areas of the ﬁle, for instance in the Win32 .EXE padding bytes or in the unused part of the alphabeth. A list of mutations of the active-code (whether the used part of the alphabeth or the meta-language code) and its appearence in the population is given here.</p>
+<pre>
+527: 100 	e52: 100	12af: 100	147f: 100	e13: 32
+551: 100 	e9a: 100	12b1: 100	1498: 100	1298: 23
+56c: 100 	eac: 100	12d9: 100	14a5: 100	f0a: 17
+5af: 100 	f04: 100	130e: 100	14b3: 100	4c3: 16
+5ed: 100 	f34: 100	131f: 100	14b9: 100	558: 16
+61a: 100 	fbb: 100	1327: 100	14c3: 100	58a: 16
+625: 100 	fed: 100	1328: 100	5b9: 84		60d: 16
+c74: 100 	1090: 100	1333: 100	d86: 84		ca9: 16
+c7b: 100 	10b8: 100	1343: 100	e43: 84		cac: 16
+c98: 100 	10c4: 100	135c: 100	1037: 84	d83: 16
+c9b: 100 	1119: 100	1373: 100	106b: 84	df4: 16
+ca1: 100 	1121: 100	138d: 100	109c: 84	f5a: 16
+ca4: 100 	1126: 100	139c: 100	1148: 84	105c: 16
+d02: 100 	118f: 100	13b3: 100	127d: 84	1085: 16
+d4f: 100 	1194: 100	13d5: 100	12a8: 84	10ef: 16
+d5d: 100 	11a2: 100	13eb: 100	130f: 84	12d1: 16
+d7a: 100 	11a9: 100	13fd: 100	1388: 84	12ee: 16
+d7d: 100 	11b1: 100	1430: 100	1392: 84	1323: 16
+e3b: 100 	124d: 100	144c: 100	13e4: 84	1353: 16
+e49: 100 	1265: 100	1459: 100	c9d: 32		139a: 16
+</pre>
+<p>A full analyse of these mutations would be worthwhile, but has not be done in this primary analyse due to its great eﬀort. However, to understand this system and its prospects better, detailed code analyse will be unavoidable.</p>
+<p>Nevertheless, examples of two mutations can be given.</p>
+<p>First one is <strong>Byte 0x527:</strong> This is within the alphabeth, deﬁning the behaviour for the JnzUp instruction. A bit-ﬂip caused following variation:</p>
+<pre class="source">
+	jz	over		jz	over
+	jmp	esi	→	jmp	esi
+over:				nop
+			over:
+</pre>
+<p>This has no eﬀect in the behaviour, but eﬀects just the byte-code - a neutral mutation.</p>
+<p>The second example is the mutation in <strong>Byte 0xC7B</strong>, which is within the meta-language code. The unmutated version is the instruction add0001, the mutated one represents add0004. This is part of the addnumber 26 instruction, which is used as modulo number for the random name generator.</p>
+<p>Due to this mutation, the genom not just picks letters from a−z for its oﬀpring’s ﬁlename, but also the next three in the ASCII list, {, | and }. Thus, ﬁlenames can also contain these three characters. This mutation has an eﬀect of the behaviour, but still seems to be a neutral mutation.</p>
+<h3><a name="c34"></a>3.4. Comparing Robustness with x86 instruction set</h3>
+<p>In 2005 a program called Gloeobacter violaceus has been developed, that uses artiﬁcial mutations in the x86 instruction set, without making use of a meta-language.[7] That program also replicates in the current directory, and is subjected by point mutations, and rarely by inseration, deletion and dublication. Due to the brittleness of the x86 instruction set, that attempt was not very fruitful. Still it gives a good possibility of comparison.</p>
+<p>Both systems have changed to the same initial situation: Point mutations occure in the whole ﬁle with same probability. After several hundreds of generations, all non-minor mutations (occure in more than 50 diﬀerent ﬁles) of 2.500 ﬁles have been analysed. The mutations have been classiﬁed by their position: x86-code mutations, mutation in some padding region or in the meta-language code.</p>
+<p><em>Through this classiﬁcation we ﬁnd out whether the new meta-language concept is more robust than the x86 instruction set.</em></p>
+<p>We deﬁne the mutation density of a specﬁc region in the code by</p>
+<p><img src="/img/cache/1b4168b531fd5c9161fce518b6bdfd8d.gif" alt="\rho_{mut}(\text{Region}) = \frac{\text{mutations in region}}{\text{size of region}}" valign="middle"/></p>
+<p><strong>Meta-Language concept:</strong></p>
+<p><img src="/img/cache/69f9501f5a40b670323d95161ba11baf.gif" alt="\rho_{mut}(\text{whole code}) = \frac{291}{6144} = 0.047" valign="middle"/></p>
+<p><img src="/img/cache/72fe9921cd1f1dbecf9f816eceb37d65.gif" alt="\rho_{mut}(\text{padding}) = \frac{151}{2427} = 0.062" valign="middle"/></p>
+<p><img src="/img/cache/3b49608f45e8b9e5d284a2bb097175b0.gif" alt="\rho_{mut}(\text{meta-code}) = \frac{81}{2084} = 0.039" valign="middle"/></p>
+<p><img src="/img/cache/a6a02fdc9ff2674b492d6539e8f1568e.gif" alt="\rho_{mut}^*(\text{x86}) = \frac{14}{576} = 0.024" valign="middle"/></p>
+<p>The <img src="/img/cache/2c90e096084e0188c7f1831b8500bbc3.gif" alt="\rho_{mut}(\text{x86})" valign="middle"/> combines the very small translator code and the alphabeth, but as the alphabeth is no real x86 code, comparing this advisable. If that problem would be neglected, one would see that the meta-language is more robust under mutations as the x86 code. For a fair comparison Gloeobacter violaceus can be used.</p>
+<p><strong>Gloeobacter violaceus:</strong></p>
+<p><img src="/img/cache/3c943feb34f9361b0bfec6c399eab62d.gif" alt="\rho_{mut}(\text{whole code)} = \frac{351}{3584} = 0.098" valign="middle"/></p>
+<p><img src="/img/cache/83150e83ebd9b0cf588ecebc12c37951.gif" alt="\rho_{mut}(\text{(padding)} = \frac{284}{2229} = 0.127" valign="middle"/></p>
+<p><img src="/img/cache/70ad5f602d04479bb62471589098a79c.gif" alt="\rho_{mut}(\text{(x86)} = \frac{10}{683} = 0.015" valign="middle"/></p>
+<p>Mutations in the padding bytes do not corrupt the organism, thus it is the initial mutation density. A comparison between <img src="/img/cache/4b94459101495c9a89e8c93805fcfc34.gif" alt="\rho_{mut}(\text{padding})" valign="middle"/> and <img src="/img/cache/0e9004cb69176c3501623f2bc4781d47.gif" alt="\rho_{mut}(\text{Region})" valign="middle"/> gives the percentage of non-lethal mutations in that region, therefore gives the robustness R of that region.</p>
+<p><img src="/img/cache/43dcbc747c8b9ba8f6970814784a3864.gif" alt="\text{Robustness(Region)} := \frac{\rho_{mut}(\text{Region})}{\rho_{mut}(\text{padding})}" valign="middle"/></p>
+<p>The interesting comparison is between the x86 region and the meta-language region.</p>
+<p><img src="/img/cache/ac19a9ca1caa32c8a7947e02d7dba2bb.gif" alt="\text{Robustness(x86)} = \frac{\rho_{mut}(\text{x86})}{\rho_{mut}(\text{padding})} = \frac{0.015}{0.127} = = 0.115" valign="middle"/></p>
+<p><img src="/img/cache/ffe0c95601508dc91311f6061049f74f.gif" alt="\text{Robustness(meta-code)} = \frac{\rho_{mut}(\text{meta-code})}{\rho_{mut}(\text{padding})} = \frac{0.039}{0.092} = 0.424" valign="middle"/></p>
+<p>Even this analysis is based on low statistics, it already indicates a great result:</p>
+<p><strong>This new meta-language concept for x86 systems is much more robust than the original x86 instruction set.</strong></p>
+<h2><a name="c4"></a>4. Outlook</h2>
+<h3><a name="c41"></a>4.1. Open questions</h3>
+<p><strong>Development of new functionality:</strong> The most important question is whether an artiﬁcial organism with this meta-language in a x86 system can develope new functionalities.</p>
+<p>In a long-term evolution experiment by Richard Lenski, they discovered that simple E.coli was able to make a major evolutionary step and suddenly acquired the ability to metabolise citrate.[8] This happened after 31.500 generations, approximativly after 20 years.</p>
+<p>The generation time of artiﬁcial organism are of many orders of magnitude smaller, therefore beneﬁcial mutation such as development of new functionality may occure within days or a few weeks. The question that remains is whether this meta-language concept is the right environment or not.</p>
+<p><strong>Other types of mutations:</strong> Point mutation is one important type of mutation, but not the only one. In DNA, there is also Deletion, Duplication, Inseration, Translocation, Inversion. Especially inseration of code and deletion of code is proved to be important in artiﬁcial evolution too.[9] The question is how one can create such a type of mutation without ﬁle structure errors occuring after every single mutation.</p>
+<p>One possibility would be to more the n last byte of the meta-language code forwards (deletion) or backwards (inseration), ﬁlling the gap with NOPs. However, how could you ﬁnd out where the end of the meta-language code is without some complex (and thus brittle) functions?</p>
+<p><strong>Behaviour of Hamming distance:</strong> How is the time evolution of the average Hamming distance between a population and the primary ancestor? Does it have a constant slope or is it rather like a logarithm? How is the behaviour of the Hamming distance when taking into account other types of mutations (as descriped above)? Large-scale experiments are needed to answer that questions propriatly.</p>
+<p><strong>APIs:</strong> This is an operation system speciﬁc problem, and can not be solved for any OS at once. For Windows, the current system of calling APIs is not very natural. It is a call to a speciﬁc addresse of a library, needing the right numbers of arguments on the stack and the API and library deﬁned in the ﬁle structure. Hence, API calls are not (very) evolvable in this meta-language, restricting the ability to use new APIs by mutations.</p>
+<p>One possible improvement could be the usage of LoadLibraryA and GetProcAddress, which loads the APIs from the kernel autonomous. This technique would not need the APIs and libraries saved within the ﬁle structure, and could make it possible to discover new functionalities. Unfortunately, this requires complex functions, which may be very brittle and unﬂexible.</p>
+<p>Still it needs more thoughts to ﬁnd an adequate solution to this problem.</p>
+<h3><a name="c42"></a>4.2. Computer malware</h3>
+<p>This technique could be used in autonomous spreading computer programs as computer viruses or worms. This has been discussed in a very interesting paper by Iliopoulos, Adami and Sz&ouml;r in 2008.[10]</p>
+<p>Their main results are: The x86 instruction set does not allow enough neural mutations, thus it is impossible to develope new functionalities; a ’evolvable’ language or a metalanguage would be needed. Further, together with smaller generation times, the selective pressure and the mutation rate would be higher, speeding up evolution. Conclusion is, that it is currently unclear what would be a defence against such viruses.</p>
+<p>In contrast to the experiment explained in chapter 3 - where natural selection was nearly absent, computer malware are continuously under selective pressure due to antivirus scanners. This is the same situation as in biological organism, where parasits are always attacked by the immune system and antibiotics.</p>
+<p>Theoretically, computer malware could also ﬁnd new ways to exploit software or diﬀerent OS APIs for spreading. This is not as unlikely as it seems in the ﬁrst moment. Experiments with artiﬁcial and natural evolution have shown that complex features could evolve in acceptable time.[5][9]</p>
+<h3><a name="c43"></a>4.3. Conclusion</h3>
+<p>An artiﬁcial ’evolvable’ meta-language for x86 Systems has been created using the main ideas of Tierra and avida: Separation of operations and arguments, and not using direct addressing. The experiments have been very promising, showing that the robustness of the new meta-language is approximately four times higher as for usual x86 instructions. Several open questions are given in the end, which should motivate for further research.</p>
+<p>Howsoever, the most important step has been done:</p>
+<p><strong>The artiﬁcial organism are not trapped in virtual systems anymore, they can ﬁnally move freely - they took the redpill...</strong></p>
+<h2><a name="c5"></a>Bibliography</h2>
+<ol>
+<li>Christoph Adami, <em>Introduction to Artiﬁcial Life</em>, Springer, 1998.</li>
+<li>Tom S. Ray, <em>An approach to the synthesis of life</em>, Physica D, 1992.</li>
+<li>Kurt Thearling and Tom S. Ray, <em>Evolving Parallel Computation</em>, Complex Systems, 1997.</li>
+<li>Tom S. Ray and Joseph Hart, <em>Evolution of Diﬀerentiated Multi-threaded Digital Organisms</em>, Artiﬁcial Life VI proceedings, 1998.</li>
+<li>Richard E. Lenski, Charles Ofria, Robert T. Rennock and Christoph Adami, <em>The evolutionary origin of complex features</em>, Nature, 2003.</li>
+<li>Charles Ofria, Christph Adami and Travis C. Collier, <em>Design of Evolvable Computer Languages</em>, IEEE Transition on Evolutionary Computation, 2002.</li>
+<li>SPTH, <em><a href="/lib/vsp10.html">Code Evolution: Follow nature’s example</a></em>, 2005.</li>
+<li>Zachary D. Blount, Christina Z. Borland, and Richard E. Lenski <em>Historical contingency and the evolution of a key innovation in an experimental population of Escherichia coli</em>, National Academy of Sciences, 2008.</li>
+<li>Richard E. Lenski, Charles Ofria, Robert T. Rennock and Christoph Adami, <em>Phenotypic and genomic evolution along the line of descent in the case-study population through the origin of the EQU function at step 111</em>, 2003.</li>
+<li>Dimitris Iliopoulos, Christoph Adami and Peter Sz&ouml;r, <em><a href="/lib/aps01.html">Darwin inside the machines: malware evolution and the consequences for computer security</a></em>, Virus Bulletin Conference, 2008.</li>
+</ol>
+<h2><a name="c6"></a>A. Appendix</h2>
+<p>This artiﬁcial evolution system can be started on every common Windows Operation System. Even it is a chaotic process, due to the guard ﬁles the process can run for hours without a breakdown of the system.</p>
+<h3><a name="c61"></a>A.1. The package</h3>
+<p>The package:</p>
+<dl>
+<dt>binary\run0ndgens.bat:</dt><dd>This script starts all guard ﬁles, then starts the 0th generation. Adjust the hardcoded path in the ﬁle to the directory of the guard ﬁles. This ﬁle has to be at H:, you can use subst for that.</dd>
+<dt>binary\NewArt.exe:</dt><dd>This is the 0th generation. It has to be started with the shell (or a .bat ﬁle) - not via double-click. It is highly recommented to not run the ﬁle without the guard ﬁles. This ﬁle has to be as H: aswell.</dd>
+<dt>ProcessWatcher\*.*:</dt><dd>This directory contains the binary and source of all guard ﬁles.</dd>
+<dt>ProcessWatcher\CopyPopulation.cpp:</dt><dd> This ﬁle copies every 3 minutes 10% of the population to a speciﬁc path given in the source. This path has to be adjusted before usage.</dd>
+<dt>ProcessWatcher\Dead.cpp:</dt><dd>This program can be used to manually stop all organism. You can enter a probability of how many organism should be survive. For instance, if you enter 10, 90% of the population will be terminated - 10% survive.</dd>
+<dt>ProcessWatcher\DoubleProcess.cpp:</dt><dd>This program searchs and destroyes multiple instances of the same ﬁle. See Chapter 3.2 for more information.</dd>
+<dt>ProcessWatcher\EndLessLoops.cpp:</dt><dd>This guard ﬁle searchs for endless loops in the memory and terminates them.</dd>
+<dt>ProcessWatcher\JustMutation.cpp:</dt><dd>Also descriped in chapter 3.2, this program searchs and terminates clones in the process.</dd>
+<dt>ProcessWatcher\Kill2MuchProcess.cpp:</dt><dd>This guard is very important for stability of the operation system while running the experiment. If there are more than 350 processes running, it terminates 75% of them.</dd>
+<dt>ProcessWatcher\RemoveCorpus.cpp:</dt><dd>As space is restriced, this guard deletes ﬁles that are older than a 30sec.</dd>
+<dt>ProcessWatcher\SearchAndDestroy.cpp:</dt><dd>This program removes error messages (by clicking at ”OK”), terminates error-processes (as dwwin.exe or drwtsn32.exe), and it terminates dead processes (processes that are older than 100sec).</dd>
+<dt>ProcessWatcher\malformed PEn.exe:</dt><dd>These are two malformed .EXE ﬁles, which will be called by SearchAndDestroy.exe at the start to ﬁnd the ”OK”-Button. They have to be in the directory of the guard ﬁles.</dd>
+<dt>Analyse\SingleFileAnalyse:</dt><dd>This directory contains an analyse ﬁle, that compaires the bytecode of two genotypes. Copy the ﬁle to the directory, change the name in the source and execute it.</dd>
+<dt>Analyse\Relation:</dt><dd>This ﬁle compaires gives you the Hamming distance of all .exe ﬁles.</dd>
+<dt>Analyse\MutationDistribution:</dt><dd>With this ﬁle you can get a distribution of all mutations compaired with NewArt.exe.</dd>
+</dl>
+<h3><a name="c62"></a>A.2. Running the experiment</h3>
+<p>Copy the run0ndgens.bat and NewArt.exe to H:\. Adjust the path in CopyPopulation.cpp to the backup directory (and compile it) and in run0ndgens.bat to the directory of the guard ﬁles.</p>
+<p>Now you can start run0ndgens.bat, move over the two error-messages (dont click them, this will be done by SearchAndDestroy.exe). Then you are ready and can press a key in the run0ndgens.bat, which will start 10 instances of NewArt.exe.</p>
+<div align="center">
+<img src="img/vsp26/experiment.png" alt="Running Experiment: This is how the experiment should look like"/>
+<p><strong>Running Experiment: This is how the experiment should look like</strong></p>
+</div>
+[<a style="" href="/lib/?lang=EN&amp;index=AI#vsp26">Back to index</a>] [<a href="/lib/vsp26.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsp26">de</a><a href="/lib/index.php?lang=en&amp;id=vsp26">en</a><a href="/lib/index.php?lang=es&amp;id=vsp26">es</a><a href="/lib/index.php?lang=it&amp;id=vsp26">it</a><a href="/lib/index.php?lang=fr&amp;id=vsp26">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsp26">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsp26">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsp26">ua</a></div>
+</body>
+</html>

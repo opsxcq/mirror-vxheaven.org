@@ -1,0 +1,290 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Izik 'Abusing .CTORS and .DTORS for fun 'n profit' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Izik"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Izik,Abusing .CTORS and .DTORS for fun 'n profit, void, foobar, push, libc, functions, constructors, main, call, attribute, destructors, good, process, glibc, assembler, objdump"/>
+<meta name="Description" content="This paper talks about glibc initialization framework and how abusive constructors and destructors can be. A quick analysis of how ordinary ELF executable that been compiled using gcc and linked against glibc is been loaded and executed. Also a practical example of abusive constructors, an Anti-Debugging that been implemented within a constructor that puts up a nice fight."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c9d8cd05fa100187643e8f60fc4791bf12258685-1498755428-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/viz00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Abusing .CTORS and .DTORS for fun 'n profit</h1><p><a href="/lib/?lang=en&amp;author=Izik"> Izik</a><br/> <em> 2005</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/viz00.html';</script><div class="ci"><a href="/lib/?ci=viz00">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=UN#viz00">Back to index</a>] [<a href="/lib/viz00.html#disqus_thread">Comments</a>]<br/> 
+<p>This paper talks about glibc initialization framework and how abusive constructors and destructors can be. A quick analysis of how ordinary ELF executable that been compiled using gcc and linked against glibc is been loaded and executed. Also a practical example of abusive constructors, an Anti-Debugging that been implemented within a constructor that puts up a nice fight.</p>
+<p>Some knowledge of C, ASSEMBLY and ELF format are required.</p>
+<h2>ELF Roadmap</h2>
+<p>The ELF format specifies that each executable should have an entry point as part of the ELF header structure. The entry point is a virtual address that the system first transfers control to once the process started. Depending on the way the program has been compiled and linked the entry point can point straightly to main() or in our case to glibc initialization code. Once glibc been initialized it is invoking the program main() transparently.</p>
+<p>To demonstrate this compile the snippet above it in an ordinary way using gcc, like this:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1b6974746f5b767a7c7278797463">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><span style="color: #339933;">:/</span>tmp<span style="color: #339933;"># cat foobar.c</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/*<br/>
+&nbsp;* foobar.c<br/>
+&nbsp;*/</span><br/>
+<br/>
+<span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">**</span>argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Hello World<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5624393922163b37313f3534392e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><span style="color: #339933;">:/</span>tmp<span style="color: #339933;"># gcc -o foobar foobar.c</span><br/>
+&nbsp;</div>
+<p>To discover the executable entry point, use the objdump utility like this:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f0829f9f84b09d91979993929f88">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:/tmp# objdump -f ./foobar
+
+./foobar:     file format elf32-i386
+architecture: i386, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x080482c0
+</pre>
+<h2>Surface Examine</h2>
+<p>Once we got the executable entry point, we can start examine it. Disassembling it through gdb:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> disassemble <span style="color: #ff0000;">0x080482c0</span><br/>
+Dump of assembler <span style="color: #0000ff; font-weight: bold;">code</span> for function _start<span style="color: #339933;">:</span><br/>
+<span style="color: #ff0000;">0x080482c0</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">0</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x080482c2</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">2</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #ff0000;">0x080482c3</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">3</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #ff0000;">0x080482c5</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">5</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0xfffffff0</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x080482c8</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">8</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080482c9</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">9</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x080482ca</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">10</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #ff0000;">0x080482cb</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">11</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x8048410</span><br/>
+<span style="color: #ff0000;">0x080482d0</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">16</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x80483b0</span><br/>
+<span style="color: #ff0000;">0x080482d5</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">21</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #ff0000;">0x080482d6</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">22</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #ff0000;">0x080482d7</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">23</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x8048384</span><br/>
+<span style="color: #ff0000;">0x080482dc</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">28</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x80482a0</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">40</span>&gt;<br/>
+<span style="color: #ff0000;">0x080482e1</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">33</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">hlt</span><br/>
+<span style="color: #ff0000;">0x080482e2</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">34</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+<span style="color: #ff0000;">0x080482e3</span> &lt;_start<span style="color: #339933;">+</span><span style="color: #ff0000;">35</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+End of assembler dump<span style="color: #339933;">.</span><br/>
+<span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span><br/>
+&nbsp;</div>
+<p>This is a glibc initialization code. It is not fixed and changes based on a different platforms and CPU types but the concept remains the same. This code at some point transfer control to the program main() function.</p>
+<p>Quick analysis of this code shows it initialize the stack but also pushes three addresses to the stack as well:</p>
+<ul>
+<li>0x8048410</li>
+<li>0x80483b0</li>
+<li>0x8048384</li>
+</ul>
+<p>To avoid been dragged into a long-disassemble-session. I would make a few shortcuts and say the following:</p>
+<ul>
+<li>0x8048410 (aka __libc_csu_fini) is glibc _fini() function</li>
+<li>0x80483b0 (aka __libc_csu_init) is glibc _init() function</li>
+<li>0x8048384 (aka main) is our program main() function</li>
+<li>Afterward the glibc initialization code invokes '__libc_start_main' function</li>
+</ul>
+<p>So we know for sure that our executable entry point isn't pointing to our main() rather to a glibc initialization code. Which invokes the '__libc_start_main' function that takes '__libc_csu_fini' , '__libc_csu_init' and 'main' addresses as parameters.</p>
+<h2>Order in Chaos</h2>
+<p>Studying the glibc initialization code shows that '__libc_csu_fini' and '__libc_csu_init' functions have a special purpose in the startup flow. The '__libc_csu_init' acts as the constructor function. Is job is to be invoked prior to the real program in our case the main() function. That is an ideal place to put program related initialization code. The '__libc_csu_fini' function acts as the destructor function. Is job is to be invoked as the last function, thus to make sure the program hasn't left anything behind and made a nice clean exit.</p>
+<p>In a shared libraries programming, the programmers have two functions '_init' and '_fini' which are the shared library constructer and destructor functions. Our executable has these two functions as well. Only in our case they are been part of an integration mechanism.</p>
+<p>Overriding these functions is not possible since they play a role for glibc. However you may create your own constructor and destructor functions and glibc would honor them. It is possible to due gcc attributes extension. gcc supports number of attributes that the programmer may apply to functions. The '((constructor))' attribute and '((destructor))' attribute is what we seek. Let's try to implement it, as follow:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d5a7babaa195b8b4b2bcb6b7baad">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><span style="color: #339933;">:/</span>tmp<span style="color: #339933;"># cat foobar2.c</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/*<br/>
+&nbsp;* foobar2.c<br/>
+&nbsp;*/</span><br/>
+<br/>
+<span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> foobar_init<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> __attribute__ <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>constructor<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">void</span> foobar_fini<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> __attribute__ <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>destructor<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> foobar_init<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Good Morning, Foobar!<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> foobar_fini<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Good Night, Foobar!<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;I'm Foobar!<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Having these two functions in our code. We expect that 'foobar_init' would be called prior to our main() function. And 'foobar_fini' afterward.</p>
+<pre><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="087a67677c4865696f616b6a6770">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:/tmp# ./foobar2
+Good Morning, Foobar!
+I'm Foobar!
+Good Night, Foobar!
+</pre>
+<h2>Another Bite</h2>
+<p>Understanding exactly what caused these two functions to be integrated with the glibc initialization code. We will once again refer to our favorite debugger to disassemble the glibc initialization code. Earlier I mention that '_init' and '_fini' functions in our case been part of an integration mechanism and there is our key.</p>
+<p>We will start by disassembling the '_init' function. This function is been called from '__libc_csu_init', as following:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> disassemble <span style="color: #ff0000;">0x080483e0</span><br/>
+Dump of assembler <span style="color: #0000ff; font-weight: bold;">code</span> for function __libc_csu_init<span style="color: #339933;">:</span><br/>
+<span style="color: #ff0000;">0x080483e0</span> &lt;__libc_csu_init<span style="color: #339933;">+</span><span style="color: #ff0000;">0</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x080483e1</span> &lt;__libc_csu_init<span style="color: #339933;">+</span><span style="color: #ff0000;">1</span>&gt;<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<br/>
+&lt; <span style="color: #339933;">...</span> &gt;<br/>
+<br/>
+<span style="color: #ff0000;">0x080483f6</span> &lt;__libc_csu_init<span style="color: #339933;">+</span><span style="color: #ff0000;">22</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x8048278</span> &lt;_init&gt;<br/>
+<br/>
+&lt; <span style="color: #339933;">...</span> &gt;<br/>
+<br/>
+<span style="color: #ff0000;">0x08048434</span> &lt;__libc_csu_init<span style="color: #339933;">+</span><span style="color: #ff0000;">84</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x0</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #ff0000;">0x0804843a</span> &lt;__libc_csu_init<span style="color: #339933;">+</span><span style="color: #ff0000;">90</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x0</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+End of assembler dump<span style="color: #339933;">.</span><br/>
+&nbsp;</div>
+<p>Now let's disassemble the '_init' function, as following:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> disassemble <span style="color: #ff0000;">0x8048278</span><br/>
+Dump of assembler <span style="color: #0000ff; font-weight: bold;">code</span> for function _init<span style="color: #339933;">:</span><br/>
+<span style="color: #ff0000;">0x08048278</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">0</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x08048279</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">1</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x0804827b</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">3</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x8</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x0804827e</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">6</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x80482e4</span> &lt;call_gmon_start&gt;<br/>
+<span style="color: #ff0000;">0x08048283</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">11</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x8048350</span> &lt;frame_dummy&gt;<br/>
+<span style="color: #ff0000;">0x08048288</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">16</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x80484a0</span> &lt;__do_global_ctors_aux&gt;<br/>
+<span style="color: #ff0000;">0x0804828d</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">21</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">leave</span><br/>
+<span style="color: #ff0000;">0x0804828e</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">22</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+End of assembler dump<span style="color: #339933;">.</span><br/>
+&nbsp;</div>
+<p>Going over these calls. We can see that our last call is the one we interested at, thus the '__do_global_ctors_aux' function.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> disassemble <span style="color: #ff0000;">0x080484a0</span><br/>
+Dump of assembler <span style="color: #0000ff; font-weight: bold;">code</span> for function __do_global_ctors_aux<span style="color: #339933;">:</span><br/>
+<span style="color: #ff0000;">0x080484a0</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">0</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x080484a1</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">1</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x080484a3</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">3</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: #ff0000;">0x080484a4</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">4</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #ff0000;">0x080484a5</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">5</span>&gt;<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x8049538</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484aa</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">10</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0xffffffff</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484ad</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">13</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x8049538</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: #ff0000;">0x080484b2</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">18</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">je</span> &nbsp; &nbsp; <span style="color: #ff0000;">0x80484cc</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">44</span>&gt;<br/>
+<span style="color: #ff0000;">0x080484b4</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">20</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x0</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+<span style="color: #ff0000;">0x080484ba</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">26</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x0</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+<span style="color: #ff0000;">0x080484c0</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">32</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x4</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: #ff0000;">0x080484c3</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">35</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #339933;">*%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484c5</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">37</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484c7</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">39</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0xffffffff</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484ca</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">42</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp;<span style="color: #ff0000;">0x80484c0</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">32</span>&gt;<br/>
+<span style="color: #ff0000;">0x080484cc</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">44</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<span style="color: #ff0000;">0x080484cd</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">45</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+<span style="color: #ff0000;">0x080484ce</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">46</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x080484cf</span> &lt;__do_global_ctors_aux<span style="color: #339933;">+</span><span style="color: #ff0000;">47</span>&gt;<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+End of assembler dump<span style="color: #339933;">.</span><br/>
+&nbsp;</div>
+<p>At first look this function seems to be a little bit abstract. It repeatedly trying to call an address that stored into the eax register. It does that as long as the eax register isn't equals to '0xffffffff'. the eax register is been initialized with the given address '0x80494d8'. Insert a breakpoint at 0x08048493 -- where the CALL been made to see what code resident at the given address?</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> b <span style="color: #339933;">*</span><span style="color: #ff0000;">0x080484c3</span><br/>
+Breakpoint <span style="color: #ff0000;">1</span> <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #ff0000;">0x80484c3</span><br/>
+<span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> r<br/>
+Starting program<span style="color: #339933;">:</span> <span style="color: #339933;">/</span>tmp<span style="color: #339933;">/</span>foobar2<br/>
+<br/>
+Breakpoint <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x080484c3</span> <span style="color: #00007f; font-weight: bold;">in</span> __do_global_ctors_aux <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+<br/>
+<span style="color: black;">&#40;</span>gdb<span style="color: black;">&#41;</span> disassemble <span style="color: #0000ff; font-weight: bold;">$</span>eax<br/>
+Dump of assembler <span style="color: #0000ff; font-weight: bold;">code</span> for function foobar_init<span style="color: #339933;">:</span><br/>
+<span style="color: #ff0000;">0x08048384</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">0</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x08048385</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">1</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp;<span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+<span style="color: #ff0000;">0x08048387</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">3</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x8</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x0804838a</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">6</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0xc</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x0804838d</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">9</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x80484f4</span><br/>
+<span style="color: #ff0000;">0x08048392</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">14</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; <span style="color: #ff0000;">0x80482b0</span> &lt;_init<span style="color: #339933;">+</span><span style="color: #ff0000;">56</span>&gt;<br/>
+<span style="color: #ff0000;">0x08048397</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">19</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x10</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+<span style="color: #ff0000;">0x0804839a</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">22</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">leave</span><br/>
+<span style="color: #ff0000;">0x0804839b</span> &lt;foobar_init<span style="color: #339933;">+</span><span style="color: #ff0000;">23</span>&gt;<span style="color: #339933;">:</span> &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">ret</span><br/>
+End of assembler dump<span style="color: #339933;">.</span><br/>
+&nbsp;</div>
+<p>As you can see our code is been executed. The '__do_global_ctors_aux' function job is to invoke the program specified constructors.</p>
+<p>The addresses of the constructors and destructors each stored in a different section in our ELF executable. for the constructors there is a section called '.CTORS' and for the destructors there is the '.DTORS' section. using the objdump utility we can dump the .CTORS section:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1b6974746f5b767a7c7278797463">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:/tmp# objdump -s -j .ctors ./foobar2
+
+./foobar2:     file format elf32-i386
+
+Contents of section .ctors:
+ 8049534 ffffffff 84830408 00000000           ............
+</pre>
+<p>The structure of these sections is:</p>
+<pre class="source">'ffffffff &lt;ANOTHER ADDRESS OF FUNCTION> &lt;ADDRESS OF FUNCTION> 00000000'</pre>
+<p>And the '__do_global_ctors_aux' function simply performs a walk on the '.CTORS' section, as '__do_global_dtors_aux' does the same job only for the '.DTORS' section which contains the program specified destructors functions.</p>
+<p>The constructors and destructors functions resident on the .TEXT section as the rest of our code. they are placed a little bit before the main() function is. but their locating on the .TEXT section is irreverent for the concept.</p>
+<p>To conclude our analysis glibc initialization code allows us to specify a functions that would run prior to main() and right after. The initialization code programmed in a way it would go through '.CTORS' and '.DTORS' sections. Looking for an addresses of functions and would invoke it as part of the process.</p>
+<h2>Evil Grin</h2>
+<p>Constructors and destructors can be abused. I am going to demonstrate how implementation of a simple anti-debugging trick in the constructor. Which can put up a good fight against Reverse Engineering of the executable?</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">/*</span><br/>
+&nbsp;<span style="color: #339933;">*</span> evilgrin<span style="color: #339933;">.</span>c<span style="color: #339933;">,</span> tweaking ptrace<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> to induced whatever we been debugged<br/>
+&nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+#include &lt;stdio<span style="color: #339933;">.</span>h&gt;<br/>
+#include &lt;sys<span style="color: #339933;">/</span>ptrace<span style="color: #339933;">.</span>h&gt;<br/>
+<br/>
+void ptrace_trap<span style="color: black;">&#40;</span>void<span style="color: black;">&#41;</span> __attribute__ <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>constructor<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black; font-style: italic;">;</span><br/>
+<br/>
+void ptrace_trap<span style="color: black;">&#40;</span>void<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span>&nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*</span> If ptrace fails here<span style="color: #339933;">,</span> means someone already ptrace<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #7f007f;">'ed us.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;*/<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; if (ptrace(PTRACE_TRACEME, 0, 0, 0) &lt; 0) { <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; exit(0);<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; }<br/>
+}<br/>
+<br/>
+int main(int argc, char **argv) {<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; printf(&quot;Hello World!\n&quot;);<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; return 1;<br/>
+}<br/>
+</span></div>
+<p>The snippet above would perform a PTRACE on itself. If this action failed means another process already done so and this is usually induces the process been debugged. Since there is no visible modification in our executable initial flow and the glibc initialization code looks the same. The only real difference is that ptrace_trap() function address now stored in the ELF executable '.CTORS' section and would be executed during glibc initialization process.</p>
+<p>Constructors and destructors are also ideal place for PACKERS implementation. Encrypting or compressing the actual program code then using the constructor function in order to decompress/decrypt the executable can be a nice trick.</p>
+<p>This can be also used as a technique of ELF infecting mechanism. As the parasite resident on the .TEXT section and place is address in the .CTORS and .DTORS make sure that once privileged user such as root would execute the file it would begin to spread and takeover the box.</p>
+<h2>Contact</h2>
+<address>Izik &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5b322132301b2f2f226d6f7534293c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> [or] http://www.tty64.org</address>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#viz00">Back to index</a>] [<a href="/lib/viz00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=viz00">de</a><a href="/lib/index.php?lang=en&amp;id=viz00">en</a><a href="/lib/index.php?lang=es&amp;id=viz00">es</a><a href="/lib/index.php?lang=it&amp;id=viz00">it</a><a href="/lib/index.php?lang=fr&amp;id=viz00">fr</a><a href="/lib/index.php?lang=pl&amp;id=viz00">pl</a><a href="/lib/index.php?lang=ru&amp;id=viz00">ru</a><a href="/lib/index.php?lang=ua&amp;id=viz00">ua</a></div>
+</body>
+</html>

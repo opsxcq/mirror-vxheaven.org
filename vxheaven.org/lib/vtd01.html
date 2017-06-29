@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Tom Duff 'Viral Attacks On UNIX System Security' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Tom Duff"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Duff, Tom,Viral Attacks On UNIX System Security, segment, execute, size, security, text, echo, executable, unix, attacks, thompson, trusted, viral, user, grampp, binary"/>
+<meta name="Description" content="Executable files in the Ninth Edition of the UNIX system contain small amounts of unused space, allowing small code sequences to be added to them without noticeably affecting their functionality. A program fragment that looks for binaries and introduces copies of itself into their slack space will transitively spread like a virus. Such a virus program could, like the Trojan Horse, harbor Greeks set to attack the system when run by sufficiently privileged users or from infected set-userid programs.The author wrote such a program (without the Greeks) and ran several informal experiments to test its characteristics. In one experiment, the code was planted on one of Center 1127's UNIX systems and spread in a few days through the Datakit network to about forty machines. The virus escaped during this test onto a machine running an experimental secure unix system, with interesting (and frustrating for the system's developers) consequences.Viruses of this sort must be tiny to fit in the small amount of space available, and consequently are very timid. There are ways to construct similar viruses that are not space-constrained and can therefore spread more, aggressively and harbor better-armed Greeks. As an example, we exhibit a frighteningly virulent portable virus that inhabits shell scripts.Viruses rely on users and system administrators being insufficiently vigilant to prevent them from infiltrating systems. I outline a number of steps that people ought to take to make infiltration less likely.Numerous recent papers have suggested modifications to the unix system kernel to interdict viral attacks. Most of these are based on the notion of 'discretionary access controls.' These proposals cannot usually be made to work, either because they make unacceptable changes in the 'look and feel' of the unix system's environment or they entail placing trust in code that is inherently untrustworthy. In reply to these proposals, I suggest a small change to the unix system permission scheme that may be able to effectively interdict viral attacks without serious effect on the unix system's functioning and habitability."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"2fefea91933b67573b7129d20a08bbac7c76d88b-1498757403-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vtd01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Viral Attacks On UNIX System Security</h1><p><a href="/lib/?lang=en&amp;author=Duff%2C%20Tom">Tom Duff</a><br/> <em>August 1987</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vtd01.html';</script><div class="ci"><a href="/lib/?ci=vtd01">5</a></div><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/Viral%20Attacks%20On%20UNIX%20System%20Security.pdf">Download</a> PDF (669.44Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=EN&amp;index=UN#vtd01">Back to index</a>] [<a href="/lib/vtd01.html#disqus_thread">Comments</a>]<br/> <form method="post" action=""><input type="hidden" name="pages" value="1"/><input type="submit" value="Turn on page numbers"/></form> 
+<pre>
+AT&amp;T                             Document Cover Sheet for Technical Memorandum
+------------------------------------------------------------------------------
+Title:        Viral Attacks On UNIX&reg; System Security
+
+Author (Computer Address)  Location   Ext.     Company (if other than AT&amp;T-BL)
+Tom Duff (research!td)     MH 2C-425  6485
+
+Document No.		Filing Case No. 	Project No.
+11273-880728-02TMS	39199-11		311403-0101
+
+Keywords:
+  UNIX; security; virus; Trojan Horse; discretionary access controls
+  
+MERCURY Announcement Bulletin Sections
+  CMP - Computing
+</pre>
+<h2>Abstract</h2>
+<p>Executable files in the Ninth Edition of the UNIX system contain small amounts of unused space, allowing small code sequences to be added to them without noticeably affecting their functionality. A program fragment that looks for binaries and introduces copies of itself into their slack space will transitively spread like a virus. Such a virus program could, like the Trojan Horse, harbor Greeks set to attack the system when run by sufficiently privileged users or from infected set-userid programs.</p>
+<p>The author wrote such a program (without the Greeks) and ran several informal experiments to test its characteristics. In one experiment, the code was planted on one of Center 1127's UNIX systems and spread in a few days through the Datakit network to about forty machines. The virus escaped during this test onto a machine running an experimental secure unix system, with interesting (and frustrating for the system's developers) consequences.</p>
+<p>Viruses of this sort must be tiny to fit in the small amount of space available, and consequently are very timid. There are ways to construct similar viruses that are not space-constrained and can therefore spread more, aggressively and harbor better-armed Greeks. As an example, we exhibit a frighteningly virulent portable virus that inhabits shell scripts.</p>
+<p>Viruses rely on users and system administrators being insufficiently vigilant to prevent them from infiltrating systems. I outline a number of steps that people ought to take to make infiltration less likely.</p>
+<p>Numerous recent papers have suggested modifications to the unix system kernel to interdict viral attacks. Most of these are based on the notion of 'discretionary access controls.' These proposals cannot usually be made to work, either because they make unacceptable changes in the 'look and feel' of the unix system's environment or they entail placing trust in code that is inherently untrustworthy. In reply to these proposals, I suggest a small change to the unix system permission scheme that may be able to effectively interdict viral attacks without serious effect on the unix system's functioning and habitability.</p>
+<pre>
+Total Pages (including document cover sheet): 9
+Mailing Label
+MCSL (08/31/87)			OFFICIAL FILE		AT&amp;T BELL LABORATORIES
+Timestamp: 587994271
+ 
+Initial Distribution Specifications	    11273-880728-02TMS (page ii of ii)
+------------------------------------------------------------------------------
+</pre>
+<table border="0" summary="Initial Distribution Specifications">
+<tr><th>Complete Copy</th><th>Cover Sheet Only</th></tr>
+<tr><td>
+Executive Director 112<br/>
+Directors 112<br/>
+Department Heads 1127, 1125<br/>
+61 Supervision<br/>
+F. T. Grampp<br/>
+J. Reeds<br/>
+M. D. Mcllroy<br/>
+M. Brothers<br/>
+L. Forman</td>
+<td>
+A. A. Penzias<br/>
+1125, 1127 MTS<br/>
+R. B. Ardis<br/>
+D. G. Belanger<br/>
+S. G. Chappell<br/>
+J. S. Walden
+</td></tr></table>
+<pre>
+Future AT&amp;T Distribution by ITDS
+  DO NOT RELEASE to any AT&amp;T employee without appropriate approval for each request.
+Author Signature
+
+  ------------------
+  Tom Duff
+
+Organizational Approval (Optional)
+
+  ------------------
+  A.  V.  Aho
+</pre>
+ 
+<pre>
+AT&amp;T
+Bell Laboratories
+
+Subject: Viral Attacks On UNIX&reg; System Security                 date:   July 29,1988
+Work Program- 311403-0101 -- File- 39199-11                     from:   Tom Duff
+                                                                TM:     11273-880728-02TMS
+</pre>
+<em>TECHNICAL MEMORANDUM</em>
+<h1>Viral Attacks On UNIX&reg; System Security</h1>
+<h2>1. Introduction</h2>
+<p>UNIX system security has been a subject of intense interest for many years, in large part because the UNIX system is more secure than any other operating system offering comparable facilities and as such offers a more challenging target for recreational breaking-and-entering. The <em>ne plus ultra</em> of UNIX system security breaking is to have the super-user execute arbitrary code on behalf of the miscreant. The most common way to do this is to find a root-owned set-userid program that calls the shell and exploit any of a number of well-known loopholes to get it to execute a chosen command file. [Reeds] describes a number of variations on this theme.</p>
+<p>Other interesting possibilities are to convince someone who has write permission on a root-owned set-userid program to modify it to execute chosen code, or to get someone running as super-user to run code provided by the miscreant No responsible individual would do such a thing deliberately. [Thompson] describes an extremely clever surreptitious way of doing the former, [Grampp &amp; Morris] discuss ways of getting the unwary super-user to do the latter.</p>
+<p>The likelihood of the super-user inadvertently executing miscreant-supplied code is a function of the number of files that contain copies of the code. A program could be written that would try to spread itself throughout the file system by searching for writable binary files and patching copies of itself into them. It would have to be careful to preserve the functionality of the modified programs, in order to avoid detection. Eventually it might so thoroughly infect executable files that it would be very unlikely for the super-user never to execute it.</p>
+<h2>2. A Virus For UNIX System Binaries</h2>
+<p>Ninth edition VAX UNIX system files containing executable programs start with a header of the following form:</p>
+<pre class="source">
+	struct   {
+		int magic;		/* magic number */
+		unsigned tsize;		/* size of text segment */
+		unsigned dsize;		/* size of data segment */
+		unsigned bsize;		/* size of bss segment */
+		unsigned ssize;		/* size of symbol table */
+		unsigned entry;		/* entry point address */
+		unsigned trsize;	/* size of text relocation */
+		unsigned drsize;	/* size of data relocation */
+	};
+</pre>
+<p>If the magic number is 413 in octal, the file is organized to make it possible to page the text and data segments out of the executable file. Thus the first byte of the text segment is stored in the file at a page boundary, and the length of the text segment is a multiple of the page size, which on our system is 1024 bytes. Since a program's text will only rarely be a multiple of 1024 bytes long, the text segment is padded with zeros to fill its last page.</p>
+<p>With this in mind, the author wrote a program called inf (for infect) that examines each file in the current directory. Whenever inf finds a writable 413 binary with enough zeros at the end of its text
+ 
+segment, it copies itself there, patches the copy's last instruction to jump to the binary's first instruction, and patches the binary's entry point address to point at the inserted code, inf is only 331 bytes long. All other things being equal, it has about two chances in three of finding enough space to copy itself into a given binary.</p>
+<p>Once a system is seeded with a few copies of the virus, and with a little luck, someone will sooner or later execute one of the modified binaries either from a different directory or from a userid with different permissions, spreading the infection even farther. Our undc systems are connected by a network file system [Weinberger], so there is a good chance of the infection spreading to files on other machines. We also have an automatic software distribution system [Koenig], intended to keep system software up-to-date on all our UNIX systems. Even wider distribution is possible with its aid.</p>
+<h2>3. Spreading The Virus</h2>
+<p>I tried a sequence of increasingly aggressive experiments to try to gauge the virus's virulence. Many users leave general write permission on their private bin directories. So, on May 22, 1987 I copied inf into /usr/*/bin/a.out on Arend, one of Center 1127's VAX 11/750s. My hope was that eventually someone would type a.out when no such file existed in their working directory, and my program would quietly run instead.</p>
+<p>Unsurprisingly, this hope proved fruitless. By July 11 inf had spread not at all, except amongst my own files, where it had gotten loose accidentally during testing. Only one of Arend's regular users other than myself got a copy of the program, and that was never executed. It should be noted that while nobody got caught, neither did any of the 14 people whose directories were seeded notice that anything was awry.</p>
+<p>With the failure of this extremely timid approach, on July 11 I infected a copy of /bin/echo and left the result on Arend in /usr/games/echo and /usr/jerq/bin/echo - two directories on which I had write permission, and which I had observed several users to search before /bin. I supposed that one of these users would eventually run echo, infect a few files and we'd be off to the races. This in fact happened three times (on July 21, July 30 and August 7), infecting four more files. By September 10, the infection had spread no farther.</p>
+<p>On September 10 I attacked Coma, a VAX 8550, far and away the most-used machine in our center. I looked in /usr/*/.profile to see what directories someone searched before /bin, and placed infected copies of echo in the 48 such directories that I could write. The infection spread that day to 11 more files on Coma, and a further 25 files on the following day, including a newly compiled version of the wc(1) command. The infected /bin/wc was distributed to 45 systems by the automatic software distribution system [Koenig]. The experiment was stopped on September 18, at which time there were 466 infected files on the 46 systems.</p>
+<p>Only four of the 48 users who were seeded noticed that their directories had been tampered with and asked what was going on. All seemed satisfied with explanations of the form "yes, I put it there" or "I'll tell you later." In any case, none of them felt a need to remove the file.</p>
+<p>One of the machines infected by the virus was Giacobini. Doug Mcllroy and Jim Reeds are using this system to develop a multi-level secure version of the 9th edition UNIX system that retains as much of the flavor of standard insecure UNIX systems as possible. Their system augments the familiar UNIX system file protection scheme by attaching a bit vector, called a 'security label', to each file. The security label indicates which security clearances are required to read the file. If a program reads a file and then writes another file, the second file's security label is updated to be at least as restrictive as the first, since the write must be assumed to have contaminated it with more highly classified data. The system takes many special precautions to avoid inadvertent or covert declassification of data. In particular, certain programs which cannot be made to work within the protection scheme, like /etc/login, must be designated 'trusted'. Any attempt to change a trusted binary must be denied by the kernel, as there is no automatic way to certify continued trust in the modified program. Even programs cleared to access the most highly classified material must not be allowed such a privilege, since high clearance does not imply permission to thwart the classification system, and that is precisely what the notion of 'trust' allows.</p>
+ 
+<p>Somehow a program infected by the virus found its way onto Giacobini. Probably they accepted the automatic distribution of the infected wc command. They did not, however, accept shipment of the 'disinfect' program that put an end to the experiment, so inf lived on and continued to spread on their machine. On October 14 they turned on their security features for the first time and soon thereafter discovered programs dumping core because of security violations that should not have occurred. Here is Jim Reeds' account of the virus's effect on their system and how they eventually excised it:</p>
+<blockquote>
+From reeds Fri Oct 16 11:20 EDT 1987
+<p>Not sure how the virus got on giaco. Maybe via asd, maybe placed as a gentle prank, possibly a long dormant spore. Maybe even it was there all along, infesting up everything, and the new security stuff made it visible. Dozens of files were infected: ar, as, bc, ... most of the files in the public bins, my private bin directory, and a couple in /lib. When I cottoned on to what was happening I went on a disinfect frenzy, muddying up modification dates that would have helped in figuring out where it came from. It got a private su command of mine, so it started spreading with root privs in /etc. After a while every command I typed took a couple of seconds longer than it should have. Df, for instance, takes a fraction of a second per line, now seemed to take several seconds per line. I thought it was the security stuff bogging the system down. But what really vexed me was this: whenever I tried to run my su command when I was in /etc the command died after a pause. Hours later, &amp; kernel printfs galore, it transpired that it always died because it tried to write on file descriptor 5 which was attached to /etc/login, which earlier in the day I had marked as 'trusted', which means absolutely nobody may write on it I preceded on the theory that I had a kernel bug (not new to me these last weeks, mind you) that gave such a wrong file descriptor. Finally I had narrowed the 'bug' down to happening when this program</p>
+<pre>
+	.word 0
+	chmk $1
+</pre>
+<p>was assembled and linked 413 and executed out of /etc. Then I began to smell a rat. Comparison with binaries on other machines, discovery of 'disinfect', disassembly, blah blah blah. Because I was doing heavy (for me) kernel hacking I was sure kernel bugs explained all anomalous behavior.</p>
+<p>In all it took 1.5 working nights to figure it out. During the last 1/2 day or so performance took a nose dive: a make in the background and giaco was like alice on a busy day. I guess this recent performance hit argues against the virus having been active for a long time.</p>
+</blockquote>
+<h2>4. More Vigorous Viruses</h2>
+<p>Inf is not very virulent, and its only insalubrious effect is the mild system degradation that its execution causes. This is a consequence of a desire to keep the size of the program down to maximize the number of binaries it would fit in. Placing a Greek in this Trojan Horse would be easy enough. For example, in a few instructions we could look to see if the program's argument count is zero, and if so execute /bin/sh. This test is unlikely to succeed by accident. It's impossible for the shell to execute a command with a zero argument count since, by convention, the first argument of any command is the command name. But the following simple program has the desired effect:</p>
+<pre class="source">
+	main() {
+		execl("infected_a.out", (char  *)0);
+	}
+</pre>
+<p>If the infected program is set-userid and owned by root, this will give the miscreant a super-user shell.</p>
+<p>inf can add noticeably to the execution time of infected programs, especially in large directories. This could be fixed by having the virus fork first, with one half propagating itself and the other half executing the code of the virus's host.</p>
+<p>The virus's small size seriously restricts its actions. A virus that looked at more of the file system could certainly spread itself faster, but it's hard to imagine fitting such a program into little enough space that it would find places to fit itself. The size limitation can be overcome by expanding the victim's data segment to hold the virus. After executing, the virus would have to clean up after itself, setting the
+ 
+program break to the value expected by the victim, and clearing out the section of the expanded data segment that the host was expecting to be part of the all-zero bss segment. After it's zeroed itself, the virus must jump to the first instruction of its host. This seems tricky, but it should be possible to do it by copying the cleanup code into the stack.</p>
+<p>The virus is further restricted by being written in VAX machine language. It therefore cannot spread to machines with non-VAX CPUs or even to machines that run incompatible variants of the UNIX system. A virus to infect Bourne shell scripts would be insensitive to the cpu it ran on, and could be made fairly insensitive to different versions of the UNIX system with a little care. Here is the text of a virus called inf.sh that should be portable to most contemporary versions of the UNIX system:</p>
+<pre class="source">
+#!/bin/sh
+(	for i in * /bin/* /usr/bin/* /u*/*/bin/*
+	do	if	sed 1q $i | grep '^#![ ]*/bin/sh'	# [	] is blank or tab
+		then	if	grep '^# mark$' $i
+			then	:
+			else	trap "rm -f /tmp/x$$" 0 1 2 13 15
+				sed 1q $i >/tmp/x$$
+				sed '1d
+					/^# mark$/q' $0 >>/tmp/x$$
+				sed 1d $i >>/tmp/x$$
+				cp /tmp/x$$ $i
+			fi
+		fi
+	done
+	if	ls -l /tmp/x$$ | grep root
+	then	rm /tmp/gift
+		cp /bin/sh /tmp/gift
+		chmod 4777 /tmp/gift
+		echo gift | mail <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="92e6f6d2e0f7e1f7f3e0f1fabcf3e6e6bcf1fdff">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+	fi
+	rm /tmp/x$$
+) >/dev/null 2>/dev/null &amp;
+# mark
+</pre>
+<p>inf.sh examines files that start with #! /bin/sh in a number of likely directories and copies itself into each one that doesn't appear already to be infected, inf.sh contains a Greek that places a set user-id shell in /tmp/gift and mails me notification whenever the virus appears to be running as super-user.</p>
+<p>However sorely you are tempted, <em>do not</em> ran this code. It got loose on my machine while being debugged for inclusion in this paper, and within an hour had infected about 140 files, at which time several copies were energetically seeking other files to infect, running the machine's load average, normally between .05 and 1.25, up to about 17. I had to stop the machine in the middle of a work day and spend three hours scouring the disks, earning the ire of ten or so co-workers. I feel extremely fortunate that it did not escape onto the Datakit network.</p>
+<h2>5. Countermeasures</h2>
+<p>Spreading a virus has several requirements. First, the virus must have a way of making viable copies of itself. Second, the miscreant must have a way to place seed copies of the virus where they will be executed. Third, the infection must be hard for system administrators to spot. All of these requirements are relative. A particularly virulent virus might be easy to spot and yet be successful because it can spread faster than anyone might notice.</p>
+<p>UNIX system administrators and users can take many measures to limit the danger of viral attack.</p>
+<ul>
+<li>Do not put generally writable directories in your shell search path. These are prime places for a miscreant to seed.</li>
+<li>Beware of Greeks bearing gifts. Imported software should carefully be examined before being
+ 
+loaded onto a sensitive machine. In the best situation you will have all source code available to read and understand before compiling it with a trusted compiler. In the absence of source code it is also helpful to have a controlled environment in which to exercise the code before letting it loose on trusted machines. The ideal test environment would be a machine that can be disconnected from all communications equipment and whose persistent media (disks, tapes, Williams tubes, etc.) can be reformatted and reloaded with old data if any infection appears. Ideal conditions often do not obtain. You should try your best to approximate them as closely as possible with the resources available to you.</li>
+<li>Watch for changing binaries. System administrators should regularly check that all files critical to the daily operation of the system do not change unexpectedly. The most complete way to do this would be to maintain copies of all critical files on read-only media and periodically compare them with the active copies. Most systems will not have such media available. An adequate compromise is to maintain a list of checksums and inode change dates (printed by <tt>ls -lc</tt>) of the critical files. The inode change date is updated whenever the file is written and is difficult to set back without either patching the disk or resetting the system clock. The checksum function should be hard to invert, to thwart viruses that try to modify themselves in a way that preserves the checksum. Hard-to-invert functions are called one-way functions in the cryptographic literature. Encrypting the file using DES in cipher-block chaining mode and using the last block of cipher-text as the checksum is probably a good one-way checksum.</li>
+<li>Our automatic software distribution system [Koenig] is a wonderful tool for keeping software up-to-date amongst a collection of machines. It is also a powerful vector for transmitting viruses. The wide and rapid spread of inf can largely be attributed to its inadvertently having been distributed to all of our machines hidden in a copy of the we command. People who distribute software should be careful that they only ship newly compiled, clean copies of their code. Versions that have been used for testing may very well have been infected.</li>
+</ul>
+<h2>6. System Enhancements to Interdict Viruses</h2>
+<p>There are several proposals in the literature to stop the spread of viruses by what are called 'discretionary access controls.' This buzzword indicates a system organization in which all of a program's accesses to files are authorized by the user running the program. [Lai &amp; Gray] point out that users cannot reasonably be expected to explicitly authorize all file accesses, or they would continually be interrupted by innumerable queries from the kernel. They suggest dividing binaries into two camps, trusted and untrusted. The word 'trust' here has a different meaning than in McIlroy and Reeds's secure UNIX system, discussed above. Trusted binaries, like the shell and the text editor, are allowed access to any file, subject to the normal UNIX system permission scheme. When an untrusted binary is executed by a trusted one, it may access only files mentioned on its command line. If the untrusted binary executes any binary, the new program is invariably treated as untrusted (even if it has its trusted bit set) and inherits the set of accessible files from its parent. (Lai and Gray make other provisions to allow suites of untrusted programs to create temporary files and use them for mutual communication, but those provisions are irrelevant to our discussion.)</p>
+<p>Among the underlying assumptions of Lai and Gray's scheme are that users do not ordinarily write programs that would require trusted status, and that the system programs that require trusted status (they name 32 binaries in 4.3BSD that require trust) are actually incorruptible. Neither assumption is justifiable. Perhaps there is a class of casual programmers that will be satisfied writing programs that can only access files named on the command line, but it is hard to imagine software of any complexity that does not include editing or data management facilities that are ruled out by this scheme. A user cannot even, as is common, write a long-running program that sends mail to notify the user when it finishes, because /bin/mail is one of the system programs that requires trust, and when executed from an untrusted program it will not have it.</p>
+<p>The assumption of incorruptibility of trusted programs is equally unjustified. The inf.sh virus or a slight variant of it would spread uncontrolled under Lai and Gray's scheme, because it will be executed by a shell running in trusted mode.</p>
+<p>Lai and Gray's scheme does not go far enough, as it does not effectively interdict the behavior that it
+ 
+attacks. Simultaneously it goes too far, altering the UNIX environment beyond recognition and rendering it unusably clumsy. The only possible conclusion is that they are going in the wrong direction.</p>
+<p>I see no way of throwing out Lai and Gray's bathwater and keeping the baby. Any scheme that requires that the shell be trusted entails crippling the shell. Users that are unsatisfied with the crippled shell are prevented from replacing it, since the replacement cannot have the required trust. This is an unacceptable violation of the precept that the entire user-level environment be replaceable on a per-user basis. [Ritchie &amp; Thompson]</p>
+<h2>7. Modifying UNIX system file protection to interdict viruses</h2>
+<p>Having attacked one suggested virus defense, it is with some trepidation that I suggest another. The UNIX system uses a file's execute permission bits to decide whether the exec system call ought to succeed when presented with a file of the correct format. The execute bits are normally set by the linkage editor if its output has no unresolved external references. This amounts to certification by the linkage editor that, as far as it is concerned, the binary is safe to execute. The rest of the system treats the execute bits as specifying permission rather than certification. The bits are settable at will by the file's owner, and are not updated when the file's content changes. As permission bits they are nearly useless; almost always executable files are also readable (in my search path there are 602 executable files, only one of which (/usr/bin/spitbol) is not also readable) and so can be ran by setting the execute bits of a copy.</p>
+<p>I propose changing the meaning of the execute permission bits so that they act as a certificate of executability, rather than permission. Under this scheme, when you see a file with its execute bits set, you should think "some authority has carefully examined this file and has certified that it's ok for me to execute it." The implementation will involve a few small changes to the kernel. First, changing a file will cause its execute bits to be turned off, as any previous certification is now invalid. The effect of the first change will be to stop a virus from its transitive self-propagation. In addition, users and system administrators will be alerted that something is awry when they notice that formerly-executable commands no longer are. Second, the group and others execute bits may only be set by the super-user, who is presumably an appropriate certifying authority, and in any case has more expedient means of causing mischief than malicious execute-bit setting. Logging any changes to executable files would aid in tracking down any viruses that try to attack the system.</p>
+<p>In many open environments, the requirement that setting the group and other execute bits be restricted to the super-user will be regarded as too oppressive for the increment of security that it requires. In such cases, the chown command can easily be made root-owned and set-userid and modified to implement any appropriate policy.</p>
+<h2>8. Acknowledgements</h2>
+<p>Some of the ideas described here arose in conversations with Norman Wilson and Fred Grampp. Ron Gomes helped make the Bourne shell virus more portable.</p>
+<pre>
+MH-11273-TD                                                           Tom Duff
+
+Att. References
+</pre>
+ 
+<h2>References</h2>
+<ul>
+<li>[Grampp &amp; Morris] F. T. Grampp and R. H. Morris, UNIX Operating System Security, AT&amp;T Bell Laboratories Technical Journal, Vol. 63 No. 8 Part 2, October 1984, pp. 1649-1672</li>
+<li>[Koenig] Andrew R. Koenig, Automatic Software Distribution, Usenix 1984 Summer Conference Proceedings, pp. 312-322</li>
+<li>[Lai &amp; Gray] Nick Lai and Terence E. Gray, Strengthening Discretionary Access Controls to Inhibit Trojan Horses and Computer Viruses, Proceedings of the Summer 1988 USENIX Conference, pp. 275-286</li>
+<li>[Reeds] Jim Reeds, Ibinlsh: the biggest UNIX security loophole, AT&amp;T Bell Laboratories Technical Memo, 1988</li>
+<li>[Thompson] Ken Thompson, <a href="/lib/mkt00.html">Reflections on Trusting Trust</a>, Comm. ACM Vol 27 Number 8 (August 1984) pp. 761-763 (1983 Turing Award lecture)</li>
+<li>[Ritchie &amp; Thompson] D. M. Ritchie and K. Thompson, The UNIX Time-Sharing System, Comm. ACM, 17, No. 7 (July 1974), pp. 365-375.</li>
+<li>[Weinberger] Peter J. Weinberger, The Version 8 Network File System (abstract), Usenix 1984 Summer Conference Proceedings, pg. 86</li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vtd01">Back to index</a>] [<a href="/lib/vtd01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vtd01">de</a><a href="/lib/index.php?lang=en&amp;id=vtd01">en</a><a href="/lib/index.php?lang=es&amp;id=vtd01">es</a><a href="/lib/index.php?lang=it&amp;id=vtd01">it</a><a href="/lib/index.php?lang=fr&amp;id=vtd01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vtd01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vtd01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vtd01">ua</a></div>
+</body>
+</html>

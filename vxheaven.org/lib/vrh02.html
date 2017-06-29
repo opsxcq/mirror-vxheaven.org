@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> 'Full Thunderbyte Stealth...' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content=""/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, ,Full Thunderbyte Stealth..., byte, stack, offset, virus, date, header, routine, continuar, jumps, file, word, jump, entry, comparing, decrypt"/>
+<meta name="Description" content="What we are trying to do here is to enumerate all the possible Thunderbyte flags, so that you can be certain that your virus will not trigger an alarm under any specific circumstances. This text is essentially the same as the one in the previous issue, only now it's more complete."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"509f8e41aae8d937a2251958c72bbaed8966d0ee-1498756295-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrh02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Full Thunderbyte Stealth...</h1><p></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrh02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#vrh02">Back to index</a>] [<a href="/lib/vrh02.html#disqus_thread">Comments</a>]<br/> 
+<p>What we are trying to do here is to enumerate all the possible Thunderbyte flags, so that you can be certain that your virus will not trigger an alarm under any specific circumstances. This text is essentially the same as the one in the previous issue, only now it's more complete.</p>
+<h2>Flag "B" - Back to entry point</h2>
+<p>This flag appears when a program at some point in its code jumps to the Entry Point. For a COM that would be a jump to the beginning (offset 100h).</p>
+<pre class="source">
+	MOV AX, 100h
+	JMP AX
+</pre>
+<p>It can be spoofed like this:</p>
+<pre class="source">
+	PUSH 100h
+	POP AX
+	JMP AX
+</pre>
+<h2>Flag "E" - Flexible entry point</h2>
+<p>This one pops up when we are calculating the actual offset, remember? Well, the classic way to code it is as follows:</p>
+<pre class="source">
+	CALL OBTENER_DIRECCION
+OBTENER_DIRECCION:
+	POP BP
+	SUB BP, OFFSET OBTENER_DIRECCION
+</pre>
+<p>The anti-TB form would be to simulate that POP:</p>
+<pre class="source">
+	CALL OBTENER_DIRECCION
+OBTENER_DIRECCION:
+	MOV DI, SP
+	MOV BP, WORD PTR SS:[DI]
+	SUB BP, OFFSET OBTENER_DIRECCION
+	INC SP
+	INC SP
+</pre>
+<h2>Flag "Z" - EXE/COM determination</h2>
+<p>This is the party guilty of detecting many viruses... it's not so commonly used in conventional programming. Originally, what we did was to read the first two bytes of a file, toss them into a buffer and compare against 'ZM' (watch it! ZM and not MZ since the word is stored in inverse order!)</p>
+<p>For example, supposing we already have the first two bytes in a buffer...:</p>
+<pre class="source">
+	CMP WORD PTR [BUFFER], 'ZM'
+	JNE NO_ES_EXE
+	...
+	...
+	...
+</pre>
+<p>Ok, that's the conventional way of doing it. But another way is to compare byte for byte:</p>
+<pre class="source">
+	CMP BYTE PTR [BUFFER], 'M'	;Remember! we are not
+					; comparing against ZM since we
+					; are comparing byte by byte. First
+					; we compare against M and then Z.
+	JNE NO_ES_EXE
+	CMP BYTE PTR [BUFFER+1], 'Z'
+	JNE NO_ES_EXE
+	... 				;&lt;--- If it got this far, it's
+	... 				; an EXE.
+	...
+</pre>
+<h2>Flag "S" - Search for executables</h2>
+<p>This one traps the routine which searches for executables.... The search routine is imperative in non-resident viruses, therefore it is imperative to hide it. We used to search for *.COM or *.EXE in any directory; what we can do, instead, is to search for *.C?M and *.E?E and later verify if the center letter is an "o" or an "X" respectively. For example (assuming we already have the filename in DTA_AREA):</p>
+<pre class="source">
+;Verify that it really is a .COM, not .CAM or something like that..
+;To do that, move the pointer to the beginning of the extension
+;(look for the period in the file name) and I increment it by 1 so
+;that it's at the center of the extension, which is what interests
+;us. Now I look for the period:
+
+	MOV CX, 13d			;13d is the maximum filename size.
+	LEA SI, DTA_AREA+1Eh		;1Eh filename displacement in
+					; DTA area.
+	LEA DI, PUNTOS			;'Puntos' is a variable full of
+					; periods (.)
+	REPNE CMPSB
+
+;Once the period is found, I increment the pointer so that it
+;points to the extension's center character:
+
+	INC SI
+	CMP BYTE PTR [SI], 'O'
+	JNE NO_ES_COM
+	...				;&lt;--- If it got this far, it's because it's a
+	...				; real .COM, not a CAM or some such thing
+	...
+</pre>
+<h2>Flag "U" - Undocumented interrupt/DOS calls</h2>
+<p>This is set off when you make calls to undocumented services, like deactivating V-Safe, for example. To get around it we do the same as before: instead of MOVing, we pass the values through the stack and it's done.</p>
+<h2>Flag "T" - Incorrect time stamp</h2>
+<p>TB warns of this problem when it encounters an incorrect or impossible date. A file with a creation date of 2094, for example.</p>
+<p>This generally seen in files infected by stealth viruses, which do this to test for infection since if it had to open every file it would be the world's slowest virus. The traditional way is to add 100 or 200 to the year so that a DIR list appears unchanged but the virus 'knows' it's 100 years 'later'. Example:</p>
+<h3>File name Real Date Date shown by DIR command</h3>
+<pre>
+MEM.EXE 01/01/1994 01/01/94 ;&lt;-- Not infected
+MEM.EXE 01/01/2094 01/01/94 ;&lt;-- Infected
+</pre>
+<h2>Flag "M" - Memory resident code</h2>
+<p>TB displays this warning when it finds that we obtain or set the interrupt vectors. One way of spoofing it is typical. Instead of the following, for example:</p>
+<pre class="source">
+	MOV AX, 3521H
+	INT 21H
+</pre>
+<p>Try this:</p>
+<pre class="source">
+	PUSH 3521H
+	POP AX
+	INT 21H
+</pre>
+<p>But another way of doing the same thing is, instead of hiding the service, hide the VECTOR! TB warns of resident code only on critical interrupts, like 13h or 21h. So what we do is to call for vector 'N-1' instead of vector 'N' and later ad '1' to it. For example:</p>
+<pre class="source">
+	MOV AX, 3521H
+	INT 21H
+</pre>
+<p>Change it to:</p>
+<pre class="source">
+	MOV AX, 3520H
+	INC AL
+	INT 21H
+</pre>
+<h2>Flag "L" - The program traps the loading of software</h2>
+<p>This flag triggers the moment TB becomes 'aware' of the typical comparison used to verify if it is the file execution service(4bh) once Int 21h is hooked:</p>
+<pre class="source">
+	CMP AH, 4BH
+</pre>
+<p>To spoof this, instead of comparing AH to 4BH, we can pass the value to be compared to another place and compare it in another register, so it won't be so obvious to TB that we are comparing the service:</p>
+<pre class="source">
+	XCHG AH, AL			; The XCHG instructions are mostly
+	CMP AL, 4BH			; used to avoid changing registers
+	XCHG AH, AL			;
+</pre>
+<h2>Flag "c" - No checksum data</h2>
+<p>This flag pops up when TB can't find ANTI-VIR.DAT, a small file TB creates in each directory. TB store critical information about each program in it, such as the first few bytes and the size of a COM, or the EXE Entry Point, or other crap like that, as well as storing the CRC of the original file. If a file is infected, and ANTI-VIR.DAT still exists, TB realizes that file was modified and displays the flag, maybe even managing to clean the file.</p>
+<p>In other words, it behooves us to make sure that this little file no longer exists, or better yet, that TB can't recognize it as its checksum file. So, instead of erasing it, what we can do is to modify its header... just the first bytes are enough. We overwrite 'Thunderbyte' with garbage......</p>
+<p>The advantage to modifying the file instead of erasing it is that we avoid the possibility of TB realizing that ANTI-VIR.DAT is missing. This way, the file is still there but it's unusable. :-)</p>
+<h2>Flag "G" - Garbage instructions,</h2>
+<h2>Flag "#" - Found an instruction decryption routine,</h2>
+<h2>Flag "!" - Invalid opcode</h2>
+<p>This is what TB displays when it finds "garbage" in the file. This "pseudo-garbage" is what is usually found after an encryption... When a virus is encrypted, the remaining code (obviously not executable) is read as garbage by TB, which then interprets this as the possible result of encryption and displays the flag.</p>
+<p>A possible solution is to ensure that the result of the encryption is not larger than the highest instruction. One way of doing this is to rotate one bit. Another way is to create a false exit ahead of the encrypted code... TB then thinks that what follows is program data and does not read it as garbage. Structure:</p>
+<pre class="source">
+	JMP DECRYPT			; Jump to the virus
+	...				; Host program
+
+DECRYPT:...				; Decryption routine
+	JMP TE_CAGUE			; Jump to bypass exit to DOS
+	MOV AH, 4Ch			; Code which is never executed
+	INT 21h 			;
+TE_CAGUE:
+	... 				; Continuation of decryption routine.
+	.... 				; Encrypted virus (garbage)
+</pre>
+<p>Well, since we delayed too long in getting out this second issue, it happens that TBav now catches on to the "JMP before the DOS exit" trick. This doesn't mean TB is going to shit on us, right? RIGHT! It isn't going to shit on us at all, because what we can do (thanks to Leviathan's ingenuity, who, totally perturbed because TB was shitting on his Xou da Xuxa, went without sleep a whole night and got out a new ANTI-TB 6.20 version) is to make a DOS call at random, such as to ask for the date. I don't mean make just ANY call, just calls which won't destroy the contents of the key registers and such. The code should appear as follows:</p>
+<pre class="source">
+	JMP DECRYPT			; Jump to virus
+	...				; Host program
+DECRYPT:...				; Decryption routine
+
+	JMP TE_CAGUE			; Jump to bypass exit to DOS
+	MOV AH, 4Ch			; Code which is never executed
+	INT 21h				;
+TE_CAGUE:
+	MOV AH, XXX			; Random call, but make sure nothing
+
+	INT XX				; is damaged.
+	...				; Continuation of decryption routine.
+
+	...				; Encrypted virus (garbage)
+</pre>
+<h2>Flag "p" - Packed program</h2>
+<p>This flag isn't really an alarm. It merely tells us that the file is packed and that it could contain a virus.</p>
+<h2>Flag "F" - Suspicious file access</h2>
+<p>This flag appears when TB detects code capable of modifying file attributes. We can spoof it in the same manner: instead of MOVing the value of the service in AH, PUSH and POP it.</p>
+<h2>Flag "?" - Inconsistent EXE header</h2>
+<p>This flag is displayed when TB finds inconsistent information in the EXE header. For example: the header file size field is different from the actual size of the file. This could be caused by overlays in the program, but it could also be caused by a virus which calculates the new file size improperly.</p>
+<h2>Flag "O" - Code that overwrites/moves a prog. in memory</h2>
+<p>This appears when we try the restore the first few bytes of a COM file. Generally what we do is:</p>
+<pre class="source">
+	mov di, 100h
+	lea si, [offset BYTES_ORIGINALES+bx] ;&lt;- BX contains the
+					     ;offset of the virus
+	movsb
+	movsw
+</pre>
+<p>(This, of course, can be done in several different ways, but basically the above example is representative.) All we need to do here is to replace 'MOV DI, 100' with 'PUSH 100', 'POP DI'.</p>
+<h2>Flag "A" - Suspicious memory allocation</h2>
+<p>The following is an example of the type of code which sets off this flag:</p>
+<pre class="source">
+	mov ax, ds
+	dec ax
+	mov es, ax
+	cmp byte ptr es:[0], 5ah
+	mov ax, es:[3]
+	mov dx, es
+	add dx, ax
+	... etc...
+</pre>
+<p>(As can be seen, we're trying to manipulate the MCBs) The flag can be avoided by changing the value 5Ah for another in the following manner:</p>
+<pre class="source">
+	;instead of...
+	cmp byte ptr es:[0], 5ah
+
+	;write
+	inc byte ptr es:[0]
+	cmp byte ptr es:[0], 5bh
+</pre>
+<p>It modifies the MCB value, but it's the only way... :-).</p>
+<h2>Flag "J" - Suspicious jump construct</h2>
+<p>This is set off by a chain of Jumps (at least 2) to positions more or less widely separated in the code. Example:</p>
+<pre class="source">
+Start:	JMP Continuar
+	...
+Continuar:
+	JMP Virus
+	...
+Virus:	&lt;Virus>
+</pre>
+<p>Replacing JUMPs with the equivalent PUSH and RET instructions is ineffective, including PUSH immediate. The same thing happens when you try to replaces plain and simple JUMPs with a more elaborate schema, such as using variables, etc. This can be solved by replacing JUMP with CALL. You use CALL then you get rid of the offset that remains in the stack, making everything work as if it were a JMP. For example:</p>
+<pre class="source">
+Start:	CALL Continuar
+	...
+Continuar:
+	ADD SP, 2
+	CALL Virus
+	...
+Virus:	ADD SP, 2
+	&lt;Virus>
+</pre>
+<h2>Flag "K" - Unusual stack</h2>
+<p>We see this pop up with infected EXE's. The problem with this flag is that it appears when one of the 2 following conditions is met:</p>
+<ol>
+<li>When the Stack Segment (SS) and the Code Segment (CS) point to the same segment. This is normal, of course, because typically we place some bytes in SS after the virus, sharing the same segment as the virus's CS (the same CS that is shown in the header).....</li>
+<li>When the Stack Pointer (SP) is odd (odd stack).. this is due to micro computer design, which can't handle segment overflow with an odd SP.... the machine would hang. Ok, you can use an od SP, but it's not advisable... the machine won't hang, but keep the possibilities in mind. But if TB doesn't like it, WE DON'T DO IT, AND THAT'S ALL! OK? :)</li>
+</ol>
+<p>Well, the first is easy to spoof. All we have to do when we calculate the new CS:IP (pointing to the virus) is to increment the CS and set is as a new SS:</p>
+<pre class="source">
+;Now we have to pass the incremented CS to the header variable
+;in the corresponding field
+; Initial Stack Segment: header offset 0eh
+; Initial Stack Pointer: header offset 10h
+	INC AX				;&lt;--- In AX for example we have the
+					; calculated CS and after the INC it
+					; becomes the new SS.
+	MOV WORD PTR DS:[HEADER+0eh], AX; Or whatever the fuck you do
+					; to pass the data to the new header.
+</pre>
+<p>Ok, all that remains is the SP which has to be even. Well, what can I say? Since you put the stack wherever you want, just calculate it so it comes out even. The virus has a constant length, and since determine the length of the separation between the end of the virus and the stack, we calculate it so that the sum of the two is even and there we are.....</p>
+<h2>Flag "D" - Disk write access</h2>
+<p>It is rumored that this one appears when you try direct writes to the hard drive. Avoid it by simply camouflaging the call to the interrupt.</p>
+<h2>Flag "R" - Relocator</h2>
+<p>To elude this flag simply camouflage the registers by using operations such as PUSH and POP or something like that. If this flag still pops up, kill yourselves! Your virus is a "mierda".</p>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#vrh02">Back to index</a>] [<a href="/lib/vrh02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrh02">de</a><a href="/lib/index.php?lang=en&amp;id=vrh02">en</a><a href="/lib/index.php?lang=es&amp;id=vrh02">es</a><a href="/lib/index.php?lang=it&amp;id=vrh02">it</a><a href="/lib/index.php?lang=fr&amp;id=vrh02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrh02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrh02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrh02">ua</a></div>
+</body>
+</html>

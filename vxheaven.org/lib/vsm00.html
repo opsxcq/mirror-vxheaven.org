@@ -1,0 +1,394 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> SMT 'Использование microsoft visual C++ 6.0 для создания перемещаемого програмного кода' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="SMT"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, SMT,Использование microsoft visual C++ 6.0 для создания перемещаемого програмного кода, char, dword, void, kernel, unsigned, func, push, stdcall, test, call, delta, constdata, word, define, функций"/>
+<meta name="Description" content="В этой статье в основном речь пойдет о том, как, пользуясь microsoftовским компилятором visual C++, создавать код, который можно было бы загрузить по произвольному адресу и при этом он не терял свою работоспособность. Это бывает полезно при создании всякого рода патчей, PE-EXE упаковщиков-распаковщиков, конечно же вирусов, да и просто если нужно в адресном пространстве некоторого процесса выполнить свой кусок кода. Традационно для таких программ используют ассемблер, но так как и операционные системы все усложняются, и требования к программам возрастают, то самое время переходить на C. Особенно это требуется для сложных программ, взаимодействующих с сетями..."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8127b46b168f6870718878217c0806f56a1c1347-1498757770-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vsm00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Использование microsoft visual C++ 6.0 для создания перемещаемого програмного кода</h1><p><a href="/lib/?lang=ru&amp;author=SMT"> SMT</a><br/> <em><a href="/vx.php?fid=452#f452">Top Device Online [3]</a></em><br/> <em>Февраль 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vsm00.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=WI#vsm00">Вернуться к списку</a>] [<a href="/lib/vsm00.html#disqus_thread">Комментарии</a>]<br/> 
+<p>В этой статье в основном речь пойдет о том, как, пользуясь microsoftовским компилятором visual C++, создавать код, который можно было бы загрузить по произвольному адресу и при этом он не терял свою работоспособность. Это бывает полезно при создании всякого рода патчей, PE-EXE упаковщиков-распаковщиков, конечно же вирусов, да и просто если нужно в адресном пространстве некоторого процесса выполнить свой кусок кода. Традационно для таких программ используют ассемблер, но так как и операционные системы все усложняются, и требования к программам возрастают, то самое время переходить на C. Особенно это требуется для сложных программ, взаимодействующих с сетями...</p>
+<p>Конечно, есть более простые способы, чем описанные здесь (например, создать отдельный процесс; или сгенерить код по какому-нить экзотическому адресу (что-то вроде 0x6EAD0000), а потом выделить память именно в этом месте и загрузить туда свою программу), но все они имеют свои недостатки.</p>
+<p>Итак, как заставить компилятор создавать код без привязки к конкретным адресам... К счастью, процессоры intel x86 - это не z80 [;)] и инструкции jmp и call используют относительные смещения. Осталось только выяснить, в каких случаях компилятор подставляет абсолютные адреса...</p>
+<p>Это могут быть:</p>
+<ol>
+<li>startup код, коды runtime библиотек;</li>
+<li>глобальные переменные, адреса функций в C-программе</li>
+<li>вызов импортируемых функций.</li>
+<li>некоторые особые случаи...</li>
+</ol>
+<p>Значит, делаем так:</p>
+<ol>
+<li>Отказываемся от startup кода (вирусу он только мешает), не используем функций из статических библиотек, а пишем все сами (написать strcmp() не так уж трудно), или импортируем из msvcrt.dll/crtdll.dll</li>
+<li>Все адреса пропускаем через функцию delta такого вот содержания:
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#pragma warning(disable:4035)</span><br/>
+<span style="color: #993333;">void</span> <span style="color: #339933;">*</span>delta<span style="color: black;">&#40;</span><span style="color: #993333;">void</span> <span style="color: #339933;">*</span>start<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; label1<br/>
+label1<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; eax<span style="color: #339933;">,</span> offset label1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; eax<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>start<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #339933;">#pragma warning(default:4035)</span><br/>
+&nbsp;</div>
+<p>конечно же, эта функция просто незаменима и поэтому может стать неплохой сигнатурой для аверов. Рекомендуется придумать что-то вроде</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> <span style="color: #339933;">*</span>delta<span style="color: black;">&#40;</span><span style="color: #993333;">void</span> <span style="color: #339933;">*</span>start<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; label1<br/>
+label0<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; leave<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retn<br/>
+label1<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; ecx<span style="color: #339933;">,</span> eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xor &nbsp; &nbsp; eax<span style="color: #339933;">,</span> ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shr &nbsp; &nbsp; edx<span style="color: #339933;">,</span> <span style="color: #0000dd;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; eax<span style="color: #339933;">,</span> offset label0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; eax<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>start<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Все глобальные переменные группируем в один большой struct, и передаем указатель на него между функциями. Все нужные константы должны быть там. Тут есть два способа как к нашему коду добавить блок констант: или обрабатывать его отдельно, дописывая сразу после кода, или сделать функцию - пустышку типа</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> data<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm nop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// 1 line = 8*16 = 128 bytes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop __asm ALIGN <span style="color: #0000dd;">16</span> __asm nop<br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>и в main написать:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>data<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>init<span style="color: #339933;">,</span> DATASIZE<span style="color: black;">&#41;</span></div>
+<p>при этом конечно нужно добавить</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#pragma comment(linker, &quot;/SECTION:.text,ERW&quot;)</span></div>
+<p>в начало программы.</p></li>
+<li>импортируемые функции.
+<p>Придется отказаться от прямого вызова таких функций. Все, что нам нужно, это struct с адресами API. Адреса можно получить, используя свою таблицу импорта (это несколько неудобно), как показано в прилагающемся примере (win32vir.cpp), или более привычно - сканированием памяти, об этом - дальше.</p></li>
+<li>Особые случаи.
+<p>Как известно, памяти в стеке резервируется при загрузке модуля (точнее, при запуске каждого threada) обычно достаточно много, а именно столько, сколько указано в IMAGE_OPTIONAL_HEADER.SizeOfStackReserve (по умолчанию там 1Mb), а выделяется она по мере необходимости (по заполнении очередной 4х-килобайтной страницы), поэтому если функция использует локальных переменных более чем на 4Кб, то компилятор вызывает служебную функцию, которая выделяет память в стеке. Нам этого совсем не надо... Выход - не использовать локальные переменные более 4Кб на функцию. Если еще учесть, что есть проблеммы с глобальными переменными, то получается довольно неудобно... Поэтому делаем так - ищем заменяем вызовы этой функции на нашу, тогда это досадное ограничение можно снять. Вот примерчик из одной моей проги:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">__declspec<span style="color: black;">&#40;</span>naked<span style="color: black;">&#41;</span> <span style="color: #993333;">void</span> InitStackPages<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">// это помещается внутрь</span><br/>
+<span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// основного кода</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmp &nbsp; &nbsp; eax<span style="color: #339933;">,</span> 000001000h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lea &nbsp; &nbsp; ecx<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>esp<span style="color: #339933;">+</span>00008h<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jb&nbsp; &nbsp; &nbsp; __Exit<br/>
+__Loop<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; ecx<span style="color: #339933;">,</span> 000001000h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; eax<span style="color: #339933;">,</span> 000001000h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; test&nbsp; &nbsp; <span style="color: black;">&#91;</span>ecx<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmp &nbsp; &nbsp; eax<span style="color: #339933;">,</span> 000001000h<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jae &nbsp; &nbsp; __Loop<br/>
+__Exit<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; ecx<span style="color: #339933;">,</span> eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; eax<span style="color: #339933;">,</span> esp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; test&nbsp; &nbsp; <span style="color: black;">&#91;</span>ecx<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; esp<span style="color: #339933;">,</span> ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; ecx<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>eax<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; eax<span style="color: #339933;">,</span> <span style="color: black;">&#91;</span>eax<span style="color: black;">&#93;</span><span style="color: black;">&#91;</span><span style="color: #208080;">00004</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retn<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: black; font-style: italic;">// а это должно выполнятся только 1 раз после компиляции, обычно это</span><br/>
+<span style="color: black; font-style: italic;">// внутри инсталлятора, поэтомы нет вызовов delta() для first_func и last_func</span><br/>
+<span style="color: #993333;">char</span> x<span style="color: #339933;">;</span><br/>
+main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// перенаправить вызовы InitStackPages</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> a<span style="color: black;">&#91;</span><span style="color: #0000dd;">8192</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#123;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#125;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">// это нужно, чтобы спровоцировать вызов InitStackPages</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> x <span style="color: #339933;">=</span> a<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// это нужно, чтобы компилятор не прибил переменную a[]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>i <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>main<span style="color: #339933;">;</span> <span style="color: #339933;">*</span>i <span style="color: #339933;">!=</span> <span style="color: #208080;">0xE8</span><span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> offset <span style="color: #339933;">=</span> <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>i<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>j <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>first_func<span style="color: #339933;">;</span> j <span style="color: #339933;">&lt;</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>last_func<span style="color: #339933;">;</span> j<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>j<span style="color: black;">&#91;</span><span style="color: #339933;">-</span><span style="color: #0000dd;">5</span><span style="color: black;">&#93;</span> <span style="color: #339933;">==</span> <span style="color: #208080;">0xB8</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: #339933;">*</span>j <span style="color: #339933;">==</span> <span style="color: #208080;">0xE8</span> <span style="color: #339933;">&amp;&amp;</span> i<span style="color: #339933;">+</span>offset <span style="color: #339933;">==</span> j<span style="color: #339933;">+*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>j<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>j<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: black;">&#41;</span>InitStackPages <span style="color: #339933;">-</span> <span style="color: #0000dd;">5</span> <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: black;">&#41;</span>j<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+</ol>
+<p>Похоже, придется отказаться и от использования try{}, но все это можно пережить (вот примерчик из еще одной моей проги, заодно и пример сканирования памяти)</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define WORD4(a,b,c,d) ((a)+(b)*0x100+(c)*0x10000+(d)*0x1000000)</span><br/>
+<span style="color: #339933;">#define WORD2(a,b) ((a)+(b)*0x100)</span><br/>
+<span style="color: #339933;">#pragma pack(1)</span><br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> _constants <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> MainImagePath<span style="color: black;">&#91;</span><span style="color: #0000dd;">128</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD CryptCode<span style="color: #339933;">;</span><br/>
+<span style="color: black; font-style: italic;">// ---------------- import data -------------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> Kernel32DLL<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;KERNEL32.DLL&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> CreateFileA<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;CreateFileA&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> ReadFile<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;ReadFile&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> SetFilePointer<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;SetFilePointer&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> VirtualAlloc<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;VirtualAlloc&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> CreateThread<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;CreateThread&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> CreateFileMappingA<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;CreateFileMappingA&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> MapViewOfFile<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;MapViewOfFile&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> UnmapViewOfFile<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;UnmapViewOfFile&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> CloseHandle<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;CloseHandle&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> nul0<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> WSOCK32DLL<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;WSOCK32.DLL&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> connect<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;connect&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// .....................</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> nul1<span style="color: #339933;">,</span> nul2<span style="color: #339933;">;</span><br/>
+<span style="color: black; font-style: italic;">// ------------- end of import data ----------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> GetProcAddress<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;GetProcAddress&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> LoadLibraryA<span style="color: black;">&#91;</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;LoadLibraryA&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> CONSTANTS<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PCONSTANTS<span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">#pragma pack()</span><br/>
+<br/>
+CONSTANTS init <span style="color: #339933;">=</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;C:<span style="color: #000099; font-weight: bold;">\\</span>WINNT<span style="color: #000099; font-weight: bold;">\\</span>SYSTEM32<span style="color: #000099; font-weight: bold;">\\</span>ntoskrnl.exe&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><br/>
+<span style="color: black; font-style: italic;">// ---------------- import data -------------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;KERNEL32.DLL&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;CreateFileA&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;ReadFile&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;SetFilePointer&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;VirtualAlloc&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;CreateThread&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;CreateFileMappingA&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;MapViewOfFile&quot;</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// полный список перечислять нет смысла,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;UnmapViewOfFile&quot;</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// все и так все поняли</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;CloseHandle&quot;</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// вот так переходим к следующему модулю...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;WSOCK32.DLL&quot;</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// начало следующего модуля</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;connect&quot;</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// конец списка импорта</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// .......................</span><br/>
+<span style="color: black; font-style: italic;">// ------------- end of import data ----------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;GetProcAddress&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">&quot;LoadLibraryA&quot;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">struct</span> _winapi <span style="color: black;">&#123;</span><br/>
+<span style="color: black; font-style: italic;">// ---------------- imported -------------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>CreateFile<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPCTSTR<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>LPSECURITY_ATTRIBUTES<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>HANDLE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BOOL <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>ReadFile<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>HANDLE<span style="color: #339933;">,</span>LPVOID<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>LPDWORD<span style="color: #339933;">,</span>LPOVERLAPPED<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>SetFilePointer<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>HANDLE<span style="color: #339933;">,</span>LONG<span style="color: #339933;">,</span>PLONG<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LPVOID <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>VirtualAlloc<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPVOID<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>CreateThread<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPSECURITY_ATTRIBUTES<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>LPTHREAD_START_ROUTINE<span style="color: #339933;">,</span>LPVOID<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>LPDWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>CreateFileMapping<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>HANDLE<span style="color: #339933;">,</span>LPSECURITY_ATTRIBUTES<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>LPCTSTR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LPVOID <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>MapViewOfFile<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>HANDLE<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: #339933;">,</span>DWORD<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BOOL <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>UnmapViewOfFile<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPCVOID<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BOOL <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>CloseHandle<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>HANDLE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>connect<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>SOCKET<span style="color: #339933;">,</span><span style="color: #993333;">const</span> <span style="color: #993333;">struct</span> sockaddr FAR<span style="color: #339933;">*,</span><span style="color: #993333;">int</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ...................</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">// ------------- end of imported ---------</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> Kernel32<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FARPROC <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>GetProcAddress<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span> LPCSTR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>LoadLibrary<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPCTSTR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PCONSTANTS ConstData<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span> TWIN32<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>PWIN32<span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> _strcmp<span style="color: black;">&#40;</span><span style="color: #993333;">char</span> <span style="color: #339933;">*</span>str1<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>str2<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>str1 <span style="color: #339933;">&amp;&amp;</span> <span style="color: #339933;">*</span>str1 <span style="color: #339933;">==</span> <span style="color: #339933;">*</span>str2<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; str1<span style="color: #339933;">++,</span> str2<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">*</span>str1 <span style="color: #339933;">-</span> <span style="color: #339933;">*</span>str2<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #339933;">#define tolower(c) ( ((c)&lt;'A' || (c)&gt;'Z') ? (c) : (c)-'A'+'a' )</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">// Как и GetProcAddress в kernel32, если hModule - не DLL, то страничный сбой</span><br/>
+DWORD NativeGetProcAddress<span style="color: black;">&#40;</span>DWORD hModule<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>lpszFunctionName<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dwFunctionAddress <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PIMAGE_NT_HEADERS &nbsp; &nbsp; &nbsp; pNtHeader<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PIMAGE_DATA_DIRECTORY &nbsp; pDataDir<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; PIMAGE_EXPORT_DIRECTORY pExportDir<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">short</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>hModule <span style="color: #339933;">!=</span> WORD2<span style="color: black;">&#40;</span><span style="color: #ff0000;">'M'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">'Z'</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> dwFunctionAddress<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pNtHeader <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>PIMAGE_NT_HEADERS<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>hModule <span style="color: #339933;">+</span> <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>hModule<span style="color: #339933;">+</span><span style="color: #208080;">0x3C</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span>pNtHeader<span style="color: #339933;">-&gt;</span>Signature <span style="color: #339933;">!=</span> IMAGE_NT_SIGNATURE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> dwFunctionAddress<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pDataDir <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>pNtHeader<span style="color: #339933;">-&gt;</span>OptionalHeader.<span style="color: #202020;">DataDirectory</span><span style="color: black;">&#91;</span>IMAGE_DIRECTORY_ENTRY_EXPORT<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: #339933;">!</span>pDataDir<span style="color: #339933;">-&gt;</span>VirtualAddress<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> dwFunctionAddress<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pExportDir <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>PIMAGE_EXPORT_DIRECTORY<span style="color: black;">&#41;</span> <span style="color: black;">&#40;</span>pDataDir<span style="color: #339933;">-&gt;</span>VirtualAddress <span style="color: #339933;">+</span> hModule<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">**</span>pszName <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">**</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>pExportDir<span style="color: #339933;">-&gt;</span>AddressOfNames <span style="color: #339933;">+</span> hModule<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> pExportDir<span style="color: #339933;">-&gt;</span>NumberOfNames<span style="color: #339933;">;</span> i<span style="color: #339933;">++,</span> pszName<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span><span style="color: #339933;">!</span>_strcmp<span style="color: black;">&#40;</span><span style="color: #339933;">*</span>pszName<span style="color: #339933;">+</span>hModule<span style="color: #339933;">,</span> lpszFunctionName<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> found<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> dwFunctionAddress<span style="color: #339933;">;</span><br/>
+<br/>
+found<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WORD <span style="color: #339933;">*</span>pwOrdinals <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>WORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>pExportDir<span style="color: #339933;">-&gt;</span>AddressOfNameOrdinals <span style="color: #339933;">+</span> hModule<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD <span style="color: #339933;">*</span>pdwFunctionAddress <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>pExportDir<span style="color: #339933;">-&gt;</span>AddressOfFunctions <span style="color: #339933;">+</span> hModule<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> pdwFunctionAddress<span style="color: black;">&#91;</span>pwOrdinals<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: black;">&#93;</span> <span style="color: #339933;">+</span> hModule<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">unsigned</span> <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>FUNC<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #993333;">void</span> <span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">typedef</span> <span style="color: #993333;">void</span> <span style="color: black;">&#40;</span>__stdcall <span style="color: #339933;">*</span>ERRFUNC<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #993333;">void</span> <span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black; font-style: italic;">// Выполняет функцию unsigned __stdcall func(void *param),</span><br/>
+<span style="color: black; font-style: italic;">// возвращает значение этой функции если не было ошибок, или</span><br/>
+<span style="color: black; font-style: italic;">// вызывает void __stdcall error(void *param) и возвращает 0,</span><br/>
+<span style="color: black; font-style: italic;">// если имело место исключение.</span><br/>
+<span style="color: black; font-style: italic;">// В param может передаваться указатель на блок переменных</span><br/>
+<span style="color: black; font-style: italic;">// также допустим вложенный вызов seh()</span><br/>
+<span style="color: #993333;">unsigned</span> seh<span style="color: black;">&#40;</span>FUNC func<span style="color: #339933;">,</span> ERRFUNC error<span style="color: #339933;">,</span> <span style="color: #993333;">void</span> <span style="color: #339933;">*</span>param<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> result<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm <span style="color: black;">&#123;</span><br/>
+<span style="color: black; font-style: italic;">// set SEH</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pushad<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; next<br/>
+next<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lea &nbsp; &nbsp; eax<span style="color: #339933;">,</span><span style="color: black;">&#91;</span>ebx<span style="color: #339933;">+</span>SEHproc<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xor &nbsp; &nbsp; ebx<span style="color: #339933;">,</span>ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lea &nbsp; &nbsp; ecx<span style="color: #339933;">,</span><span style="color: black;">&#91;</span>ebx<span style="color: #339933;">+</span>next<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sub &nbsp; &nbsp; eax<span style="color: #339933;">,</span>ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lea &nbsp; &nbsp; ecx<span style="color: #339933;">,</span><span style="color: black;">&#91;</span>esp<span style="color: #339933;">-</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xchg&nbsp; &nbsp; ecx<span style="color: #339933;">,</span>fs<span style="color: #339933;">:</span><span style="color: black;">&#91;</span>ebx<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; ecx<br/>
+<span style="color: black; font-style: italic;">// start of protected section</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; dword ptr <span style="color: black;">&#91;</span>param<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; dword ptr <span style="color: black;">&#91;</span>func<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; <span style="color: black;">&#91;</span>result<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> eax<br/>
+<span style="color: black; font-style: italic;">// end of protected section</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp &nbsp; &nbsp; <span style="color: #993333;">short</span> SEHok<br/>
+<span style="color: black; font-style: italic;">// exception handler</span><br/>
+SEHproc<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; xor &nbsp; &nbsp; ebx<span style="color: #339933;">,</span>ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; eax<span style="color: #339933;">,</span>fs<span style="color: #339933;">:</span><span style="color: black;">&#91;</span>ebx<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; mov &nbsp; &nbsp; esp<span style="color: #339933;">,</span><span style="color: black;">&#91;</span>eax<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; dword ptr fs<span style="color: #339933;">:</span><span style="color: black;">&#91;</span>ebx<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; popad &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// restore ebp!</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; <span style="color: black;">&#91;</span>param<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; <span style="color: black;">&#91;</span>error<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; <span style="color: #0000dd;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; <span style="color: black;">&#91;</span>result<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jmp &nbsp; &nbsp; <span style="color: #b1b100;">return</span><br/>
+<span style="color: black; font-style: italic;">// Restore old SEH</span><br/>
+SEHok<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; xor &nbsp; &nbsp; ebx<span style="color: #339933;">,</span>ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; dword ptr fs<span style="color: #339933;">:</span><span style="color: black;">&#91;</span>ebx<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; pop &nbsp; &nbsp; eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; popad<br/>
+<span style="color: #b1b100;">return</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> result<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+__declspec<span style="color: black;">&#40;</span>naked<span style="color: black;">&#41;</span> <span style="color: #993333;">void</span> nullfunc<span style="color: black;">&#40;</span><span style="color: #993333;">void</span> <span style="color: #339933;">*</span>param<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; __asm retn <span style="color: #0000dd;">4</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">unsigned</span> __stdcall GetGetProcAddr<span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> param<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> NativeGetProcAddress<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#41;</span>param<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>PCONSTANTS<span style="color: black;">&#41;</span>delta<span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>GetProcAddress<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #339933;">#define WIN_NT_KERNEL32_BASE&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0x77F00000</span><br/>
+<span style="color: #339933;">#define WIN_9XOSR2_KERNEL32_BASE&nbsp; &nbsp; &nbsp; &nbsp; 0xBFF70000</span><br/>
+<span style="color: #339933;">#define WIN_2KBETA_KERNEL32_BASE&nbsp; &nbsp; &nbsp; &nbsp; 0x77ED0000</span><br/>
+<span style="color: #339933;">#define WIN_2KFULL_KERNEL32_BASE&nbsp; &nbsp; &nbsp; &nbsp; 0x77E80000</span><br/>
+<span style="color: #993333;">unsigned</span> GetKernelBase<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FUNC getget <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>FUNC<span style="color: black;">&#41;</span>delta<span style="color: black;">&#40;</span>GetGetProcAddr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ERRFUNC nullf <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>ERRFUNC<span style="color: black;">&#41;</span>delta<span style="color: black;">&#40;</span>nullfunc<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">#ifdef FAST_SCAN</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seh<span style="color: black;">&#40;</span>getget<span style="color: #339933;">,</span> nullf<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>WIN_NT_KERNEL32_BASE<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> WIN_NT_KERNEL32_BASE<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seh<span style="color: black;">&#40;</span>getget<span style="color: #339933;">,</span> nullf<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>WIN_9XOSR2_KERNEL32_BASE<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> WIN_9XOSR2_KERNEL32_BASE<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seh<span style="color: black;">&#40;</span>getget<span style="color: #339933;">,</span> nullf<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>WIN_2KBETA_KERNEL32_BASE<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> WIN_2KBETA_KERNEL32_BASE<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seh<span style="color: black;">&#40;</span>getget<span style="color: #339933;">,</span> nullf<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>WIN_2KFULL_KERNEL32_BASE<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> WIN_2KFULL_KERNEL32_BASE<span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">#endif</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> i<span style="color: #339933;">=</span><span style="color: #208080;">0xC0000000</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&gt;</span> <span style="color: #208080;">0x00400000</span><span style="color: #339933;">;</span> i <span style="color: #339933;">-=</span> <span style="color: #208080;">0x10000</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seh<span style="color: black;">&#40;</span>getget<span style="color: #339933;">,</span> nullf<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>i<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> FindWin32Functions<span style="color: black;">&#40;</span>PWIN32 Win32<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Win32<span style="color: #339933;">-&gt;</span>ConstData <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>PCONSTANTS<span style="color: black;">&#41;</span>delta<span style="color: black;">&#40;</span>data<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span><span style="color: black;">&#40;</span>Win32<span style="color: #339933;">-&gt;</span>Kernel32 <span style="color: #339933;">=</span> GetKernelBase<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Win32<span style="color: #339933;">-&gt;</span>GetProcAddress <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>FARPROC<span style="color: black;">&#40;</span>__stdcall<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>DWORD<span style="color: #339933;">,</span>LPCSTR<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>GetGetProcAddr<span style="color: black;">&#40;</span>Win32<span style="color: #339933;">-&gt;</span>Kernel32<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Win32<span style="color: #339933;">-&gt;</span>LoadLibrary <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>DWORD<span style="color: black;">&#40;</span>__stdcall<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>LPCTSTR<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>NativeGetProcAddress<span style="color: black;">&#40;</span>Win32<span style="color: #339933;">-&gt;</span>Kernel32<span style="color: #339933;">,</span> Win32<span style="color: #339933;">-&gt;</span>ConstData<span style="color: #339933;">-&gt;</span>LoadLibraryA<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>ptr <span style="color: #339933;">=</span> Win32<span style="color: #339933;">-&gt;</span>ConstData<span style="color: #339933;">-&gt;</span>Kernel32DLL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #339933;">*</span>addr <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: #339933;">&amp;</span>Win32<span style="color: #339933;">-&gt;</span>CreateFile<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>ptr<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> ImageBase <span style="color: #339933;">=</span> Win32<span style="color: #339933;">-&gt;</span>LoadLibrary<span style="color: black;">&#40;</span>ptr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>ptr<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>ptr<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span>addr<span style="color: #339933;">++</span> <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: black;">&#41;</span>Win32<span style="color: #339933;">-&gt;</span>GetProcAddress<span style="color: black;">&#40;</span>ImageBase<span style="color: #339933;">,</span> ptr<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>ptr<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ptr<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p><strong>Hint: короткие строки можно фомировать непосредственно в программе, а не хранить в глобальных константах, конечно же, не байтами а сразу DWORDами:</strong></p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">char</span> sec_name<span style="color: black;">&#91;</span><span style="color: #0000dd;">8</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>sec_name <span style="color: #339933;">=</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WORD4<span style="color: black;">&#40;</span><span style="color: #ff0000;">'.'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">'v'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">'i'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">'r'</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>sec_name<span style="color: #339933;">+</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span>&nbsp; &nbsp; &nbsp; WORD4<span style="color: black;">&#40;</span><span style="color: #ff0000;">'u'</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">'s'</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>или</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> http<span style="color: black;">&#40;</span>PWIN32 Win32<span style="color: #339933;">,</span> SOCKET <span style="color: #339933;">&amp;</span>s<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> test_string<span style="color: black;">&#91;</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ... ботва ...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>test_string <span style="color: #339933;">=</span> WORD4<span style="color: black;">&#40;</span><span style="color: #ff0000;">'2'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">'0'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">'6'</span><span style="color: #339933;">,</span><span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>_strstr<span style="color: black;">&#40;</span>res_buf<span style="color: #339933;">,</span> test_string<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">// server supports re-get</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// .. ну и т.п...</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Ну как? понятнее, чем на ассемблере... Про заражение PE-файлов как-нить в другой раз, просто в качестве упражнения перепишите пару виряков с asmа на C, чтобы уж совсем освоиться... Похоже, создание качественных и сложных вирей становится приятным и несложным занятием, так что скоро можно ожидать толпу новых поделок ;)</p>
+<p>P.S. все вышесказанное относится исключительно к msvc версии 6.0, хотя возможно справедливо и для пятой версии...</p>
+<p><a href="files/win32cpp.zip">Примеры к статье.</a></p>
+[<a style="" href="/lib/?lang=RU&amp;index=WI#vsm00">Вернуться к списку</a>] [<a href="/lib/vsm00.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vsm00">de</a><a href="/lib/index.php?lang=en&amp;id=vsm00">en</a><a href="/lib/index.php?lang=es&amp;id=vsm00">es</a><a href="/lib/index.php?lang=it&amp;id=vsm00">it</a><a href="/lib/index.php?lang=fr&amp;id=vsm00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vsm00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vsm00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vsm00">ua</a></div>
+</body>
+</html>

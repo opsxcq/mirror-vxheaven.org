@@ -1,0 +1,180 @@
+
+-----------                 Injection DLL into a target process        ----------------------------
+((((((((((((((                       by berniee/faked_minded                  ))))))))))))))))
+
+ 
+
+In This Article I will discuss how to inject a simple silly dll into a remote process...
+
+I will not get you wait any longer...
+
+*Note: My code that i use mostly is assembley ..so ...if u dont know assembley..you may just have a look that may help 
+you to understand the whole idea.(SINCE I AM NOT A COMPUTER SPECIALIST THIS CODE PRESENTS 
+THE IDEA THAT I MADE FROM MY PERSONAL EXPERIENCE)
+and aslo note that my english is not my native language so sorry for not being english !!
+---------------------------------------------------------------------------------------------------------------------------------------------
+first of all lets start our miny tutorial ..with ..the stuff we need (apis), are:
+-FindWindow---->to find the target process window handle(hWnd)
+-GetWindowThreadProcessId-----> to get process id from hWnd
+-OpenProcess ---> to get the handle to the target process
+-VirtualAllocEx ---->to allocate memory within target process
+-CreateRemoteThread--->to run our thread in that process that will load the dll
+
+
+  that is all lets get start it... ...BUT first  YOU MUST NOTICE that
+  the dll path that should be loaded must be well defined  ..b/c the dll will load from target process's 
+ current directory or window\system32 if the dll name was naked -means without drive letter (full path)- it will not be loaded.
+
+I will go with plain code  i will discuss a little more :-
+;--------------------------------------------------------------------KUT FRUM HEER----------------------------------------------
+;this example will try to find notepad.exe id and then open it to get process handle ,so you must run ;notepad.exe first;and then it will inject a silly simple dll to the notepad process..
+;
+;
+
+.586
+.model flat,stdcall
+option casemap:none
+
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+
+.data
+
+kernel32 db "kernel32.dll",0
+mydll db "c:\mydll.dll",0 ;here were the whole path of our dll
+LoadLib db "LoadLibraryA",0 
+
+classname db "Notepad",0 ; notepad.exe classname
+
+
+
+.data?
+PID dd ?
+asd dd ?
+hProcess dd ?
+newhandle dd ?
+ProcAdd dd ?
+bwr dd ?
+
+
+.code
+
+
+start:
+
+invoke FindWindow,offset classname,0                      ;here we start..by finding window handle
+invoke GetWindowThreadProcessId,eax,addr PID              ;take the PID
+invoke OpenProcess,PROCESS_ALL_ACCESS,FALSE,PID           ; Open the process
+cmp eax,0
+je exit_all
+mov hProcess,eax
+
+invoke VirtualAllocEx,hProcess,0,sizeof mydll,MEM_COMMIT,PAGE_READWRITE ; allocate enough space for 
+mov newhandle,eax           ;dll name,,ok see extended explanation below ok!!
+cmp eax,0
+
+je exit_all
+invoke WriteProcessMemory,hProcess,newhandle,offset mydll,sizeof mydll,addr bwr ;write the name of our dll
+invoke LoadLibrary,offset kernel32   ;get kerel32 base u can use also GetModuleHandle,offset kerenl32
+invoke GetProcAddress,eax,offset LoadLib ;get LoadLibrary process address
+mov ProcAdd ,eax
+invoke CreateRemoteThread,hProcess,0,0,ProcAdd,newhandle,0,0  ;bingo !! we did it ,see below the code
+ 
+exit_all:
+invoke ExitProcess,0
+
+
+end start
+
+;-------------------KUT stop-------------------------------------------
+
+------------------->>>and here is the silly  dll
+
+;-------------kut frum here
+
+; ллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллллл
+
+      .486                      ; create 32 bit code
+      .model flat, stdcall      ; 32 bit memory model
+      option casemap :none      ; case sensitive 
+
+;     include files
+;     ~~~~~~~~~~~~~
+      include \masm32\include\windows.inc
+      include \masm32\include\user32.inc
+      include \masm32\include\kernel32.inc
+     libraries
+;     ~~~~~~~~~
+      includelib \masm32\lib\user32.lib
+      includelib \masm32\lib\kernel32.lib
+
+
+    ; ----------------------------------------
+    ; prototypes for local procedures go here
+    ; ----------------------------------------
+.data
+signature db "Injected Successfuly  ",0
+
+      .data?
+        hInstance dd ?
+
+      .code
+
+
+LibMain proc instance:DWORD,reason:DWORD,unused:DWORD 
+
+    .if reason == DLL_PROCESS_ATTACH
+     ; push instance
+     ; call Inject_Code
+invoke MessageBox,0,offset signature,offset signature,0
+
+    .elseif reason == DLL_PROCESS_DETACH
+
+    .elseif reason == DLL_THREAD_ATTACH
+
+    .elseif reason == DLL_THREAD_DETACH
+
+    .endif
+
+    ret
+
+LibMain endp
+
+end LibMain
+
+------------------------------END OF KUT----------------------------------------------
+
+
+ Lets have a look on the main funcion, CreateRemoteThread is a very interesting funcion for winNT platforms so lets see its parameters:-
+HANDLE CreateRemoteThread(
+
+    HANDLE hProcess,	// handle to process to create thread in  
+    LPSECURITY_ATTRIBUTES lpThreadAttributes,	// pointer to thread security attributes 
+    DWORD dwStackSize,	// initial thread stack size, in bytes
+    LPTHREAD_START_ROUTINE lpStartAddress,	// pointer to thread function 
+    LPVOID lpParameter,	// pointer to argument for new thread  
+    DWORD dwCreationFlags,	// creation flags 
+    LPDWORD lpThreadId 	// pointer to returned thread identifier 
+   );	
+
+hmmm....It is obvious as you can see ,,,u just have to know ur process target handle,start address
+of ur thread,,and pointer of a parameter to that thread..and the all remanents are ZEROS for now.
+ok till now,, so all we did is that we put the dll name of ours in target process memory
+after allcoating enough space,,so as not to be  a foreign address..and then we noticed that LoadLibraryA
+is kerenel mode function which will never become a strange address that we dont have to bother ourselves to put it inside
+the process memory,,and also it take one parameter the dll that to be loaded.
+ OK..so what we did is that we create a thread that will call the funcion 
+LoadLibrary with the parameter (the dll name) which is inside memory block of our injected process 
+&that point to newhandle (dword)...
+
+so no more talk I suppose that even without discussing the the code itself is self explanatory.
+
+
+OK then by 4now
+..................
+faked_minded
+/feb./2005

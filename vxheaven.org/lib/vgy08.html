@@ -1,0 +1,365 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> GriYo 'Snorting coke (and packets)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="GriYo"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, GriYo,Snorting coke (and packets), dword, windows, dwbytesret, wbuf, address, local, error, code, buffer, elseif, addr, optval, stosd, dwflags, information"/>
+<meta name="Description" content="Windows 2000 introduces a new concept for Windows users: The possibility of creating raw-sockets. We will use this new Windows capacity to capture network traffic on a net. What to make with captured packets is your decision, some suggestions are:"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"0b851b06bd62ec0ef54382d00e83cf2f3decba28-1498757145-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vgy08.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Snorting coke (and packets)</h1><p><a href="/lib/?lang=en&amp;author=GriYo"> GriYo</a><br/> <em><a href="/vx.php?fid=11#f11">29a [6]</a></em><br/> <em>March 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vgy08.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy08">Back to index</a>] [<a href="/lib/vgy08.html#disqus_thread">Comments</a>]<br/> 
+<p>Windows 2000 introduces a new concept for Windows users: The possibility of creating raw-sockets. We will use this new Windows capacity to capture network traffic on a net. What to make with captured packets is your decision, some suggestions are:</p>
+<ul>
+<li>To capture login/password combinations and use them later to access the corresponding services.</li>
+<li>To receive commands from the master. These commands can be sent by means of TCP, UDP or ICMP protocols, or even by a combination of them.</li>
+</ul>
+<p>As limitation we find that only users with administrator priviledges are allowed to create raw-sockets.</p>
+<p>First of all, we have to initialize Windows Sockets, by calling WSAStartup. We must tell WSAStartup that we need Winsock version 2.2+, which will only succeed on windows 2000 or XP.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; invoke WSAStartup<span style="color: #339933;">,</span><span style="color: #ff0000;">00000202h</span><span style="color: #339933;">,</span>addr wsaDATA<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> != <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: WSAStartup</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> ExitApp<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp;</div>
+<p>The second thing is to create a socket to listen at. Its not a bad idea to run this code in a separate thread, so its execution does not disturb the rest of the application.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; WSA_FLAG_OVERLAPPED &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">00000001h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSockThread &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; proc&nbsp; &nbsp; pParam&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; s &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span>SOCKET<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; if0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span>sockaddr_in<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; optval&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; dwBytesRet&nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; dwFlags &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; wbuf<span style="color: black;">&#91;</span><span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">BYTE</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; WSASocket<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; AF_INET<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SOCK_RAW<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IPPROTO_IP<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSA_FLAG_OVERLAPPED<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == INVALID_SOCKET<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: WSASocket</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> s<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke ZeroFill<span style="color: #339933;">,</span>addr if0<span style="color: #339933;">,</span>SIZE sockaddr_in<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; WSockGetInterfase<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr if0<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: GetInterface</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp;</div>
+<p>There is a call to a function called WSockGetInterfase in the above code. Dont browse Winsock exported functions looking for it. The code for this function is the next step to code.</p>
+<p>WSockGetInterfase is used to obtain a list of available network interfases. To get it we will use SIO_ADDRESS_LIST_QUERY Winsock IOCTL:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; SIO_ADDRESS_LIST_QUERY&nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">48000016h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSockGetInterfase &nbsp; &nbsp; &nbsp; proc&nbsp; &nbsp; s &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span>SOCKET<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ifx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; num &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; BytesRet&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; if_LIST<span style="color: black;">&#91;</span><span style="color: #ff0000;">2048</span><span style="color: black;">&#93;</span> &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">BYTE</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke ZeroFill<span style="color: #339933;">,</span>addr if_LIST<span style="color: #339933;">,</span><span style="color: #ff0000;">2048</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> BytesRet<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; WSAIoctl<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SIO_ADDRESS_LIST_QUERY<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr if_LIST<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">2048</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr BytesRet<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == SOCKET_ERROR<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: WSAIoctl</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span>num<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span>if_LIST<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: No interface found</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>elseif <span style="color: #46aa03; font-weight: bold;">ecx</span> &gt;= <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: Device number too high</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>sockaddr_in<span style="color: #339933;">.</span>sin_addr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span>ifx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span>sockaddr_in<span style="color: #339933;">.</span>sin_addr<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">1</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSockGetInterfase &nbsp; &nbsp; &nbsp; endp<br/>
+&nbsp;</div>
+<p>We call WSAIoctl with the SIO_ADDRESS_LIST_QUERY to obtain a list of local transport addresses of the socket's protocol family to which the application can bind. The list returned in the output buffer using the following format:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; SOCKET_ADDRESS_LIST &nbsp; &nbsp; STRUCT<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; iAddressCount &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Address &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SOCKET_ADDRESS_LIST &nbsp; &nbsp; ENDS<br/>
+&nbsp;</div>
+<p>WSockGetInterfase uses 3 entry parameters:</p>
+<ul>
+<li>A valid socket (s)</li>
+<li>A pointer to a sockaddr_in structure that will be filled with information about the selected network interface</li>
+<li>The number of the interfase we will bind to. We use 0 here in order to use first detected interface.</li>
+</ul>
+<p>Once we have created the socket and we have selected the interface we can call bind to asociated them.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> if0<span style="color: #339933;">.</span>sin_family<span style="color: #339933;">,</span>AF_INET<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke htons<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> if0<span style="color: #339933;">.</span>sin_port<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; bind<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr if0<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SIZE sockaddr_in<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == SOCKET_ERROR<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: bind</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp;</div>
+<p>The final trick is to set the SIO_RCVALL mode on the socket, by calling WSAIoctl. Lets have a look at what MSDN Library says about this IOCTL:</p>
+<blockquote>
+<p>SIO_RCVALL:</p>
+<p>Enables a socket to receive all IP packets on the network. The socket handle passed to the WSAIoctl function must be of AF_INET address family, SOCK_RAW socket type, and IPPROTO_IP protocol. The socket also must be bound to an explicit local interface, which means that you cannot bind to INADDR_ANY.</p>
+<p>Once the socket is bound and the IOCTL set, calls to the WSARecv or recv functions return IP datagrams passing through the given interface.</p>
+<p>Note that you must supply a sufficiently large buffer. Setting this IOCTL requires Administrator privilege on the local machine.</p>
+<p>SIO_RCVALL is available in Windows 2000 and later versions of Windows.</p>
+</blockquote>
+<p>Well, water clear, lets do it.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; SIO_RCVALL&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">98000001h</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> dwBytesRet<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> optval<span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; WSAIoctl<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SIO_RCVALL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr optval<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">4</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr dwBytesRet<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == SOCKET_ERROR<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: WSAIoctl</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+&nbsp;</div>
+<p>Done, now, on result to WSARecv on this socket we will receive IP packets running around the network, lets see an example.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span>wbuf<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>PACKET_BUFFER_SIZE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>pcap_buffer<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> dwBytesRet<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> dwFlags<span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke&nbsp; WSARecv<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr wbuf<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr dwBytesRet<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr dwFlags<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">eax</span> == SOCKET_ERROR<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Error: WSARecv</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return <span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Decode IP header!</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; invoke DecodeIpHeader<span style="color: #339933;">,</span>addr wbuf<br/>
+&nbsp;</div>
+<p>The DecodeIpHeader function uses a pointer to a WSABUF structure, which contains information about captured network frame. Lets see an example on how to extract the information from it.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; IP_HEADER &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; STRUCT<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Version_and_HdrLen&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ServiceType &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; TotalLen&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ID&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Flags_and_FragOff &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; TimeToLive&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Protocol&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HdrChksum &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SrcAddr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DstAddr &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; IP_HEADER &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ENDS<br/>
+<br/>
+DecodeIpHeader&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; proc&nbsp; &nbsp; Buffer&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">DWORD</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LOCAL &nbsp; szSrcIp<span style="color: black;">&#91;</span><span style="color: #ff0000;">16</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">BYTE</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>Buffer<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">;Buffer points to a WSABUF structure</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span>IP_HEADER<span style="color: #339933;">.</span>DstAddr<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Do something here with destination ip address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span>IP_HEADER<span style="color: #339933;">.</span>SrcAddr<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Or do something using source ip address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">+</span>IP_HEADER<span style="color: #339933;">.</span>Protocol<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;You can also check for specific protocols</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>if <span style="color: #46aa03; font-weight: bold;">al</span> == IPPROTO_TCP<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>elseif <span style="color: #46aa03; font-weight: bold;">al</span> == IPPROTO_UDP<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>elseif <span style="color: #46aa03; font-weight: bold;">al</span> == IPPROTO_ICMP<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>endif<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+DecodeIpHeader&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; endp<br/>
+&nbsp;</div>
+<p>Thats all folks, happy snorting!</p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vgy08">de</a><a href="/lib/index.php?lang=en&amp;id=vgy08">en</a><a href="/lib/index.php?lang=es&amp;id=vgy08">es</a><a href="/lib/index.php?lang=it&amp;id=vgy08">it</a><a href="/lib/index.php?lang=fr&amp;id=vgy08">fr</a><a href="/lib/index.php?lang=pl&amp;id=vgy08">pl</a><a href="/lib/index.php?lang=ru&amp;id=vgy08">ru</a><a href="/lib/index.php?lang=ua&amp;id=vgy08">ua</a></div>
+</body>
+</html>

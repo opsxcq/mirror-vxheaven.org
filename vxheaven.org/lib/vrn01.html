@@ -1,0 +1,728 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Ryan O'Neill 'An unofficial analysis of the Retaliation Virus (Authored by JPanic)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Ryan O'Neill"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, O'Neill, Ryan,unofficial analysis of the Retaliation Virus (Authored by JPanic), load, text, push, infection, headers, breakpoint, ptrace, handler, ryan, sigtrap, virus, rela, instructions, executables, files"/>
+<meta name="Description" content="I recently had the opportunity to do some analysis of a new ELF virus authored by JPanic. After spending some time looking at it, I was impressed and quite to my surprise. This is perhaps the most well thought out and dangerously effective ELF binary virus that I have seen yet. I would like to discuss some of the findings associated with analysis, and thus produce a profile on the Virus named 'Retaliation'"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"33dfae31dae9486f1db66ce31150109c22fe9109-1498757368-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrn01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>An unofficial analysis of the Retaliation Virus (Authored by JPanic)</h1><p><a href="/lib/?lang=en&amp;author=O%27Neill%2C%20Ryan">Ryan O'Neill</a><br/> <em>November 2014</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrn01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=UN#vrn01">Back to index</a>] [<a href="/lib/vrn01.html#disqus_thread">Comments</a>]<br/> 
+<table summary="Retaliation summary">
+<tr><th>Virus name:</th><td>Retaliation</td></tr>
+<tr><th>Author:</th><td>JPanic</td></tr>
+<tr><th>Architecture/platform:</th><td>Linux x86_64</td></tr>
+<tr><th>Binary format:</th><td>ET_EXEC, ET_REL</td></tr>
+<tr><th>Style:</th><td>Polymorphic and binary file resident</td></tr>
+</table>
+<ul>
+<li><a href="#c1">Creating goat files</a></li>
+<li><a href="#c2">What files does the Virus target?</a></li>
+<li><a href="#c3">ELF Infection methods</a>
+<ul>
+<li><a href="#c31">ELF Infection methods - Executables</a></li>
+<li><a href="#c32">ELF Infection methods: "prelink" executables</a></li>
+<li><a href="#c33">ELF Infection methods: Relocatables</a></li>
+</ul></li>
+<li><a href="#c4">Direct ActionInfection</a></li>
+<li><a href="#c5">AVaccine for preventing infection</a></li>
+<li><a href="#c6">Stripped ELF Binaries</a></li>
+<li><a href="#c7">Encrypted blocks of code</a></li>
+<li><a href="#c8">Encrypted .data section</a></li>
+<li><a href="#c9">Signal Handlers</a></li>
+<li><a href="#ca">Anti-ptrace/debug techniques used by the Virus</a>
+<ul>
+<li><a href="#ca1">ptrace detection</a></li>
+<li><a href="#ca2">SIGTRAP detection</a></li>
+<li><a href="#ca3">SIGTRAP handler and breakpoint calls</a></li>
+<li><a href="#ca4">SIGTRAP handler treats 0xf1 breakpoint (ICEBP) as syscall instruction</a></li>
+<li><a href="#ca5">Breakpoint detection</a></li>
+</ul></li>
+<li><a href="#cb">PLT/GOT function hooking</a></li>
+<li><a href="#cc">Random Decoding Algorithm (RDA)</a></li>
+<li><a href="#cd">Activation Routine</a></li>
+<li><a href="#ce">Polymorphic Engine</a></li>
+<li><a href="#cf">Final Words</a></li>
+</ul>
+<p>I recently had the opportunity to do some analysis of a new ELF virus authored by JPanic. After spending some time looking at it, I was impressed and quite to my surprise. This is perhaps the most well thought out and dangerously effective ELF binary virus that I have seen yet. I would like to discuss some of the findings associated with analysis, and thus produce a profile on the Virus named 'Retaliation'</p>
+<p>Retaliation is an unusually large virus at 25,584 bytes of which 14,938 bytes are dedicated to the viruses complex polymorphic engine. The load size in memory is 34,492 bytes plus an additional 8 to 16 megabytes of dynamically allocated memory. In all 3 infection methods ELF64 files are used: an appending method for executables, an 'inserting' method for relocatables and a hybrid method for executables processed with the 'prelink' utility.</p>
+<p>The virus makes many attempts to hamper analysis, detection and disinfection. This includes a great deal of anti-debugger, anti-analysis, and anti-emulator code. A distinct feature of the virus is that it is split up into 275 individual, re-entrant polymorphic encrypted blocks. A total of 18,183 bytes of code (71% of the virus) are contained in these blocks.</p>
+<p>Other techniques used include advanced polymorphy, EPO (entry-point obscuring), encryption and patching of the host file, goat file detection and the classic RDA - Random Decoding Algorithm used to protect disinfection data.</p>
+<pre>
+ELF samples:
+
+Name: jp-retal-e
+Type: ET_EXEC
+
+Name: jp-retal-o.o
+Type: ET_REL
+</pre>
+<h2><a name="c1"></a>Creating goat files</h2>
+<p>The retaliation virus does a good job at preventing Goat files; that is files that you want to intentionally infect to aid you in reverse engineering the properties of the virus. I'm not certain of the exact time values but the Virus requires that the system has an uptime of around 20 minutes and was installed atleast 3 months ago. It also requires that the binaries are of atleast a certain age (I set them back by to the beginning of the year). This last test of file age is omitted in the case of relocatable files. Copy the following script into a directory of ELF binaries and run it. Then copy the Virus sample into the directory and run it. The files should get infected, assuming the system has been up for around 20 minutes.</p>
+<p><strong>--- create goats ---</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/bash</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">sudo</span> <span style="color: #c20cb9; font-weight: bold;">touch</span> <span style="color: #660033;">-d</span> 01<span style="color: #000000; font-weight: bold;">/</span>01<span style="color: #000000; font-weight: bold;">/</span><span style="color: #000000;">2014</span> <span style="color: #000000; font-weight: bold;">/</span>etc<span style="color: #000000; font-weight: bold;">/</span><span style="color: #c20cb9; font-weight: bold;">hostname</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">find</span> . <span style="color: #660033;">-name</span> <span style="color: #ff0000;">'*'</span> <span style="color: #660033;">-exec</span> <span style="color: #c20cb9; font-weight: bold;">touch</span> <span style="color: #660033;">-d</span> 01<span style="color: #000000; font-weight: bold;">/</span>01<span style="color: #000000; font-weight: bold;">/</span><span style="color: #000000;">2014</span> <span style="color: black;">&#123;</span><span style="color: black;">&#125;</span> \;<br/>
+&nbsp;</div>
+<p>The Virus doesn't seem to infect files with periods in the name, or files that have sequences such as file-01, file-02, file-03. When I created 3 or more files like this, none of them were infected. But as soon as I deleted the third one, the first two were infected. Similarly the same test is applied to the size of files to be infected, in an effort to avoid files with sequential or static file sizes.</p>
+<p>A final additional test is avoiding files with the same .text section. If four files in a row are infected with the same .text body (going by CRC32b) the virus shuts down and stops infecting.</p>
+<h2><a name="c2"></a>What files does the Virus target?</h2>
+<p>I had to use VM snapshots to find out exactly what files it attacks. It seems to look to infect in /bin and /usr/bin (If it has permissions) and then it goes for $CWD. When a program is infected, it transfers control to the virus, the virus performs infection and passes control back to the original entry point when done. More information in 'direct action infection' below.</p>
+<h2><a name="c3"></a>ELF Infection methods</h2>
+<p>Retaliation uses 3 separate infection routines, depending on the type of file being infected. Infected file types are ELF64 executables, ELF64 executables that have been processed with the "prelink" tool, and ELF64 relocatables. During infection a temporary copy of the victim is used. If infection is succesful the victim is replaced with the temporary copy. The virus overwrites the victim with the temporary copy in this case, instead of unlink'ing and renaming. This stops certain tools such as 'cp' from reporting that the first inode of the file has changed during execution. The virus attempts to preserve file modes and timestamps.</p>
+<p>The virus takes some care in its choice of victims. The virus does not infect files larger than 8mb, executables smaller than 8kb or relocatables smaller than 2kb. It does not infected executables less than 180 minutes old. File names with a period (".") or extension are skipped, unless the extension is "*.o". In addition the virus makes several checks for "goat" files as discussed above.</p>
+<h3><a name="c31"></a>ELF Infection methods - Executables</h3>
+<p>Infection of ELF64 executables is quite straight forward. First the virus inspects the ELF Header for 64-bit, little endian, AMD-64 executables. The virus also checks that the first four bytes of EI_PAD are zero's - this is where the virus stores its infection marker. The virus also does not infect executables containing the string "TSM!" in their .data section. This stops the virus from infecting executables that have had an infected relocatable linked into them - see section of infection of relocatables further in this profile. Infection after this is quite straight forward. The virus loops inspecting the ELF64 Phdr's, checking them for validity, saving the offset of the PT_NOTE entry, and storing the maximum alignment andmaximum virtual address used by any PT_LOAD segment. If all is good, the virus appends itself to the host, and converts the PT_NOTE entry to a PT_LOAD containing the appended virus body The PT_LOAD segment varies considerably in size, but is always +RWE and has an alignment and virtual address taken from the other PT_LOAD segments in the host (see "readelf" output below). The virus modifies the entry point (e_entry) to gain control when the host is executed. The virus then patches cetain instructions in .text and encrypts .data - see below for more information on this. Finally the virus parses .dynamic, .rela.dyn and .plt to install 13 .got.plt hooks - see section on .got.plt hooks below.</p>
+<p>The virus may have upto 4 layers of polymorphic encryption in infected executables. Modifies entry point ehdr->e_entry</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="dfada6beb19fadbaa9baadacba">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal/samples$ readelf -h infected.elf
+
+ELF Header:
+  Magic:   7f 45 4c 46 02 01 01 00 00 54 53 4d 21 00 00 00 
+  Class:                             ELF64
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           Advanced Micro Devices X86-64
+  Version:                           0x1
+  Entry point address:               0x80f56f 			# Points to virus code
+  Start of program headers:          64 (bytes into file)
+  Start of section headers:          8536 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         30
+  Section header string table index: 27
+</pre>
+<p>Converts PT_NOTE program header type to PT_LOAD</p>
+<pre class="source">
+Elf file type is EXEC (Executable file)
+Entry point 0x80f56f
+There are 9 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset             VirtAddr           PhysAddr
+                 FileSiz            MemSiz              Flags  Align
+  PHDR           0x0000000000000040 0x0000000000400040 0x0000000000400040
+                 0x00000000000001f8 0x00000000000001f8  R E    8
+  INTERP         0x0000000000000238 0x0000000000400238 0x0000000000400238
+                 0x000000000000001c 0x000000000000001c  R      1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x0000000000000000 0x0000000000400000 0x0000000000400000
+                 0x0000000000001244 0x0000000000001244  R E    200000
+  LOAD           0x0000000000001e28 0x0000000000601e28 0x0000000000601e28
+                 0x0000000000000208 0x0000000000000218  RW     200000
+  DYNAMIC        0x0000000000001e50 0x0000000000601e50 0x0000000000601e50
+                 0x0000000000000190 0x0000000000000190  RW     8
+  LOAD           0x0000000000003129 0x0000000000803129 0x0000000000803129 # This PT_LOAD segment contains virus code
+                 0x000000000000d9a3 0x000000000000f4b3  RWE    200000     # Notice RWE (rwx) for polymorphic code
+  GNU_EH_FRAME   0x0000000000001170 0x0000000000401170 0x0000000000401170
+                 0x000000000000002c 0x000000000000002c  R      4
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000000000 0x0000000000000000  RW     8
+  GNU_RELRO      0x0000000000001e28 0x0000000000601e28 0x0000000000601e28
+                 0x00000000000001d8 0x00000000000001d8  R      1
+</pre>
+<p>List of 32-bit values used to mark E_PAD as infected</p>
+<ul>
+<li>'[jp]'</li>
+<li>'[JP]'</li>
+<li>'JKP!'</li>
+<li>'NOP!'</li>
+<li>'IR/G'</li>
+<li>'7DFB'</li>
+<li>'Sep!'</li>
+<li>'TSM!'</li>
+</ul>
+<h3><a name="c32"></a>ELF Infection methods: "prelink" executables</h3>
+<p>When infecting ELF64 executables processed by the "prelink" utility the virus takes special action. This is because these files contain "undo" information and "prelink -u" (undo) will emit an error message if the file has been modified. The virus still does everything above in infection of executables. That is... appending the virus, converting PT_NOTE to PT_LOAD, hooking e_entry, installing .got.plt hooks, patching .text and encrypting .data. But now the virus must do more. First the virus checks for the presence of section ".gnu.prelink_undo". This tells the virus that the host is a "prelink" executable and gives the location of the "undo" information. Sinces "prelink" works on the host with sections (Elf64 Shdr's) not segments (Elf64 Phdr's), a new section must be created containing the appended virus body and with the same corresponding values as the new PT_LOAD segment. To do this the virus reads in the entire executable as an array of headers and sections. The new virus section has no name, and is "inserted" as 3rd to last - just before .gnu.prelink_undo and e_shstrndx. Finally the virus modifies all headers held in .gnu.prelink_undo to correspond to new 'infected' values and writes the newly infected host section by section. Now "prelink -u" can be called succesfuly on the victim with no error message or corruption of the victim. Incidently, doing this produces a new type of infection - infected "prelink" executables that have had all prelink information removed.</p>
+<p>[(prelinked executable before infection) readelf -S host]</p>
+<pre class="source">
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+  [ 1] .interp           PROGBITS         0000000000400238  00000238
+       000000000000001c  0000000000000000   A       0     0     1
+  [ 2] .note.ABI-tag     NOTE             0000000000400254  00000254
+       0000000000000020  0000000000000000   A       0     0     4
+  [ 3] .note.gnu.build-i NOTE             0000000000400274  00000274
+       0000000000000024  0000000000000000   A       0     0     4
+  [ 4] .gnu.hash         GNU_HASH         0000000000400298  00000298
+       000000000000001c  0000000000000000   A       5     0     8
+  [ 5] .dynsym           DYNSYM           00000000004002b8  000002b8
+       0000000000000060  0000000000000018   A      18     1     8
+  [ 6] .gnu.liblist      GNU_LIBLIST      0000000000400318  00000318
+       0000000000000028  0000000000000014   A      18     0     4
+  [ 7] .gnu.version      VERSYM           0000000000400356  00000356
+       0000000000000008  0000000000000002   A       5     0     2
+  [ 8] .gnu.version_r    VERNEED          0000000000400360  00000360
+       0000000000000020  0000000000000000   A      18     1     8
+  [ 9] .rela.dyn         RELA             0000000000400380  00000380
+       0000000000000018  0000000000000018   A       5     0     8
+  [10] .rela.plt         RELA             0000000000400398  00000398
+       0000000000000048  0000000000000018   A       5    12     8
+  [11] .init             PROGBITS         00000000004003e0  000003e0
+       000000000000001a  0000000000000000  AX       0     0     4
+  [12] .plt              PROGBITS         0000000000400400  00000400
+       0000000000000040  0000000000000010  AX       0     0     16
+  [13] .text             PROGBITS         0000000000400440  00000440
+       0000000000000172  0000000000000000  AX       0     0     16
+  [14] .fini             PROGBITS         00000000004005b4  000005b4
+       0000000000000009  0000000000000000  AX       0     0     4
+  [15] .rodata           PROGBITS         00000000004005c0  000005c0
+       0000000000000010  0000000000000000   A       0     0     4
+  [16] .eh_frame_hdr     PROGBITS         00000000004005d0  000005d0
+       0000000000000034  0000000000000000   A       0     0     4
+  [17] .eh_frame         PROGBITS         0000000000400608  00000608
+       00000000000000f4  0000000000000000   A       0     0     8
+  [18] .dynstr           STRTAB           00000000004006fc  000006fc
+       0000000000000059  0000000000000000   A       0     0     1
+  [19] .gnu.conflict     RELA             0000000000400758  00000758
+       0000000000000210  0000000000000018   A       5     0     8
+  [20] .init_array       INIT_ARRAY       0000000000600e10  00000e10
+       0000000000000008  0000000000000000  WA       0     0     8
+  [21] .fini_array       FINI_ARRAY       0000000000600e18  00000e18
+       0000000000000008  0000000000000000  WA       0     0     8
+  [22] .jcr              PROGBITS         0000000000600e20  00000e20
+       0000000000000008  0000000000000000  WA       0     0     8
+  [23] .dynamic          DYNAMIC          0000000000600e28  00000e28
+       00000000000001d0  0000000000000010  WA      18     0     8
+  [24] .got              PROGBITS         0000000000600ff8  00000ff8
+       0000000000000008  0000000000000008  WA       0     0     8
+  [25] .got.plt          PROGBITS         0000000000601000  00001000
+       0000000000000030  0000000000000008  WA       0     0     8
+  [26] .data             PROGBITS         0000000000601030  00001030
+       0000000000000010  0000000000000000  WA       0     0     8
+  [27] .bss              NOBITS           0000000000601040  00001040
+       0000000000000008  0000000000000000  WA       0     0     1
+  [28] .comment          PROGBITS         0000000000000000  00001040
+       0000000000000024  0000000000000001  MS       0     0     1
+  [29] .gnu.prelink_undo PROGBITS         0000000000000000  00001068
+       0000000000000978  0000000000000001           0     0     8
+  [30] .shstrtab         STRTAB           0000000000000000  000019e0
+       0000000000000135  0000000000000000           0     0     1
+  [31] .symtab           SYMTAB           0000000000000000  00002358
+       0000000000000618  0000000000000018          32    45     8
+  [32] .strtab           STRTAB           0000000000000000  00002970
+       0000000000000236  0000000000000000           0     0     1
+</pre>
+<p>[(prelinked executable after infection) readelf -S host]</p>
+<pre class="source">
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+  [ 1] .interp           PROGBITS         0000000000400238  00000238
+       000000000000001c  0000000000000000   A       0     0     1
+  [ 2] .note.ABI-tag     NOTE             0000000000400254  00000254
+       0000000000000020  0000000000000000   A       0     0     4
+  [ 3] .note.gnu.build-i NOTE             0000000000400274  00000274
+       0000000000000024  0000000000000000   A       0     0     4
+  [ 4] .gnu.hash         GNU_HASH         0000000000400298  00000298
+       000000000000001c  0000000000000000   A       5     0     8
+  [ 5] .dynsym           DYNSYM           00000000004002b8  000002b8
+       0000000000000060  0000000000000018   A      18     1     8
+  [ 6] .gnu.liblist      GNU_LIBLIST      0000000000400318  00000318
+       0000000000000028  0000000000000014   A      18     0     4
+  [ 7] .gnu.version      VERSYM           0000000000400356  00000356
+       0000000000000008  0000000000000002   A       5     0     2
+  [ 8] .gnu.version_r    VERNEED          0000000000400360  00000360
+       0000000000000020  0000000000000000   A      18     1     8
+  [ 9] .rela.dyn         RELA             0000000000400380  00000380
+       0000000000000018  0000000000000018   A       5     0     8
+  [10] .rela.plt         RELA             0000000000400398  00000398
+       0000000000000048  0000000000000018   A       5    12     8
+  [11] .init             PROGBITS         00000000004003e0  000003e0
+       000000000000001a  0000000000000000  AX       0     0     4
+  [12] .plt              PROGBITS         0000000000400400  00000400
+       0000000000000040  0000000000000010  AX       0     0     16
+  [13] .text             PROGBITS         0000000000400440  00000440
+       0000000000000172  0000000000000000  AX       0     0     16
+  [14] .fini             PROGBITS         00000000004005b4  000005b4
+       0000000000000009  0000000000000000  AX       0     0     4
+  [15] .rodata           PROGBITS         00000000004005c0  000005c0
+       0000000000000010  0000000000000000   A       0     0     4
+  [16] .eh_frame_hdr     PROGBITS         00000000004005d0  000005d0
+       0000000000000034  0000000000000000   A       0     0     4
+  [17] .eh_frame         PROGBITS         0000000000400608  00000608
+       00000000000000f4  0000000000000000   A       0     0     8
+  [18] .dynstr           STRTAB           00000000004006fc  000006fc
+       0000000000000059  0000000000000000   A       0     0     1
+  [19] .gnu.conflict     RELA             0000000000400758  00000758
+       0000000000000210  0000000000000018   A       5     0     8
+  [20] .init_array       INIT_ARRAY       0000000000600e10  00000e10
+       0000000000000008  0000000000000000  WA       0     0     8
+  [21] .fini_array       FINI_ARRAY       0000000000600e18  00000e18
+       0000000000000008  0000000000000000  WA       0     0     8
+  [22] .jcr              PROGBITS         0000000000600e20  00000e20
+       0000000000000008  0000000000000000  WA       0     0     8
+  [23] .dynamic          DYNAMIC          0000000000600e28  00000e28
+       00000000000001d0  0000000000000010  WA      18     0     8
+  [24] .got              PROGBITS         0000000000600ff8  00000ff8
+       0000000000000008  0000000000000008  WA       0     0     8
+  [25] .got.plt          PROGBITS         0000000000601000  00001000
+       0000000000000030  0000000000000008  WA       0     0     8
+  [26] .data             PROGBITS         0000000000601030  00001030
+       0000000000000010  0000000000000000  WA       0     0     8
+  [27] .bss              NOBITS           0000000000601040  00001040
+       0000000000000008  0000000000000000  WA       0     0     1
+  [28] .comment          PROGBITS         0000000000000000  00001040
+       0000000000000024  0000000000000001  MS       0     0     1
+  [29]                   PROGBITS         0000000000802ba6  00002ba6 // notice empty shdr to account for 3rd PT_LOAD
+       000000000000b1cf  0000000000000000 WAX       0     0     1
+  [30] .gnu.prelink_undo PROGBITS         0000000000000000  0000dd78
+       00000000000009b8  0000000000000001           0     0     8
+  [31] .shstrtab         STRTAB           0000000000000000  0000e730
+       0000000000000135  0000000000000000           0     0     1
+  [32] .strtab           STRTAB           0000000000000000  00002970
+       0000000000000236  0000000000000000           0     0     1
+  [33]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+</pre>
+<p>As shown in the readelf output, the infected executable has an extra section that accounts for the 3rd PT_LOAD segment where the virus is stored. This helps prevent the Virus from being deleted in the event of a prelink -u (undo). Empty section names of type SHT_PROGBITS look suspicious of course, but so do many other things if you know what to look for.</p>
+<h3><a name="c33"></a>ELF Infection methods: Relocatables</h3>
+<p>Retaliation will also infect ELF64 relocatables. The idea being that the infected 'object' file will be later linked into an executable, giving the virus an opportunity to run. When infecting relocatables, the same checks on the Elf64 header as with executables are performed. An additional infection marker - "TSM!" is inserted at the end of the relocatables .data section. This stops the virus from later performing 'executable' infection on executables that have been created with an infected relocatable.</p>
+<p>To infect relocatables the entire object is read in header-by-header, section-by-section. The polymorphic decryptor code is inserted at the end of .text. The encrypted virus body is inserted at the end of .data. The virus also inserts a zero-initialized variable into .bss, to stop the virus being called more than once. To gain control, a random symbol of type "STB_GLOBAL, STT_FUNC" is 'hooked'. When this hooked function is called, the polymorphic decryptor in .text saves the register then checks if the variable in .bss is zero. If so, the decryptor sets that variable to a non-zero values, allocates some memory +RWE using the sys_mmap2 syscall and decrypts the virus body from .data to this newly allocated memory, executes the virus, restores the registers and returns to the original function that the hooked symbol pointed too.</p>
+<p>This kind of infection can be difficult to detect as there is no obvious entry-point or location of the virus in executables that have been linked from infected relocatables. An executable could be linked from more than one infected relocatables, resulting in multiple infections in a single file.</p>
+<p>ET_REL infection in this sense is very cool... and I applaud the author of this Virus -- very nice work.</p>
+<p>Lets take a look at what a relocatable object looks like before and after infection:</p>
+<p>Original</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="c7b5bea6a987b5a2b1a2b5b4a2">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$ ls -lh test.o
+-rw-rw-r-- 1 ryan ryan 2.4K Nov 11 11:12 test.o
+
+Infected has grown by ~25k
+
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="aedcd7cfc0eedccbd8cbdcddcb">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$ ls -lh test_infected.o
+-rw-rw-r-- 1 ryan ryan 28K Jan  1  2014 test.o
+</pre>
+<p><strong>test.o</strong></p>
+<pre class="source">
+original functions f1 and f2 from my test.o file.
+
+0000000000000000 &lt;f1>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   cc                      int3   
+   5:   5d                      pop    %rbp
+   6:   c3                      retq   
+
+0000000000000007 &lt;f2>:
+   7:   55                      push   %rbp
+   8:   48 89 e5                mov    %rsp,%rbp
+   b:   48 83 ec 10             sub    $0x10,%rsp
+   f:   89 7d fc                mov    %edi,-0x4(%rbp)
+  12:   bf 00 00 00 00          mov    $0x0,%edi
+  17:   e8 00 00 00 00          callq  1c &lt;f2+0x15>
+  1c:   c9                      leaveq 
+  1d:   c3   
+</pre>
+<p>Notice that there is symbol f1, but no symbol f2 now. The code for f2 is still there (starting at offset 0x7) but no f2 symbol.</p>
+<pre class="source">
+0000000000000000 &lt;f1>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   cc                      int3   
+   5:   5d                      pop    %rbp
+   6:   c3                      retq   
+   7:   55                      push   %rbp
+   8:   48 89 e5                mov    %rsp,%rbp
+   b:   48 83 ec 10             sub    $0x10,%rsp
+   f:   89 7d fc                mov    %edi,-0x4(%rbp)
+  12:   bf 00 00 00 00          mov    $0x0,%edi
+  17:   e8 00 00 00 00          callq  1c &lt;f1+0x1c>
+  1c:   c9                      leaveq 
+  1d:   c3    
+</pre>
+<p>This is because the virus randomly hijacks a symbol of type STT_FUNC and modifies it to point at the Virus entry. Any calls to the original function will be patched/relocated at link time to point to the virus code.</p>
+<p>The symbol f2 has moved from offset 0x7 to offset 0xe3</p>
+<p><strong>test.o</strong></p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2c5e554d426c5e495a495e5f49">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$ readelf -s test.o | grep f2
+    10: 0000000000000007    23 FUNC    GLOBAL DEFAULT    1 f2
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cbb9b2aaa58bb9aebdaeb9b8ae">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$
+</pre>
+<p><strong>test_infected.o</strong></p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="15676c747b5567706370676670">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$ readelf -s test_infected.o | grep f2
+    10: 00000000000000e3    23 FUNC    GLOBAL DEFAULT    1 f2
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="bdcfc4dcd3fdcfd8cbd8cfced8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$
+</pre>
+<p>If we look at the relocation entries in test.o and grep for f2</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9ae8e3fbf4dae8ffecffe8e9ff">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal$ readelf -r test.o | grep f2
+0000000000d0  000900000002 R_X86_64_PC32     00000000000000d6 f2 - 4
+</pre>
+<p>What's at the address 0xd0 (the instruction actually begins at 0xcf)</p>
+<pre class="source">
+  cf:   e8 00 00 00 00          callq  d4 &lt;main+0xbd>
+</pre>
+<p>This is a call with a relocation unit that will be patched at link time so that it points to the virus code.</p>
+<h2><a name="c4"></a>Direct ActionInfection</h2>
+<p>Aside from using per-process residence (see PLT/GOT function hooking below), the virus also uses directaction infection per-run. During direct action infection the virus sets a timeout value of ~6 seconds and exits infection when this condition is met. To begin direct action infection the virus attacks the following files with 50% chance of attempting to infect each:</p>
+<ul>
+<li>/bin/cp</li>
+<li>/usr/bin/ld</li>
+<li>/bin/ls</li>
+<li>/usr/bin/gcc</li>
+<li>/usr/bin/ld.bfd</li>
+<li>/usr/bin/ld.gold</li>
+<li>/usr/bin/zip</li>
+</ul>
+<p>Next the virus attempts to infect all of the files in the current working directory ("."). Finally the virus attempts to infect all files in the following directories with 50% chance of attempting either:</p>
+<ul>
+<li>/usr/bin</li>
+<li>/bin</li>
+</ul>
+<h2><a name="c5"></a>AVaccine for preventing infection</h2>
+<p>It would be most advised to prevent catching this virus at all if possible. It is extremely complicated and goes to great lengths to make disinfection very difficult. Currently the Virus checks to see if a file is already infected if it is not, then it won't infect it. This is very much like the type of Flu Vaccines that our government and society push us to get (To lower our vibration), but I can assure you that this Vaccine doesn't contain Mercury. Also very much like a real vaccine, this is only likely to protect a system from this strain only. Once the Virus author catches wind, I'm sure a slight variation could be easily launched into the wild that would bypass this Vaccine.</p>
+<p>Lets take a look at the ELF file header</p>
+<pre class="source">
+readelf -h test.infected
+ELF Header:
+  Magic:    7f 45 4c 46 02 01 01 00 00 53 65 70 21 00 00 00
+</pre>
+<p>Notice that elfhdr->e_ident[EI_PAD] doesn't contain the usual 0's, but instead has a magic number 0x21706553 "Sep!". The 8 possible 32bit values that this can be are meant to mark a file as infected (These 8 values are listed above in section 'ELF Infection methods: executables'), but I think there may be a bug because filling e_ident[EI_PAD] with 0xDEADCODE seems to effectively mark an executable as already being infected, since the virus will not touch it after that. The Virus may or may not check specifically for the 8 different 32bit values found in goat files, but either way it is safe to say that the value 0xDEADCODE or any one of the 8 different 32bit values could be used to mark a file as infected. This means that the Vaccine solution is to inject one of these 32bit values into every binary on your system. Specifically in elfhdr->e_ident[EI_PAD] which is where the virus looks to determine infection. This will prevent any files with the vaccine from being infected.</p>
+<p>Get Reliation Vaccine here (Compiles on Linux x86_64) http://www.bitlackeys.org/retaliation/vaccine.c</p>
+<p>The vaccine works on individual files and will only modify a file if it is ELF. to make the entire /bin directory immune you could use the vaccine program with a command like this</p>
+<pre class="source">for file in /bin/*; do ./vaccine "$file" --silent; done</pre>
+<p>Furthermore, infection may be prevented by stripping the section header table off of your ELF binaries. See the next section...</p>
+<h2><a name="c6"></a>Stripped ELF Binaries</h2>
+<p>It has been observed that the retaliation Virus relies heavily on ELF section headers during the infection phase, which is partially what constitutes many of its sophisticated characterisics, such as encrypting the .data section and scanning the .text section for various opcodes.</p>
+<p>Since the virus relies on section headers for parts of the infection phase it will bail out if no section headers are found, and not follow through with the infection. This was observed by stripping the section headers of a goat file using 'stripx.c' (http://www.bitlackeys.org/projects/stripx.c) and running an infected executable in the same directory. The goat file was not infected.</p>
+<p>This of course means that another vaccination approach would be to run stripx against all files in /bin and /usr/bin. Executables do not need section headers in order to run, because the kernel and dynamic linker only uses the program headers. Nevertheless you should consider the consequences of doing this because any potential debugging you may want to do on your binaries in the future will be more difficult without section headers. In either case, it is highly unlikely that you will ever be infected with this Virus, and all of this talk on Vaccines are merely for research entertainment.</p>
+<h2><a name="c7"></a>Encrypted blocks of code</h2>
+<p>The Virus is divided into many indepently encrypted, re-entrant blocks of code. In all there are 275 of these blocks, containing 71% of the virus code. The virus does not save the simple encryption key, but a random number genrator seed to be passed to a simple polymorphic engine for decryption and encryption. Note that this 'simple' polymorphic engine is seperate from the main polymorphic engine used to encrypt the entire virus in infected files. The format for an encrypted block of code is as follows:</p>
+<ol>
+<li>CALL to decrypt function (or invalid opcode 0x27 - see below).</li>
+<li>8-bit entry count for recursive calls.</li>
+<li>32-bit seed used to generate decryptor/encrytor by simple polymorphic engine.</li>
+<li>16-bit length of encrypted block.</li>
+<li>&lt;CODE TO BE ENCRYPTED></li>
+<li>CALL to encrypt function (or invalid opcode 0x2f).</li>
+</ol>
+<p>Encryption begins at part 5. above to the end of part 6. - this means that the final call to encrypt is encrypted too. The encryption generated from the 32-bit seed starting with a random key and consisting of any permutation of 10 of the following 32 two byte instructions (chosen using a 32-bit linear congruential random number generator):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<span style="color: #00007f; font-weight: bold;">bswap</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">sub</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+<span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">not</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">neg</span> <span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+<span style="color: #00007f; font-weight: bold;">neg</span> <span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">neg</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">dh</span><br/>
+<span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+<span style="color: #00007f; font-weight: bold;">rol</span> <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span><br/>
+<span style="color: #00007f; font-weight: bold;">add</span> &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+bswapedx<br/>
+&nbsp;</div>
+<p>Note that %ecx is the count and %edx is the key that is combined with the plain text in %eax. In addition to %ecx and %edx, a part of the viruses anti-debugging code is combine with they key in an attempt to stop patching. This table of 2-byte instructions is encrypted in the virus body.</p>
+<h2><a name="c8"></a>Encrypted .data section</h2>
+<p>This can be analyzed in-depth but a quick objcopy of the .data section with an md5sum will demonstrate this. The encryption algorithm used for this task is BTEA-128.</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2a58534b446a584f5c4f58594f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal/tests$ objcopy --only-section=.data test1 data1
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="483a312926083a2d3e2d3a3b2d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal/tests$ objcopy --only-section=.data test1.infected data1.infected 
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="64161d050a2416011201161701">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal/tests$ md5sum data1 data1.infected 
+06be278d9bd5ab34ed6d2f919a04d717  data1
+9aa5e5dc1f92a2038afa17fe59d24628  data1.infected
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="acded5cdc2ecdec9dac9dedfc9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~/retal/tests$
+</pre>
+<h2><a name="c9"></a>Signal Handlers</h2>
+<p>The virus installs two signal handlers - SIGILL and SIGTRAP - which are both used for multiple purposes as described below. Additionally two glibc calls (Signal and Sigaction) are hooked to stop the host from replacing these handlers. If either handler fails two install, the virus will display the following message:</p>
+<blockquote>Strange signals you have.. very strange ;)</blockquote>
+<p>And terminates the host with error code 42. (SIGILL handler nanomites) Modifies the .text section; certain instructions are patched with illegal opcodes</p>
+<p>The retaliation Virus is extremely clever, and complicated. It will actually patch certain instructions (Which I have documented as shown with objdump) with illegal opcodes. The virus sets up a signal handler for SIGILL, which catches the illegal opcodes and emulates the original instruction that was there. This makes disinfection extremely difficult since the disinfector would have to reliably restore the code in the .text with the original instruction. From what I can tell there are only 2 different instruction sequences that get replaced although there could be more that simply didn't manifest in my infected goat file samples</p>
+<p>Opcodes that get patched with illegal opcodes:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">rbp</span><br/>
+<span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">rsp</span><span style="color: #339933;">,</span> <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">rbp</span><br/>
+&nbsp;</div>
+<p>This can be seen with objdump when comparing the original binary with the infected one</p>
+<p>From original binary</p>
+<pre class="source">
+0000000000400583 :
+  400583:       55                      push   %rbp
+  400584:       48 89 e5                mov    %rsp, %rbp
+</pre>
+<p>From infected binary</p>
+<pre class="source">
+0000000000400583 :
+  400583:	61			(bad)
+  400484:	17			(bad)
+</pre>
+<p>The second four byte instruction sequence to be patched with an illegal opcode is: <code>cmp %rax,-1</code></p>
+<p>When patching the virus can generate nearly all of the possible one byte or two byte illegal opcodes in the x64 instruction set. The virus identifies which of the two sequence of instructions has been patched by folding the four bytes to a 16-bit value with an XOR to produce a checksum value. The two 16-bit values used to identify the patched sequences change randomly every time the virus is run.</p>
+<p>The SIGILL handler provides a second function. Several blocks of encrypted code make the call to decrypt them and re-encrypt them using illegal opcodes 0x27 and 0x2f respectively. Encrypted blocks of code that are used before the SIGILL handler is installed use 0xe8 (CALL imm32) instructions instead. In all there are 209 encrypted blocks using these illegal opcodes.</p>
+<p>If the illegal opcode does not appear to be generated by the virus (it is not in .text with the correct 16-bit checksum, or it is not 0x27 / 0x2f in the viruses body) the following message will be displayed:</p>
+<blockquote>
+Illegal Instruction. But what really is 'Illegal'?
+Look at <a href="http://vxheaven.org/">vxheavens.com</a>..
+kidz with ill skillz get harrassed by cops still.
+</blockquote>
+<h2><a name="ca"></a>Anti-ptrace/debug techniques used by the Virus</h2>
+<p>The Virus prevents ptrace based debugging using several techniques that I can see. I crafted several special programs that I infected to confirm this.</p>
+<h3><a name="ca1"></a>ptrace detection</h3>
+<p>One can see in the initial output of a strace (Before the virus realizes its being traced) that it uses prctl(PR_SET_PTRACER, getpid()) then forks a process which then attempts to do a ptrace(PTRACE_ATTACH, getppid()). The reason for the prctl() is to bypass protection set by /proc/sys/kernel/yama/ptrace_scope which would normally prevent a child from tracing its parent. If the ptrace call fails, then obviously the program is already being ptraced and the Virus either A. exits cleanly, or B. with 1/3 probability goes into a fit and randomly executes different syscalls with garbage args, infinitely.</p>
+<h3><a name="ca2"></a>SIGTRAP detection</h3>
+<p>I wrote a program that calls __asm__("int3") to confirm my suspicion. When infecting this program and running it. The virus signal handler catches the breakpoint SIGTRAP and prints the message with the Virus and Author name, followed by a cheeky statement "Break me, Break it, and break it again.". In other words... good luck setting breakpoint :)</p>
+<h3><a name="ca3"></a>SIGTRAP handler and breakpoint calls</h3>
+<p>The Virus code itself has numerous breakpoints within it, and handles them in a very special way When a SIGTRAP is delivered (That originates from the Virus) it is treated as a call instruction with a 16bit displacement. This technique (Sometimes called nanomites) helps to obfuscate control flow, and makes debugging even harder. The 16-bit displacement is XOR'd with 0xf242.</p>
+<h3><a name="ca4"></a>SIGTRAP handler treats 0xf1 breakpoint (ICEBP) as syscall instruction</h3>
+<p>The Virus code uses 0xf1 to represent a 'syscall al' instruction. This is another technique that obfuscates the ability to understand the virus code and when it is calling system calls since we won't see the traditional syscall calling conventions. The 8-bit system call number is XOR'd with 0x55 and rotated right 3 bits. In all the virus makes sub-routine calls using 0xcc 632 times and system calls using 0xf1 25 times.</p>
+<h3><a name="ca5"></a>Breakpoint detection</h3>
+<p>The Virus additionally includes a sub-routine which checks for a INT3 (0xcc) breakpoint at the callees return address to detect attempts to skip over a sub-routine in a debugger. This same routine additionally checks if callee has been patched or if the Trace Flag (TF in the eflags register) is enabled. If any of these conditions are met the virus overwrites itself in memory with garbage. A total of 65 procedures in the virus make use of this check. As a final defense, the code for this trace/breakpoint check is used as part of the key to decrypt the encrypted blocks in the virus to prevent patching.</p>
+<h2><a name="cb"></a>PLT/GOT function hooking</h2>
+<p>In addition to the already myriad techniques I have discussed so far, the retaliation virus also implements runtime hooking of 13 different shared library functions. The Virus uses PLT/GOT poisoning. This means that hooks are implanted in the global offset table entries of certain shared library functions, and are used primarily as a means to hijack glibc VFS calls such as open/stat/fstat etc. in order to find more files to infect. Specifically the following functions are hijacked at runtime, and therefore will not show up in static analysis of the .got.plt section.</p>
+<p>open, fopen, fopen64, __xstat, __lxstat, __xstat64, __lxstat64, __openat2, open64, bfd_openr, execve, signal, sigaction</p>
+<p>The VFS functions are hijacked in order to infect a larger range of files, by capturing the filenames that are being passed into these functions.</p>
+<p>The signal functions (signal, and sigaction), I presume are to prevent the host from being able to replace the SIGILL and SIGTRAP handlers (which are discussed above).</p>
+<p>I made several attempts to try and prevent the signal handlers from being re-patched under the assumption that if relro (read-only relocations) is being used, then the GOT should be read-only after the dynamic linker is done with it. To be certain I set LD_BIND_NOW=1 prior to running an infected goat file that uses and triggers its own SIGTRAP/SIGILL sighandlers. I do not see that the Virus mprotect's the GOT anywhere. I'd like to say that this test is inconclusive, but the virus seems to win out, so perhaps I am missing something.</p>
+<h2><a name="cc"></a>Random Decoding Algorithm (RDA)</h2>
+<p>The Virus attempts to further complicate disinfection by using the classic Random Decoding Algorithm. This algorithm works as follows:</p>
+<p>Encryption:</p>
+<ol>
+<li>The CRC32 checksum of the data to be encrypted is taken and stored at the end of this data.</li>
+<li>A random 15-bit key is chosen.</li>
+<li>The same simple polymorphic engine used to encrypt blocks of code is called to encrypt the data.</li>
+</ol>
+<p>Decryption:</p>
+<ol>
+<li>The key is set to zero.</li>
+<li>The polymorphic engine is called with the key and the virus attempts decryption of the data.</li>
+<li>If the CRC32 checksum matches the decrypted data the process is complete.</li>
+<li>Otherwise, the data is re-encrypted with the key.</li>
+<li>The key is incremented and the process is repeated from step 2.</li>
+</ol>
+<p>Eventually the corrected key is found.</p>
+<p>Threepieces of restoration data are encrypted with this algorithm as listed:</p>
+<ul>
+<li>48-bits containg the hosts .data address and size for decryption.</li>
+<li>128-bits containing the BTEA-128 key for decrypting .data.</li>
+<li>32-bits containg the two 16-bit values used to identify patched instruction sequences in.text.</li>
+</ul>
+<p>Additionally each of the 93 entries in the table describing the different system calls that can be generated by the polymorphic engine are encrypted using the same routines.</p>
+<p>If all 32,768 keys are exhausted during decryption without success the virus displays the following message and terminates the host.</p>
+<p>Break screen in case of virus writer gone mad.</p>
+<h2><a name="cd"></a>Activation Routine</h2>
+<p>Retaliation also carries an activation routine. If a file has been infected for more than 90 days and is still on the machine it was originally infected on, it displays the following message for 7 seconds:</p>
+<blockquote>&lt;&lt;=- [Linux64.Retaliation V1.0] - Coded by JPanic - Australia 2013/2014 -=>></blockquote>
+<h2><a name="ce"></a>Polymorphic Engine</h2>
+<p>Retaliation uses a complex but unusually large polymorphic engine at 14,938 bytes. Polymorphy is achieved by creating a random encryption alogrithm, encrypting the virus body with it and then generating a corresponding decryption routine using random registers and instructions, optionally with random "junk" instructions in-between the real ones. Some sample code is given at the end of this section.</p>
+<p>The basic template of a decryptor is pushing all 64-bit integer registers (and optionally flags), decrypting the virus and calling it, and then popping back all registers and returing control to the host. The engine is partially "slow", choosing the parameters of the decryptor only once per run, but choosing different instructions every infection.</p>
+<p>Decryptors may be 8/16/32-bit, forwards or backwards, and with an increasing or decreasing 16/32/64-bit counter. There may be one or two pointer registers, one or 2 key registers and always one count register and one text register. Encryption/decryption is achieved by modifying the key register(s) with sequences of ADD,SUB,XOR,ROL,ROR,NOT,NEG instructions using an immediate, the key or count register, or CL in the chance of rol/ror as the 2nd argument. Care is taken not to generate redundant sequences like an ADD followed by a SUB, or two XOR instructions in a row. They text register is then combined with the key register using an ADD/SUB/XOR..</p>
+<p>The pointer registers are incremented/decremented using combinations of multiple INC,DEC and ADD,SUB imm/reg instructions. The counter is incremented/decremented using a single INC,DEC,ADD,SUB instruction followed by an optional "test" of the register using CMP,TEST,AND,OR,XOR,ADD,SUB with an appropriate argument. The final loop instruction can be on of JNZ,JC,JNC,JG,JL,JGE,JNO,JS or the condition can be inverted and followed by a JMP NEAR (E9).</p>
+<p>Junk instructions contain about 98% of the x64 integer instruction set, andmemory read or writes using RIP-relative, RSP-relative, or Reg64 relative encodings.</p>
+<p>Infected executables are always decrypted in place and may have 1 to 4 layers of encryption. "Junk" is always present in executable infections to some degree - there may be just simple sequences of instructions or more complex combinations forming IF/THEN or LOOP branches, CALL's to sub-routines (containing more junk) and SYSCALL's including a check of their return value. In the case of junk memory reads, the decryptor may read from the stack, or from the host's .data,. rodata, or .bss. In the case of memory writes, data may be written to the stack or .bss. In such cases, the .bss section is zero'd before returning control to the host.</p>
+<p>Junk IF/THEN's, LOOP's, and CALL &lt;subroutines> maybe recursive to a variable depth. Any of these may contain instances of more of these. For example, a junk LOOP may contain a CALL to a junk subroutine, which may contain a junk SYSCALL. See example given below. CALL's may be forwards or backwards.</p>
+<p>The virus holds a 93-item table describing possible junk SYSCALL's. Each entry describes one System Call - the SYSCALL number, the type of parameters and the error code it should return. Error codes can be checked with explicit compares branching to bad code, or ADD/SUB'd to create a destination for a JMP Reg64 instruction. Each of the 93 entries is individually RDA encrypted and the entire table is shuffled every run.</p>
+<p>Decryptors in relocatable files have some differences. Firstly, they are always a single layer. Secondly, the virus stores a varaible in .bss, which is initialized to zero. This value is tested with a compare and a JNZ,JPO,JS everytime the decryptor is called. The first time the decryptor is called it sets this variable to a non-zero value. This avoids the virus being decrypted and executed more than once - the decryptor is skipped if the variable contains a non-zero value. Finally since .text is read-only and .data is non-executable, the decryptor allocates memory dynamically through a polymorphic call to sys_mmap with semi-variable values. The virus is then decrypted to this buffer if the mmap call succeeds. Once the virus is called, the decryptor returns control to the original (hi-jacked) function.</p>
+<p>There are some differences between executable infections and relocatable infections regarding "junk" as well. Only 50% of relocatable files have junk instructions. The ones that do only contain simple instructions, no branches, loops, sub-routines, or syscalls. Finally, junk memory read/writes may only be to the stack.</p>
+<p>Since the virus does not know the address that each section will be linked into the executable, relocation items are created for the decryptor as needed. Example Junk - Syscall with infinite loop if wrong error level returned</p>
+<pre class="source">
+LOAD:0000000000824BEB mov rax, 56h
+LOAD:0000000000824BF5 bt ebp, 14h
+LOAD:0000000000824BF9 btc r10d, r13d
+LOAD:0000000000824BFD btr r14d, 10h
+LOAD:0000000000824C02 syscall
+LOAD:0000000000824C04 neg eax
+LOAD:0000000000824C06 add eax, 0FFFFFFF2h
+LOAD:0000000000824C09 jnz loc_824BB5
+</pre>
+<p>Example Junk - Recursive loops with a call to a junk subroutine.</p>
+<pre class="source">
+loc_80BAD8:LOAD:000000000080BAD8 loc_80BAD8: ; CODE XREF: start+71Aj
+LOAD:000000000080BAD8 btc r15w, si
+LOAD:000000000080BADD btr r15, 33h
+LOAD:000000000080BAE2 mov ax, 0FFA0h
+LOAD:000000000080BAE6 neg rax
+LOAD:000000000080BAE9 cmpxchg ah, bh
+LOAD:000000000080BAEC and word ptr [rsp+0A8h+var_80], 0FFA0h
+LOAD:000000000080BAF2 imul r15w, [r13+0]
+LOAD:000000000080BAF8 call sub_80BC81
+LOAD:000000000080BAFD mov r11d, 5Fh
+LOAD:000000000080BB03 cmpxchg bh, ah
+LOAD:000000000080BB06 xchg r12b, byte ptr [rsp+0A8h+var_90]
+LOAD:000000000080BB0B cmpxchg al, cl
+LOAD:000000000080BB0E ror [rsp+0A8h+var_80], 13h
+LOAD:000000000080BB14 sub bp, 1
+LOAD:000000000080BB18 jnz short loc_80BAD8
+LOAD:000000000080BB1A pop r12
+LOAD:000000000080BB1C pop rbp
+LOAD:000000000080BB1D pop rbx
+LOAD:000000000080BB1E sub edi, 1
+LOAD:000000000080BB21 jb short loc_80BB98
+LOAD:000000000080BB23 imul ebx, [r13+0], 6Eh
+...
+LOAD:000000000080BC81
+LOAD:000000000080BC81 sub rsp, 18h
+LOAD:000000000080BC85 xchg r15w, si
+LOAD:000000000080BC89 cmpxchg ch, bh
+LOAD:000000000080BC8C mov [rsp+18h+var_18], cx
+LOAD:000000000080BC91 bswap rbx
+LOAD:000000000080BC94 not bl
+LOAD:000000000080BC96 pop r8
+LOAD:000000000080BC98 pop rsi
+LOAD:000000000080BC99 pop r11
+LOAD:000000000080BC9B retn
+</pre>
+<p>Example Decryptor - Relocatable with no junk and minimum encryption level</p>
+<pre class="source">public x
+.text:0000000000000087 x proc near ; CODE XREF: main+13p
+.text:0000000000000087 push r11
+.text:0000000000000089 push rsi
+.text:000000000000008A push r14
+.text:000000000000008C push r10
+.text:000000000000008E push rbp
+.text:000000000000008F push r12
+.text:0000000000000091 push r8
+.text:0000000000000093 push rbx
+.text:0000000000000094 push rcx
+.text:0000000000000095 push rax
+.text:0000000000000096 push r15
+.text:0000000000000098 push r13
+.text:000000000000009A push rdx
+.text:000000000000009B push r9
+.text:000000000000009D push rdi
+.text:000000000000009E mov r14, offset BSS_DecryptionFlag
+.text:00000000000000A8 mov bl, [r14]
+.text:00000000000000AB test bl, 0FFh
+.text:00000000000000AE jnz SkipDecryption
+.text:00000000000000B4 mov byte ptr [r14], 0FFh
+.text:00000000000000B8 and byte ptr [r14], 40h
+.text:00000000000000BC mov bh, 5
+.text:00000000000000BE mov r11, 25949
+.text:00000000000000C8 mov bp, 63EFh
+.text:00000000000000CC push r11
+.text:00000000000000CE mov rdx, 7
+.text:00000000000000D8 push 0
+.text:00000000000000DA pop r9
+.text:00000000000000DC mov r8, 0FFFFFFFFFFFFFFFFh
+.text:00000000000000E6 mov rsi, 0ACE0h
+.text:00000000000000F0 xor rax, rax
+.text:00000000000000F3 add rax, 9
+.text:00000000000000F7 push 0
+.text:00000000000000F9 pop rdi
+.text:00000000000000FA push 22h
+.text:00000000000000FC pop r10
+.text:00000000000000FE syscall
+.text:0000000000000100 mov r9, rax
+.text:0000000000000103 pop r11
+.text:0000000000000105 cmp r9, 0FFFFFFFFFFFFF001h
+.text:000000000000010C jnb SkipDecryption
+.text:0000000000000112 push r9
+.text:0000000000000114 sub r9, 0FFFFFFFFFFFF9C11h
+.text:000000000000011B
+.text:000000000000011B DecryptorLoop: ; CODE XREF: x+B2j
+.text:000000000000011B mov bl, [r11]
+.text:000000000000011E not bh
+.text:0000000000000120 xor bh, 0B6h
+.text:0000000000000123 ror bh, 3
+.text:0000000000000126 sub bl, bh
+.text:0000000000000128 mov byte ptr [r9], 0FFh
+.text:000000000000012C and [r9], bl
+.text:000000000000012F dec r9
+.text:0000000000000132 sub r11, 1
+.text:0000000000000136 dec bp
+.text:0000000000000139 jge DecryptorLoop
+.text:000000000000013F pop r12
+.text:0000000000000141 sub r12, 0FFFFFFFFFFFFFFA0h
+.text:0000000000000145 call r12
+.text:0000000000000148
+.text:0000000000000148 SkipDecryption: ; CODE XREF: x+27j
+.text:0000000000000148 ; x+85j
+.text:0000000000000148 pop rdi
+.text:0000000000000149 pop r9
+.text:000000000000014B pop rdx
+.text:000000000000014C pop r13
+.text:000000000000014E pop r15
+.text:0000000000000150 pop rax
+.text:0000000000000151 pop rcx
+.text:0000000000000152 pop rbx
+.text:0000000000000153 pop r8
+.text:0000000000000155 pop r12
+.text:0000000000000157 pop rbp
+.text:0000000000000158 pop r10
+.text:000000000000015A pop r14
+.text:000000000000015C pop rsi
+.text:000000000000015D pop r11
+.text:000000000000015F push cs:OriginalProc
+.text:0000000000000165 retn
+</pre>
+<h2><a name="cf"></a>Final Words</h2>
+<p>As shown this Virus combines together many strengths: precision engineering, innovations in anti-debugging, function level polymorphism, and myriad other features that we discovered and discussed in this profile. If you are interested in obtaining Virus samples, or have any questions please don't hesitate to contact me.</p>
+<address><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e88d848e85899b9c8d9aa892878087c68b8785">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></address>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vrn01">Back to index</a>] [<a href="/lib/vrn01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrn01">de</a><a href="/lib/index.php?lang=en&amp;id=vrn01">en</a><a href="/lib/index.php?lang=es&amp;id=vrn01">es</a><a href="/lib/index.php?lang=it&amp;id=vrn01">it</a><a href="/lib/index.php?lang=fr&amp;id=vrn01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrn01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrn01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrn01">ua</a></div>
+</body>
+</html>

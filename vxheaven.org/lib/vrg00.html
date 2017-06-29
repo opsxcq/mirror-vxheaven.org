@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> roy g biv 'How to break the rules with the class libraries' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="roy g biv"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, roy g biv,How to break the rules with the class libraries, array, marshal, intptr, getcurrentprocess, writeint, toint, property, msil, byte, dword, baseaddress, mainmodule, process, convert, bytes"/>
+<meta name="Description" content="At the first look, object-oriented languages in the .NET framework (C#, C++, JScript, and Visual Basic) seem to be very strict. There are no pointers in JScript and Visual Basic, and they are limited in C# and C++. Type conversion is also restricted."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"700a5f1d8b677d3dcd2cbffe45cbfc7c92185eb6-1498756418-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrg00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>How to break the rules with the class libraries</h1><p><a href="/lib/?lang=en&amp;author=roy%20g%20biv"> roy g biv</a><br/> <em><a href="/vx.php?fid=1224#f1224">29a [7]</a></em><br/> <em>February 2004</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrg00.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vrg00">Back to index</a>] [<a href="/lib/vrg00.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">Object-oriented language programming</a></li>
+<li><a href="#c2">BitConverter class</a></li>
+<li><a href="#c3">Marshal class</a></li>
+<li><a href="#c4">Marshal class again</a></li>
+<li><a href="#c5">TLS and MSIL</a></li>
+<li><a href="#c6">GetProcAddress()</a></li>
+<li><a href="#c7">Building strings dynamically</a></li>
+<li><a href="#c8">Greets to friendly people (A-Z):</a></li>
+</ul>
+<h2><a name="c1"></a>Object-oriented language programming</h2>
+<p>At the first look, object-oriented languages in the .NET framework (C#, C++, JScript, and Visual Basic) seem to be very strict. There are no pointers in JScript and Visual Basic, and they are limited in C# and C++. Type conversion is also restricted.</p>
+<h2><a name="c2"></a>BitConverter class</h2>
+<p>Imagine that we have an array of bytes (because only a byte array is allowed for the buffer when accessing files in the .NET framework). We have read some bytes from the file and now we want to check for the 'MZ' signature (assuming little-endian machine). In C, we could use:</p>
+<pre class="source">
+	if (*((WORD *) &amp;array[0]) == 0x5a4d)
+</pre>
+<p>Can we do that in JScript or Visual Basic? No. Can we do that in C++? Yes, but only for unmanaged arrays, which cannot be used with the class libraries. Can we do it in C#? No (really yes, but it requires "Unsafe coding", which causes other problems). We can form the word from the array like this:</p>
+<pre class="source">
+	if (((array[1] &lt;&lt; 8) + array[0]) == 0x5a4d)	//C#, C++, JScript
+	if (((array(1) * &amp;h100) + array(0)) = &amp;h5a4d) then 'Visual Basic
+</pre>
+<p>but that requires lots of bytes of code each time to do that. Fortunately, the class libraries contain a class that exposes methods for exactly this kind of data access. The class is called BitConverter, and the method we can use here is called ToInt16(). It takes two parameters: the array and the offset. So now our code can be replaced by:</p>
+<pre class="source">
+	if (BitConverter.ToInt16(array, 0) == 0x5a4d)		//C#, JScript
+	if (BitConverter::ToInt16(array, 0) == 0x5a4d)		//C++
+	if (BitConverter.ToInt16(array, 0) = &amp;h5a4d) then	'Visual Basic
+</pre>
+<p>Nice. The class exposes other methods, too, such as ToInt32() and ToInt64(), and also versions for unsigned numbers (ToUInt16(), etc).</p>
+<h2><a name="c3"></a>Marshal class</h2>
+<p>Now we want to write large values into a byte array. In C, we could use</p>
+<pre class="source">
+	*((DWORD *) &amp;array[0]) = dword;
+</pre>
+<p>In C#, C++, and JScript, we can store a dword in the array like this:</p>
+<pre class="source">
+	array[0] = (Byte) (dword);
+	array[1] = (Byte) (dword >> 8);
+	array[2] = (Byte) (dword >> 0x10);
+	array[3] = (Byte) (dword >> 0x18);
+</pre>
+<p>In Visual Basic, we can store a dword in the array like this:</p>
+<pre class="source">
+	array(0) = dword mod &amp;h100
+	array(1) = (dword \ &amp;h100) mod &amp;h100
+	array(2) = (dword \ &amp;h10000) mod &amp;h100
+	array(3) = (dword \ &amp;h1000000) mod &amp;h100
+</pre>
+<p>but that requires too many instructions and too many bytes of code. The better way is to use the Marshal class. It allows us to copy data between managed data types (.NET base types) and unmanaged data types (eg process memory). It can also copy from one managed type to another managed type, but this use is not documented. The method that we can use here is called WriteInt32(). It takes three parameters: the array, the offset in the array, and the value. So now our code can be replaced by:</p>
+<pre class="source">
+	Marshal.WriteInt32(array, 0, dword);			//C#, JScript
+	Marshal::WriteInt32(array, 0, dword);			//C++
+	Marshal.WriteInt32(array, 0, dword)			'Visual Basic
+</pre>
+<p>Much better. Accessing process memory is easy, too. The Process class exists for that purpose. Let's get our module handle:</p>
+<pre class="source">
+	IntPtr ourbase = Process.GetCurrentProcess().MainModule.BaseAddress;			//C#
+	IntPtr ourbase = Process::GetCurrentProcess()->get_MainModule()->get_BaseAddress();	//C++
+	var ourbase : IntPtr = Process.GetCurrentProcess().MainModule.BaseAddress		//JScript
+	dim ourbase as IntPtr : Process.GetCurrentProcess().MainModule.BaseAddress		'Visual Basic
+</pre>
+<p>Great! But what's an IntPtr?</p>
+<h2><a name="c4"></a>Marshal class again</h2>
+<p>The IntPtr type is a special managed type whose size is platform-specific. That means that it is 32 bits large on a 32-bit platform, and 64-bits large on a 64-bit platform. The Marshal methods require an IntPtr as the object to use for reading and writing unmanaged memory. IntPtrs do not support operators such as + and - (they are like void * in C and C++), but since the Marshal methods require an offset, this is usually okay. For example, we can read the lfanew field without trouble:</p>
+<pre class="source">
+	Int32 lfanew = Marshal.ReadInt32(ourbase, 0x3c);				//C#
+	Int32 lfanew = Marshal::ReadInt32(ourbase, 0x3c);				//C++
+	var lfanew : Int32 = Marshal.ReadInt32(ourbase, 0x3c)				//JScript
+	dim lfanew as Int32 : Marshal.ReadInt32(ourbase, &amp;h3c)			'Visual Basic
+</pre>
+<p>and then read bytes in the PE header:</p>
+<pre class="source">
+	Int32 tlsrva = Marshal.ReadInt32(ourbase, lfanew + 0xc0);			//C#
+	Int32 tlsrva = Marshal::ReadInt32(ourbase, lfanew + 0xc0);			//C++
+	var tlsrva : Int32 = Marshal.ReadInt32(ourbase, lfanew + 0xc0)			//JScript
+	dim tlsrva as Int32 : tlsrva = Marshal.ReadInt32(ourbase, lfanew + &amp;hc0)	'Visual Basic
+</pre>
+<p>But what if we want to copy any number of bytes? There is a Copy() method, and it takes four parameters: the source array, the destination array, the offset in destination array, and the number of bytes to copy. It does not support an offset in the source array, so we need to find a way to apply the + operator to a IntPtr. Fortunately, the Marshal class exposes a method called ReadIntPtr(), which can convert a Int32 to a IntPtr, but this usage is also not documented. To make our pointer, we convert our old IntPtr into a Int32 by using the ToInt32() method, then add the value that we need, then pass the result to the ReadIntPtr() method, using an offset of 0:</p>
+<pre class="source">
+	IntPtr tlsva = Marshal.ReadIntPtr(ourbase.ToInt32() + tlsdata, 0);		//C#
+	IntPtr tlsva = Marshal::ReadIntPtr(__box(ourbase.ToInt32() + tlsdata), 0);	//C++
+	var tlsva : IntPtr = Marshal.ReadIntPtr(ourbase.ToInt32() + tlsdata, 0)		//JScript
+	dim tlsva as IntPtr : tlsva = Marshal.ReadIntPtr(ourbase.ToInt32() + tlsdata, 0)'Visual Basic
+</pre>
+<p>For 64-bit platforms, there is a ToInt64() method, and the ReadIntPtr() method can also convert an Int64 to an IntPtr. Notice the use of __box for C++. This is required to convert a value into a managed object, which can then be passed to the class libraries.</p>
+<p>Now we can use the Copy() method to copy bytes from the process memory to our array. Let's copy 0x29a bytes ;) to offset 6:</p>
+<pre class="source">
+	Marshal.Copy(tlsva, array, 6, 0x29a);			//C#, JScript
+	Marshal::Copy(tlsva, array, 6, 0x29a);			//C++
+	Marshal.Copy(tlsva, array, 6, &amp;h29a);		'Visual Basic
+</pre>
+<h2><a name="c5"></a>TLS and MSIL</h2>
+<p>I thought to make an interesting W32/MSIL hybrid by using TLS to write the MSIL RVA in the PE header at runtime, but when the MSIL code is run, it fails the StrongName signature verification. Then I tried storing a hard-coded fake RVA in the file, and setting it correctly at runtime, but the MSIL code won't run in that case. Finally, I stored the correct RVA and size in the file, but if TLS code runs on exit, then one of the MSIL dlls waits infinitely for an object that never signals and the application won't terminate. So don't use TLS in MSIL files unless you can solve one of these problems. ;)</p>
+<h2><a name="c6"></a>GetProcAddress()</h2>
+<p>.NET files import functions in a way that is simlar to Windows files. There are AssemblyRefs which are the DLL names, and MemberRefs which are the function names (there are also TypeRefs, and they hold the class names, but they have no equivalent). Let us imagine that we want to display our image base, using only standard library functions (mscorlib). The image base is the BaseAddress property of the ProcessModule class. The ProcessModule class is returned by the MainModule property of the Process class. The Process class is in the System.Diagnostics namespace. The System.Diagnostics namespace is exported by system.dll. Since system.dll is not a standard library, we need to find how to load system.dll and get access to its methods, but without using any function from system.dll to do that. We also have to rely on the GetType() method, instead of casting the result, because casts use references to the dll that exports the class. The .NET equivalent of LoadLibrary() requires the full path of the file to load, if the file is not in the current directory (this is similar to LoadLibrary()). System.dll is in the .NET system directory (which is not the same as the Windows system directory), so we need to find the .NET system directory. We can get the system directory from the full path of mscorlib.dll (equivalent to getting the Windows system directory from the module filename of kernel32.dll). I don't know about any .NET equivalent of GetSystemDirectory().</p>
+<p>Here is the code in C#:</p>
+<pre class="source">
+	Type t = typeof(System.Object);				//get handle to mscorlib.dll
+	Assembly a = t.Assembly;				//get its assembly
+	String s = a.CodeBase;					//get full path of mscorlib.dll
+</pre>
+<p>Here is the code in C++:</p>
+<pre class="source">
+	Type *t = __typeof(System::Object);			//get handle to mscorlib.dll
+	Assembly *a = t->Assembly;				//get its assembly
+	String *s = a->CodeBase;				//get full path of mscorlib.dll
+</pre>
+<p>Here is the code in JScript:</p>
+<pre class="source">
+	var t : Type = System.Object.GetType()			//get handle to mscorlib.dll
+	var a : Assembly = t.Assembly				//get its assembly
+	var s : String = a.CodeBase				//get full path of mscorlib.dll
+</pre>
+<p>Here is the code in Visual Basic:</p>
+<pre class="source">
+	dim o as new Object					'create an instance of System.Object
+	dim t as Type : t = o.GetType()				'get handle to mscorlib.dll
+	dim a as [Assembly] : a = t.Assembly			'get its assembly
+	dim s as String : s = a.CodeBase			'get full path of mscorlib.dll
+</pre>
+<p>Now that we have the full path of mscorlib.dll, we have the .NET system directory. We simply replace "mscorlib.dll" with "system.dll", then load the system.dll. This is the .NET equivalent of LoadLibrary().</p>
+<p>Here is the code in C#:</p>
+<pre class="source">
+	s = s.Replace("mscorlib.dll", "system.dll");		//get full path of system.dll
+	a = Assembly.LoadFrom(s);				//load assembly from file
+</pre>
+<p>Here is the code in C++:</p>
+<pre class="source">
+	s = s->Replace("mscorlib.dll", "system.dll");		//get full path of system.dll
+	a = Assembly::LoadFrom(s);				//load assembly from file
+</pre>
+<p>Here is the code in JScript:</p>
+<pre class="source">
+	s = s.Replace("mscorlib.dll", "system.dll")		//get full path of system.dll
+	a = Assembly.LoadFrom(s)				//load assembly from file
+</pre>
+<p>Here is the code in Visual Basic:</p>
+<pre class="source">
+	s = s.Replace("mscorlib.dll", "system.dll")		'get full path of system.dll
+	a = [Assembly].LoadFrom(s)				'load assembly from file
+</pre>
+<p>An assembly is the .NET equivalent of a module handle. Using an assembly, we can get the address of any method, by using the GetType() method and the GetMethod() method. This is the .NET equivalent of GetProcAddress().</p>
+<p>Here is the code in C#:</p>
+<pre class="source">
+	t = a.GetType("System.Diagnostics.Process");		//get class (Process)
+	MethodInfo m = t.GetMethod("GetCurrentProcess");	//get method interface
+</pre>
+<p>Here is the code in C++:</p>
+<pre class="source">
+	t = a->GetType("System.Diagnostics.Process");		//get class (Process)
+	MethodInfo *m = t->GetMethod("GetCurrentProcess");	//get method interface
+</pre>
+<p>Here is the code in JScript:</p>
+<pre class="source">
+	t = a.GetType("System.Diagnostics.Process")		//get class (Process)
+	var m : MethodInfo = t.GetMethod("GetCurrentProcess")	//get method interface
+</pre>
+<p>Here is the code in Visual Basic:</p>
+<pre class="source">
+	t = a.GetType("System.Diagnostics.Process")		'get class (Process)
+	dim m as MethodInfo : m = t.GetMethod("GetCurrentProcess") 'get method interface
+</pre>
+<p>Now we can call our method.</p>
+<p>Here is the code in C#:</p>
+<pre class="source">
+	Object o = m.Invoke(null, null);			//call GetCurrentProcess()
+</pre>
+<p>Here is the code in C++:</p>
+<pre class="source">
+	Object *o = m->Invoke(0, 0);				//call GetCurrentProcess()
+</pre>
+<p>Here is the code in JScript:</p>
+<pre class="source">
+	var o : Object = m.Invoke(null, null)			//call GetCurrentProcess()
+</pre>
+<p>Here is the code in Visual Basic:</p>
+<pre class="source">
+	o = m.Invoke(nothing, nothing)				'call GetCurrentProcess()
+</pre>
+<p>Okay, so now we know how to call a method dynamically.</p>
+<p>Here is the rest of the code in C#:</p>
+<pre class="source">
+	t = o.GetType();					//get class (Process)
+	PropertyInfo p = t.GetProperty("MainModule");		//get property interface
+	o = p.GetValue(o, null);				//get MainModule value
+	t = o.GetType();					//get class (ProcessModule)
+	p = t.GetProperty("BaseAddress");			//get property interface
+	o = p.GetValue(o, null);				//get BaseAddress value
+</pre>
+<p>Here is the rest of the code in C++:</p>
+<pre class="source">
+	t = o->GetType();					//get class (Process)
+	PropertyInfo *p = t->GetProperty("MainModule");		//get property interface
+	o = p->GetValue(o, 0);					//get MainModule value
+	t = o->GetType();					//get class (ProcessModule)
+	p = t->GetProperty("BaseAddress");			//get property interface
+	o = p->GetValue(o, 0);					//get BaseAddress value
+</pre>
+<p>Here is the rest of the code in JScript:</p>
+<pre class="source">
+	t = o.GetType()						//get class (Process)
+	var p : PropertyInfo = t.GetProperty("MainModule")	//get property interface
+	o = p.GetValue(o, null)					//get MainModule value
+	t = o.GetType()						//get class (ProcessModule)
+	p = t.GetProperty("BaseAddress")			//get property interface
+	o = p.GetValue(o, null)					//get BaseAddress value
+</pre>
+<p>Here is the rest of the code in Visual Basic:</p>
+<pre class="source">
+	t = o.GetType()						'get class (Process)
+	dim p as PropertyInfo : p = t.GetProperty("MainModule")	'get property interface
+	o = p.GetValue(o, nothing)				'get MainModule value
+	t = o.GetType()						'get class (ProcessModule)
+	p = t.GetProperty("BaseAddress")			'get property interface
+	o = p.GetValue(o, nothing)				'get BaseAddress value
+</pre>
+<p>So much code for such a simple thing. Anyway...</p>
+<p>Let's print the value in C#:</p>
+<pre class="source">
+	Int32 i = ((IntPtr) o).ToInt32();			//convert to Int32
+	Console.WriteLine("{0:x}", i);				//display it in hex
+</pre>
+<p>Let's print the value in C++:</p>
+<pre class="source">
+	Int32 i = dynamic_cast&lt;IntPtr *>(o)->ToInt32();	//convert to Int32
+	Console.WriteLine("{0:x}", __box(i));			//display it in hex
+</pre>
+<p>Let's print the value in JScript:</p>
+<pre class="source">
+	var i : Int32 = o.ToInt32()				//convert to Int32
+	Console.WriteLine("{0:x}", i)				//display it in hex
+</pre>
+<p>Let's print the value in Visual Basic:</p>
+<pre class="source">
+	dim i as Int32 : i = DirectCast(o, IntPtr).ToInt32()	'convert to Int32
+	Console.WriteLine("{0:x}", i)				'display it in hex
+</pre>
+<p>This code also requires the #US stream, because it contains strings. It is possible to build strings dynamically to avoid creating the stream, but that requires still more code. However, if you need to access external functions, then this is how it is done.</p>
+<h2><a name="c7"></a>Building strings dynamically</h2>
+<p>In the object-oriented world, type conversion usually happens transparently. This means that a Byte value can be converted to a Char simply by storing the Byte value in the Char variable. We can make strings by storing Bytes in a Char array. We can write multiple Bytes at a time with the Marshal class methods, such as WriteInt32() and WriteInt64(). Here is an example of that:</p>
+<pre class="source">
+	Char[] ourstr = new Char[8]; Marshal.WriteInt64(ourstr, 0, 0x4139322f626772);		//C#
+	Char ourstr __gc[] = new Char[8]; Marshal::WriteInt64(ourstr, 0, 0x4139322f626772);	//C++
+	var ourstr : Char[] = new Char[8] : Marshal.WriteInt64(ourstr, 0, 0x4139322f626772)	//JScript
+	dim ourstr(8) as Char : Marshal.WriteInt64(ourstr, 0, &amp;h4139322f626772)		'Visual Basic
+</pre>
+<p><strong>Warning:</strong> the JScript .NET Compiler version 7.00.9502 (.NET v1.0) 7.10.2292 (.NET v1.1 final beta) and 7.10.3052 (.NET v1.1) has a bug with 64-bit numbers, so the last byte is either lost or damaged (becomes 0x4139322f626774 in the example).</p>
+<p>I have not found any method to convert multiple Bytes to a character string, without an array.</p>
+<h2><a name="c8"></a>Greets to friendly people (A-Z):</h2>
+<p>Active - Benny - Obleak - Prototype - Ratter - Ronin - RT Fishel - The Gingerbread Man - Ultras - Vecna - VirusBuster - Whitehead</p>
+<div align="right">rgb/29A mar 2003<br/><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6a030b0735180d082a02051e070b030644090507">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></div>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vrg00">Back to index</a>] [<a href="/lib/vrg00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrg00">de</a><a href="/lib/index.php?lang=en&amp;id=vrg00">en</a><a href="/lib/index.php?lang=es&amp;id=vrg00">es</a><a href="/lib/index.php?lang=it&amp;id=vrg00">it</a><a href="/lib/index.php?lang=fr&amp;id=vrg00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrg00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrg00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrg00">ua</a></div>
+</body>
+</html>

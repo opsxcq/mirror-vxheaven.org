@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> roy g biv 'Heaven's Gate: 64-bit code in 32-bit file' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="roy g biv"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, roy g biv,Heaven's Gate: 64-bit code in 32-bit file, current, directory, jump, gate, qword, platform, mode, code, kernel, exceptions, offset, retf, mixing, address, pointer"/>
+<meta name="Description" content="On 64-bit platform, there is only one ntoskrnl.exe, and it is 64-bit code. It also uses a different calling convention (registers, so called &quot;fastcall&quot;) compared to 32-bit code (stack, so called &quot;stdcall&quot;, old name was &quot;pascal&quot;). So how can 32-bit code run on 64-bit platform? There is &quot;thunking&quot; layer in wow64cpu.dll, which saves 32-bit state, converts parameters to 64-bit form, then runs &quot;Wow64SystemServiceEx&quot; in wow64.dll. But 64-bit registers are visible only in 64-bit mode, so how does wow64cpu.dll work? Here is what I call Heaven's Gate, but first we must go back to ntdll.dll."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"fbdd4ea37dade674014ba1e48e99c4f96a4be104-1498757785-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrg16.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Heaven's Gate: 64-bit code in 32-bit file</h1><p><a href="/lib/?lang=en&amp;author=roy%20g%20biv"> roy g biv</a><br/> <em><a href="/vx.php?fid=1943#f1943">Valhalla #1</a></em><br/> <em>June 2011</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrg16.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vrg16">Back to index</a>] [<a href="/lib/vrg16.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">What is it?</a></li>
+<li><a href="#c1">Thunking Layer</a></li>
+<li><a href="#c2">Heaven's Gate</a></li>
+<li><a href="#c3">Finding ntdll.dll</a></li>
+<li><a href="#c4">Mixing 32-bit and 64-bit</a></li>
+<li><a href="#c5">Current Directory</a></li>
+<li><a href="#c6">Exceptions</a></li>
+<li><a href="#c7">Closing</a></li>
+</ul>
+<p>I found this technique <a href="/lib/vrg02.html">in 2009</a>, and I update it in 2011.</p>
+<h2><a name="c0"></a>What is it?</h2>
+<p>On 64-bit platform, there is only one ntoskrnl.exe, and it is 64-bit code. It also uses a different calling convention (registers, so called "fastcall") compared to 32-bit code (stack, so called "stdcall", old name was "pascal"). So how can 32-bit code run on 64-bit platform? There is "thunking" layer in wow64cpu.dll, which saves 32-bit state, converts parameters to 64-bit form, then runs "Wow64SystemServiceEx" in wow64.dll. But 64-bit registers are visible only in 64-bit mode, so how does wow64cpu.dll work? Here is what I call Heaven's Gate, but first we must go back to ntdll.dll.</p>
+<h2><a name="c1"></a>Thunking Layer</h2>
+<p>When an important function is called from a DLL like kernel32.dll, it calls into the native interface in ntdll.dll. The native interface powerful but mostly undocumented layer between user-mode and kernel-mode. For some detail, see my Chthon code in 29A#6. It used to be that to call into kernel mode, the code would do this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span> service<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">edx</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esp</span> <span style="color: #339933;">+</span> <span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">2eh</span><br/>
+&nbsp;</div>
+<p>In Windows XP, it became possible to use sysenter instead of int 2eh, for better performance. In 64-bit Windows, a "xor ecx, ecx" was added because of 64-bit pointer size, and the int 2eh was replaced by:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: #46aa03; font-weight: bold;">fs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">0c0h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;</div>
+<p>and now we are one step closer to Heaven's Gate. The field at fs:[0c0h] is called WOW32Reserved, and holds an address in wow64cpu.dll. If we follow the call, we reach a jump. A far jump. A special far jump. Heaven's Gate.</p>
+<h2><a name="c2"></a>Heaven's Gate</h2>
+<p>The jump in wow64cpu.dll is a 64-bit gate. We can jump through it into the world of 64-bit code: 64-bit address space, 64-bit registers, 64-bit calls. We might think that jumping into wow64cpu.dll is useless because we cannot control where it goes after that, but of course we can change the address ourself to anywhere we like. We can alter the address inside wow64cpu.dll, we can alter the address at fs:[0c0h], or we can just call through the gate on our own. The gate maps the entire 4Gb of memory, and the selector value is always 33h. We can switch between the modes easily, too. All we need is the return address on the stack. We can switch modes in this long way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; to64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;32-bit code continues here</span><br/>
+<br/>
+to64<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0eah</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">;jmp 33:in64</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; offset in64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">33h</span><br/>
+<br/>
+in64<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;64-bit code goes here</span><br/>
+&nbsp;</div>
+<p>To switch back to 32-bit code can be done this way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; fword ptr <span style="color: black;">&#91;</span>offset to32 <span style="color: #339933;">-</span> offset fr64<span style="color: black;">&#93;</span><br/>
+fr64<span style="color: #339933;">:</span><br/>
+<br/>
+to32<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; offset in32<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">23h</span><br/>
+<br/>
+in32<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>Once in 64-bit mode, we can only use the native interface in ntdll.dll The 0eah-style jmp not supported in 64-bit mode, and there are no absolute memory addressing in 64-bit mode. All addressing is rip-relative, which is why the jmp is relative to the fr64 label.</p>
+<p>Of course there's a simpler way, which looks like this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">9ah</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;call 33:in64</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; offset in64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">33h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;32-bit code continues here</span><br/>
+<br/>
+in64<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;64-bit code goes here</span><br/>
+&nbsp;</div>
+<p>To switch back to 32-bit code, just use a 32-bit retf. That's much easier.</p>
+<h2><a name="c3"></a>Finding ntdll.dll</h2>
+<p>Once in 64-bit mode, we can only use the native interface in ntdll.dll because the kernel32.dll in our process memory is 32-bit, and won't run in 64-bit mode. We can get the base address of ntdll.dll this way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">60h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rsi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">gs</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">lodsq</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;gs not fs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">18h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span><br/>
+&nbsp;</div>
+<h2><a name="c4"></a>Mixing 32-bit and 64-bit</h2>
+<p>Best of all, Yasm now allows mixing 32-bit and 64-bit code in the same file. When I was writing Shrug48 (because half-way between 32-bit and 64-bit), this was not possible, so I had two source files that had to be built separately and then concatenated afterwards. Now with Yasm, we can use "bits 32" before the 32-bit code, and "bits 64" before the 64-bit code, anywhere in the file, and we can swap between them as much as we want, like this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #0000ff; font-weight: bold;">bits</span> <span style="color: #ff0000;">32</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">9ah</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;call 33:in64</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span>&nbsp; &nbsp; &nbsp; offset in64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">33h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;32-bit code continues here</span><br/>
+<br/>
+<span style="color: #0000ff; font-weight: bold;">bits</span> <span style="color: #ff0000;">64</span><br/>
+in64<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">60h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rsi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">gs</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">lodsq</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;gs not fs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">18h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">30h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">qword</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">rax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">10h</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; retf<br/>
+&nbsp;</div>
+<p>Another way to jump in a position-independent way is this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; to64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;32-bit code continues here</span><br/>
+<br/>
+to64<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #ff0000;">0cb0033h</span>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;combined selector 33h and retf</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; to64 <span style="color: #339933;">+</span> <span style="color: #ff0000;">3</span><br/>
+bits64<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;now in 64-bit mode</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;64-bit code goes here</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; retf&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;return to 32-bit mode</span><br/>
+&nbsp;</div>
+<h2><a name="c5"></a>Current Directory</h2>
+<p>There is a separate current directory for 32-bit and 64-bit mode. Normally, the 64-bit current directory is never used, because all 32-bit APIs that work with the current directory do not switch to 64-bit first. We can make the directories the same by overwriting the 64-bit pointers with the 32-bit ones. Of course, we have to find the location for the 64-bit pointers, first. ;)</p>
+<p>Even in 32-bit mode, there is a 64-bit Thread Information Block. It is 0x1000 after the 32-bit Thread Information Block. Inside the 64-bit TIB is a pointer to the 64-bit RTL_USER_PROCESS_PARAMETERS. At 0x28 bytes before the structure is the pointer to the current directory that is used by ntdll function RtlDosPathNameToRelativeNtPathName_U. There are other pointers to the current directory, but this is the one that we need.</p>
+<h2><a name="c6"></a>Exceptions</h2>
+<p>We can use exceptions in 64-bit mode as usual, but SEH does not exist there. We must use Vectored Exception Handlers instead. There is also a small thing that surprised me. The 64-bit TIB has a context structure for saving 32-bit state during mode switching. During the switch, the esp slot is zeroed, and restored again afterwards. This prevents recursive switching from overwriting the context. This includes when an exception occurs. When exception occurs, no matter which mode, context is saved, and esp slot is zeroed. The problem is that when exception returns, esp slot is not restored. If exception occurs in 32-bit mode after that, then application will crash. So save esp slot from TIB (it is at gs:0x1480) if you will use exceptions in 64-bit mode.</p>
+<h2><a name="c7"></a>Closing</h2>
+<p>Using the gate is another way to check for 64-bit support, without using the obvious IsWow64Process API call. Just place a SEH around the call, and if an exception occurs, then you are on a 32-bit platform. You can also check if gs selector is not zero. This is true only on the 64-bit platform.</p>
+<p>64-bit code in 32-bit files. The ultimate emulator killer. ;)</p>
+<p>Greets to friendly people (A-Z): Active - Benny - herm1t - hh86 - izee - jqwerty - Malum - Obleak - Prototype - Ratter - Ronin - RT Fishel - sars - SPTH - The Gingerbread Man - Ultras - uNdErX - Vallez - Vecna - Whitehead</p>
+<div align="right">rgb/defjam jun 2009/apr 2011<br/><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b9d0d8d4e6cbdedbf9d1d6cdd4d8d0d597dad6d4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></div>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrg16">de</a><a href="/lib/index.php?lang=en&amp;id=vrg16">en</a><a href="/lib/index.php?lang=es&amp;id=vrg16">es</a><a href="/lib/index.php?lang=it&amp;id=vrg16">it</a><a href="/lib/index.php?lang=fr&amp;id=vrg16">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrg16">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrg16">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrg16">ua</a></div>
+</body>
+</html>

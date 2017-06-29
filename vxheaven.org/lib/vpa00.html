@@ -1,0 +1,362 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Pawa 'Полиморфный генератор и детектор на основе формальных грамматик и конечных автоматов' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Pawa"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Pawa,Полиморфный генератор и детектор на основе формальных грамматик и конечных автоматов, state, команды, состояние, автомат, мусор, позиция, detected, вызов, мусора, генератора, push, расшифрования, кода, можно, code"/>
+<meta name="Description" content="В работе рассмотрено создание полиморфного генератора, описанного контекстно-свободной грамматикой и реализованного в виде недетерминированного автомата. Также рассмотрены проблемы детектирования кодовой последовательности, выдаваемой генератором. Показан пример детектирования - построен подходящий автомат. Примеры выполнены для IA-32 / Win32."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"f02ccf1005983b7bec6c768b6f4b6f1e9cbbdc34-1498757835-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vpa00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Полиморфный генератор и детектор на основе формальных грамматик и конечных автоматов</h1><p><a href="/lib/?lang=ru&amp;author=Pawa"> Pawa</a><br/> <em>Январь 2009</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vpa00.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=PO#vpa00">Вернуться к списку</a>] [<a href="/lib/vpa00.html#disqus_thread">Комментарии</a>]<br/> 
+<p>В работе рассмотрено создание полиморфного генератора, описанного контекстно-свободной грамматикой и реализованного в виде недетерминированного автомата. Также рассмотрены проблемы детектирования кодовой последовательности, выдаваемой генератором. Показан пример детектирования - построен подходящий автомат. Примеры выполнены для IA-32 / Win32.</p>
+<h2>Грамматический подход</h2>
+<p>Первое упоминание моделирования техник мутации кода кода найдено в [1]. В работе [2] формально доказана возможность создания недетектируемых метаморфных генераторов. Работа [3] описывает грамматику, которая легла в основу вируса MetaPHOR. Рекомендуется также прочитать что-нибудь по грамматикам и автоматам, например, [4] - дешево и сердито.</p>
+<p>В качестве примера рассмотрим генерацию различных вариантов следующего декриптора:</p>
+<pre class="source">
+	1. mov R1, len
+	2. mov R2, beg
+	3. xor [R1], key
+	4. add R2, 4
+	5. sub R1, 4
+	6. jnz 3
+</pre>
+<p>Каждую команду назовем блоком и присвоим ему порядковый номер. На эти номера будем иногда ссылаться по ходу повествования. У данного примера есть одно ограничение - он работает только с размерами кода, кратными 4.</p>
+<p>Условно разобьем алгоритм на две части:</p>
+<ul>
+<li>Инициализация переменных алгоритма</li>
+<li>Шифрование и организация цикла</li>
+</ul>
+<p>Соответственно, запишем эти две части в виде двух начальных правил грамматики:</p>
+<pre class="source">
+	A -> XB
+	B -> Y
+</pre>
+<p>Начнем конкретизировать данные правила.</p>
+<pre class="source">
+	X  -> X1X2 | X2X1
+	X1 -> GX1 | mov R1,len | push len + pop R1 | xor R1,R1 + lea R1,[R1 + len] | sub R1,R1 + add R1,len
+	X2 -> GX2 | mov R2,beg | push beg + pop R2 | xor R2,R2 + lea R2,[R2 + beg] | sub R2,R2 + add R2,beg
+</pre>
+<p>Первое правило соответствует тому, что блоки 1 и 2 можно менять местами. Часть правила X1 -> GX1 означает, что возможен переход на правило G - генерацию мусора. Про генерацию мусора поговорим ближе к концу.</p>
+<p>Теперь перейдем к части расшифрования и организации цикла. Во-первых, будем применять два варианта инструкции расшифрования: с базовой и базово-индексной адресацией. Во-вторых, инструкцию расшифрования xor будем заменять следующими эквивалентами:</p>
+<pre class="source">
+	x1 xor x2  = not(not x1 xor x2) = (x1 and not x2) or (not x1 and x2)
+</pre>
+<p>Получим следующий набор правил:</p>
+<pre class="source">
+	Y  -> GY | W1 | S4W2
+	W1 -> GW1 | xor [R2],key H1
+	W1 -> not [R2] + xor [R2],key + not [R2] H1
+	W1 -> mov R3,[R2] + not R3 + and R3,key + and [R2],not key + or [R2],R3 H1
+	H1 -> GH1 | add R2,4 H2 | sub R2,-4 H2
+	S4 -> GS4 | sub R2,4 | add R2,-4
+	W2 -> GW2 | xor [R1][R2],key H2
+	W2 -> not [R1][R2] + xor [R1][R2],key + not [R1][R2] H2
+	W2 -> mov R3,[R1][R2] + not R3 + and R3,key + and [R1][R2],not key + or [R1][R2],R3 H2
+	H2 -> GH2 | sub R1,4 + jnz xxx | sub R1,4 + jz yyy + jmp xxx
+	H2 -> add R1,-4 + jnz xxx | add R1,-4 + jz yyy + jmp xxx
+	H2 -> sub ecx,3 + loop xxx &lt;=> R1 == ecx
+</pre>
+<p>Указанный набор правил реализует следующие соображения. Правило Y дает "вилку" на два типа расшифровщика - с базовой и базово-индексной адресацией. Правила расшифрования W1 и W2 реализуют три эквивалентных формулы для операции XOR. Правила H1 и H2 описывают эпилог цикла - изменение счетчиков и условный переход. Правило S4 уменьшает адрес начала с расшифровываемыми данными, чтобы попасть в границы буфера при его проходе с конца.</p>
+<p>Описанный генератор может выдавать 4*4*(3*2 + 2*3)*5 = 16*12*5 = 960 вариантов декрипторов, это не учитывая изменения регистров и мусора.</p>
+<h2>Реализация генератора</h2>
+<p>Генератор использует небольшой набор команд. В этих командах участвует до трех регистров и одно непосредственное значение. Необходимо построить таблицу команд, выделить в них смещения на регистры и на непосредственный операнд. Это можно сделать, изучив используемые команды в мануалах Интела, или же запрограммировать нужные команды и в отладчике/дизассемблере подсмотреть требуемое. Для описания команд в генераторе заведем следующую структуру:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; command struct<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">code</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;буфер команды</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; scode &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dq</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;короткий вариант команды</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; commandLength &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shortCommandLength&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; reg1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;позиция первого регистра</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; reg2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;позиция второго регистра</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; reg3&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;позиция третьего регистра</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; immPosition &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;позиция непосредственного операнда</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shortImmPosition&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;позиция непосредственного операнда в короткой команде</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command ends<br/>
+&nbsp;</div>
+<p>Данная структура, конечно, не оптимальна с точки зрения использования памяти: под смещение регистра от начала команды требуется 5 бит, под смещение непосредственного операнда от начала команды в байтах 2 бита, под короткий вариант команды 1 байт, под длину команды 2-3 бита. Но это учебный пример. Если в команде нет какой-то компоненты, инициализируем соответствующий член структуры значением 0FFh.</p>
+<p>Для каждого правила последовательности команд формируются в блок выбора эквивалентов. Например, для правил X1 или X2 блок выглядит так:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; x &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">4</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;4 эквивалента в блоке</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">1</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;длина последовательности команд</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">0B8h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt; &nbsp; <span style="color: black; font-style: italic;">;первый эквивалент для mov R1,imm32</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;0FFh означает, что соответствующее поле не заполнено,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;5 - длина команды 5 байт</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;5 - битовая позиция регистра в коде команды</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;1 - байтовое смещение от начала команды на непосредственные данные</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">2</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; push/pop</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">68h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">58h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">2</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; xor/lea</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">0C033h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">808Dh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">6</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">2</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;sub/add</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">0C02Bh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span>&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; command &lt;<span style="color: #ff0000;">0C081h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">05h</span><span style="color: #339933;">,</span><span style="color: #ff0000;">6</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><span style="color: #339933;">,</span><span style="color: #ff0000;">13</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0FFh</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span>&gt;<br/>
+&nbsp;</div>
+<p>Стоит отметить, что из-за объявления буфера кода как учетверенного слова (dq) и особенностей архитектуры процессоров Интел, приходится "переворачивать" байты команд при записи последних в элементы структуры. Осталось реализовать процедуру buildCommand, которая на основе указанной структуры command и переданных значений регистров и непосредственного операнда сконструирует готовую команду.</p>
+<p>Правила рассмотренной выше грамматики эквивалентны следующему недетерминированному конечному автомату:</p>
+<pre class="source">
+    0    1     2    3    4     5     6
+        X1 -> X2        W1 -> H1
+    A ->         -> Y ->          -> H2
+        X3 -> X4        S4 -> W2
+    0    7     8    3    9     10
+</pre>
+<p>Отметим, что состояние X3 эквивалентно состоянию X2, X4 эквивалентно состоянию X1. Каждое состояние опишем следующей структурой:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; state struct<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; callback&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;функция обработки состояния</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; brunchNum &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;количество &quot;вилок&quot; в переходе</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state1&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;новое состояние</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state2&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;новое состояние</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state3&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> ?&nbsp; &nbsp; <span style="color: black; font-style: italic;">;новое состояние</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; state ends<br/>
+&nbsp;</div>
+<p>Здесь член state3 излишен и применяется для выравнивания размера структуры до 8-ми байт с целью более простого ее использования. Генерация команд в каждом состоянии будет осуществляться при вызове соответствующей callback-процедуры. На основе данной структуры "состояние" опишем автомат таблицей:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; states&nbsp; state &lt; <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">7</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;0 &lt;=&gt; A</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset X1<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;1 &lt;=&gt; X1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset X2<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;2 &lt;=&gt; X2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">4</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">9</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;3 &lt;=&gt; Y</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset W1<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">5</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;4 &lt;=&gt; W1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset H1<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">6</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;5 &lt;=&gt; H1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset H2<span style="color: #339933;">,</span> <span style="color: #ff0000;">0</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;6 &lt;=&gt; H2 - finish state</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset X2<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">8</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;7 &lt;=&gt; X3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset X1<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">3</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;8 &lt;=&gt; X4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset S4<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><span style="color: #ff0000;">10</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;9 &lt;=&gt; S4</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; state &lt; offset W2<span style="color: #339933;">,</span> <span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">6</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span>&gt; <span style="color: black; font-style: italic;">;10&lt;=&gt; W2</span><br/>
+&nbsp;</div>
+<p>Имея табличное описание, просто реализуется процедура automaton, которая осуществляет переходы между состояниями и обеспечивает вызов callback-функций. Здесь же реализуется вызов генератора мусорных инструкций.</p>
+<p>Другим важным компонентом генератора является генератор случайных чисел. Воспользуемся конгруэнтным генератором с подходящим выбором констант. Подробнее можно почитать в Д. Кнут, Искусство программирования, Т.2. Выбором констант можно добиться максимального периода генератора (в нашем случае, 2^32). Если применить метод случайного сбоя генератора каждый N-ный шаг, можно вообще исключить период, не ухудшая качества случайных чисел. Для инициализации генератора и последующих сбоев будем использовать инструкцию RDTSC.</p>
+<p>Выбор событий с заданной вероятностью осуществляется исходя из следующих соображений. Конгруэнтный генератор выдает равномерно распределенные случайные величины. Делением очередного случайного числа на максимальное значения генератора (в нашем случае 65536, как у функции rand из библиотеки Си) получаем выход генератора в диапазоне [0..1]. Для равномерных случайных величин из диапазона [0..1], вероятность P{x &lt;= 0.8} = 0.8, вероятность P{0.3 &lt; x &lt;= 0.4} = P{x &lt;= 0.4} - P{x &lt;= 0.3} = 0.4 - 0.3 = 0.1. То есть, имея таблицу вероятностей выбора событий и равномерный датчик диапазона [0..1], отслеживая в какой диапазон попадает очередное число, можно сказать, какое из событий произошло.</p>
+<p> Начало же работы полиморфного генератора выглядит следующим образом: случайно выбираются регистры R1,R2,R3, ключ шифрования и запускается процедура automaton.</p>
+<p>Реализованный генератор pgen1.asm доступен в прилагаемых файлах, как и остальные упомянутые исходники. После запуска на исполнение в текущей директории будет создано 100 файлов с различными вариантами декрипторов. Данная версия генерирует варианты без мусорных инструкций. Эти файлы мы и будем анализировать.</p>
+<h2>Детектирование</h2>
+<p>Автомат для детектирования всех возможных декрипторов выглядит следующим образом.</p>
+<div align="center">
+<img src="img/vpa/detector.gif" alt="automaton-detector" style="border: solid thin black;"/>
+</div>
+<p>Нетрудно видеть, что произвольный декриптор, выдаваемый нашей грамматикой типа 2 (недетерминированным автоматом) детектируется обыкновенным конечным детерминированным автоматом с 28 состояниями. В принципе, в этом нет ничего удивительного, так как недетерминированный автомат сводится к детерминированному путем экспоненциального увеличения числа состояний.</p>
+<p>Что тут можно сделать... Можно увеличить количество правил исходной грамматики, в этом случае автомат-детектор будет много сложнее. А можно генерировать очень "хитрый" мусор, похожий на полезные команды декриптора, с целью загнать данный автомат в такое промежуточное состояние, из которого он не выйдет. Например, если подать на вход автомату-детектору последовательность команд:</p>
+<pre class="source">
+	mov	;мусор
+	push	;мусор
+	mov	;1
+	sub	;2
+	add	;2
+	xor	;3
+	add	;4
+	sub	;5
+	jnz	;6
+	pop	;мусор
+</pre>
+<p>В этом случае, автомат до последней команды зациклится в состоянии q5, а декриптор тем временем выполнится.</p>
+<p>Что бы все это проверить, реализуем процедуру дизассемблирования на основе движка Hacker Disassembler Engine 32 C. Полученная программа disasm.c вычитывает N файлов из указанного каталога, дизассемблирует их и выдает листинг на стандартный вывод. Пример листинга без мусорных инструкций.</p>
+<pre class="source">
+    samples/file0 30
+    00 PUSH 44554433
+    01 POP ESI
+    02 SUB EBX,EBX
+    03 ADD EBX, 124
+    04 XOR [ESI],d20b9a65
+    05 ADD ESI,4
+    06 SUB EBX,4
+    07 JZ $ + 2
+    08 JMP $ + f0
+
+    samples/file1 42
+    00 XOR EDI,EDI
+    01 LEA EDI,[EDI+124]
+    02 PUSH 44554433
+    03 POP ESI
+    04 MOV EDX,[ESI]
+    05 NOT EDX
+    06 AND EDX,d75d40bc
+    07 AND [ESI],28a2bf43
+    08 OR [ESI],EDX
+    09 ADD ESI,4
+    10 SUB EDI,4
+    11 JZ $ + 2
+    12 JMP $ + e4
+</pre>
+<p>Далее, реализуем описанный автомат, например, на перле. Скрипт detector.pl берет выход процедуры дизассемблирования, парсит его и прогоняет через автомат. На выходе показывает путь автомата и решение о распознавании декриптора.</p>
+<pre class="source">
+    [0] = PUSH  state: 0 => 1
+    [1] = POP   state: 1 => 4
+    [2] = SUB   state: 4 => 7
+    [3] = ADD   state: 7 => 8
+    [4] = XOR   state: 8 => 9
+    [5] = ADD   state: 9 => 17
+    [6] = SUB   state: 17 => 25
+    [7] = JZ    state: 25 => 26
+    [8] = JMP   state: 26 => 27
+    DETECTED
+    [0] = XOR   state: 0 => 2
+    [1] = LEA   state: 2 => 4
+    [2] = PUSH  state: 4 => 5
+    [3] = POP   state: 5 => 8
+    [4] = MOV   state: 8 => 10
+    [5] = NOT   state: 10 => 11
+    [6] = AND   state: 11 => 12
+    [7] = AND   state: 12 => 13
+    [8] = OR    state: 13 => 9
+    [9] = ADD   state: 9 => 17
+    [10] = SUB  state: 17 => 25
+    [11] = JZ   state: 25 => 26
+    [12] = JMP  state: 26 => 27
+    DETECTED
+</pre>
+<p>Из примера видно, что автомат-детектор успешно распознает указанные варианты декрипторов. Проведенные тесты показывают, что детектор определяет все варианты декрипторов, выдаваемых нашим генератором. Это не удивительно - автомат работает как и задумано. В примере использовался генератор без мусорных инструкций. Усложним задачу: добавим в генератор возможность добавления случайных мусорных инструкций (однобайтные команды типа cld), а также инструкций, используемых в правилах X1 и X2 с произвольными значениями регистров (из числа неиспользуемых) и констант (см. файл pgen2.asm). Пример листинга после дизассемблирования приведен ниже.</p>
+<pre class="source">
+    00 GRBG
+    01 MOV EDX,124
+    02 GRBG
+    03 GRBG
+    04 XOR ESI,ESI
+    05 LEA ESI,[ESI+44554433]
+    06 MOV EBX,b69bcb88
+    07 XOR EBX,EBX
+    08 LEA EBX,[EBX+a40b14ee]
+    09 GRBG
+    10 GRBG
+    11 GRBG
+    12 GRBG
+    13 XOR ECX,ECX
+    14 LEA ECX,[ECX+ddb3fe99]
+    15 GRBG
+    16 GRBG
+    17 GRBG
+    18 PUSH 154f25e1
+    19 POP EBX
+    20 XOR [ESI],b79275ab
+    21 GRBG
+    22 ADD ESI,4
+    23 SUB EDX,4
+    24 JNZ $ + f1
+</pre>
+<p>Вывод автомата-детектора после обработки этого и других вариантов декрипторов:</p>
+<pre class="source">
+    [0] = GRBG  state: 0 => 0
+    [1] = MOV   state: 0 => 4
+    [2] = GRBG  state: 4 => 4
+    [3] = GRBG  state: 4 => 4
+    [4] = XOR   state: 4 => 6
+    [5] = LEA   state: 6 => 8
+    [6] = MOV   state: 8 => 10
+    [7] = XOR   state: 10 => 10
+    [8] = LEA   state: 10 => 10
+    [9] = GRBG  state: 10 => 10
+    [10] = GRBG state: 10 => 10
+    [11] = GRBG state: 10 => 10
+    [12] = GRBG state: 10 => 10
+    [13] = XOR  state: 10 => 10
+    [14] = LEA  state: 10 => 10
+    [15] = GRBG state: 10 => 10
+    [16] = GRBG state: 10 => 10
+    [17] = GRBG state: 10 => 10
+    [18] = PUSH state: 10 => 10
+    [19] = POP  state: 10 => 10
+    [20] = XOR  state: 10 => 10
+    [21] = GRBG state: 10 => 10
+    [22] = ADD  state: 10 => 10
+    [23] = SUB  state: 10 => 10
+    [24] = JNZ  state: 10 => 10
+    NOT DETECTED
+    ...
+    Total code sequences:   100
+    Detected sequences:     68
+    Non-detected sequences: 32
+</pre>
+<p>Таким образом, незначительное усложнение генератора приводит в вероятности детектирования в 2/3. Усовершенствование автомата-детектора довольно трудоемко. Однако, детектирование возможно путем прогона декриптора через эмулятор и выявление сигнатуры в распакованном теле программы, либо же путем мониторинга системных вызовов. Если способы борьбы с первым типом известны - анти-эмуляционные приемы или метаморфное изменение всего тела программы, то с детектированием по системным вызовам дела обстоят намного хуже.</p>
+<h2>Вместо заключения</h2>
+<p>Генерация "правильного" мусора - интересная тема. Например, очень неплохо выглядит мусорный вызов процедуры:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; @after_garbage<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; Reg<span style="color: #339933;">,</span>что<span style="color: #339933;">-</span>нибудь<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; jxx &nbsp; &nbsp; @label_call_proc<br/>
+@proc<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span>N<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;возможен рекурсивный вызов генератора мусора</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;возможно выполнение полезных инструкций</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ebp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+@label_call_proc<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;возможен мусор</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; @proc<br/>
+@after_garbage<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>Хороший генератор мусорных инструкций может решать несколько задач:</p>
+<ul>
+<li>Вывод из строя автоматов-детекторов, как показано выше.</li>
+<li>Борьба со статистическими методами обнаружения: мусор состоит из последовательностей команд, которые встречаются в "легальных" программах.</li>
+</ul>
+<h2>Литература</h2>
+<ol>
+<li>Qozah. <a href="/lib/vwm00.html">Polymorphism and grammars</a>, 29A E-zine, 1999, #4</li>
+<li>Filiol E. <a href="/lib/aef04.html">Metamorphism, Formal Grammars and Undecidable Code Mutation</a>, Proceedings of World Academy of Science, Engineering and Technology (PWASET), 2007. Volume 20.</li>
+<li>SPTH. <a href="/lib/vsp24.html">Chomsky Hierarchy and the Word Problem in Code Mutation.</a></li>
+<li>Пентус А. Е., Пентус М. Р. <a href="http://lpcs.math.msu.su/~pentus/tfyaw.htm">Теория формальных языков. Учебное пособие</a></li>
+</ol>
+<h2>Приложение</h2>
+<ul>
+<li>Файлы к статье: <a href="files/vpa/src.zip">src.zip</a></li>
+</ul>
+[<a style="" href="/lib/?lang=RU&amp;index=PO#vpa00">Вернуться к списку</a>] [<a href="/lib/vpa00.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vpa00">de</a><a href="/lib/index.php?lang=en&amp;id=vpa00">en</a><a href="/lib/index.php?lang=es&amp;id=vpa00">es</a><a href="/lib/index.php?lang=it&amp;id=vpa00">it</a><a href="/lib/index.php?lang=fr&amp;id=vpa00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vpa00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vpa00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vpa00">ua</a></div>
+</body>
+</html>

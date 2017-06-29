@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> GriYo 'Win2K infection' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="GriYo"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, GriYo,Win2K infection, file, data, unsupported, printf, protected, sfcgetnextprotectedfile, versioninformation, wszfilename, virus, version, windows, argv, griyo, sfcisfileprotected, list"/>
+<meta name="Description" content="If we run any up-to-date Win32 virus under Windows2000 you will find out a nasty dialog box with message like this:"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"4c852a653581f4be81d3fce13eee1e6c44c8a287-1498757591-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vgy04.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Win2K infection</h1><p><a href="/lib/?lang=en&amp;author=GriYo"> GriYo</a><br/> <em><a href="/vx.php?fid=8#f8">29a [4full]</a></em><br/> <em>March 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vgy04.html';</script><div class="ci"><a href="/lib/?ci=vgy04">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy04">Back to index</a>] [<a href="/lib/vgy04.html#disqus_thread">Comments</a>]<br/> 
+ 
+<p>If we run any up-to-date Win32 virus under Windows2000 you will find out a nasty dialog box with message like this:</p>
+<blockquote>"A file replacement was attempted on the protected system file &lt;file name&gt;. To maintain system stability, the file has been restored to the correct Microsoft version. If problems occur with your application, please contact the application vendor for support."</blockquote>
+<p>Heh! Windows2000 keeps a list of protected system files, and will abort any attempt of replacing or modifiying them while showing the above message. Looking around Windows2000 DDK we can find more about this...</p>
+<blockquote>"SFP protects system files by detecting when a file replacement is attempted on a protected system file. SFP is triggered when it receives a directory change notification on a file in a protected directory. Once this notification is received, SFP will determine which file was changed. If the file is protected, SFP will look up the file signature in a catalog file to determine if the new file is the correct Microsoft version. If the file version is incorrect, the system attempts to replace it with the new file from the dllcache directory. If the new file version is not located in the dllcache directory, the system finds the replacement file on the distribution media."</blockquote>
+<p>Looking at the registry we can find some keys related to SFP:</p>
+<pre class="source">
+	HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+
+	SfcBugcheck
+	SfcDisable
+	SfcQuota
+	SfcScan
+</pre>
+<p>One of this looks like what we are looking for, SfcDisable. This key value may be FLASE (00h) or TRUE (01h), so let go and set it to true...</p>
+<p>Fuck! Bad luck, nothing changes. SfcDisable will efectively disable SFP, but only for next boot. And the worst, this will alert the user on next boot, when a message box will appear informing us that SFP has been disabled. After this SFP *free* session the system will re-enable it.</p>
+<p>While playing with Windows 2000 beta 2 i found that setting this key to a value that is not 00h nor 01h ( setting it to 04h for instance) will prevent the system from showing the menttioned message box on next boot. This is good, until the system re-enables SFP again and a scan is performed on protected files. At that time the system will warn us about the change on modified files.</p>
+<p>At the time im writting this article Windows 2000 is on beta 3 build 2072. I dont expect drastically changes on SFP implementation, so lets look closer to its internals.</p>
+<p>Looking at WINLOGON.EXE import section i came across this descriptor:</p>
+<pre class="source">
+		SFC.DLL
+
+		Hint/Name Table: 0001BA80
+		TimeDateStamp:   FFFFFFFF
+		ForwarderChain:  FFFFFFFF
+		First thunk RVA: 00001690
+		Ordn  Name
+		   1
+		   2
+</pre>
+<p>SFC.DLL is the library that contains current SFP routines, lets dump the APIs exported by it:</p>
+<pre class="source">
+		exports table:
+
+		Name:            sfc.dll
+		Characteristics: 00000000
+		TimeDateStamp:   37741427
+		Version:         0.00
+		Ordinal base:    00000001
+		# of functions:  0000000B
+		# of Names:      00000004
+
+		Entry Pt  Ordn  Name
+		0000743A     1
+		000073D2     2
+		00003D70     3
+		00003DA9     4
+		00003DB5     5
+		00003DED     6
+		00003E21     7
+		00003F0B     8  SfcGetNextProtectedFile
+		00003FA0     9  SfcIsFileProtected
+		00008D1D    10  SfcWLEventLogoff
+		00008C5A    11  SfcWLEventLogon
+</pre>
+<p>Bored of browsing thru all this shit i decided to play with the API SfcIsFileProtected. Given a file name this function will tell us if the file is under SFP protection or not. Look this C example:</p>
+<pre class="source">
+		if ( SfcIsFileProtected( NULL, szFileName) == 0)
+		{
+			printf ( "Not protected.\n") ;
+		}
+		else
+		{
+			printf ( "Yes, its protected.\n") ;
+		}
+</pre>
+<p>Using this API we can prevent the virus from infecting protected files that are for sure components of the operating system. This files wont spread the virus from the infected machines to others. I never saw CALC.EXE offered on a warez site. This may be the solution by now...</p>
+<p>Now its your time!</p>
+<h3>sfc.c</h3>
+<pre class="source">
+//
+// Sfc check
+//
+// A stupid but useful program to check if a file is protected
+// by System File Protection
+//
+// Tested under Windows 2000 Professional Build 2128
+//
+// GriYo / 29A
+//
+
+#include "stdio.h"
+#include &amp;lt;windows.h>
+#include &amp;lt;sfc.h>
+
+int main( int argc, char* argv[])
+{
+	OSVERSIONINFO		VersionInformation ;
+	HMODULE				hSFC ;
+	FARPROC				a_SfcIsFileProtected ;
+	FARPROC				a_SfcGetNextProtectedFile ;
+	WCHAR				wszFileName[ MAX_PATH] ;
+	PROTECTED_FILE_DATA pfd ;
+
+	printf( "Sfp check by GriYo / 29A\n\n") ;
+
+	if ( argc > 2)
+	{
+		printf( "Usage:\n\n" 
+				"%s             &amp;lt;--- List protected files\n\n" 
+				"or\n\n" 
+				"%s /f:filename &amp;lt;--- Check if file is protected\n\n", argv[ 0], argv[ 0]) ;
+
+		return -1 ;
+	}
+
+	VersionInformation.dwOSVersionInfoSize = sizeof( OSVERSIONINFO) ;
+
+	if ( GetVersionEx( &amp;VersionInformation) == 0)
+	{
+		printf( "Error: Api GetVersionEx() failed\n\n", argv[ 0]) ;
+		return -1 ;
+	}
+
+	if (	( VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) ||
+			( VersionInformation.dwMajorVersion != 5))
+	{
+		printf( "Error: This program only runs under Windows 2000\n\n") ;
+		return -1 ;
+	}
+
+	if ( ( hSFC = LoadLibrary( "SFC.DLL")) == NULL)
+	{
+		printf( "Error: SFC.DLL not found\n\n", argv[ 0]) ;
+		return -1 ;
+	}
+
+	if ( argc == 2)
+	{
+		//
+		//		SfcIsFileProtected
+		//
+		//		[This is preliminary documentation and subject to change.] 
+		//
+		//		The SfcIsFileProtected function determines whether the specified 
+		//		file is protected. Applications should avoid replacing protected 
+		//		system files. 
+		//
+		//				BOOL WINAPI SfcIsFileProtected( IN HANDLE RpcHandle, // must be NULL
+		//												IN LPCWSTR ProtFileName) ;
+		//
+		//		Parameters:
+		//
+		//				ProtFileName 
+		//
+		//				[in] Pointer to a string that specifies the name of the 
+		//				file. 
+		//
+		//		Return Value:
+		//
+		//				If the file is protected, the return value is a nonzero 
+		//				value.
+		//
+		//				If the file is not protected, the return value is zero.
+		//
+		//		Requirements :
+		//
+		//				Windows NT/2000:	Requires Windows 2000.
+		//				Windows 95/98:		Unsupported.
+		//				Windows CE:			Unsupported.
+		//				Header:				Declared in sfc.h.
+		//				Import Library:		Use sfc.lib.
+		//
+		//		See Also:
+		//
+		//				SfcGetNextProtectedFile 
+		//
+
+		if ( ( a_SfcIsFileProtected = GetProcAddress( hSFC, "SfcIsFileProtected")) == NULL)
+		{
+			FreeLibrary( hSFC) ;
+			printf( "Error: Api SfcIsFileProtected not found\n\n", argv[ 0]) ;
+			return -1 ;
+		}
+
+		MultiByteToWideChar(CP_ACP, 0, argv[ 1], -1, wszFileName, MAX_PATH) ;
+
+		if ( a_SfcIsFileProtected( NULL, wszFileName)) printf( "Protected file\n\n") ;
+		else printf( "Unprotected file\n\n") ;
+	}
+	else
+	{
+		//
+		//		SfcGetNextProtectedFile
+		//
+		//		[This is preliminary documentation and subject to change.] 
+		//
+		//		The SfcGetNextProtectedFile function retrieves the complete list of protected 
+		//		files. Applications should avoid replacing these files. 
+		//
+		//				BOOL WINAPI SfcGetNextProtectedFile( IN HANDLE RpcHandle, // must be NULL
+		//													 IN PPROTECTED_FILE_DATA ProtFileData) ;
+		//
+		//		Parameters:
+		//
+		//				ProtFileData [in/out] Receives the list of protected files. The format 
+		//				of this structure is as follows:
+		//
+		//				typedef struct _PROTECTED_FILE_DATA {
+		//						WCHAR   FileName[ MAX_PATH] ;
+		//						DWORD   FileNumber ;
+		//				} PROTECTED_FILE_DATA, *PPROTECTED_FILE_DATA ;
+		//
+		//				Before calling this function the first time, set the FileNumber 
+		//				member to zero. 
+		//
+		//		Return Value:
+		//
+		//				If the function succeeds, the return value is nonzero. 
+		//
+		//				If there are no more protected files to enumerate, the return value 
+		//				is zero. 
+		//
+		//		Requirements:
+		//
+		//				Windows NT/2000:	Requires Windows 2000.
+		//				Windows 95/98:		Unsupported.
+		//				Windows CE:			Unsupported.
+		//				Header:				Declared in sfc.h.
+		//				Import Library:		Use sfc.lib.
+		//
+		//		See Also:
+		//
+		//				SfcIsFileProtected 
+		//
+
+		if ( ( a_SfcGetNextProtectedFile = GetProcAddress( hSFC, "SfcGetNextProtectedFile")) == NULL)
+		{
+			FreeLibrary( hSFC) ;
+			printf( "Error: Api SfcGetNextProtectedFile not found\n\n", argv[ 0]) ;
+			return -1 ;
+		}
+
+		printf( "List of protected files:\n\n") ;
+
+		pfd.FileNumber = 0 ;
+
+		while( SfcGetNextProtectedFile( NULL, &amp;pfd) != 0)
+		{
+			printf( "%ws\n", &amp;pfd.FileName) ;
+		}
+	}
+
+	FreeLibrary( hSFC) ;
+	return 0;
+}
+</pre>
+<pre>
+			GriYo/29A
+			I'm not in the business... I am the business
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy04">Back to index</a>] [<a href="/lib/vgy04.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vgy04">de</a><a href="/lib/index.php?lang=en&amp;id=vgy04">en</a><a href="/lib/index.php?lang=es&amp;id=vgy04">es</a><a href="/lib/index.php?lang=it&amp;id=vgy04">it</a><a href="/lib/index.php?lang=fr&amp;id=vgy04">fr</a><a href="/lib/index.php?lang=pl&amp;id=vgy04">pl</a><a href="/lib/index.php?lang=ru&amp;id=vgy04">ru</a><a href="/lib/index.php?lang=ua&amp;id=vgy04">ua</a></div>
+</body>
+</html>

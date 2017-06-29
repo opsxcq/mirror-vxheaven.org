@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> roy g biv 'Register Initialising Using Only Arithmetic Instructions' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="roy g biv"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, roy g biv,Register Initialising Using Only Arithmetic Instructions, decryptor, instructions, values, fake, bits, registers, platform, access, memory, restore, register, left, cleared, unknown, start"/>
+<meta name="Description" content="Probably all polymorphic engines use explicit register initialising. It means that anyone can see the start of the decryptor because of these instructions. We can try to hide the decryptor by using lots of fake routines and similar tricks, but we can't completely avoid this problem. Or can we?"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1b1d22d78aaab6edfb42061e4e97c0cd466e0a7f-1498757053-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vrg13.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Register Initialising Using Only Arithmetic Instructions</h1><p><a href="/lib/?lang=en&amp;author=roy%20g%20biv"> roy g biv</a><br/> <em><a href="/vx.php?fid=1512#f1512">Ready Rangers Liberation Front [7]</a></em><br/> <em>July 2006</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vrg13.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vrg13">Back to index</a>] [<a href="/lib/vrg13.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">What is it?</a></li>
+<li><a href="#c1">How does it work?</a></li>
+<li><a href="#c2">Entry Point Obscuring</a></li>
+<li><a href="#c3">Greets to friendly people (A-Z)</a></li>
+</ul>
+<h2><a name="c0"></a>What is it?</h2>
+<p>Probably all polymorphic engines use explicit register initialising. By this, I mean one of these instructions:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; reg<span style="color: #339933;">,</span> reg<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; reg<span style="color: #339933;">,</span> reg<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; reg<span style="color: #339933;">,</span> value<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> value <span style="color: #339933;">/</span> <span style="color: #00007f; font-weight: bold;">pop</span> reg<br/>
+&nbsp;</div>
+<p>It means that anyone can see the start of the decryptor because of these instructions. We can try to hide the decryptor by using lots of fake routines and similar tricks, but we can't completely avoid this problem. Or can we?</p>
+<p>What if we did not use any of those instructions? What if we use only AND and OR to initialise instructions? Then we can have many fake instructions before the real ones, and it is hard to see where the decryptor really starts. We can also add other instructions, like ADD/SUB/XOR. Before the registers are initialised, we can use these instructions to temporarily alter the value, but we must restore the original value before we attempt to update any of the bits. After the registers are initialised, we can use these instructions to select the next value to use.</p>
+<h2><a name="c1"></a>How does it work?</h2>
+<p>We initialise the registers by keeping an array of "unknown" bits for each register, and an array of values for each register. We start by setting all of the "unknown" bits to 1, to say that we don't know any of the values. Whenever we control some of the bits using AND or OR, we clear the corresponding "unknown" bits, and update the same bits in the register values. Once all of the "unknown" bits are cleared, we can begin to use the register, and the whole value is known.</p>
+<p>This method works for any size of register, so it's even possible on the 64-bit platform. However, only Itanium supports 64-bit immediates. For the AMD64 platform, all 32-bit immediates are treated as signed values, so we must be very careful to use only 31-bit immediates, otherwise the sign-extension can cause unexpected behaviour if we access memory using registers.</p>
+<p>We use AND and OR because they are the simplest method. For any clear bit in the AND mask, the same "unknown" bits can be cleared, and the register value bits can be cleared. For any set bit in the OR mask, the same "unknown" bits can be set, and the register value bits can be set. Here is an example of that. Let ABCDEFGH be eight unknown bits. Let us perform some operations and see what happens:</p>
+<pre>
+    value        unknown
+    ABCDEFGH     11111111
+    AND
+    11001100
+    =
+    AB00EF00     11001100
+</pre>
+<p>Four unknown bits left.</p>
+<pre>
+    AB00EF00     11001100
+    OR
+    10101010
+    =
+    1B001F10     01000100
+</pre>
+<p>Two unknown bits left.</p>
+<pre>
+    1B001F10     01000100
+    AND
+    10111011
+    =
+    10001010     00000000
+</pre>
+<p>No unknown bits left, and our value is fully known!</p>
+<p>In a more complex case, we can also use ADD, but it can initialise only one bit per round. In that case, an unknown bit that is one position to the left of a known set bit can be cleared by adding the value of the known bit. The problem is that once that is done, every bit to the left of the newly cleared bit becomes unknown, until we reach a known clear bit. At that point, the known clear bit becomes unknown, but any other known bits remain known. Here is an example of that. Let us assume that B and C are 0, and G is 1.</p>
+<pre>
+    value        unknown
+    A00DEF1H     10011101
+    ADD
+    00000010
+    =
+    A0CDE10H     10111001
+</pre>
+<p>Now we see that B is unchanged, C becomes unknown, and F becomes known. The use of ADD is better when all of the bits to the left of the known bit are unknown, to avoid "losing" bits like the C bit in the example.</p>
+<p>In some cases, we can also use unexpected instructions like ADC and SBB, even CMP. For example, we know that AND/OR/XOR always clear the carry, so ADC and SBB behave just like ADD and SUB in those cases. Also, if we know the top bit of our register value, even if no other bits are known, then we can use CMP and "guess" the result if the top bit of our register value is different from the top bit of our operation value. Of course, if we know the whole value, then we can use CMP directly to know the result.</p>
+<h2><a name="c2"></a>Entry Point Obscuring</h2>
+<p>Now let us talk about hiding the start of the decryptor. It seems like just using lots of fake instructions would be enough, but it is not so, because when we reach the real decryptor, we will initialise the registers properly, no matter what value they have. There is no way to defend against that, but we can interfere a little bit by altering sensitive registers (like ESP) in the fake instructions. As before, we must restore those registers to their original value if we want to use them, but in the fake instructions before the decryptor, we just "forget" to restore them. This allows us to attack the CPU emulators. A good emulator will see an exception for the bad memory access, and a bad emulator will allow the memory access but sometimes corrupt the decryptor instead.</p>
+<p>For a register like ESP, where we can never know its true value, there are still some bits that are known. For the 32-bit platform, we know that ESP is always dword-aligned, so we can play with the low two bits. I wanted to completely destroy the ESP value before the decryptor, by using AND and OR with large values, but then I realised that it could be used to know when the decryptor starts, since at that time, such instructions cannot appear. That means that in a sequence like this one:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12345678</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">87654321</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">adc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12345678</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12345678</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">00000001</span> &lt;<span style="color: #339933;">-</span> decryptor starts here<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> fffffffe<br/>
+&nbsp;</div>
+<p>the first two instructions can be safely skipped, because they are obviously fake. Instead, I use the allowed values, but I don't restore the register:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">adc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12345678</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">00000001</span> &lt;<span style="color: #339933;">-</span> forget to <span style="color: #00007f; font-weight: bold;">sub</span> first<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">12345678</span> &lt;<span style="color: #339933;">-</span> make it worse<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esp</span><span style="color: #339933;">,</span> ffffffff &lt;<span style="color: #339933;">-</span> forget to <span style="color: #00007f; font-weight: bold;">and</span> bit <span style="color: #ff0000;">0</span><br/>
+&nbsp;</div>
+<p>This is harder to detect, and now ESP points randomly in memory.</p>
+<h2><a name="c3"></a>Greets to friendly people (A-Z)</h2>
+<p>Active - Benny - Obleak - Prototype - Ratter - Ronin - RT Fishel - sars - SPTH - The Gingerbread Man - Ultras - uNdErX - Vallez - Vecna - VirusBuster - Whitehead</p>
+<div align="right">
+rgb/defjam jul 2006<br/>
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="96fff7fbc9e4f1f4d6fef9e2fbf7fffab8f5f9fb">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</div>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vrg13">de</a><a href="/lib/index.php?lang=en&amp;id=vrg13">en</a><a href="/lib/index.php?lang=es&amp;id=vrg13">es</a><a href="/lib/index.php?lang=it&amp;id=vrg13">it</a><a href="/lib/index.php?lang=fr&amp;id=vrg13">fr</a><a href="/lib/index.php?lang=pl&amp;id=vrg13">pl</a><a href="/lib/index.php?lang=ru&amp;id=vrg13">ru</a><a href="/lib/index.php?lang=ua&amp;id=vrg13">ua</a></div>
+</body>
+</html>

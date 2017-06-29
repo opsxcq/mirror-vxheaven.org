@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> b0z0 'Mid-Infection on relocations' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="b0z0"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, b0z0,Mid-Infection on relocations, segment, viruses, host, offset, scanning, real, user, items, code, relocated, word, poly, table, entry, execution"/>
+<meta name="Description" content="Midfile infection is undoubtely one of the most interesting but not yet totally explored topics in virus writing. There aren't actually many midfile infectors around and there are even less &quot;real&quot; midfile infectors..."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"baae5ec70f6b7c3daf8b33a411037b31c08d54ea-1498756774-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vbz01.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Mid-Infection on relocations</h1><p><a href="/lib/?lang=en&amp;author=b0z0"> b0z0</a><br/> <em> 1998</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vbz01.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=DO#vbz01">Back to index</a>] [<a href="/lib/vbz01.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#p1">The story so far</a></li>
+<li><a href="#p2">Infection on relocations</a></li>
+<li><a href="#p3">Implementation in the NewEXE</a></li>
+<li><a href="#p4">Pro and cons about this way of infection</a></li>
+<li><a href="#p5">Possible add-ons</a></li>
+<li><a href="#p6">Implementation in other executables</a></li>
+<li><a href="#p7">Appendix</a></li>
+</ul>
+<h2><a name="p1">The story so far</a></h2>
+<p>Midfile infection is undoubtely one of the most interesting but not yet totally explored topics in virus writing. There aren't actually many midfile infectors around and there are even less "real" midfile infectors. With "real" I mean viruses that get control in a random moment from the host, not just viruses that places themselves physically in the middle of the infected file but anyway gain the control immediately at the start of execution or viruses that gain control at the beginning of the execution after jumps or pieces of code placed somewhere in the middle of the host. This kind of midinfection has been more developed and is anyway easier to implement. Of course it is also easier to detect such a virus with a good code emulator, since it gets control directly or after some garbage code quite soon. While the other kind of midfile infectors that gain control somewhere in the middle of the host execution are undoubtely more complicated and more interesting. For example there a few viruses (Nexiv_Der, Sailor_Moon and The_Bugger) that put a CALL in the infected COM file that passes the control to the virus from a random position of the file. Of course they have to execute the host step-by-step to be sure that a valid instruction is real starting there, check that the COM files aren't selfmodifying and so on. Of course the CALL to the virus may not always be executed, depending on the actual program execution. For an antivirus is very hard to find such a virus, since to get to it's entrypoint the antivirus should have to emulate the entire COM file, trying all the possible combinations of the program execution. And this is quite impossible. At least some antiviruses will try to examine some amount of bytes at the end of the file, even without being sure it will became executed, to scan for viruses. But this lame scanning is simply avoidable by the virus by using a good poly engine. But COM files are fading away, there are just a few of them around on newer operating systems and programs. Under both DOS and Windows (3.x/95/98/NT/...) you quite don't have anymore any COM files, but rather more types of EXE files. The format and organization of the DOS EXE and other Windows executables are anyway more complex and midfile infection should not be as easy as in COM files. But more complex doesn't mean impossible to implement, and some features expecially when working under Windows in protected mode can came in our help.</p>
+<p>Ah, from this point ahead some knowledge of EXEs infection and EXE structure is required, but I'll try to put some references to other material and to explain as easier as possible the main concepts.</p>
+<h2><a name="p2">Infection on relocations</a></h2>
+<p>Since on all kind of EXEs, from DOS to various Windows ones, we don't have anymore just one 64k segment to work on like with COMs, we can't just put a CALL to our code, since it should be too far away (with DOS EXE) or should be just in another code segment (for example when dealing with NE files). So one way to get control from somewhere in the user code we should use a CALL FAR or a JMP FAR that will jump to a given pair segment:offset. Of course since we don't know where the operating system will load the various segments in memory we need to use a relocation, this is correct the adress where we are going to jump depending on where the stuff has been loaded. The calculation of this adress in memory should be done in some cases manually with a few calculations, but it is always done at load time by the operating system. Infact when the operating system loads the executable that is going to be run it checks in its tables (I'll be more precise for various EXEs later) for adresses that need to be corrected, or with another word need to be relocated.</p>
+<p>So if you would like to call your code from the original host you should put a JMP/CALL FAR using the physical offset (this is the offset expressed as pair segment:offset in the real file on the disk) and then add an entry in the relocation table that will make sure the real adress of the code loaded in memory will be put instead of the physical one. There is noone that prevents you from adding some relocation entry, you will just have to mess around with various structures and look for avaiable space, depending on the type of EXE. While you should get some ideas from this I'll now focus the attention on a method for NE infection based on relocations, but that is slightly different from the concept introduced above.</p>
+<h2><a name="p3">Implementation in the NewEXE</a></h2>
+<p>It's well known that Windows programs are everyday bigger and bigger and so as you can imagine jumps from one NE segment to another (each has a limit of 64k) are very common. Even more common under Windows is the use of APIs to perform various tasks. In both cases the programmer has to code an adress that will be dinamically at load time updated with the actual real position of the needed piece of code in memory.</p>
+<p>In this method of infection we will modify one of those entries to point to our virus code. In this way when the original host will have to call that API (or jump somewhere or whatever) the control will pass to our virus. The virus will do its work and then will do the call (or whatever) the host was executing before infection.</p>
+<p>It's not so hard, so let's go step-by-step considering we already have our file to infect. I won't present code here since it should became messy and you can anyway find quite commented code in the Free_Padania virus that comes with the Xine that uses this method. Now go on:</p>
+<p>First of all we will have to do the various checks if it is already infected, if it is suitable for infection and such normal stuff</p>
+<p>Now we have to add our code to the executable and of course add the needed changes to the NE header so it won't be treated as junk :-). The virus provided with the zine for the demonstration of this method (the Free_Padania) adds its own code segment in the NE, using sorta VLAD method (check out VLAD#5 and the code for more!). You should also infect the NE in some other way anyway, just remember that we will need to add a relocation too! Now we suppose to have the NE header ready and we have our pair of segment:offset that points to our virus code.</p>
+<p>Now we have to read the NE segment table (which starting offset is at offset 22h). Of course this should be done before infection, but that are just small details in which we aren't going to lose our time :) Each segment table is 8 bytes long, please refeer to the bottom of this document for the details.</p>
+<p>Now we select one of the segments in which we will change the relocation entry. Of course we should not consider the just added virus segment and usually we should not consider the last host segment, which is usually a DATA segment with stack and such. So it is important to check that the segment we would like to use for infection is type CODE, so it will be executed, and has relocations, so we have something to infect. This is simply done by checking the segment attributes from bits 0 and 8. Selected the segment now we have to read the relocation items of the segment. The relocation items are put just after the segment itself. So we can just get the offset where the segment starts from the segment table entry (pay attention since it is expressed in logical sectors, so you must shift this value left by the value at offset 32h of the NE header) and add its lenght (already in bytes at offset 02h of the segment entry). The first word just after the segment contains the number of relocations present.</p>
+<p>After this we will find all the relocation entries for the segment.</p>
+<p>Now we have a number of potential relocation items to change. We have now to select randomly one. The only check we will do is that the relocation is made on a 32bit pointer. Infact our CALL FARs to the virus will be 32bit pointers, so we don't want to get just a 16bit relocation or some other type of relocation (look at tables below for the possible ones). When a relocation item has been choosen we just have to change it so it will point to the virus entry point. The relocation item should be a 32bit PTR (so 03h at offset 0 in the relocation item) and should be a normal (not additive! since this would relocate the entry in the opposite way) relocation (so 00h at offset 1). The location of the relocatable in the file is of course unchanged.</p>
+<p>We must then finally change the module and the offset to which the relocation will point. So we will put the segment of the virus at offset 04h and the offset of the virus entry point at offset 06h of the relocation table entry. Since we will need the original relocation entry later you must put a copy of it somewhere.</p>
+<p>Now we have to write the modified relocation entry again to the file where it originally was. Now the job to pass the control from the host to the virus is done. We must just make the restoration work.</p>
+<p>Since we deleted a call to a function we must make this somewhere else. This will be done in the restoration part of the virus. We should have to make a CALL FAR to the old function after our virus will make its work (going resident or infecting files at runtime). Of course the virus will have to preserve the registers and then jump back after the modified call in the host. But remember that the virus got control via a CALL FAR (-theorically- it should also get control via a JMP FAR, but this isn't present in NExes. Anyway if this should succeed we won't need to return back to the calling point, since JMP never returns), so the adress is still on the stack. So instead of doing the old CALL FAR we should just do a JMP FAR and when the routine will try to came back it will get the right old adress and the host will continue on its way.</p>
+<p>So shortly this restoration part:</p>
+<ul>
+<li>save all registers and such </li>
+<li>do virus work</li>
+<li>restore all registers and such</li>
+<li>jmp far to the old routine and then continue on it's way</li>
+</ul>
+<p>Of course there is just a minor thing: the adress after the JMP FAR needs to be relocated as the old funcion! So we can just simply add a relocation that is just the same as the old infected one, just with the difference that we have to put the right offset to it in at offset 02h.</p>
+<p>And that's it. Now when the host will call the infected call (very usually an API under Windows) it will pass the control to the virus. This will do its work, execute the original call and then continue the host code. Pay attention that the virus should be called more than once during the execution of the program! So for example if your virus is polymorphic after the first execution you must change the code in memory so the decryptor won't be executed again or the effects will be crashes and such like, since the virus has been already decrypted in the previous call! This is anyway easy to solve with a JMP over the decryptor. This will also make the execution faster, since just the first time the virus is called it should be nice to check to be activated. As for the rest of the times the virus is called (if you infected a very used call it should be called even twenty or more times!) it should just directly jump to the JMP FAR to old code without losing time at residency check and such, because anyway we know we are resident.</p>
+<p>Before discussing of the aspects of this way of infection I would like to point out about some things I founded with relocations when coding this method. On a lot of specifications and books I haven't founded about this, but it should be interesting at least for those, like me, that don't have this documentation :) This should be of use to someone in future projects maybe.</p>
+<p>You'll be able to find written that to make a call to an API for example in pure assembly you'll have to do something like a:</p>
+<pre class="source">
+call far ptr 0000h:0ffffh (err, db 9a,ff,ff,00,00 of course)
+</pre>
+<p>and then put in the relocation entry at the bottom of the file that the adress where the ffffh is must be relocated (as a 32bit PTR). This is true, but isn't the only way it is done. While studing NExes I founded that with one relocation entry you can relocate as many pointers as you want. Infact if instead of putting the 0ffffh you put the offset (calculated from the start of the segment) to another pointer then it will be relocated too. So:</p>
+<pre class="source">
+0001h:0100h call far ptr 0000:00111h ; 9a,11,01,00,00
+0001h:0110h call far ptr 0000:00201h ; 9a,01,02,00,00
+0001h:0120h call far ptr 0000:0ffffh ; 9a,ff,ff,00,00
+0001h:0200h call far ptr 0000:00121h ; 9a,21,01,00,00
+</pre>
+<p>By putting just one relocation entry on 0001h:0101h (the first of the "chain") all the other ones in the example will be also relocated, since the first points to the second, the second to the fourth and the fourth to the third that, since it has 0ffffh as offset, is the last to be relocated with the used relocation entry. Of course this works when relocations are in the same segment (module).</p>
+<p>Of course this a great advantage for this method of infection, since by infecting the first relocation entry in the previous example the virus will be called from four different points, so the probability to get a chance to get to virus code is even bigger. Since all the four points originally wanted to be relocated as the same call then also the restoration code in the virus will be just one for all of them. Of course we also don't have to change (and that's better, one work less :)) ) the code that is going to be relocated, since if we would put a typical call far 0:ffff to the virus it should break the chain and some code shouldn't be relocated thus making windows crash (and here is where I had initally problems and so I had to investigate WTF are that values different to ffffh even if the fucked manual doesn't talk about them :) ).</p>
+<h2><a name="p4">Pro and cons about this way of infection</a></h2>
+<p>First let's try to see the good aspects of this type of infection. It is simple to see that the virus should get control in a quite random moment of the execution. The virus should trigger just on some special events and so it is not so simple to spot it. For example it should just activate when a dialog box is going to be drawn (if it infected a call of the COMMDLG.xx) or just when the user will exit from the application or when the user uses the cos function in the calculator or something else. The time the virus needs do its work in this way isn't concentrated anymore at the beginning of the program execution, so this should also decrease possible user preoccupations.</p>
+<p>On the other side in this way the virus should not always get activated. If it infects a rarely used call it should not get control. But of course this should be solved by infecting the file more than once or by scanning for some typical APIs to be infected (this should be anyway harder since you should have to find first the module reference number and then look for the typical function. But with a few given assumpions it should be done quite easily), like an initialization or exit procedure.</p>
+<p>Another "bad" aspect that many should notice is that anyway there is a reference to our virus from at least one relocation, unlike with the COM infection mentioned before where absolutely nothing points to the CALL. Well, yes, an antivirus should definitely scan all the relocations of all the segments of the executable and analyze the code the calls points to. But, man, even the most banal NExe has hundreds of relocations (for ex. CLOCK has about 90 and CHARMAP about 120... and they are just 20kb files... try to give a look to something like Word ;)) ) and scanning up and down the entire EXE would make the user waste a lot of time and shouldn't be reailable. Infact if the virus should have a quite good poly engine then the antivirus should need to emulate kbs of code of every relocation. Actual AVs don't do something like that, but I don't think that AVs will going to implement this sort of scanning over all possible relocations as entry points to the virus. Should get too much time on scanning of every file. Heh, no, the user will eat the AV producer's hat ;))</p>
+<p>AVs should anyway dumbly try to check the last segment (or the segments that are shorter than a predefined value) for viruses. Well, yea this should work fine with non polymorphic viruses but with a little of work from the VW this method should be easily made ineffective. Just put some bytes of nonsense code at the start of the virus segment, then make the poly decryptor (where the call will point to, of course not to the nonsense bytes before :)) ) that decrypts the body and maybe again some nonsense bytes after it. Of course you'll need to anyway keep clear the dwords to be relocated, but that's not a big flaw. The Free_Padania sample virus uses the scheme described above, so the virus segment looks like</p>
+<table border="1" summary="">
+<tr><td>nonsense bytes</td><td>poly decryptor and encrypted code </td><td>nonsense bytes </td><td>reloc</td></tr>
+</table>
+<p>Where the reloc is the relocation item entry. The dword to be relocated (the 0:ffff) is put somewhere in the first chunk of the nonsense bytes and the offset to it is stored in the encrypted code. The nonsense bytes have the job to make the scanning for the entry point of the poly harder, so just trying to begin emulating from the beginning of the segment won't work and a scan of all the relocations in the executable should be needed. Of course this must be used with a good poly.</p>
+<h2><a name="p5">Possible add-ons</a></h2>
+<p>Some things that should be done to make the stuff better:</p>
+<p>make some more fake relocations to make the segment seem more simillar to other segments use relocations to change your code in the way you want. So on the disk the usual 0:ffff will be there, but the code you wants will be put by the loader by adding some good relocations. This isn't too hard to do, but should be done with caution. But is should make the life of AVs very hard, thus they should have to consider the code with relocated code, not the one they see on the hd. Of course just some part of the relocated code should be used, like offsets. Since we don't know how the segment is relocated we can't use that. Do this for homework :) swap some segments. So the virus segment won't be always the last, making scanning even and even harder. This anyway should require quite a lot, maybe too much work. Besides the moving of large chunks of code you'll have also to correct all the relocations in all the segments pointing to the changed one. use an already present segment. Find a hole an put the virus there instead of creating a new segment.</p>
+<p>That's a lot you should do in NExes, just let your mind go wild :) Even if NExes are not used anymore, the format is very interesting. It is quite complicated, thus a lot of strange things can be done to make the life of AVs look like hell :) Even in the newest Windowses (like 98) there are many NExes (some of which very used, like SOL.EXE :)) ), so at least they should be used to keep the system permanelty infected with a good infection scheme.</p>
+<h2><a name="p6">Implementation in other executables</a></h2>
+<p>I explained and brought the code for a NE infector on relocations. What about with normal DOS executables? The things there are a lot worse. The general idea of the relocation should work, but the problem is that DOS isn't in protected mode, so you must also pay attention that the original program doesn't overwrite your code! This is the big advantage in working in protected mode, we don't have to worry that someone will acidentally overwrite our code since if someone should try to do a general protection fault will occour. In protected mode applications are a lot more correct than the DOS ones. Infact a DOS application should just write without any limitation anywhere. And it is very usual that DOS programs just assume that after their body (the original one, not the infected) there isn't anything vital and so they just write there (and should corrupt our virus). This of course should be prevented by working like the Nexiv_Der, that is by putting a definite char after the loaded program in memory and at the end of the execution try to look for a place big enough that hasn't been modified. But, as for personal tests (I still have a sorta prototype of infector on relocations for normal DOS exes that I wrote some time ago somewhere), the number of possible victims will be very limted since a lot of them use memory (at least for stack) after the body. Yea, you should just search for space a lot later in memory (and so leaving some hole between the host and the virus code where the original host should write) and hope all will be ok. But it is definitely a not too secure way of infection even if many checks are done (since the code should be executed differently from the time when the infection was done) and a lot of code is needed to implement it. But it actually should be done of course. As for midinfection in PE since the methods and theories behind that are quite different I'll talk about that in another article, look for it!</p>
+<h2><a name="p7">Appendix</a></h2>
+<p>Here are some tables and such thing as I refeered mostly in the text. For more (expecially about the NE header which you'll need to undestand too to add the virus code) check out Ralph Brown Interrupt Lists (AX=4b00) and Qark and Quantum article about NewEXE infection in VLAD #5.</p>
+<p><strong>Format of new executable segment table record</strong></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Format of new executable segment table record">
+<tr><td>00h</td><td> WORD</td><td> offset in file (shift left by align shift to get byte offs)</td></tr>
+<tr><td>02h</td><td> WORD</td><td> length of image in file (0000h = 64K)</td></tr>
+<tr><td>04h</td><td> WORD</td><td> segment attributes (see below)</td></tr>
+<tr><td>06h</td><td> WORD</td><td> number of bytes to allocate for segment (0000h = 64K)</td></tr>
+</table>
+<p>Note: the first segment table entry is entry number 1</p>
+<p><strong>Bitfields for segment attributes</strong></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Bitfields for segment attributes">
+<tr><th>Bit(s) </th><th>Description</th></tr>
+<tr><td>0 </td><td>data segment rather than code segment</td></tr>
+<tr><td>1 </td><td>unused???</td></tr>
+<tr><td>2 </td><td>real mode</td></tr>
+<tr><td>3 </td><td>iterated</td></tr>
+<tr><td>4 </td><td>movable</td></tr>
+<tr><td>5 </td><td>sharable</td></tr>
+<tr><td>6 </td><td>preloaded rather than demand-loaded</td></tr>
+<tr><td>7 </td><td>execute-only (code) or read-only (data)</td></tr>
+<tr><td>8 </td><td>relocations (directly following code for this segment)</td></tr>
+<tr><td>9 </td><td>debug info present</td></tr>
+<tr><td>10,11 </td><td>80286 DPL bits</td></tr>
+<tr><td>12 </td><td>discardable</td></tr>
+<tr><td>13-15 </td><td>discard priority</td></tr>
+</table>
+<p><strong>Format of new executable relocation data (immediately follows segment image)</strong></p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Format of new executable relocation data (immediately follows segment image)">
+<tr><th>Offset </th><th>Size </th><th>Description</th></tr>
+<tr><td>00h </td><td>WORD </td><td>number of relocation items</td></tr>
+<tr><td>02h </td><td>8N BYTEs </td><td>relocation items</td></tr>
+</table>
+<table border="1" cellspacing="0" cellpadding="0" summary="">
+<tr><th>Offset </th><th>Size </th><th>Description</th></tr>
+<tr><td>00h </td><td>BYTE </td><td>relocation type</td></tr>
+<tr><td>00h </td><td>LOBYTE</td><td> </td></tr>
+<tr><td>02h </td><td>BASE </td><td> </td></tr>
+<tr><td>03h </td><td>PTR </td><td> </td></tr>
+<tr><td>05h </td><td>OFFS </td><td> </td></tr>
+<tr><td>0Bh </td><td>PTR48 </td><td> </td></tr>
+<tr><td>0Dh </td><td>OFFS32</td><td> </td></tr>
+<tr><td>01h </td><td>BYTE </td><td>flags bit 2: additive</td></tr>
+<tr><td>02h </td><td>WORD </td><td>offset within segment</td></tr>
+<tr><td>04h </td><td>WORD </td><td>target address segment</td></tr>
+<tr><td>06h </td><td>WORD </td><td>target address offset</td></tr>
+</table>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vbz01">Back to index</a>] [<a href="/lib/vbz01.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vbz01">de</a><a href="/lib/index.php?lang=en&amp;id=vbz01">en</a><a href="/lib/index.php?lang=es&amp;id=vbz01">es</a><a href="/lib/index.php?lang=it&amp;id=vbz01">it</a><a href="/lib/index.php?lang=fr&amp;id=vbz01">fr</a><a href="/lib/index.php?lang=pl&amp;id=vbz01">pl</a><a href="/lib/index.php?lang=ru&amp;id=vbz01">ru</a><a href="/lib/index.php?lang=ua&amp;id=vbz01">ua</a></div>
+</body>
+</html>

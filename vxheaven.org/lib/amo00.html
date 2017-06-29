@@ -1,0 +1,804 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Martin Overton 'FAT32 New Problems for Anti-Virus, or Viruses? (version 1.01)' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Martin Overton"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Overton, Martin,FAT32 New Problems for Anti-Virus, or Viruses? (version 1.01), nbsp, files, part, floppy, large, sector, version, virus, drive, windows, command, record, ntfs, partition, compatible"/>
+<meta name="Description" content="The sudden appearance of FAT32 in service pack 2 for Windows '95 has brought some new complications for both viruses and anti-virus software. What's worse is the update is only available to OEMs to ship on new PCs. It's been dubbed Windows '96-and-a-half, as it is just a short stop from Windows '97 (now finally called Windows '98). What are the implications of Microsoft's latest addition to the file system format jungle? Can the existing anti-virus software handle FAT32? Can the existing boot and partition sector viruses infect FAT32 successfully, and without making the system unbootable or unusable? Will file-infecting viruses be affected? This paper aims to deflate the myths, clarify the differences and report the results of testing the above scenarios."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"8c4a56c1cfb266eea1165be83ec58a6124462230-1498756240-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/amo00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>FAT32 New Problems for Anti-Virus, or Viruses? (version 1.01)</h1><p><a href="/lib/?lang=en&amp;author=Overton%2C%20Martin">Martin Overton</a><br/> <em>October 1997</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/amo00.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=AV#amo00">Back to index</a>] [<a href="/lib/amo00.html#disqus_thread">Comments</a>]<br/> 
+ 
+<h2>Abstract</h2>
+<p>The sudden appearance of FAT32 in service pack 2 for Windows '95 has brought some new complications for both viruses and anti-virus software. What's worse is the update is only available to OEMs to ship on new PCs. It's been dubbed Windows '96-and-a-half, as it is just a short stop from Windows '97 (<i>now finally called Windows '98</i>).</p>
+<p>What are the implications of Microsoft's latest addition to the file system format jungle?</p>
+<p>Can the existing anti-virus software handle FAT32?</p>
+<p>Can the existing boot and partition sector viruses infect FAT32 successfully, and without making the system unbootable or unusable?</p>
+<p>Will file-infecting viruses be affected?</p>
+<p>This paper aims to deflate the myths, clarify the differences and report the results of testing the above scenarios.</p>
+<p><em>This paper was written for, and presented at the 1997 Virus Bulletin conference at San Francisco,USA on October 2nd-3rd 1997. I would welcome any suggestions for improvement, comments on this paper and it's content. This paper will be updated from time to time. (Martin Overton 8th October 1997)</em></p>
+<h2>Introduction</h2>
+<p>Although this is intended as a technical paper, where possible full and detailed explanations will be given so that any laypersons that may be reading this (<i>hopefully</i>) won't be too confused. Anyone with a reasonably technical or support background will find the main content of this paper understandable and maybe a little too basic. The virus specific information and test results will be explained as clearly as possible within limited technical parameters of virus nomenclature and related jargon.</p>
+<p>As I began to research this paper I was astonished by the lack of testing of Windows 95 with live viruses running under 95. There are plenty of papers and reviews testing Windows 95 scanners against a test set of viruses, but not when active in memory, only as dormant, inanimate images. Only two other papers were found that tested Windows 95 with viruses allowed to go resident and infect the system, and these used a very small set of viruses for testing.</p>
+<p>Before jumping straight into the technical results, lets set the scene, as you may not know about the service releases of Windows '95 and what these bring to the table. So here goes, a potted history...</p>
+<h2>What is 95B and OSR 2.x?</h2>
+<p>Whenever a new operating system is released, inevitably some user somewhere finds a problem, which needs to be fixed. Rather than release a complete new version of the operating system, software providers fix errors through <i>'service releases'</i> also known as <i>'service packs</i>'.</p>
+<p>Service pack 1, released in January 1996 brought Windows 95 (<i>4.00.950</i>) up to version 95A (<i>4.00.950a</i>). Service pack 2 brings Windows 95 up to 95B (<i>4.00.1111</i>), released to OEMs in August '96, this is not being made generally available. It cannot (<i>legally</i>) be used to upgrade existing machines, it can however be purchased with a new Hard Drive or Motherboard. It is mostly only being pre-installed on new PCs, although some parts of OSR2 can be downloaded from Microsoft's web site for free. (<i>http://www.microsoft.com</i>)</p>
+<p>Toshiba, Dell, Compaq and IBM are already pre-installing 95B on new PCs, many other manufacturers and resellers are planning to ship 95B on forthcoming models.</p>
+<p>Windows 95 OSR2 is a service release (<i>service release 2</i>) of Windows 95. It includes all of Service Pack 1, and all of the later patches and fixes currently available on the Microsoft Web site, as well as Internet Explorer 3 and Personal Web Server. It also includes several components currently not available for download, including a new file system, FAT32. Other bugs, which were present in earlier releases of Windows 95, are fixed in OSR2. Though some users complain that other things were broken, c'est la vie!</p>
+<h2>What is FAT32?</h2>
+<p>Versions of Windows 95 older than OSR2 (<i>95 and 95A</i>), as well as many DOS versions, use a file system called FAT16 (<i>or FAT12 with DOS 3.30 or earlier versions</i>). The existence of large hard drives has led to large partition sizes, which mean large cluster sizes and wasted space.</p>
+<p>To clarify this: Imagine a file that is 600 bytes (<em>characters</em>) in size. On a 1GB FAT16 partition this file would take up not 600 bytes but <i>16KB (16,384 characters, 1KB =1,024 Characters or 'Bytes'</i>), wasting over 15KB. On a 1GB FAT32 drive the same file would take up 4KB of space, wasting a lot less space. Below is a table that shows the cluster size used by different sized drives under FAT16 &amp; FAT32.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="cluster size used by different sized drives under FAT16 &amp; FAT32">
+<tr><th>Partition Size (FAT16)</th> <th>Cluster Size</th> <th>Partition Size (FAT32)</th> <th>Cluster Size</th></tr>
+<tr><td>Up to 128Mb</td> <td>2Kb</td> <td>Less than 260MB</td> <td>512 Bytes</td></tr>
+<tr><td>Up to 256Mb</td> <td>4Kb</td> <td>260MB to 2GB</td> <td>4Kb</td></tr>
+<tr><td>Up to 512Mb</td> <td>8Kb</td> <td>8-16GB</td> <td>8Kb</td></tr>
+<tr><td>Up to 1Gb</td> <td>16Kb</td> <td>16-32GB</td> <td>16Kb</td></tr>
+<tr><td>Up to 2Gb</td> <td>32Kb</td> <td>Greater than 32Gb</td> <td>32Kb</td></tr>
+</table>
+<p>Although by default, FAT32 will be used on drives over 512MB, it can be forced, though this is not recommended by Microsoft, to work on drives of any size less than 512MB.</p> <p>To do this you can use <i>FDISK </i>with the<i> /FPRMT</i> switch to enable large disk support (<i>FAT32</i>) on drives smaller than 512MB. Not for non-expert users and don't expect Microsoft to bail you out it you experience problems. There is also a way to specify the cluster size when the drive is formatted, (<i>FORMAT /z:n</i>) <i>n* 512 bytes=cluster size</i>, e.g. <i>FORMAT C: /z:2</i> would format the C: drive with 1KB clusters. Be warned though, Microsoft will not support cluster sizes of less than 4KB.</p>
+<p>FAT32 supports large drives and partitions (<i>up to 2TB (Terabytes)</i>) whereas FAT16 only supports up to 2GB (<i>Gigabytes</i>). Unfortunately FAT32 formatted drives cannot currently be read or written to by NT, DOS or OS/2 and therefore this is seen as a major headache by support staff. Some major PC manufacturers have taken the stance that installing FAT32 on their system would invalidate the warranty.</p>
+<p>If you use FAT32 then you can no longer boot to the previous version of DOS as you could with 95A. You can use third-party boot managers, such as: OS/2 boot manager, NT boot manager, etc. As long as you don't use FAT32 you will still be able to read and write to the Windows 95B drive from other operating systems.</p>
+<p>Other file system improvements include: FAT mirroring, backup of critical areas (<i>such as the DBR</i>), relocatable root directory and dynamic resizing of FAT32 partitions.</p>
+<h3>How Do I Tell If I've Got 95B (OSR2.x)?</h3>
+<p>Typing '<i>VER</i>' at a DOS prompt inside Windows 95 produces the following version number information:</p>
+<p><b>95 release version: Windows 95. [Version 4.00.950]</b></p>
+<p><b>DOS Version: MS-DOS 7.0</b></p>
+<p><b>95A (OSR1): Windows 95. [Version 4.00.950]</b></p>
+<p><b>DOS Version: MS-DOS 7.0</b></p>
+<p><b>95B (OSR2): Windows 95. [Version 4.00.1111]</b></p>
+<p><b>DOS Version: MS-DOS 7.1</b></p>
+<h3>How Do I Tell If I'm Running FAT32 On My Drive(s)?</h3>
+<p>Simply double-click on the 'My Computer' icon on the desktop, and then right-click on the relevant drive icon and selecting 'Properties' will show the following dialogue box</p>
+<div align="center"><img src="img/amo/image1.gif" alt=""/></div>
+<p>The Type entry clearly shows that this local disk is FAT32, not FAT16 or FAT12.</p>
+<p>If you use FDISK to create a partition of greater than 512MB and you enable large disk support, then the drive will be set to FAT32 by default.</p>
+<p>Drives smaller than 512MB or disabling 'large disk support' will ensure that FAT16 is used instead.</p>
+<p>Running FDISK on a drive larger than 512MB will display the following message if you have OSR2.x installed.</p>
+<pre class="source">
+Your computer has a disk larger than 512 MB. This version of Windows
+includes improved support for large disks, resulting in more efficient
+use of disk space on large drives, and allowing disks over 2 GB to be
+formatted as a single drive.
+
+IMPORTANT: If you enable large disk support and create any new drives on this
+disk, you will not be able to access the new drive(s) using other operating
+systems, including some versions of Windows 95 and Windows NT, as well as
+earlier versions of Windows and MS-DOS. In addition, disk utilites that
+were not designed explicitly for the FAT32 file system will not be able
+to work with this disk. If you need to access this disk with other operating
+systems or older disk utilities, do not enable large drive support.
+
+Do you wish to enable large disk support (Y/N)...........? [N]
+</pre>
+<p>FDISK can also be used to check to see if your current drive(s) are formatted as FAT12, FAT16 or FAT32. Selecting option 4 from the menu when FDISK is run shows the following:</p>
+<pre class="source">
+Display Partition Information
+
+Current fixed disk drive: 1
+
+Partition Status Type Volume Label Mbytes System Usage
+
+C: 1 A PRI DOS FAT32_C2 1028 FAT32 50%
+
+2 EXT DOS 1020 50%
+
+Total disk space is 2047 Mbytes (1 Mbyte = 1048576 bytes)
+
+The Extended DOS Partition contains Logical DOS Drives.
+
+Do you want to display the logical drive information (Y/N)......?[Y]
+
+Press Esc to return to FDISK Options
+</pre>
+<h2>Why all this fuss?</h2>
+<p>It seems that Microsoft have once again caused a large amount of confusion regarding it's new file system. We only have to look back at the confusion of the average user when HPFS and NTFS were released. Even now many users believe that viruses cannot infect under these file systems. As stated in the 1996 Virus Bulletin conference "<i>Although Windows NT was designed as a secure operating system, this security does not include viruses</i>"<sup>[Jones]</sup>. This shows that with NT and NTFS that many viruses work fine, others such as macro viruses are hardly inconvenienced unless they try to use API's or OS specific functions.</p>
+<p>Regular lurkers in the Alt.Comp.Virus newsgroup will remember the flurry of posts and threads regarding a certain anti-virus program being criticised for not supporting FAT32. Many came to their defence, such as Vesselin Bontchev, Jimmy Kuo and the incumbent Virus Bulletin editor, Nick Fitzgerald (<i>though at the time he was the Comp.Virus &amp; Virus-L moderator and FAQ maintainer</i>).</p>
+<p>Later in this paper I will cover the 'myths' some of which were being offered as fact by well-intentioned participants of this newsgroup.</p>
+<h2>Myth #1?</h2>
+<p><em>Windows 95 is so different that viruses cannot infect it.</em></p>
+<p>Of course in reality, very few people now believe this, though this appears to have been one of the common 'urban myths' about Windows 95 and it's near magical protection<sup>[Whalley]</sup>. The reason for the myth is understandable as Microsoft's own marketroids, insisted that Windows 95 was '<i>All New'</i>.</p>
+<p>It is perfectly clear that although Windows 95 brings some new challenges to the virus writer, many DOS viruses (<i>including MBR and DBR viruses</i>) work adequately under Windows 95 and FAT32. In fact macro viruses are the group of viruses least troubled and inconvenienced by FAT32. Only those that use API's and other operating system specific calls are likely to fail.</p>
+<p>Microsoft's claim that Windows 95 was '<i>All New'</i> was to say the least misleading. Bearing in mind that Microsoft tried extremely hard to support the vast majority of legacy Windows 3.x and DOS applications, and to be fair to a great extent they succeeded, but at what cost?</p>
+<p>Windows 95 still runs on DOS, it's DOS 7.0, but it's still DOS with many of its legacy faults that the virus writers can use to their benefit and to your detriment.</p>
+<h3>Effects on Anti-Virus software?</h3>
+<table border="1" cellspacing="0" cellpadding="0" summary="Effects on Anti-Virus software?">
+<tr><th>Anti-virus product</th> <th>DBR infector removal</th> <th>MBR infector removal</th> <th>Comments</th></tr>
+<tr><td>Mcafee 3.0.3</td> <td>Y</td> <td>Y</td> <td>FAT32 Support<p>Ghost positive when trying to remove MBR infector!</p></td></tr>
+<tr><td>Dr. Solomons 7.72</td> <td>Y</td> <td>Y</td> <td>The Magic Bullet natively supports Fat32.</td></tr>
+<tr><td>F-Prot 2.27</td> <td>N</td> <td>Y</td> <td>Error reading DBR message on infected FAT32 DBR.</td></tr>
+<tr><td>Thunderbyte 8.02</td> <td>N</td> <td>N</td> <td>Access denied when accessing infected FAT32 DBR or MBR.</td></tr>
+<tr><td>Symantec anti-virus (NAV 3.0)</td><td>Y</td> <td>Y</td> <td>Invalid media type reading drive C<br/>Abort, Retry, Fail.<br/>Only continues and remove DBR infector if FAIL selected.<p>Ghost positive when trying to remove MBR infector! FAT32 Support.</p></td></tr>
+<tr><td>AVP 3.0</td> <td>N</td> <td>Y</td> <td>DBR detected but not removed.</td></tr>
+<tr><td>Sophos Sweep 3.00</td> <td>N</td> <td>N</td> <td>Bad Logical Sector C:|0 message when trying to remove DBR infector.<p>Detected MBR infector but would not disinfect.</p></td></tr>
+<tr><td>VET 9.44</td> <td>Y</td> <td>Y</td> <td>Native FAT32 Support. No problems encountered.</td></tr>
+</table>
+<h3>Effects of Boot Sector [DBR] viruses?</h3>
+<p><em>Putting the Boot in</em></p>
+<p>Boot sector [DBR] viruses infect the computer when an infected floppy diskette is attempted to be booted from (<i>assuming that the CMOS boot sequence is the standard A: then C:. If it's set to C: then A: then standard DBR (and MBR) viruses (excluding droppers) don't stand a chance</i><sup><i>[Overton]</i></sup>). The virus in the infected diskette boot sector will try to go resident and infect the DBR of the hard disk. If successful, and the virus can operate correctly on the host operating system then the virus will try to infect any diskette that is not write protected accessed in the floppy drives of the system.</p>
+<h3>FAT16 DBR Viruses vs. FAT32</h3>
+<p>It is not surprising that this group of viruses has the most profound impact on FAT32 partitions, as the Dos Boot Record has been radically changed. <q>The boot record on FAT32 drives is greater than 1 sector. In addition, there is a sector in the reserved area on FAT32 drives that contains values for the count of free clusters and the cluster number of the most recently allocated cluster</q>[MS].</p>
+<p>To date (July 97) no FAT32 specific DBR infectors exist. This is not to say that they won't be created, as virus writers seem to fight to be the first to infect new operating systems or to use new techniques. I predict that we will see a FAT32 specific or FAT16/FAT32 DBR infector before the end of this year, if not sooner. It is only a matter of time after that happens before the first multi-partile virus that can infect the FAT32 DBR will be released.</p>
+<h2>Infected DBR or MBR? Confused? You Will Be!</h2>
+<p>When Windows 95 is infected by a DBR or MBR infector, and is first booted, in most cases the following dialogue box is displayed.</p>
+<div align="center">
+<img src="img/amo/image2.gif" alt="Figure 1"/>
+<p><strong>Fig 1</strong></p>
+</div>
+<p>Bear in mind that this is only displayed the <i>first</i> time after the original infection. This dialogue box is a step in the right direction for Microsoft, as it actually mentions the word '<i>Virus</i>'. This may encourage an infected user to actually use some anti-virus software to check their system for viruses, or maybe not.</p>
+<p>The confusing part of this story is that if the DBR is infected this message is also displayed. I would have expected Microsoft to know the difference between a DBR and an MBR, obviously this is not the case!</p>
+<p>Many users would simply ignore this message and carry on regardless.</p>
+<p>If you select the Yes button on this dialogue box you will see the following detailed dialogue box.</p>
+<div align="center">
+<img src="img/amo/image3.gif" alt="Figure 2"/>
+<p><strong>Fig 2</strong></p>
+</div>
+<p>As you can clearly see this informs you that your system is using the MS-DOS compatibility mode for both the File System and Virtual Memory.</p>
+<p>It also offers the following information, which the user should be more than a little curious to read, especially as it states:</p>
+<blockquote><em>'Compatibility mode paging reduces overall system performance' and 'Master Boot Record modified --SEE IMPORTANT DETAILS.'</em></blockquote>
+<p>On most systems that are properly configured and not infected by one of the many MBR or DBR viruses, the following dialogue box would be shown instead.</p>
+<div align="center">
+<img src="img/amo/image4.gif" alt="Figure 3"/>
+<p><strong>Fig 3</strong></p>
+</div>
+<p>This dialogue box clearly shows that 32-bit access to Virtual Memory and the File System is being used.</p>
+<p>It has been said many times that Microsoft looks toward functionality first, security has always been the poor relation and it seems that it is almost an after thought, some of you may feel that I am understating this point.</p>
+<p>Microsoft has been of recently talking to many of the anti-virus industries largest players to form a working party on Macro virus issues with Microsoft products. I look forward to the outcome from this undertaking. Unfortunately (for the end user) I predict any expectations will fall short, and the anti-virus industry will be required to charge to the rescue again to thwart the virus foe.</p>
+<h2>Myth #2?</h2>
+<p><em>DBR viruses cannot be removed from FAT32 partitions by non-FAT32 compatible anti-virus software.</em></p>
+<p>Currently there are no FAT32 specific viruses, not to say that they will not be created in the future. Non-FAT32 compatible scanners appear to be unable to successfully remove the current FAT16 DBR viruses.</p>
+<p>My findings with the DBR infectors and scanners tested for this paper appear to validate this supposed myth!. Disconcertingly, my results with genuine infections appear to be the completely opposite to some postings by notable researchers on the Alt.Comp.Virus newsgroup. </p>
+<p><em>Is the truth out there?</em></p>
+<h2>Test Results</h2>
+<p>Swiss-Boot.A resisted all attempts to remove it by anti-virus software. It had to be manually removed using <i>SYS C:</i> after booting from a clean boot disk and locking the C: drive with the <i>LOCK C:</i> command.</p>
+<p>FORM.A was also resistant to removal, only being successfully removed using Dr. Solomon's Magic bullet, McAfee 3.0.3 and Vet 9.44, which are all FAT32 aware.</p>
+<p>Although some researchers insist that DBR infectors can be removed from FAT32 drives by FAT16 compatible scanners, my tests seem to indicate the opposite. This obviously needs more investigation.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Test Results">
+<tr><th>Virus [3]</th> <th>Infected OK?</th> <th>Detected by '95?</th> <th>Clean Boot? </th> <th>Removal?</th> <th>Comments</th></tr>
+<tr><td>Boot-437</td> <td>Y</td> <td>Asks for COMMAND.COM</td> <td>Y</td> <td>Y</td> <td>Only removed by Dr. Solomon's Magic Bullet, which is FAT32 compatible.<p>Still infected other floppies.</p></td></tr>
+<tr><td>Form.A</td> <td>Y</td> <td>Asks for COMMAND.COM</td> <td>Y<p>Invalid Media</p></td><td>Y</td> <td>Only removed by Dr. Solomon's Magic Bullet, which is FAT32 compatible.<p>Still infected other floppies.</p></td></tr>
+<tr><td>Swiss-Boot.A</td><td>Y</td> <td>While initializing VBACKUP could not load VFD.VXD<p>Hang</p></td><td>Y</td><td>Y</td><td>Any attempt to SYS or remove this virus after a clean boot resulted in a message indicating that the drive was locked.<p>Clean booting and using the LOCK C: command and then running SYS C: cleared the virus correctly.</p><p>Dr. Solomon's Magic Bullet, reported that the drive was write protected.</p></td></tr>
+</table>
+<h2>Effects of Partition Sector [MBR] viruses?</h2>
+<h3>Myth #3</h3>
+<p><em>MBR viruses cannot be removed from FAT32 partitions by non-FAT32 compatible anti-virus software.</em></p>
+<p>This, you might think after <i>Myth#2</i>, and you'd be excused for thinking this, would be correct. Luckily for most MBR infectors this is not the case. In testing all the MBR viruses were successfully removed, without incident. Why is this the case, when DBR viruses refused to give up without a struggle?</p>
+<p>The simple answer is that the MBR under FAT32 is practically the same as under DOS 6.0. Therefore, currently non-FAT32 compatible scanners can (<i>in almost all cases</i>) safely remove MBR viruses from FAT32 drives.</p>
+<h3>Test Results</h3>
+<p>This was an interesting group of viruses, especially as all of them were unable to infect floppy disks from within the Windows 95 GUI or DOS boxes run within it. (W<i>hile I was completing this paper, a new MBR infector was reported that could infect from within the Windows 95 GUI, the virus is known as Dodgy or Ravage</i><sup><i>[Dr. Sol]</i></sup>). The greatest surprise was how badly some of the MBR viruses fared when trying to infect in '<i>MS-DOS Compatibility Mode</i>' and/or the '<i>Command Prompt Only</i>' boot option mode.</p>
+<p><b>STOP PRESS</b>: <i>Dodgy</i> has been tested and the results added to the table below. This MBR infector can infect floppy disks in all the test modes. It does this by deleting the <i>HSFLOP.PDR</i> file from the <i>WINDOWS\SYSTEM\IOSUBSYS</i> directory. This simply removes the 32-bit floppy driver support, so that next time Windows '95 starts, the floppy drive is accessed using standard<i> DOS BIOS</i> routines instead. This type of attack is not new; the <i>Hare</i> family of viruses used this method too. Although in the tests carried out for this paper all <i>Hare</i> samples tested failed to go resident and infect the MBR or any files.</p>
+<p>One thing to bear in mind, just because an MBR infector can't spread does not mean it is not a threat. Take <i>Kampana</i> as an example, even though it failed to replicate in testing, confirmed by at least one third party<sup>[Emm]</sup> , it's payload will almost certainly still trigger (<i>after 400 reboots, it overwrites the hard disk with garbage, then displays its message</i>). Others that refused to spread include<i>: AntiCMOS.A, Jumper.A, Stoned.Standard.A and V-Sign.A.</i></p>
+<p>Some of the test group offered '<i>General Failure Reading Drive A:</i>' messages, these were: <i>Michelangelo, ExeBug.C and Stoned.16</i>.</p>
+<p><i>Quox</i> refused to allow Windows 95 to boot, and would only infect floppy disks entered during the '<i>Diskette Read Failure</i>' message, which could not be bypassed.</p>
+<p>Those that performed best, infecting on both 3 &amp; 4, were: <i>AntiEXE.A, Leandro, ParityBoot.B, Ripper, Sampo, Stoned.Azuza, Stoned.Angelina, W-Boot.A and Welcomb</i>.</p>
+<p>There were a number of MBR infectors that would only infect under condition 4, these include: <i>Monkey.B, NYB, and Stealth_Boot.C.</i></p>
+<p>All of those that successfully infected the MBR and went resident, apart from <i>Jumper.A</i> caused Windows 95 to report that the MBR had been changed (<i>Fig 1</i>), which dropped Windows 95 file and memory system mode from 32-bit (<i>Fig 3</i>) into MS-DOS Compatibility mode (<i>Fig 2</i>). Interestingly, even though the hard drive is in MS-DOS mode, the floppy driver is still running in 32 Bit mode<sup>[CN]</sup> <i>(that is why the floppy disks are not infected within the GUI by the viruses tested even though they infected the hard drives MBR and are resident</i>).</p>
+<p>Why did all of the viruses that infected the MBR and went resident except <i>Jumper.A</i> have Windows 95 detect the change? The answer isn't all that mystical, simply all other tested MBR infectors hook Int 13h and Windows 95 actually monitors the Int 13h vector code for modifications (<i>not the actual MBR or DBR</i>) as this will affect its ability to drive the hardware directly. Not surprisingly most MBR infectors will do just that. <i>Jumper.A</i> on the other hand hooks not Int 13h but Int 21h instead, this means that Windows 95 can't see the change and therefore the warning messages are not shown.</p>
+<p><i>Filler.A</i> ,<i>Chinese-Fish</i> and both <i>Hare</i> samples refused to even go resident, let alone infect the test systems MBR.</p>
+<p>On a clean boot all was fine except as expected for <i>Monkey.B</i> (<i>as it encrypts the MBR</i>), and <i>ExeBug.C</i> (<i>Invalid drive specification when accessing drive C:</i>). Even given these errors, the viruses were still correctly and easily removed, even with non-FAT32 specific scanners.</p>
+<p>A number of the test set hung after infecting the hard drive, instead of giving the more usual '<i>Invalid system disk Replace the disk, and press any key</i>' or '<i>Non-system disk or disk error Replace and strike any key when ready</i>'messages. This simply needed the system to be rebooted for Windows 95 to load as normal, except for the warning messages (<i>Fig1 and Fig3</i>). The viruse exhibiting this phenomenen were: <i>AntiCMOS.A, Leandro, Parity_Boot.B and Stoned.16</i>.</p>
+<p>The really interesting results are when these test results are compared to tests conducted by <i>Ian Whalley</i><sup><i>[Whalley]</i></sup><i>. </i>All the MBR and DBR viruses he tested replicated under FAT16 [4.00.950]. The viruses he tested were: <i>AntiCMOS, AntiEXE, Monkey.B, Form, Jumper.B, NYB, ParityBoot.B, Quandry, Sampo, Stoned.Angelina and V-Sign</i>.</p>
+<p>Yet in another test conducted <sup>[VB2]</sup>,
+<i>Jumper</i> failed to infect other floppies as found in the tests carried out for this paper. On the other hand <i>Kampana</i> and <i>V-Sign</i> apparently did replicate in the same test conducted by Virus Bulletin, but failed to when tested for this paper!</p>
+<p>But if we look closer these tests<sup>[VB2]</sup> were done on a pre-release version of Windows 95 [4.00.347] and this may go some way to explain the anomolies found in this and other tests by Ian Whalley [4.00.950]<sup>[Whalley]</sup> and David Emm [4.00.950]<sup>[Emm]</sup> when compared with later versions of Windows 95 tested for this paper [4.00.1111].</p>
+<p>As you can see the results are somewhat different. Are the different results due to FAT32 and or other changes in OSR 2.x, or something else? I feel that more testing is required to get the diffinitive answer, and unfortunately this is beyond the scope of this paper.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Test results">
+<tr><th>Virus [31]</th><th>Infected OK?</th><th>Detected by '95?</th><th>Clean Boot?</th><th>Removal?</th><th>Comments</th></tr>
+<tr><td>AntiCMOS.A</td><td>Y<p>Hang</p></td><td>Y</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>AntiEXE.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4</td></tr>
+<tr><td>Chinese Fish</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Hang</td></tr>
+<tr><td>Dodgy (Ravage)</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>1 &amp; 2 Only on next restart, deletes HSFLOP.PDR, 3 &amp; 4 straight after infection.</td></tr>
+<tr><td>ExeBug.C</td><td>Y</td><td>Y</td><td>Y<p>Invalid drive specification when accessing drive C:</p></td><td>&nbsp;</td><td>Removed A: drive entry from CMOS.<p>Infects on 3 only, General failure reading drive A on 4</p></td></tr>
+<tr><td>Filler.A</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Won't infect MBR or go resident.</td></tr>
+<tr><td>Hare.7610</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Won't infect MBR or go resident.</td></tr>
+<tr><td>Hare.7786</td><td>N<p>Hang</p></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Won't infect MBR or go resident.</td></tr>
+<tr><td>Jumper.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>Kampana.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>Leandro</td><td>Y<p>Hang</p></td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4</td></tr>
+<tr><td>Michelangelo</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>General failure reading drive A on 3 &amp; 4, but floppy still infected.</td></tr>
+<tr><td>Monkey.B</td><td>Y</td><td>Y</td><td>Y<p>Invalid Media</p></td><td>Y</td><td>Infects only on 4.</td></tr>
+<tr><td>NYB</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects only on 4.</td></tr>
+<tr><td>PartityBoot.B</td><td>Y<p>Hang</p></td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4</td></tr>
+<tr><td>Quox</td><td>Y</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Diskette Read Failure.<p>On boot infects other diskettes.</p></td></tr>
+<tr><td>Ripper</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4</td></tr>
+<tr><td>Russian Flag</td><td>Y</td><td><p>N</p><p>Hang&amp; Reboot</p></td><td>Y</td><td>Y</td><td>Infects on 4 only.<p>Hang &amp; Reboot cycles until Safe Mode chosen, then when restarted in normal mode Exception OE Occurs</p></td></tr>
+<tr><td>Sampo</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4</td></tr>
+<tr><td>SheHas</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 only.<p>Appears to disinfect itself on 4, virus no longer found after that.</p></td></tr>
+<tr><td>Stealthboot.C</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 4 only.</td></tr>
+<tr><td>Stoned.16</td><td>Y<p>Hang</p></td><td>Y</td><td>Y</td><td>Y</td><td>General failure reading drive A on 3 &amp; 4, but floppy still infected</td></tr>
+<tr><td>Stoned.Angelina</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4 only.</td></tr>
+<tr><td>Stoned.Azuza</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4 only.</td></tr>
+<tr><td>Stoned.June4th.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>General failure reading drive A on 3 &amp; 4, but floppy still infected</td></tr>
+<tr><td>Stoned.Noint.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4 only, some directory entries corrupted.</td></tr>
+<tr><td>Stoned.Standard.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>Swedish Disaster.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>V-Sign.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Won't infect another floppy at all</td></tr>
+<tr><td>Wboot.A</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4 only.</td></tr>
+<tr><td>Welcomb</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infects on 3 &amp; 4 only.</td></tr>
+</table>
+<p><em>1 = From Explorer (My Computer A:)</em></p>
+<p><em>2 = DOS BOX Within 95</em></p>
+<p><em>3 = Restart in MS-DOS Compatibility Mode</em></p>
+<p><em>4 = Restart, F8 and Command Prompt Only</em></p>
+<h2>Effects of File Infecting viruses?</h2>
+<h3>Myth #4</h3>
+<p><em>You can't boot clean from an OSR2 boot disk, the virus is still found in memory.</em></p>
+<p>This rumour has been impossible to verify first hand. I contacted Virus Bulletin and spoke to Nick Fitzgerald (<i>the editor</i>) and he confirmed that this rumour was passed to him via trusted third parties.</p>
+<p>The situation, in which this problem appears to occur, is where small drives or small partitions are used. It is possible that after booting from the Windows 95 rescue disk and running your anti-virus software that it may report that the virus is still in memory (<i>even though it really isn't (this is known as a false positive or ghost positive</i>)). To resolve this issue simply add a <b>CONFIG.SYS</b> file with the following entry: <b>BUFFERS=5, </b>or <b> 8</b>.</p>
+<p>It is further suggested to address this problem that you use a DOS 6.x boot disk to clean boot from before trying to remove an MBR infector.</p>
+<p><b>STOP PRESS: </b>After further research I managed to confirm this myth when either <i>McAfee</i> or <i>Norton</i> <i>Anti-Virus</i> was used after a clean boot. The tips suggested were tried and appeared not to alleviate the false alarm problem with these products. All the other scanners tested did not suffer from this false alarm problem.</p>
+<h3>Test Results</h3>
+<p>This set of viruses gave the widest range of results, not surprising really when you consider the number of different types of file infecting viruses there are.</p>
+<p>A number of viruses that went resident completely refused to infect any files whatsoever. These include old and new viruses, such as<i>: Tequila, Cawber, Die_Hard, both Hare samples and Ginger.</i></p>
+<p>Others just produced the '<i>illegal operation</i>' dialogue box (<i>Fig 4</i>), and refused to do anything more. These included: <i>Goldbug, DarkAvenger.1800 and 2100, Neuroquilla and MacGyver.</i></p>
+<div align="center">
+<img src="img/amo/image5.gif" alt="Figure 4"/>
+<p><strong>Fig 4</strong></p>
+</div>
+<p>A further subset produced the more drastic '<i>Fatal Exception xx</i>' message that invariably ended up with the system either becoming extremely unstable or having to be restarted. These included: <i>ByWay, Green Caterpillar, Tremor and Frodo.</i></p>
+<p>There were a reasonable number of viruses that could survive and replicate successfully within a single DOS box. These included: <i>Anticad.4096.Mozart, Avispa and even old favourites such as Cascade and all of the tested Jerusalem variants</i>.</p>
+<p>A few viruses could survive and replicate in all DOS boxes, these were: <i>Barrotes.1303 and Three_Tunes.1784. </i>Both these viruses infected<i> COMMAND.COM, </i>so this may explain why this was possible, although other viruses infected <i>COMMAND.COM</i> but were not viable outside the single DOS box they went resident in, these were: <i>Barrotes.1310.A, CPW.1527, Fairz, Kaos4 and Npox.963.A</i>.</p>
+<p>Only one that could infect not only all target files, in all DOS boxes but also could infect DOS files executed from Explorer! This was: <i>No_Frills.Dudley</i>.</p>
+<p>Comparing these results with other papers that have tested earlier versions of Windows 95 shows similar results. David Emm's paper <sup>[Emm]</sup> confirms the findings here with regard to <i>Cascade</i> and <i>Yankee.Doodle</i> and <i>Frodo</i>, but not <i>Tequila</i>. The difference with <i>Tequila</i> may be explained by the use of FAT32 partitions in this paper compared to FAT16 in his tests. The test carried out by Ian Whalley <sup>[Whalley]</sup>, confirms the behaviour observed with <i>ByWay</i>, <i>Jerusalem, Kaos4 and Taipan.438</i>.</p>
+<p>It appears that the tests carried out for this paper use the largest set of viruses of the known papers written to date. In many ways I can understand why as this level of testing is rather time consuming.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="Test results">
+<tr><th>Virus [82]</th><th>Infected OK?</th><th>Detected by '95?</th><th>Clean Boot?</th><th>Removal?</th><th>Comments</th></tr>
+<tr><td>Anticad.4096.Mozart</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Avispa</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE files in same DOS box.</td></tr>
+<tr><td>Bad_Sectors.3428</td><td>N<p>Resident</p></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>Barrotes.1303</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in ALL DOS boxes.<p>Infected COMMAND.COM</p><p>Won't infect files from Explorer.</p></td></tr>
+<tr><td>Barrotes.1310.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.<p>Infected COMMAND.COM</p></td></tr>
+<tr><td>Bootexe.451 [MP]</td><td>Y<p>Hang</p></td><td>N</td><td>Y</td><td>Y</td><td>Invalid Media Type reading type C: Missing COMMAND.COM<p>Infected COMMAND.COM &amp; MBR.</p></td></tr>
+<tr><td>ByWay</td><td>N</td><td>Y</td><td>N</td><td>N</td><td>Fatal Exception 0D at<p>0DDC:000078C6</p></td></tr>
+<tr><td>Cascade.1701.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Cascade.1704.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Cawber</td><td>N<p>Went Resident</p></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>ChangSha.MP.3072</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in same DOS box.</td></tr>
+<tr><td>Chaos.1241</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in same DOS box.<p>Message: "Cannot Execute &lt;filename&gt;" when resident.</p></td></tr>
+<tr><td>Cordobes</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>CPW.1527</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in same DOS box.<p>COMMAND.COM also infected.</p></td></tr>
+<tr><td>Dark.Avenger.1800.A</td><td>Y</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Illegal Op Dialogue</td></tr>
+<tr><td>Dark.Avenger.2100</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Illegal Op Dialogue<p>Fault location: 0DDC:10000</p></td></tr>
+<tr><td>Demon.1759</td><td>Y</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Illegal Op Dialogue</td></tr>
+<tr><td>Desperado</td><td>N<p>Resident</p></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>TOM reduced by 4KB<p>No files infected.</p></td></tr>
+<tr><td>Die-Hard</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Nothing infected.</td></tr>
+<tr><td>Dir-II</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Illegal Instruction, Program Terminated.<p>Nothing infected.</p></td></tr>
+<tr><td>Fairz</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.<p>Infected COMMAND.COM</p></td></tr>
+<tr><td>Fichv.2-1</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Flip.2153.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Flip.2343</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Freddy_Krueger</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Frodo</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Fatal Exception Error 06 at<p>9EA0:00000431.</p></td></tr>
+<tr><td>Ginger.2774</td><td>Y<p>Resident</p></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>Goldbug</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Illegal Op Dialogue.<p>No files infected.</p></td></tr>
+<tr><td>GreenCaterpillar.1575</td><td>Y</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Fatal Exception 06 at<p>032E:00000467</p><p>On reboot COMMAND.COM found to be infected.</p></td></tr>
+<tr><td>Hare.7750</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Divide Overflow Error.<p>No files infected.</p></td></tr>
+<tr><td>Hare.7786</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Illegal Op Dialogue (4BF3:FFFF).<p>No files infected.</p></td></tr>
+<tr><td>Helloween.1376.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE in same DOS box.</td></tr>
+<tr><td>Hi.460</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>HLLC.Even_Beeper.B</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>Jerusalem.1244</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Jerusalem.1808.Standard</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Jerusalem.Mummy.1364.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE in same DOS box.</td></tr>
+<tr><td>Jerusalem.Sunday.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Jerusalem.Zero-Time_Australian</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Junkie</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Infected WIN.COM &amp; MBR<p>No files infected in DOS Box.</p></td></tr>
+<tr><td>Kaos4</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.<p>Infected COMMAND.COM &amp; WIN.COM</p></td></tr>
+<tr><td>Keypress.1232.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Lemming.2160</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>Liberty</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Little_Red.1465</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>MacGyver.2803</td><td>N</td><td>Y</td><td>N</td><td>N</td><td>Illegal Op Dialogue.<p>No files infected.</p></td></tr>
+<tr><td>Maltese_Amoeba</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Manzon</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>Markt.1533</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>No files infected.</td></tr>
+<tr><td>Mirea.1788</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Natas.4744</td><td>N<p>From DOS Box</p><p>Y</p><p>In DOS Mode</p></td><td>Y</td><td>Y</td><td>Y</td><td>In DOS Mode:<p>Infected MBR, MEM.EXE, WIN.COM, DBLBUFF.SYS, COMMAND.COM and SETVER.EXE</p></td></tr>
+<tr><td>Necros</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM in same DOS box.<p>Overwriting.</p></td></tr>
+<tr><td>Neuroquila</td><td>N</td><td>Y</td><td>N</td><td>N</td><td>Illegal Op Dialogue</td></tr>
+<tr><td>Nightfall.4518.B</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.<p>Fatal Exception 06 at 9EDD:00000560 when exiting DOS box.</p><p>Win 95 crashed.</p></td></tr>
+<tr><td>No_Frills.Dudley</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same ALL DOS boxes, and files executed from Explorer.<p>Infected COMMAND.COM..</p></td></tr>
+<tr><td>No_Frills.No_Frills.843</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE in same DOS box.</td></tr>
+<tr><td>Nomenklatura.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>November_17<sup>th</sup>.800.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM in same DOS box.</td></tr>
+<tr><td>Npox.963.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.<p>Infected COMMAND.COM</p></td></tr>
+<tr><td>One-Half.3544</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>MBR infected.<p>Encrypted cylinders 256-259</p></td></tr>
+<tr><td>Ontario.1024</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM in same DOS box.</td></tr>
+<tr><td>Pathogen:Smeg.0_1</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Ph33r.1332</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>PHX.965</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM *.EXE in same DOS box.</td></tr>
+<tr><td>Predator.2448</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Reboot system.</td></tr>
+<tr><td>Reverse.948</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>Sayha</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Nothing infected.</td></tr>
+<tr><td>Scitzo.1329</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>Screaming_Fist.II.696</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>SVC.3103.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>Taipan.438</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE files in same DOS box.</td></tr>
+<tr><td>Tentacle.1996</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected DEFRAG.EXE, TWUNK_16.EXE, SCANDSKW.EXE</td></tr>
+<tr><td>Taipan.666</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM files in same DOS box.</td></tr>
+<tr><td>Tequila</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Nothing infected.</td></tr>
+<tr><td>Three_Tunes.1784</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE files in ALL DOS boxes, but not from Explorer.<p>Infected COMMAND.COM.</p></td></tr>
+<tr><td>Tremor</td><td>N</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Fatal Exception Error 06 at<p>9EF5:000090AF.</p></td></tr>
+<tr><td>Vacsina.TP-05.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.EXE files<p>in same DOS box.</p></td></tr>
+<tr><td>Vacsina.TP-16.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files<p>in same DOS box.</p></td></tr>
+<tr><td>Vienna.648.Reboot.A</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM in same DOS box.<p>DIR Stealth?</p></td></tr>
+<tr><td>Yankee Doodle.XPEH.4928</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE in same DOS box.</td></tr>
+<tr><td>Yankie-Doodle.TP39</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in same DOS box.</td></tr>
+<tr><td>Yankie-Doodle.TP44</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Infected *.COM &amp; *.EXE files in same DOS box.</td></tr>
+</table>
+<h2>Shall I Compare Thee ... to NT?</h2>
+<p>As an interesting aside, it seemed useful to compare the results above with those reported by David Aubrey-Jones in his paper on NT<sup>[Jones]</sup>.</p>
+<p>Why, you may ask?</p>
+<p>Well the test set of viruses used here is a superset of those used for that paper. Therefore it seems useful to do some form of comparison of how viruses behave under GUI operating systems, well some of you may think so at least, so lets begin...</p>
+<h3>DBR infectors:</h3>
+<p>It is interesting that like FAT32, NT does like seem to like DBR infectors. Both <i>Form.A</i> and <i>Boot-437</i> stopped NT dead in its tracks.</p>
+<h3>>MBR Infectors:</h3>
+<p>This set of viruses' results under NT when compared to those reported in this paper is a little more varied. Of those that were unable to infect NTFS, only <i>Chinese Fish</i> also balked at FAT32 infection. The others that refused on NTFS, but did not object to FAT32 were: <i>ExeBug.C, ParityBoot.B and V-Sign</i>.</p>
+<p>Those that infected NTFS fine without causing a hang were: <i>AntiCMOS.A, NYB, Ripper, NYB and Stoned.Standard.A. </i>All of these were perfectly able to infect and either refused to infect another host, or spread only under limited circumstances on FAT32.</p>
+<p>Those that caused NT to fail to boot were: <i>Kampana.A, StealthBoot.C and Monkey.B</i>. The results on FAT32 were not as drastic as on NFTS, all infected the MBR without incident and went resident. Kampana.A refused to infect any other host, both Monkey.B and StealthBoot.C would only infect under condition 4.</p>
+<h3>File Infectors:</h3>
+<p>This set of viruses most closely matched the results of the NT tests on NTFS. Of the 44 successful file infecting viruses used in the NTFS test and in this paper, only 6 refused to infect and spread under FAT32. These were: <i>Die-Hard, HLLC.Even_Beeper.B, Markt.1533, Predator.2448, Sayha and Tremor</i>.</p>
+<p>Of the 19 file infecting viruses that refused to operate on NT on NTFS, that were also used in the tests for this paper, 10 refused to work at all or produced error messages. The remaining 9 that failed under NTFS worked at least partially under FAT32. These were: <i>BootExe.451, GreenCaterpillar.1575, Junkie, Maltese Amoeba, Natas.4744, One-half.3544, Pathogen:Smeg.0_1, SVC.3103.A and Tentacle</i>.</p>
+<p>It appears that the greater part of the viruses tested under NTFS and FAT32 appear to work at least reasonably, though many shoot themselves in the foot by trying to be too clever.</p>
+<h2>Conclusions</h2>
+<p>As stated in the 1996 Virus Bulletin opening address by Steve White "<i>Microsoft has done more to solve the virus problem than the anti-virus industry</i>", this I believe is still true today, although the anti-virus community have not been napping.</p>
+<p>FAT32 has brought a new level of problems for the virus writer to overcome. The simpler viruses appear to work best, those that are trying to be clever, use excessive stealth or undocumented or unusual features seem most likely to come unstuck.</p>
+<p>It is clear from other papers written on Windows 95 and viruses, when compared to the tests carried out for this paper, that FAT32 has caused more problems for certain classes of viruses. In some situations either causing the virus to be unable to go resident or the more annoying and potentially dangerous situation where the virus is resident, but cannot replicate although the trigger routine is still viable and potentially destructive.</p>
+<p>The main viruses that appear to be seriously inconvenienced are the DBR infectors. These in the tests conducted give themselves away very quickly and noticeably.</p>
+<p>Macro viruses appear to be the least affected by the appearance of FAT32, which is not surprising in that the operating system that macro viruses run within are currently Word, Excel and WordPro. A small number of these viruses may be caught out, but in the main this is likely to be the main threat to Windows 95 users, at least until FAT32 compatible DBR infectors and more 32-bit Windows 95/NT viruses appear.</p>
+<p>Furthermore, it is clear that the anti-virus software tested for this paper, that non-FAT32 compatible scanners cannot remove DBR viruses from an infected FAT32 partition. Of course before long all anti-virus software will have to be FAT32 compatible because it is certain that some miscreant will write a FAT32 DBR infector just to prove it can be done.</p>
+<p>The appearance of Dodgy is rather timely, although this is not a FAT32 specific virus it uses known anti-Windows '95 32 driver attacks. Could this the forerunner to the first FAT32 compatible DBR virus?</p>
+<h2>Appendices</h2>
+<h3>Technical Implementation</h3>
+<p>The following information is supplied to show the changes that have taken place with the advent of FAT32. This not only covers the changes in the DBR but other interrupt routines for disk access and free space detection, amongst others. There is little discussion of the information raised here as I feel that this would be only useful to the virus authors, rather than the AV industry as they already have this information available to them and more besides.</p>
+<p>The following are all the valid partition types and their corresponding values for use in the Part_FileSystem member of the s_partition (FAT32) structure.</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="partition types">
+<tr><th>Partition Types (Value) </th><th>Description </th></tr>
+<tr><td>PART_UNKNOWN(00h) </td><td>Unknown </td></tr>
+<tr><td>PART_DOS2_FAT(01h) </td><td>12-bit FAT </td></tr>
+<tr><td>PART_DOS3_FAT(04h) </td><td>16-bit FAT. Partitions smaller than 32MB.</td></tr>
+<tr><td>PART_EXTENDED(05h) </td><td>Extended MS-DOS Partition</td></tr>
+<tr><td>PART_DOS4_FAT(06h) </td><td>16-bit FAT. Partitions larger than or equal to 32MB.</td></tr>
+<tr><td>PART_DOS32(0Bh) </td><td>32-bit FAT. Partitions up to 2047GB.</td></tr>
+<tr><td>PART_DOS32X(0Ch) </td><td>Same as PART_DOS32(0Bh), but uses Logical Block Address Int 13h extensions.</td></tr>
+<tr><td>PART_DOSX13(0Eh) </td><td>Same as PART_DOS4_FAT(06h), but uses Logical Block Address Int 13h extensions.</td></tr>
+<tr><td>PART_DOSX13X(0Fh) </td><td>Same as PART_EXTENDED(05h), but uses Logical Block Address Int 13h extensions.</td></tr>
+</table>
+<p>Microsoft have added two new partition type markers to identify FAT32 partitions, these are 0Bh and 0Ch. Both these partition markers clearly identify the partition as FAT32.</p>
+<h3>FAT32 File System Structures</h3>
+<p>With the addition of the FAT32 file system, the BPB, DPB, and DEVICEPARAMS structures were updated to accommodate FAT32 information. Additionally, subordinate structures have been implemented to support the FAT32 file system main structures. These changes are effective for Windows OEM Service Release 2 and later.</p>
+<pre>
+	BPB (FAT32)
+	BIGFATBOOTFSINFO (FAT32)
+	DPB (FAT32)
+	EA_DEVICEPARAMETERS (FAT32)
+	ExtGetDskFreSpcStruc (FAT32)
+	s_partition (FAT32)
+	SDPDFormatStruc (FAT32)
+</pre>
+<p><strong>Note:</strong> Many data structures in this section are listed as <b>reserved</b>. This indicates that the user is not to assume or modify the values within these fields. They are used by the file system itself and are not available for any enhancements.</p>
+<h3>Boot Sector and Bootstrap Modifications [MS]</h3>
+<table border="1" cellspacing="0" cellpadding="0" summary="Boot Sector and Bootstrap Modifications">
+<tr><th>Reserved Sectors</th> <td>FAT32 drives contain more reserved sectors than FAT16 or FAT12 drives. The number of reserved sectors is usually 32, but can vary.</td></tr>
+<tr><th>Boot Sector Modifications</th> <td>Because a FAT32 BIOS Parameter Block (BPB), represented by the <b>BPB (FAT32)</b> structure, is larger than a standard BPB, the boot record on FAT32 drives is greater than 1 sector. In addition, there is a sector in the reserved area on FAT32 drives that contains values for the count of free clusters and the cluster number of the most recently allocated cluster. These values are members of the <b>BIGFATBOOTFSINFO (FAT32)</b> structure which is contained within this sector. These additional fields allow the system to initialize the values without having to read the entire file allocation table.</td></tr>
+<tr><th>Root Directory</th> <td>The root directory on a FAT32 drive is not stored in a fixed location as it is on FAT16 and FAT12 drives. On FAT32 drives, the root directory is an ordinary cluster chain. The <b>A_BF_BPB_RootDirStrtClus</b> member in the <b>BPB (FAT32)</b> structure contains the number of the first cluster in the root directory. This allows the root directory to grow as needed. In addition, the <b>BPB_RootEntries</b> member of <b>BPB (FAT32)</b> is ignored on a FAT32 drive.</td></tr>
+<tr><th>Sectors Per FAT</th> <td>The A_BF_BPB_SectorsPerFAT member of BPB (FAT32) is <em>always</em> zero on a FAT32 drive. Additionally, the <b>A_BF_BPB_BigSectorsPerFat</b> and <b>A_BF_BPB_BigSectorsPerFatHi</b> members of the updated <b>BPB (FAT32)</b> provide equivalent information for FAT32 media.</td></tr>
+</table>
+<h3>Equipment Used</h3>
+<ul>
+<li>Dell Optiplex GXi 500</li>
+<li>200Mhz MMX Processor</li>
+<li>32Mb Memory</li>
+<li>2GB SCSI Hard discSCSI (2GB Hard Disk on Adaptec Controller)
+<ul>
+<li>Drive partitioned into 2 x1GB partitions.</li>
+<li>Formatted to FAT32.</li>
+</ul></li>
+<li>Windows 95 OEM OSR 2.1</li>
+<li>116 viruses used in the tests were selected from the March 1997 edition of the 'Wild List' published by Joe Wells. These were chosen as they are considered to be those most likely encountered by the user-community at large.</li>
+</ul>
+<h3>Clean Boot Disk</h3>
+<p>Created by running FORMAT.COM from the WINDOWS\SYSTEM directory with the /S switch and then copying SYS.COM and FDISK.EXE to it.</p>
+<h3>Alt.Comp.Virus Newsgroup Postings</h3>
+<pre>
+From: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="86e4e9e8f2e5eee3f0c6e5e9ebf6eae3fea8eff5">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> (Vesselin Bontchev)Newsgroups: alt.comp.virus
+Subject: Re: McAfee VirusScan 3.0 and Fat32
+Date: 11 Apr 1997 12:37:09 -0000
+Organization: Frisk Software International
+Message-ID: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="093c60656b30652d643860496b6867686760276a666479656c7127607a">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+References: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="734040474a111244165d42444443464a4042331d1604005d1715041e1e5d1d1607">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+NNTP-Posting-Host: banani.complex.is
+X-Newsreader: TIN [UNIX 1.3 950824BETA PL0]
+Lines: 62
+Xref: demon alt.comp.virus:59264
+
+David Levin (<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="c6a2aaa3b0afa886a2a0b1ababe8a8a3b2">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>) wrote:
+> "Chengi J. Kuo" &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="fa9990918f95ba9b968f97949b9fd4999b968e9f9992d49f9e8f">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> wrote:
+>
+> > 1) A Master Boot Record infection is independent of whether it's on a
+> > FAT32 system or not. FAT32 is in boot sectors. If any virus infects the
+> > MBR of a FAT32 machine, any present day AV can handle it.
+>
+> Then why in the activity log when I run your product does it say 'error
+> reading boot record'. How can it clean it if it can't read it ?
+
+The error occurs when reading the _DOS Boot Sector_ of the FAT32
+partition - not when reading the MBR. The scanners have no problems
+reading the MBR of a machine that has FAT32 partitions, finding viruses
+in that MBR, and disinfecting them. It's the DBS that is problematic -
+but, as Jimmy said, if the scanner reports a problem with that DBS, it
+means that the DBS is *not* infected. If it becomes infected, the
+scanner will be able to read it and disinfect it too.
+
+> > 2) There are no present day boot sector viruses which infect a FAT32 boot
+> > sector and doesn't destroy it in the process. And in so doing, it
+> > converts it into a FAT16 infected boot sector. So any present day
+> > infected FAT32 system will be detectable by present day AV.
+>
+> It's one thing to detect a virus, it is another to CLEAN it. If the
+> virus converts the FAT32 boot record to a FAT16, how will McAfee CLEAN
+> it ?
+
+The scanners in general and McAfee's scanner in particular have no
+problems cleaning the boot records of FAT16 partitions. Since the
+infected FAT32 partition looks like a FAT16 partition to the scanner, it
+will have no problems cleaning it.
+
+> It might be able to clean it to be an uninfected FAT16 boot record,
+> but it won't be able to convert it back to the original FAT32 boot
+> record
+
+Yes, it *will* be. Trust me - or try it for yourself, if you don't.
+However, note that some of the existing boot sector viruses can *damage*
+a FAT32 partition and make it non-bootable when infecting it. Removing
+the virus won't restore the damage caused by it; you'll have to run SYS
+on that partition.
+
+> How can FAT32 McAfee users be 'safe', when if a virus attacks their
+> boot sector, McAfee will not be able to CLEAN it or restore it from the
+> emergency disk ?
+
+It will be able to CLEAN it. Just as any other disinfector.
+
+> In other words, their hard drive will probably be unusable.
+
+It might be non-bootable, but that would be caused by the virus, not by
+the disinfector.
+
+Regards Vesselin
+
+-- 
+Vesselin Vladimirov Bontchev, not speaking for FRISK Software International,
+Postholf 7180, IS-127, Reykjavik, Iceland producers of F-PROT.
+e-mail: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="22404d4c56414a475462414d4f524e475a0c4b51">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>, tel.: +354-561-7273, fax: +354-561-7274
+PGP 2.6.2i key fingerprint: E5 FB 30 0C D4 AA AB 44 E5 F7 C3 18 EA 2B AE 4E
+
+From: "Chengi J. Kuo" <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="72111819071d32131e071f1c13175c11131e0617111a5c171607">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Newsgroups: comp.virus
+Subject: Re: McAfee VirusScan 3.0 and Fat32 (WIN95)
+Date: 15 Apr 1997 13:19:14 -0000
+Lines: 149
+Sender: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ea848f9d99aaa68f82838d82c4afaebf">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Approved: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="087e617a7d7b256448446d60616f60264d4c5d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Message-ID: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="95a5a5a7a4bba5a4dcddc7a3dfd2a0d1d9a5acd3dbd2cfd6d5f6e6f6bbf6f4fbe1f0e7f7e0e7ecbbf4f6bbfbef">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+NNTP-Posting-Host: fidoii.cc.lehigh.edu
+X-Date: Sat, 12 Apr 1997 20:24:04 +0000 (GMT)
+X-Digest: Volume 10 : Issue 63
+
+David Levin &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d4b0b8b1a2bdba94b0b2a3b9b9fabab1a0">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> writes:
+
+>"Chengi J. Kuo" &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="385b52534d577859544d5556595d165b59544c5d5b50165d5c4d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> wrote:
+
+Sigh. I hated writing my first response and now I must do it again.
+
+Mr. Levin,
+
+It is obvious that you have not been infected on the FAT32 system
+and are making assumptions.
+
+>> 1) A Master Boot Record infection is independent of whether it's on a
+>> FAT32 system or not. FAT32 is in boot sectors. If any virus infects the
+>> MBR of a FAT32 machine, any present day AV can handle it.
+>
+>Then why in the activity log when I run your product does it say 'error
+>reading boot record'. How can it clean it if it can't read it ?
+
+Let me go back to the one point I made previously, "And in so doing, it
+converts it into a FAT16 infected boot sector." (see in point 2 below)
+
+No. It *is* clean. If it were infected, the virus would have turned it
+into a FAT16 boot sector. And any present day AV would be able to handle
+it. Even ones which do not claim to know about FAT32 boot sectors.
+
+Of course, after it's restored, and the next time you reboot, it's
+FAT32 and our scanner will refuse to scan it. But it will be clean!
+
+And we will have restored it. (Not just us. Any current day product
+will.) But as I noted earlier, the next version will support FAT32.
+
+>> 2) There are no present day boot sector viruses which infect a FAT32 boot
+>> sector and doesn't destroy it in the process. And in so doing, it
+>> converts it into a FAT16 infected boot sector. So any present day
+>> infected FAT32 system will be detectable by present day AV.
+>
+
+>It's one thing to detect a virus, it is another to CLEAN it. If the
+>virus converts the FAT32 boot record to a FAT16, how will McAfee CLEAN
+>it ?
+
+Generally, it cleans by finding the original boot sector. It does this
+by knowing, "I've found XYZ. XYZ relocates the original to (cylinder,
+track,sector). Get it. Put it back." It matters not what the original
+was. (You may now join into the debate between Mr. Bontchev and one of
+his customers about the validity of this approach.)
+
+> It might be able to clean it to be an uninfected FAT16 boot
+>record, but it won't be able to convert it back to the original FAT32
+>boot record since McAfee STILL does not support it (after 7+ months
+>since WIN95 OSR2 came out).
+
+This is an incorrect assumption. See above.
+
+> The emergency disk will be no help, because
+>unlike Norton, McAfee does not back up the Boot record to the emergency
+>disk.
+
+This is correct.
+
+>> 3) What does FAT32 support mean? It means if you're up and running on
+>> FAT32, you don't get the "cannot access" message. But if you get that
+>> message today, you're clean!
+>>
+>> The fact is, the same reason why AV had to be rewritten, none of the
+>> viruses understand FAT32 either.
+>>
+>> On the question of whether we support FAT32. Version 3.0 was supposed to.
+>> But it didn't make it. But you can find FAT32 support in today's beta.
+>> And it will be in 3.0.2.
+>
+>It is still not on your BETA site. How many more months will it take to
+>support FAT32 ?
+
+Are you looking for the DOS version or the 95 version? Only the DOS
+version is available there (http://beta.mcafee.com/public/datafiles).
+(And the next DOS version will be numbered 3.0.1.)
+
+The next DOS version will be released this month. The other platforms to
+follow shortly.
+
+>> So in direct response to the suggestion that McAfee users are not safe
+>> if using a FAT32 system, you are incorrect. McAfee users today are safe.
+>> And furthermore, there are no boot sector viruses that correctly infect
+>> a FAT32 boot sector today.
+>
+>How can FAT32 McAfee users be 'safe', when if a virus attacks their
+>boot sector, McAfee will not be able to CLEAN it or restore it from the
+>emergency disk ?
+
+An incorrect statement. I covered that above.
+
+> In other words, their hard drive will probably be unusable.
+
+An incorrect assumption.
+
+> Why is this incapability problem not stated in the
+>documentation or in the 'Know Issues' section of the Read Me file ?
+
+Since we made no claims of FAT32 compatibility, I didn't see a need to
+have such a warning. Since there are no FAT32 boot sector viruses, there
+is no "issue" to be "known."
+
+Now, if we made such a claim and it was not true, that would be an issue
+where I would go and berate someone.
+
+> Why is it taking so long to support an operation/disk system that came out
+>over 7 months ago ? Your competitors have.
+
+Ah. Someone is questioning my decision making in supporting our users.
+(Those were my decisions and they do represent McAfee's position on this.)
+[I pulled up my other response to you. But apparently, you changed your
+question from "8 months" to "7 months". No matter. It'll be 8 months
+soon enough.]
+
+We've been concentrating on macro viruses because *I* think it's
+more important. In the 8 months, there hasn't been a native FAT32
+boot virus.
+
+Would you ask our "competitors" who support FAT32 how their Office97
+support compares to McAfee's? Office97 was released in January. We
+had betas available immediately. And we shipped late Feb. The first
+Word97 virus was dicovered on a Microsoft Web site late January or
+early February. Only 2 products at the time, I believe, could even claim
+to be able to handle it. I think we're approaching 10 such beasts
+now. I think there's 4 or 5 companies claiming to handle them.
+
+I'm glad there are companies who feel a compunction to supply you with
+FAT32 support. One such company you mentioned earlier also claimed
+they could detect all Java viruses last year. My marketing people
+were on me immediately. "Look," I said, "we detect all the Java
+viruses there are. No changes necessary. And a year from now, it'll
+still be true." (It's a year now.)
+
+All companies I'm sure have limited resources. I have to assign my
+people to where I assess the dangers will be for our customers.
+
+But, as I said, our next version will have FAT32 support. But, I will
+also tell those people who do not quickly upgrade to that version.
+
+"Look, we detect all FAT32 viruses there are. No changes necessary.
+And many months from now, it'll still be true."
+
+Mr. Levin, unless you're not a user of Word and Excel, you will come to
+realize that the time we have spent to crack OLE2 and Office97 (and
+de facto, Word6 and 7 and Excel 5) will be more significant to you in
+the near term as well as the long run.
+
+Jimmy Kuo
+Director, AV Research
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="afccc5c4dac0efc2cccec9caca81ccc0c2">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+
+ 
+
+From: Nick FitzGerald <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="1f713179766b65787a6d7e737b5f7c6c7c317c7e716b7a6d7d6a6d66317e7c317165">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Newsgroups: comp.virus
+Subject: Re: Please clarify some FAT32 issues (WIN95)
+Date: 15 Apr 1997 13:19:12 -0000
+Lines: 80
+Sender: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="2648435155666a434e4f414e08636273">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Approved: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="93e5fae1e6e0beffd3dff6fbfaf4fbbdd6d7c6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+Message-ID: <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9cacacaeacb2acadd5d4ceaad6dba9d8d0aca5dad2dbc6dfdcffefffb2fffdf2e8f9eefee9eee5b2fdffb2f2e6">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>
+NNTP-Posting-Host: fidoii.cc.lehigh.edu
+X-Date: Fri, 28 Mar 1997 10:10:02 +1300
+X-Digest: Volume 10 : Issue 63
+
+John Humphries &lt;<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3a50527a49525f484a5b545f4e14595557">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>> wrote:
+
+> Reading the moderator's note appended to Doug Muth's "Re: onehalf.mbr &amp;
+> win95 problem" I'm left somewhat confused. The pre-pended note says
+> "...the important thing about booting clean is to do so with a non-Win95
+> boot disk...": will files on a FAT32 disk be accessible when booted from
+> an earlier version of DOS (e.g., DOS6.22)?
+
+No. MS-DOS 7, build 950 (the one that reports "Windows 95. [Version
+4.00.950]" in response to the VER command) and all earlier DOSes (MS and
+others) do not "understand" the FAT32 file allocation system *and* could
+otherwise be tripped up by other aspects of the FAT32 file system.
+
+My recommendation when facing an MBR infection on a Windows 95 machine is
+to boot with a pre-Win95 DOS diskette. This is true of "classic" Win95
+and OSR2 systems (whether the latter have FAT32 drives or not). This is
+because of a difference in operation between earlier DOSes and MS-DOS 7
+that means very often your AV software will warn you that the virus is "in
+memory" (and usually refuse to continue!) even though you really have
+"booted clean". I recently learned (thanks Ilia) that this ghost positive
+problem is easily averted with MS-DOS 7 by the simple expedience of
+setting BUFFERS=5 in the CONFIG.SYS file on your boot floppy (for some of
+the technical details look in the archives for digests around V10 #50-52--
+also Jimmy Kuo addresses some of these issues in a post in this Digest).
+
+> The post-pended note says "...with Win95 OSR2's FAT32 you may need an
+> updated DOS AV s/w...": what are some examples of such software,
+> especially are there any shareware versions which can freely distributed
+> to people?
+
+I'll leave it to the vendors to answer this...
+
+However, the issues are that with FAT32 the (D)OS Boot Sector is not as
+simple or rigid a structure as it has been, and a few new avenues of
+infection are probably possible under FAT32. The potentially "mobile"
+nature of various parts of the FAT32 file system that are accessed after
+the MBR during the boot process means that (eventually) FAT32-aware AV s/w
+will be necessary. However, although I referred to it as "DOS AV s/w" it
+may be that such s/w will require a DOS 7 build 1111 (that which comes
+with OSR2) or later to perform FAT32 disk and file I/O.
+
+To the best of my knowledge, as I am writing this, there are no known
+viruses that utilize any FAT32-specific attack methods.
+
+> The note goes on "...deal with DBS infectors (see recent thread)...":
+> searching through DejaNews about a week ago I was unable to find any
+> references to DBS in their comp.virus archive - where can I find this?
+
+There had been several posts mentioning FAT32 support and querying whether
+certain products had it or not. Some of these have been posted in the
+interim between John submitting his post and my response. Hopefully these
+have (helped) answer the question.
+
+> Still more "...MBR infectors should still be dealt with on FAT32 drives
+> with 'old' DOS AV's..."; does this mean that we need to boot with a
+> pre-FAT32 disk to check for MBR/boot sector viruses and with a FAT32
+> disk to check for file infectors and macro viruses?
+
+That will work, but was not (literally) what I meant. Had I written that
+more coherently (aka "less hurriedly") I may have written "'old' DOS AV's
+should still be able to deal with MBR infectors on FAT32 drives...".
+
+FAT32-aware AVs should be able to deal with MBR, DBS and file viruses (so
+long as you work around that false positive problem I mentioned earlier).
+
+> I'm painfully aware that my understanding of these issues is sketchy at
+> best, so please answer (or, at least raise) the questions that I should
+> have asked about FAT32 (but didn't know enough to frame them) as well
+> as the few that I managed to put into words.
+
+Well, you certainly picked up a few too-roughly-sketched-out comments of
+mine...
+
+Hope that helps!
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Nick FitzGerald, PC Applications Consultant, CSC, Uni of Canterbury, N.Z.
+<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="533d7d353a2729343621323f37133020307d30323d2736213126212a7d32307d3d29">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> TEL:+64 3 364 2337, FAX:+64 3 364 2332
+Virus-L/comp.virus moderator and FAQ maintainer
+PGP fingerprint = 2E 7D E9 0C DE 26 24 4F 1F 43 91 B9 C4 05 C9 83
+</pre>
+<h2>References</h2>
+<ul>
+<li>[Kuo] Jimmy Kuo, Public Posting To The Alt.Comp.Virus Newsgroup.</li>
+<li>[Bontchev] Vesselin Bontchev, Public Posting To The Alt.Comp.Virus Newsgroup.</li>
+<li>[Fitzgerald] Nick Fitzgerald, Public Posting To The Alt.Comp.Virus Newsgroup.</li>
+<li>[Overton] Martin Overton, Anti-Virus in the Corporate Arena Virus Bulletin Conference 1996.</li>
+<li>[Whalley] Ian Whalley, Viruses in Chicago: The Threat to Windows 95 IVPC '96.</li>
+<li>[MS] Microsoft, MSDN Web Site.</li>
+<li>[Dr. Sol] Dr. Solomon's Virus Alert.</li>
+<li>[Emm] David Emm, <a href="/lib/aas12.html">Windows 95 and Viruses</a> Dr. Solomon's Technical Paper.</li>
+<li>[CN] Carey Nachenburg.</li>
+<li>[VB2] Virus Bulletin, Viruses on Windows 95 Virus Bulletin - June 1995 pp15-17</li>
+</ul>
+[<a style="" href="/lib/?lang=EN&amp;index=AV#amo00">Back to index</a>] [<a href="/lib/amo00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=amo00">de</a><a href="/lib/index.php?lang=en&amp;id=amo00">en</a><a href="/lib/index.php?lang=es&amp;id=amo00">es</a><a href="/lib/index.php?lang=it&amp;id=amo00">it</a><a href="/lib/index.php?lang=fr&amp;id=amo00">fr</a><a href="/lib/index.php?lang=pl&amp;id=amo00">pl</a><a href="/lib/index.php?lang=ru&amp;id=amo00">ru</a><a href="/lib/index.php?lang=ua&amp;id=amo00">ua</a></div>
+</body>
+</html>

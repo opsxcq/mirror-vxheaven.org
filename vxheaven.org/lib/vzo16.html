@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title> Z0mbie 'Disassemblers within viruses' (VX heaven)</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta name="Author" content="Z0mbie"/>
+<meta name="KeyWords" lang="en" content="computer virus, virus, virii,vx, компьютерные вирусы, вирус, вири, Z0mbie,Disassemblers within viruses, case, byte, disasm, dword, data, opcode, return, retry, prefix, present, flag, modrm, lock, memsize, good"/>
+<meta name="Description" content="One  of  such  things  is disassembler. It can be used everywhere, and wherever  it  used,  especially in viruses, it gives good effect - mostly all  good  infection-  and  morphing-  related  technologies  are based on disassembling.Code  analysis  and parsing it into single instructions can be done by means  of  sequential  calls  to length disassembler. Such disassembler is used in permutation and code integration."/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"047a5bcbf67431883fc9ed25fba33612",petok:"231b436e37ff62589ddc3547a2d5495a02021ff7-1498756104-1800",zone:"vxheaven.org",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+<link rel="stylesheet" type="text/css" href="/style.css"/><link rel="canonical" href="http://vxheaven.org/lib/vzo16.html"/>
+<script type="text/rocketscript" data-rocketsrc="https://apis.google.com/js/plusone.js">{"parsetags": "explicit"}</script>
+</head>
+<body bgcolor="#dbc8a0" text="#302000" link="#225599" vlink="#113366">
+<div class="s1">
+<div style="float:right;"><a href="/lib/index.php?tbs=1"><img src="/img/max.gif" alt="Maximize"/></a></div> <form id="lf" style="margin: 0; float: right;" method="get" action="/index.php"><input type="hidden" name="action" value="set"/><select name="lang" onchange="javascript:document.getElementById('lf').submit();"><option value="ru">Русский</option><option selected="selected" value="en">English</option><option value="ua">Українська</option><option value="de">Deutsch</option><option value="es">Español</option><option value="fr">Fran&ccedil;ais</option><option value="it">Italiano</option><option value="pl">Polski</option></select></form>
+<div style="float: right;"><div id="plusone"></div></div>
+<script type="text/rocketscript">gapi.plusone.render("plusone", {"size":"small","count":"true"});</script>
+<div style="float: right;" class="addthis_toolbox addthis_default_style">
+<script type="text/rocketscript">var addthis_config = { ui_click: true }</script>
+<a style="text-decoration: none; font-size: 10pt;" href="/?action=addthis" class="addthis_button_compact">Bookmark</a>
+<script type="text/rocketscript" data-rocketsrc="http://s7.addthis.com/js/250/addthis_widget.js#username=herm1t"></script>
+</div>
+<div style="float: right;">
+<script type="text/rocketscript" data-rocketsrc="http://www.google.com/cse/brand?form=cse-search-box&amp;lang=en"></script>
+<form action="/search.php" id="cse-search-box">
+<input type="hidden" name="cx" value="002577580816726040001:z9_irkorydo"/>
+<input type="hidden" name="cof" value="FORID:10"/>
+<input type="hidden" name="ie" value="UTF-8"/>
+<input type="text" name="q" size="12" value=" "/>
+<input type="submit" name="sa" value="Search"/>
+</form>
+</div><h1><a href="/" style="text-decoration: none; color: #000000;">VX Heaven</a></h1>
+<span class="nav"><a href="/lib/">Library</a> <a href="/vl.php">Collection</a> <a href="/src.php">Sources</a> <a href="/vx.php?id=eidx">Engines</a> <a href="/vx.php?id=tidx">Constructors</a> <a href="/vx.php?id=sidx">Simulators</a> <a href="/vx.php?id=uidx">Utilities</a> <a href="/links.php">Links</a> <a href="/donate.php" style="color: #706020" id="donate">Donate</a> <a href="/forum" style="text-decoration: underline;">Forum</a> </span><br clear="all"/>
+</div>
+<div class="s2"><h1>Disassemblers within viruses</h1><p><a href="/lib/?lang=en&amp;author=Z0mbie"> Z0mbie</a><br/> <em> 2001</em></p><script type="text/rocketscript">var disqus_url = 'http://vxheaven.org/lib/vzo16.html';</script>[<a style="" href="/lib/?lang=EN&amp;index=VT#vzo16">Back to index</a>] [<a href="/lib/vzo16.html#disqus_thread">Comments</a>]<br/> 
+<p><em>xlated in 2002</em></p>
+<p>The more different features (possibilities) our virus have, and the more there are relations and reactions between these features and external environment, the more our virus is alive, and the more complex it is. Here comes to mind such technologies as modularity, portable viruses written in own emulated scripts, worms, distributed networks, and other complex stuff.</p>
+<p>In this connexion lots of useful tools, toolkits, include files, articles and libraries, oriented to help others in coding common stuff, are required today.</p>
+<p>One of such things is disassembler. It can be used everywhere, and wherever it used, especially in viruses, it gives good effect -- mostly all good infection- and morphing- related technologies are based on disassembling.</p>
+<p>Code analysis and parsing it into single instructions can be done by means of sequential calls to length disassembler. Such disassembler is used in permutation and code integration.</p>
+<p>The trivial usage of length-disassembler is hooking functions in memory or, while infecting file, inserting virus call some commands after the entrypoint.</p>
+<p>The code i'm considering is 32-bit x86 binary code. But, length-disassembler showed here can be easily changed to work with 16-bit.</p>
+<p>Now, what will we disassemble, i.e. which kind of information we want to extract from instruction flow. Is only length of instructions enough, or we also want to know something about prefixes, operation code, arguments and etc.</p>
+<p>Some years ago, in 1997, i didnt knew that universal disassembler is very useful thing, and in ZCME there where the following commands:</p>
+<pre class="source">
+                inc     cx              ; 5
+                cmp     al, 0EAh
+                je      @@exit
+                cmp     ax, 3E80h       ; cmp [xxxx], yy
+                je      @@exit
+                inc     cx              ; 6
+                ...
+@@exit:         ; return cx
+</pre>
+<p>As you can see, this is disassembler for only instructions, which were present in the ZCME virus. Year after i changed the virus, and so, i had to change disassembler too. And then once again, and again, until universal length disassembler (LDE) were written, and then there appeared different LDE modifications for different tasks.</p>
+<p>In the example above i only need to call the length-disassembler, and then check current instruction opcode for being EB,E8,E9,7x,0F 8x, and etc., while in more advanced tasks i need to know much more information about instructions -- for example, knowing register usage, it is possible to insert own instructions into the middle of the program's code:</p>
+<pre class="source">
+                                        mov    eax, vir_1
+      mov   eax, [ebx+4]     ----->     add    vir_2, eax
+                                        mov    eax, [ebx+4]
+</pre>
+<p> Also, while permutation, knowing registers and stack usage is
+necessary to mix instructions between each other.</p>
+<p> In other words, the more advanced our disassembler is, the more our
+knowledge about instructions is, and as such our imagination is less
+limited by our possibilities, and the more good things can be done.</p>
+<p> In the end of this article there is DISASM.CPP, the source of
+instruction parser.</p>
+<p> It is called as following;</p>
+<pre class="source">
+       int disasm_ok = disasm( &amp;buf[ip] );
+</pre>
+<p> As a result, 1 is returned if instruction is known, and 0 if some
+error has been occured.</p>
+<p> In case of successful disassembly, disasm function will parse given
+instruction into the following parts:</p>
+<table border="1" cellspacing="0" cellpadding="0" summary="returned variables">
+<tr><th colspan="3">RETURNED VARIABLES</th></tr>
+<tr><td>DWORD </td><td>disasm_len; </td><td> total instruction length in bytes, 0 if error</td></tr>
+<tr><td>DWORD </td><td>disasm_flag; </td><td> bitmask, flags, see C_xxx
+<table border="1" cellspacing="0" cellpadding="0" summary="flags, see C_xxx">
+<tr><td>C_66 </td><td>there is 66-prefix</td></tr>
+<tr><td>C_67 </td><td>there is 67-prefix</td></tr>
+<tr><td>C_LOCK </td><td>there is LOCK-prefix (F0)</td></tr>
+<tr><td>C_REP </td><td>there is REPZ- or REPNZ-prefix, exact value in disasm_rep</td></tr>
+<tr><td>C_SEG </td><td>there is seg-prefix, exact value in disasm_seg</td></tr>
+<tr><td>C_OPCODE2 </td><td>there is 2nd opcode (1st one is 0x0F), value in disasm_opcode2</td></tr>
+<tr><td>C_MODRM </td><td>there is modrm, value in disasm_modrm</td></tr>
+<tr><td>C_SIB </td><td>there is sib, value in disasm_sib</td></tr>
+</table>
+</td></tr>
+<tr><td>DWORD </td><td>disasm_memsize; </td><td> length of the memory address, if used in instruction, value in disasm_mem</td></tr>
+<tr><td>BYTE </td><td>disasm_mem[8]; </td><td> memory address (length in disasm_memsize)</td></tr>
+<tr><td>DWORD </td><td>disasm_datasize; </td><td> lemgth of data, used in insructions (in bytes), value in disasm_data</td></tr>
+<tr><td>BYTE </td><td>disasm_data[8]; </td><td> data (length in disasm_datasize)</td></tr>
+<tr><td>BYTE </td><td>disasm_seg; </td><td> C_SEG: seg-prefix (CS DS ES SS FS GS)</td></tr>
+<tr><td>BYTE </td><td>disasm_rep; </td><td> C_REP: rep-prefix REPZ/REPNZ</td></tr>
+<tr><td>BYTE </td><td>disasm_opcode; </td><td> opcode itself, not depending on flags</td></tr>
+<tr><td>BYTE </td><td>disasm_opcode2; </td><td> C_OPCODE2: 2nd opcode (if 1st one is 0x0F)</td></tr>
+<tr><td>BYTE </td><td>disasm_modrm; </td><td> C_MODRM: value of modxxxrm</td></tr>
+<tr><td>BYTE </td><td>disasm_sib; </td><td> C_SIB: value of sib (scale-index-base)</td></tr>
+</table>
+<p> So, assembling insruction from all the stuff listed above, looks as
+following:</p>
+<pre class="source">
+        if (disasm_flag &amp; C_66)      *outptr++ = 0x66;
+        if (disasm_flag &amp; C_67)      *outptr++ = 0x67;
+        if (disasm_flag &amp; C_LOCK)    *outptr++ = 0xF0;
+        if (disasm_flag &amp; C_REP)     *outptr++ = disasm_rep;
+        if (disasm_flag &amp; C_SEG)     *outptr++ = disasm_seg;
+        *outptr++ = disasm_opcode;
+        if (disasm_flag &amp; C_OPCODE2) *outptr++ = disasm_opcode2;
+        if (disasm_flag &amp; C_MODRM)   *outptr++ = disasm_modrm;
+        if (disasm_flag &amp; C_SIB)     *outptr++ = disasm_sib;
+        for (DWORD i=0; i&lt;disasm_memsize;  i++)  *outptr++ = disasm_mem[i];
+        for (DWORD i=0; i&lt;disasm_datasize; i++)  *outptr++ = disasm_data[i];
+</pre>
+<p> Thats all, folks!</p>
+<pre class="source">
+---[begin DISASM.CPP]--------------------------------------------------------
+
+// disasm_flag values:
+#define C_66           0x00000001       // 66-prefix
+#define C_67           0x00000002       // 67-prefix
+#define C_LOCK         0x00000004       // lock
+#define C_REP          0x00000008       // repz/repnz
+#define C_SEG          0x00000010       // seg-prefix
+#define C_OPCODE2      0x00000020       // 2nd opcode present (1st==0F)
+#define C_MODRM        0x00000040       // modrm present
+#define C_SIB          0x00000080       // sib present
+#define C_ANYPREFIX    (C_66|C_67|C_LOCK|C_REP|C_SEG)
+
+DWORD disasm_len;                       // 0 if error
+DWORD disasm_flag;                      // C_xxx
+DWORD disasm_memsize;                   // value = disasm_mem
+DWORD disasm_datasize;                  // value = disasm_data
+DWORD disasm_defdata;                   // == C_66 ? 2 : 4
+DWORD disasm_defmem;                    // == C_67 ? 2 : 4
+
+BYTE  disasm_seg;                       // CS DS ES SS FS GS
+BYTE  disasm_rep;                       // REPZ/REPNZ
+BYTE  disasm_opcode;                    // opcode
+BYTE  disasm_opcode2;                   // used when opcode==0F
+BYTE  disasm_modrm;                     // modxxxrm
+BYTE  disasm_sib;                       // scale-index-base
+BYTE  disasm_mem[8];                    // mem addr value
+BYTE  disasm_data[8];                   // data value
+
+// returns: 1 if success
+//          0 if error
+
+int disasm(BYTE* opcode0)
+{
+  BYTE* opcode = opcode0;
+
+  disasm_len = 0;
+  disasm_flag = 0;
+  disasm_datasize = 0;
+  disasm_memsize = 0;
+  disasm_defdata = 4;
+  disasm_defmem = 4;
+
+retry:
+  disasm_opcode = *opcode++;
+
+  switch (disasm_opcode)
+  {
+    case 0x00: case 0x01: case 0x02: case 0x03:
+    case 0x08: case 0x09: case 0x0A: case 0x0B:
+    case 0x10: case 0x11: case 0x12: case 0x13:
+    case 0x18: case 0x19: case 0x1A: case 0x1B:
+    case 0x20: case 0x21: case 0x22: case 0x23:
+    case 0x28: case 0x29: case 0x2A: case 0x2B:
+    case 0x30: case 0x31: case 0x32: case 0x33:
+    case 0x38: case 0x39: case 0x3A: case 0x3B:
+    case 0x62: case 0x63:
+    case 0x84: case 0x85: case 0x86: case 0x87:
+    case 0x88: case 0x89: case 0x8A: case 0x8B:
+    case 0x8C: case 0x8D: case 0x8E: case 0x8F:
+    case 0xC4: case 0xC5:
+    case 0xD0: case 0xD1: case 0xD2: case 0xD3:
+    case 0xD8: case 0xD9: case 0xDA: case 0xDB:
+    case 0xDC: case 0xDD: case 0xDE: case 0xDF:
+    case 0xFE: case 0xFF:
+               disasm_flag |= C_MODRM;
+               break;
+    case 0xCD: disasm_datasize += *opcode==0x20 ? 1+4 : 1;
+               break;
+    case 0xF6:
+    case 0xF7: disasm_flag |= C_MODRM;
+               if (*opcode &amp; 0x38) break;
+               // continue if &lt;test ..., xx>
+    case 0x04: case 0x05: case 0x0C: case 0x0D:
+    case 0x14: case 0x15: case 0x1C: case 0x1D:
+    case 0x24: case 0x25: case 0x2C: case 0x2D:
+    case 0x34: case 0x35: case 0x3C: case 0x3D:
+               if (disasm_opcode &amp; 1)
+                 disasm_datasize += disasm_defdata;
+               else
+                 disasm_datasize++;
+               break;
+    case 0x6A:
+    case 0xA8:
+    case 0xB0: case 0xB1: case 0xB2: case 0xB3:
+    case 0xB4: case 0xB5: case 0xB6: case 0xB7:
+    case 0xD4: case 0xD5:
+    case 0xE4: case 0xE5: case 0xE6: case 0xE7:
+    case 0x70: case 0x71: case 0x72: case 0x73:
+    case 0x74: case 0x75: case 0x76: case 0x77:
+    case 0x78: case 0x79: case 0x7A: case 0x7B:
+    case 0x7C: case 0x7D: case 0x7E: case 0x7F:
+    case 0xEB:
+    case 0xE0: case 0xE1: case 0xE2: case 0xE3:
+               disasm_datasize++;
+               break;
+    case 0x26: case 0x2E: case 0x36: case 0x3E:
+    case 0x64: case 0x65:
+               if (disasm_flag &amp; C_SEG) return 0;
+               disasm_flag |= C_SEG;
+               disasm_seg = disasm_opcode;
+               goto retry;
+    case 0xF0:
+               if (disasm_flag &amp; C_LOCK) return 0;
+               disasm_flag |= C_LOCK;
+               goto retry;
+    case 0xF2: case 0xF3:
+               if (disasm_flag &amp; C_REP) return 0;
+               disasm_flag |= C_REP;
+               disasm_rep = disasm_opcode;
+               goto retry;
+    case 0x66:
+               if (disasm_flag &amp; C_66) return 0;
+               disasm_flag |= C_66;
+               disasm_defdata = 2;
+               goto retry;
+    case 0x67:
+               if (disasm_flag &amp; C_67) return 0;
+               disasm_flag |= C_67;
+               disasm_defmem = 2;
+               goto retry;
+    case 0x6B:
+    case 0x80:
+    case 0x82:
+    case 0x83:
+    case 0xC0:
+    case 0xC1:
+    case 0xC6: disasm_datasize++;
+               disasm_flag |= C_MODRM;
+               break;
+    case 0x69:
+    case 0x81:
+    case 0xC7:
+               disasm_datasize += disasm_defdata;
+               disasm_flag |= C_MODRM;
+               break;
+    case 0x9A:
+    case 0xEA: disasm_datasize += 2 + disasm_defdata;
+               break;
+    case 0xA0:
+    case 0xA1:
+    case 0xA2:
+    case 0xA3: disasm_memsize += disasm_defmem;
+               break;
+    case 0x68:
+    case 0xA9:
+    case 0xB8: case 0xB9: case 0xBA: case 0xBB:
+    case 0xBC: case 0xBD: case 0xBE: case 0xBF:
+    case 0xE8:
+    case 0xE9:
+               disasm_datasize += disasm_defdata;
+               break;
+    case 0xC2:
+    case 0xCA: disasm_datasize += 2;
+               break;
+    case 0xC8:
+               disasm_datasize += 3;
+               break;
+    case 0xF1:
+               return 0;
+    case 0x0F:
+      disasm_flag |= C_OPCODE2;
+      disasm_opcode2 = *opcode++;
+      switch (disasm_opcode2)
+      {
+        case 0x00: case 0x01: case 0x02: case 0x03:
+        case 0x90: case 0x91: case 0x92: case 0x93:
+        case 0x94: case 0x95: case 0x96: case 0x97:
+        case 0x98: case 0x99: case 0x9A: case 0x9B:
+        case 0x9C: case 0x9D: case 0x9E: case 0x9F:
+        case 0xA3:
+        case 0xA5:
+        case 0xAB:
+        case 0xAD:
+        case 0xAF:
+        case 0xB0: case 0xB1: case 0xB2: case 0xB3:
+        case 0xB4: case 0xB5: case 0xB6: case 0xB7:
+        case 0xBB:
+        case 0xBC: case 0xBD: case 0xBE: case 0xBF:
+        case 0xC0:
+        case 0xC1:
+                   disasm_flag |= C_MODRM;
+                   break;
+        case 0x06:
+        case 0x08: case 0x09: case 0x0A: case 0x0B:
+        case 0xA0: case 0xA1: case 0xA2: case 0xA8:
+        case 0xA9:
+        case 0xAA:
+        case 0xC8: case 0xC9: case 0xCA: case 0xCB:
+        case 0xCC: case 0xCD: case 0xCE: case 0xCF:
+                   break;
+        case 0x80: case 0x81: case 0x82: case 0x83:
+        case 0x84: case 0x85: case 0x86: case 0x87:
+        case 0x88: case 0x89: case 0x8A: case 0x8B:
+        case 0x8C: case 0x8D: case 0x8E: case 0x8F:
+                   disasm_datasize += disasm_defdata;
+                   break;
+        case 0xA4:
+        case 0xAC:
+        case 0xBA:
+                   disasm_datasize++;
+                   disasm_flag |= C_MODRM;
+                   break;
+        default:
+                   return 0;
+      } // 0F-switch
+      break;
+
+  } //switch
+
+  if (disasm_flag &amp; C_MODRM)
+  {
+    disasm_modrm = *opcode++;
+    BYTE mod = disasm_modrm &amp; 0xC0;
+    BYTE rm  = disasm_modrm &amp; 0x07;
+    if (mod != 0xC0)
+    {
+      if (mod == 0x40) disasm_memsize++;
+      if (mod == 0x80) disasm_memsize += disasm_defmem;
+      if (disasm_defmem == 2)           // modrm16
+      {
+        if ((mod == 0x00)&amp;&amp;(rm == 0x06)) disasm_memsize+=2;
+      }
+      else                              // modrm32
+      {
+        if (rm==0x04)
+        {
+          disasm_flag |= C_SIB;
+          disasm_sib = *opcode++;
+          rm = disasm_sib &amp; 0x07;
+        }
+        if ((rm==0x05)&amp;&amp;(mod==0x00)) disasm_memsize+=4;
+      }
+    }
+  } // C_MODRM
+
+  for(DWORD i=0; i&lt;disasm_memsize; i++)
+    disasm_mem[i] = *opcode++;
+  for(DWORD i=0; i&lt;disasm_datasize; i++)
+    disasm_data[i] = *opcode++;
+
+  disasm_len = opcode - opcode0;
+
+  return 1;
+} //disasm
+
+---[end DISASM.CPP]----------------------------------------------------------
+</pre>[<a style="" href="/lib/?lang=EN&amp;index=VT#vzo16">Back to index</a>] [<a href="/lib/vzo16.html#disqus_thread">Comments</a>]<br/> <div id="disqus_thread"></div>
+<script type="text/rocketscript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'vxheaven'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+<div><small>By accessing, viewing, downloading or otherwise using this content you agree to be bound by the <a href="/agreement.php">Terms of Use</a>!</small> <small>vxheaven.org aka vx.netlux.org</small></div>
+<div style="margin-top: 2px; float: left;" class="adsapeu">
+<script type="text/rocketscript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+</div>
+<script data-rocketsrc="http://www.google-analytics.com/urchin.js" type="text/rocketscript"></script><script type="text/rocketscript">try { _uacct = "UA-590608-1"; urchinTracker(); } catch(err) {}</script>
+<div style="display: none;"><a href="/lib/index.php?lang=de&amp;id=vzo16">de</a><a href="/lib/index.php?lang=en&amp;id=vzo16">en</a><a href="/lib/index.php?lang=es&amp;id=vzo16">es</a><a href="/lib/index.php?lang=it&amp;id=vzo16">it</a><a href="/lib/index.php?lang=fr&amp;id=vzo16">fr</a><a href="/lib/index.php?lang=pl&amp;id=vzo16">pl</a><a href="/lib/index.php?lang=ru&amp;id=vzo16">ru</a><a href="/lib/index.php?lang=ua&amp;id=vzo16">ua</a></div>
+</body>
+</html>
