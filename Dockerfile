@@ -1,5 +1,5 @@
 FROM strm/apache
 
-LABEL maintainer "opsxcq@thestorm.com.br"
+LABEL maintainer "opsxcq@strm.sh"
 
 COPY vxheaven.org /www/
